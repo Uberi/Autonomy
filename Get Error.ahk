@@ -2,20 +2,20 @@
 
 ;creates a formatted summary of errors
 CodeGetError(ByRef Code,ByRef Errors)
-{ ;wip: modify to allow the display of multiple errors: Error[i].Highlight[i], Error[i].Caret, Error[i].Identifier
+{
  DisplayLength := 15 ;amount of characters to display on either side of the code
 
  For ErrorIndex, CurrentError In Errors
  {
-  CodeGetErrorBounds(Errors,ErrorStart,ErrorEnd)
+  CodeGetErrorBounds(CurrentError,ErrorStart,ErrorEnd)
 
   ;ensure there is enough padding for the highlights and caret
   ErrorDisplay := ""
   Loop, % ErrorEnd - ErrorStart
    ErrorDisplay .= " "
 
-  ;iterate over the errors to correctly highlight the incorrect code
-  For Index, Highlight In Errors.Highlight
+  ;iterate over the error highlights to highlight the incorrect code
+  For Index, Highlight In CurrentError.Highlight
   {
    Position := (Highlight.Position - ErrorStart) + 1, Length := Highlight.Length
    If (Position < 1)
@@ -27,7 +27,7 @@ CodeGetError(ByRef Code,ByRef Errors)
   }
 
   ;insert the caret to show the exact location of the error
-  Caret := Errors.Caret
+  Caret := CurrentError.Caret
   Position := (Caret - ErrorStart) + 1, Pad := ""
   If (Position < 1)
    Position := 1
@@ -37,10 +37,10 @@ CodeGetError(ByRef Code,ByRef Errors)
   ErrorSection .= SubStr(Code,ErrorStart,ErrorEnd - ErrorStart) ;show the code that is causing the error, and remove the right amount of padding
   CodeGetErrorShowAfter(Code,ErrorSection,ErrorEnd,DisplayLength)
   CodeGetErrorPosition(Code,Caret,Line,Column)
-  Message := CodeGetErrorMessage(Errors.Identifier) ;get the error message
+  Message := CodeGetErrorMessage(CurrentError.Identifier) ;get the error message
+  ErrorReport .= "Error (Line " . Line . ", Column " . Column . "): " . Message . "`nSpecifically: " . ErrorSection . "`n              " . ErrorDisplay . "`n`n"
  }
-
- Return, "Error (Line " . Line . ", Column " . Column . "): " . Message . "`nSpecifically: " . ErrorSection . "`n              " . ErrorDisplay . "`n"
+ Return, ErrorReport
 }
 
 ;retrieves the boundaries of the error
@@ -93,7 +93,7 @@ CodeGetErrorShowAfter(ByRef Code,ByRef ErrorSection,ErrorEnd,DisplayLength)
  If (Temp2 = 0)
   Temp2 := Temp1
  Else If (Temp1 <> 0)
-  Temp2 := ((Temp1 < Temp2) ? Temp1 : Temp2) + 1
+  Temp2 := (Temp1 < Temp2) ? Temp1 : Temp2
 
  ;retrieve the code
  DisplayLength += ErrorEnd
@@ -116,10 +116,10 @@ CodeGetErrorPosition(ByRef Code,Caret,ByRef Line,ByRef Column)
 ;retrieves an error message given an error code
 CodeGetErrorMessage(ErrorCode)
 {
- static UNMATCHED_QUOTE := "Missing closing quotation mark"
- static INVALID_CHARACTER := "Character is invalid"
- static INVALID_IDENTIFIER := "Identifier contains invalid characters"
- static UNMATCHED_PERCENT_SIGN := "Identifier is missing ending percent sign"
- static INVALID_SCOPE_DECLARATION := "Scope declaration is invalid"
+ static UNMATCHED_QUOTE := "Missing closing quotation mark."
+ static INVALID_CHARACTER := "Character is invalid."
+ static INVALID_IDENTIFIER := "Identifier contains invalid characters."
+ static UNMATCHED_PERCENT_SIGN := "Identifier is missing ending percent sign."
+ static INVALID_SCOPE_DECLARATION := "Scope declaration is invalid."
  Return, (%ErrorCode%)
 }

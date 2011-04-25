@@ -1,44 +1,5 @@
 #NoEnv
 
-;#Warn All
-SetBatchLines, -1
-
-#Include %A_ScriptDir%\Get Error.ahk
-
-;Chars still available: #\
-
-EscapeChar := "``" ;the escape character
-IdentifierChars := "abcdefghijklmnopqrstuvwxyz_1234567890" ;characters that can make up a an identifier
-IgnoreChars := "`r`n " . A_Tab ;characters that are not syntactically meaningful
-SyntaxElements := Object(3,"`n<<=`n>>=`n//=`n",2,"`n*=`n.=`n|=`n&=`n^=`n-=`n+=`n||`n&&`n--`n==`n<>`n!=`n++`n/=`n>=`n<=`n:=`n**`n<<`n>>`n//`n",1,"`n/`n*`n-`n!`n~`n+`n|`n^`n&`n<`n>`n=`n.`n(`n)`n,`n$`n[`n]`n{`n}`n$`n:`n;`n") ;sorted by length
-
-Code = 
-(
-TextToBinary := {Text;
- for (Text,{Char;
-  CharCode := Asc(Char);
-  while ({; CharCode },{; @current;
-   Binary := (CharCode & 1) $ Binary; CharCode >>= 1;
-  });
-  Result .= " " $ ("00" $ Binary)[-7:];
-  Binary := ""
- });
- Result[2:];
-};
-)
-
-;FileRead, Code, %A_ScriptFullPath%
-
-If CodeLex(Code,Tokens,Errors)
-{
- ErrorMessage := CodeGetError(Code,Errors)
- FileAppend, %ErrorMessage%, * ;display error at standard output
- ExitApp, 1
-}
-MsgBox % Clipboard := ShowObject(Tokens)
-
-ExitApp
-
 ShowObject(ShowObject,Padding = "")
 {
  ListLines, Off
@@ -193,7 +154,7 @@ CodeLexScope(ByRef Code,ByRef Position,ByRef Errors,ByRef Output)
   Output := "Global", Position += 7
  Else
  {
-  ObjInsert(Errors,Object("Identifier","INVALID_SCOPE_DECLARATION","Highlight","","Caret",Position) ;add an error to the error log
+  ObjInsert(Errors,Object("Identifier","INVALID_SCOPE_DECLARATION","Highlight","","Caret",Position)) ;add an error to the error log
   Return, 1
  }
 }
@@ -251,8 +212,6 @@ CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Errors,ByRef Output)
   }
   Temp1 --
  }
- ObjInsert(Errors,Object("Identifier","INVALID_CHARACTER","Highlight","","Caret",Position) ;add an error to the error log
+ ObjInsert(Errors,Object("Identifier","INVALID_CHARACTER","Highlight","","Caret",Position)) ;add an error to the error log
  Return, 1
 }
-
-Esc::ExitApp
