@@ -28,10 +28,13 @@ CodeGetError(ByRef Code,ByRef Errors)
 
   ;insert the caret to show the exact location of the error
   Caret := CurrentError.Caret
-  Position := (Caret - ErrorStart) + 1, Pad := ""
-  If (Position < 1)
+  If (Caret <> "")
+  {
+   Position := (Caret - ErrorStart) + 1, Pad := ""
+   If (Position < 1)
    Position := 1
-  ErrorDisplay := SubStr(ErrorDisplay,1,Position - 1) . "^" . SubStr(ErrorDisplay,Position + 1)
+   ErrorDisplay := SubStr(ErrorDisplay,1,Position - 1) . "^" . SubStr(ErrorDisplay,Position + 1)
+  }
 
   CodeGetErrorShowBefore(Code,ErrorSection,ErrorDisplay,ErrorStart,DisplayLength)
   ErrorSection .= SubStr(Code,ErrorStart,ErrorEnd - ErrorStart) ;show the code that is causing the error, and remove the right amount of padding
@@ -60,11 +63,15 @@ CodeGetErrorBounds(CurrentError,ByRef ErrorStart,ByRef ErrorEnd)
     ErrorEnd := Temp2
   }
  }
- Temp1 := CurrentError.Caret, Temp2 := Temp1 + 1
- If ((Temp1 < ErrorStart) || (ErrorStart = ""))
-  ErrorStart := Temp1
- If ((Temp2 > ErrorEnd) || (ErrorEnd = ""))
-  ErrorEnd := Temp2
+ Temp1 := CurrentError.Caret
+ If Temp1
+ {
+  Temp2 := Temp1 + 1
+  If ((Temp1 < ErrorStart) || (ErrorStart = ""))
+   ErrorStart := Temp1
+  If ((Temp2 > ErrorEnd) || (ErrorEnd = ""))
+   ErrorEnd := Temp2
+ }
 }
 
 ;show some of the code in the current line, before the error, and pad the error display accordingly

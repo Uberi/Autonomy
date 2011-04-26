@@ -1,48 +1,36 @@
 #NoEnv
 
-ShowObject(ShowObject,Padding = "")
-{
- ListLines, Off
- If !IsObject(ShowObject)
- {
-  ListLines, On
-  Return, Padding . ShowObject
- }
- For Key, Value In ShowObject
- {
-  If IsObject(Value)
-   Value := "`n" . ShowObject(Value,Padding . A_Tab)
-  ObjectContents .= Padding . Key . ": " . Value . "`n"
- }
- If Padding = 
- {
-  ObjectContents := SubStr(ObjectContents,1,-1)
-  ListLines, On
- }
- Return, ObjectContents
-}
+;wip: attach line and column info to each token
 
-;parses AHK++ code, including all syntax
+;parses AHK code, including all syntax
 CodeLex(Code,ByRef Tokens,ByRef Errors)
 { ;returns 1 on error, nothing otherwise
- global IdentifierChars, IgnoreChars
+ global IdentifierChars, WhitespaceChars
  Position := 1, Tokens := Object(), Errors := Object()
  Loop
  {
   CurrentChar := SubStr(Code,Position,1), CurrentTwoChar := SubStr(Code,Position,2)
   If (CurrentChar = "") ;past the end of the string
    Break
-  If (CurrentChar = """") ;begin literal string
+  If (InStr("`r`n",CurrentChar) || (A_Index = 1))
+  {
+   If CodeLexLine(Code,Position,Errors,Output)
+    Return, 1
+   ;wip: token insertion code
+  }
+  Else If (CurrentChar = """") ;begin literal string
   {
    If CodeLexString(Code,Position,Errors,Output) ;invalid string
     Return, 1
    ObjInsert(Tokens,Object("Type","LITERAL_STRING","Value",Output)) ;add the string literal to the token array
   }
+  Else If (InStr(WhitespaceChars,CurrentChar) && (SubStr(Code,Position + 1) = ";")) ;single line comment
+   CodeLexSingleLineComment(Code,Position)
   Else If (CurrentTwoChar = "/*") ;begin comment
-   CodeLexComment(Code,Position) ;skip over the comment block
+   CodeLexMultilineComment(Code,Position) ;skip over the comment block
   Else If (CurrentTwoChar = "*/") ;end comment
    Position += 2 ;can be skipped over
-  Else If InStr(IgnoreChars,CurrentChar) ;not a syntactically meaningful character
+  Else If InStr(WhitespaceChars,CurrentChar) ;not a syntactically meaningful character
    Position ++
   Else If (CurrentChar = "%") ;dynamic variable reference or dynamic function call
   {
@@ -50,12 +38,6 @@ CodeLex(Code,ByRef Tokens,ByRef Errors)
     Return, 1
    ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value","%")) ;add the dereference operator to the token array
    ObjInsert(Tokens,Object("Type","IDENTIFIER","Value",Output)) ;add the identifier to the token array
-  }
-  Else If (CurrentChar = "@") ;scope declaration
-  {
-   If CodeLexScope(Code,Position,Errors,Output)
-    Return, 1
-   ObjInsert(Tokens,Object("Type","SCOPE_DECLARATION","Value",Output)) ;add the found scope declaration to the token array
   }
   Else If (InStr("1234567890",CurrentChar) && !CodeLexNumber(Code,Position,Output)) ;a number or identifier
    ObjInsert(Tokens,Object("Type","LITERAL_NUMBER","Value",Output)) ;add the number literal to the token array
@@ -67,6 +49,27 @@ CodeLex(Code,ByRef Tokens,ByRef Errors)
     Return, 1
    ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value",Output)) ;add the found syntax element to the token array
   }
+ }
+}
+
+;parses a new line, to find control structures, directives, etc.
+CodeLexLine(ByRef Code,ByRef Position,ByRef Errors,ByRef Output)
+{
+ global IdentifierChars, Statements
+ While, InStr("`r`n " . A_Tab,SubStr(Code,Position,1)) ;move past blank lines and whitespace
+  Position ++
+ Position1 := Position
+ Loop
+ {
+  CurrentChar := SubStr(Code,Position,1), Position ++
+  If ((CurrentChar = "") || !InStr(IdentifierChars,CurrentChar))
+   Break
+  Output .= CurrentChar
+ }
+ If !(InStr(", " . A_Tab,SubStr(Code,Position,1)) && InStr(Statements,"`n" . Output . "`n")) ;should be parsed as an expression instead of a statement
+ {
+  Position := Position1
+  Return, 1
  }
 }
 
@@ -93,8 +96,16 @@ CodeLexString(ByRef Code,ByRef Position,ByRef Errors,ByRef Output) ;input code, 
  Position ++ ;move to after the closing quotation mark
 }
 
-;parses a comment, including any nested comments it may contain
-CodeLexComment(ByRef Code,ByRef Position)
+;parses a single line comment
+CodeLexSingleLineComment(ByRef Code,ByRef Position)
+{
+ Position += 2
+ While, !InStr("`r`n",SubStr(Code,Position,1)) ;loop until a newline is found
+  Position ++
+}
+
+;parses a multiline comment, including any nested comments it may contain
+CodeLexMultilineComment(ByRef Code,ByRef Position)
 {
  global EscapeChar
  CommentLevel := 1
@@ -140,23 +151,6 @@ CodeLexDynamicReference(ByRef Code,ByRef Position,ByRef Errors,ByRef Output)
   Output .= CurrentChar
  }
  Position ++
-}
-
-;parses a scope declaration
-CodeLexScope(ByRef Code,ByRef Position,ByRef Errors,ByRef Output)
-{ ;returns 1 on error, nothing otherwise
- global IgnoreChars
- If (SubStr(Code,Position,8) = "@current") ;current scope
-  Output := "Current", Position += 8
- Else If (SubStr(Code,Position,6) = "@local") ;local scope
-  Output := "Local", Position += 6
- Else If (SubStr(Code,Position,7) = "@global") ;global scope
-  Output := "Global", Position += 7
- Else
- {
-  ObjInsert(Errors,Object("Identifier","INVALID_SCOPE_DECLARATION","Highlight","","Caret",Position)) ;add an error to the error log
-  Return, 1
- }
 }
 
 ;parses a number, and if it is not parsable, notify that it may be an identifier
