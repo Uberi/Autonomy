@@ -1,36 +1,44 @@
 #NoEnv
 
-;wip: attach line and column info to each token
+;wip: attach position info and file name to each token, to allow error handler to 
 
 ;parses AHK code, including all syntax
 CodeLex(Code,ByRef Tokens,ByRef Errors)
 { ;returns 1 on error, nothing otherwise
- global IdentifierChars, WhitespaceChars
+ global IdentifierChars
  Position := 1, Tokens := Object(), Errors := Object()
  Loop
  {
   CurrentChar := SubStr(Code,Position,1), CurrentTwoChar := SubStr(Code,Position,2)
   If (CurrentChar = "") ;past the end of the string
    Break
-  If (InStr("`r`n",CurrentChar) || (A_Index = 1))
+  If ((InStr("`r`n",CurrentChar) <> 0) || (A_Index = 1)) ;line is a statement
   {
+   While, InStr("`r`n " . A_Tab,SubStr(Code,Position,1)) ;move past blank lines and whitespace
+    Position ++
+   CurrentChar := SubStr(Code,Position,1), CurrentTwoChar := SubStr(Code,Position,2)
+   If (CurrentChar = "") ;past the end of the string
+    Break
    If CodeLexLine(Code,Position,Errors,Output)
-    Return, 1
-   ;wip: token insertion code
+   {
+    ;wip: statement processing code
+    ObjInsert(Tokens,Object("Type","STATEMENT","Value",Output)) ;add the statement to the token array ;wip: triggers too many times
+    ObjInsert(Tokens,Object("Type","COMMAND","Value","STATEMENT_END")) ;add the statement end to the token array
+   }
   }
-  Else If (CurrentChar = """") ;begin literal string
+  If (CurrentChar = """") ;begin literal string
   {
    If CodeLexString(Code,Position,Errors,Output) ;invalid string
     Return, 1
    ObjInsert(Tokens,Object("Type","LITERAL_STRING","Value",Output)) ;add the string literal to the token array
   }
-  Else If (InStr(WhitespaceChars,CurrentChar) && (SubStr(Code,Position + 1) = ";")) ;single line comment
+  Else If (InStr(" " . A_Tab,CurrentChar) && (SubStr(Code,Position + 1) = ";")) ;single line comment
    CodeLexSingleLineComment(Code,Position)
   Else If (CurrentTwoChar = "/*") ;begin comment
    CodeLexMultilineComment(Code,Position) ;skip over the comment block
   Else If (CurrentTwoChar = "*/") ;end comment
    Position += 2 ;can be skipped over
-  Else If InStr(WhitespaceChars,CurrentChar) ;not a syntactically meaningful character
+  Else If InStr(" " . A_Tab,CurrentChar) ;not a syntactically meaningful character
    Position ++
   Else If (CurrentChar = "%") ;dynamic variable reference or dynamic function call
   {
@@ -54,21 +62,21 @@ CodeLex(Code,ByRef Tokens,ByRef Errors)
 
 ;parses a new line, to find control structures, directives, etc.
 CodeLexLine(ByRef Code,ByRef Position,ByRef Errors,ByRef Output)
-{
+{ ;returns 1 if the line cannot be parsed as a statement, nothing otherwise
  global IdentifierChars, Statements
- While, InStr("`r`n " . A_Tab,SubStr(Code,Position,1)) ;move past blank lines and whitespace
-  Position ++
- Position1 := Position
+ Position1 := Position, Output := ""
+ MsgBox % """" . SubStr(Code,Position)
  Loop
  {
-  CurrentChar := SubStr(Code,Position,1), Position ++
+  CurrentChar := SubStr(Code,Position,1)
   If ((CurrentChar = "") || !InStr(IdentifierChars,CurrentChar))
    Break
-  Output .= CurrentChar
+  Output .= CurrentChar, Position ++
  }
- If !(InStr(", " . A_Tab,SubStr(Code,Position,1)) && InStr(Statements,"`n" . Output . "`n")) ;should be parsed as an expression instead of a statement
+ ;MsgBox % Position . "`n""" . Output . """`n""" . SubStr(Code,Position)
+ If !(InStr("`r`n, " . A_Tab,SubStr(Code,Position,1)) && InStr(Statements,"`n" . Output . "`n")) ;determine whether the line should be parsed as an expression instead of a statement
  {
-  Position := Position1
+  Position := Position1 ;move the position back to the beginning of the line, to allow it to be parsed again as an expression
   Return, 1
  }
 }

@@ -64,7 +64,7 @@ CodeGetErrorBounds(CurrentError,ByRef ErrorStart,ByRef ErrorEnd)
   }
  }
  Temp1 := CurrentError.Caret
- If Temp1
+ If (Temp1 <> "")
  {
   Temp2 := Temp1 + 1
   If ((Temp1 < ErrorStart) || (ErrorStart = ""))

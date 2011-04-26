@@ -1,6 +1,6 @@
 #NoEnv
 
-SetBatchLines, -1
+SetBatchLines(-1)
 
 #Include %A_ScriptDir%\Functions.ahk
 #Include %A_ScriptDir%\Lexer.ahk
@@ -20,4 +20,4 @@ If CodeLex(Code,Tokens,Errors)
  ExitApp, 1
 }
 MsgBox(Clipboard := ShowObject(Tokens))
-ExitApp
+ExitApp()

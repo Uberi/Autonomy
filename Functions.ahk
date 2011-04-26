@@ -22,6 +22,11 @@ ShowObject(ShowObject,Padding = "")
  Return, ObjectContents
 }
 
+SetBatchLines(Amount)
+{
+ SetBatchLines, %Amount%
+}
+
 FileRead(ByRef OutputVar,Filename)
 {
  FileRead, OutputVar, %Filename%
@@ -38,4 +43,9 @@ MsgBox(Text = "")
   MsgBox
  Else
   MsgBox, %Text%
+}
+
+ExitApp(ExitCode = 0)
+{
+ ExitApp, %ExitCode%
 }
