@@ -1,6 +1,8 @@
 #NoEnv
 
-;wip: attach position info and file name to each token, to allow error handler to 
+;wip: attach position info and file name to each token, to allow error handler to display errors from parser
+
+;wip: labels, multiline expressions
 
 ;parses AHK code, including all syntax
 CodeLex(Code,ByRef Tokens,ByRef Errors)
@@ -12,60 +14,71 @@ CodeLex(Code,ByRef Tokens,ByRef Errors)
   CurrentChar := SubStr(Code,Position,1), CurrentTwoChar := SubStr(Code,Position,2)
   If (CurrentChar = "") ;past the end of the string
    Break
-  If ((InStr("`r`n",CurrentChar) <> 0) || (A_Index = 1)) ;line is a statement
+  If ((InStr("`r`n",CurrentChar) <> 0) || (A_Index = 1)) ;beginning of a line
   {
-   While, InStr("`r`n " . A_Tab,SubStr(Code,Position,1)) ;move past blank lines and whitespace
+   While, (InStr("`r`n " . A_Tab,CurrentChar := SubStr(Code,Position,1)) && (CurrentChar <> "")) ;move past any whitespace
     Position ++
-   CurrentChar := SubStr(Code,Position,1), CurrentTwoChar := SubStr(Code,Position,2)
+   CurrentChar := SubStr(Code,Position,1), CurrentTwoChar := SubStr(Code,Position,2) ;reset the current character
    If (CurrentChar = "") ;past the end of the string
     Break
-   If CodeLexLine(Code,Position,Errors,Output)
+   ObjInsert(Tokens,Object("Type","COMMAND","Value","STATEMENT_END")) ;add the statement end to the token array
+   If !CodeLexLine(Code,Position,Tokens,Errors,Output) ;line is a statement
    {
-    ;wip: statement processing code
+    Temp1 := ""
+    While, (InStr(" " . A_Tab . (Temp1 ? "" : ","),Temp2 := SubStr(Code,Position,1)) && (Temp2 <> "")) ;skip over whitespace, and up to one comma
+     Position ++, (Temp2 = ",") ? (Temp1 := 1) : ""
     ObjInsert(Tokens,Object("Type","STATEMENT","Value",Output)) ;add the statement to the token array ;wip: triggers too many times
-    ObjInsert(Tokens,Object("Type","COMMAND","Value","STATEMENT_END")) ;add the statement end to the token array
+    
+    ObjInsert(Tokens,Object("Type","COMMAND","Value","STATEMENT_END")) ;add the statement end to the token array ;wip: not for While, Loop, If, Break, Continue, Return
    }
   }
   If (CurrentChar = """") ;begin literal string
   {
-   If CodeLexString(Code,Position,Errors,Output) ;invalid string
+   If CodeLexString(Code,Position,Tokens,Errors,Output) ;invalid string
     Return, 1
-   ObjInsert(Tokens,Object("Type","LITERAL_STRING","Value",Output)) ;add the string literal to the token array
   }
-  Else If (InStr(" " . A_Tab,CurrentChar) && (SubStr(Code,Position + 1) = ";")) ;single line comment
-   CodeLexSingleLineComment(Code,Position)
+  Else If InStr(" " . A_Tab,CurrentChar)
+  {
+   If (SubStr(Code,Position + 1) = ";") ;single line comment
+    CodeLexSingleLineComment(Code,Position)
+   Else ;whitespace
+    Position ++
+  }
   Else If (CurrentTwoChar = "/*") ;begin comment
    CodeLexMultilineComment(Code,Position) ;skip over the comment block
   Else If (CurrentTwoChar = "*/") ;end comment
    Position += 2 ;can be skipped over
-  Else If InStr(" " . A_Tab,CurrentChar) ;not a syntactically meaningful character
-   Position ++
   Else If (CurrentChar = "%") ;dynamic variable reference or dynamic function call
   {
-   If CodeLexDynamicReference(Code,Position,Errors,Output) ;invalid dynamic reference
+   If CodeLexDynamicReference(Code,Position,Tokens,Errors,Output) ;invalid dynamic reference
     Return, 1
-   ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value","%")) ;add the dereference operator to the token array
-   ObjInsert(Tokens,Object("Type","IDENTIFIER","Value",Output)) ;add the identifier to the token array
   }
-  Else If (InStr("1234567890",CurrentChar) && !CodeLexNumber(Code,Position,Output)) ;a number or identifier
-   ObjInsert(Tokens,Object("Type","LITERAL_NUMBER","Value",Output)) ;add the number literal to the token array
-  Else If InStr(IdentifierChars,CurrentChar) ;an identifier
-   CodeLexIdentifier(Code,Position,Output), ObjInsert(Tokens,Object("Type","IDENTIFIER","Value",Output)) ;add the identifier to the token array
-  Else ;is either a syntax element or an invalid character
+  Else If (InStr("1234567890",CurrentChar) && !CodeLexNumber(Code,Position,Tokens,Output)) ;a number, not an identifier
   {
-   If CodeLexSyntaxElement(Code,Position,Errors,Output)
-    Return, 1
-   ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value",Output)) ;add the found syntax element to the token array
+   
   }
+  Else If InStr(IdentifierChars,CurrentChar) ;an identifier
+  {
+   MsgBox % """" . CurrentChar . """`n""" . SubStr(Code,Position)
+   CodeLexIdentifier(Code,Position,Tokens,Output)
+  }
+  Else If CodeLexSyntaxElement(Code,Position,Tokens,Errors,Output) ;invalid character
+   Return, 1
+  ;MsgBox % """" . CurrentChar . """`n""" . SubStr(Code,Position)
  }
 }
 
+;moves past whitespace characters
+CodeLexWhitespace(ByRef Code,ByRef Position)
+{
+ 
+}
+
 ;parses a new line, to find control structures, directives, etc.
-CodeLexLine(ByRef Code,ByRef Position,ByRef Errors,ByRef Output)
+CodeLexLine(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef Output)
 { ;returns 1 if the line cannot be parsed as a statement, nothing otherwise
  global IdentifierChars, Statements
  Position1 := Position, Output := ""
- MsgBox % """" . SubStr(Code,Position)
  Loop
  {
   CurrentChar := SubStr(Code,Position,1)
@@ -73,7 +86,6 @@ CodeLexLine(ByRef Code,ByRef Position,ByRef Errors,ByRef Output)
    Break
   Output .= CurrentChar, Position ++
  }
- ;MsgBox % Position . "`n""" . Output . """`n""" . SubStr(Code,Position)
  If !(InStr("`r`n, " . A_Tab,SubStr(Code,Position,1)) && InStr(Statements,"`n" . Output . "`n")) ;determine whether the line should be parsed as an expression instead of a statement
  {
   Position := Position1 ;move the position back to the beginning of the line, to allow it to be parsed again as an expression
@@ -82,7 +94,7 @@ CodeLexLine(ByRef Code,ByRef Position,ByRef Errors,ByRef Output)
 }
 
 ;parses a quoted string, handling escaped characters
-CodeLexString(ByRef Code,ByRef Position,ByRef Errors,ByRef Output) ;input code, current position in code, output to store the detected string in
+CodeLexString(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef Output) ;input code, current position in code, output to store the detected string in
 { ;returns 1 on error, nothing otherwise
  global EscapeChar
  Position1 := Position, Output := "", Position ++ ;move to after the opening quotation mark
@@ -102,6 +114,7 @@ CodeLexString(ByRef Code,ByRef Position,ByRef Errors,ByRef Output) ;input code, 
    Output .= CurrentChar, Position ++ ;append the character to the output
  }
  Position ++ ;move to after the closing quotation mark
+ ObjInsert(Tokens,Object("Type","LITERAL_STRING","Value",Output)) ;add the string literal to the token array
 }
 
 ;parses a single line comment
@@ -137,7 +150,7 @@ CodeLexMultilineComment(ByRef Code,ByRef Position)
 }
 
 ;parses dynamic variable and function references
-CodeLexDynamicReference(ByRef Code,ByRef Position,ByRef Errors,ByRef Output)
+CodeLexDynamicReference(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef Output)
 { ;returns 1 on error, nothing otherwise
  global IdentifierChars
  Output := "", Position1 := Position
@@ -159,10 +172,12 @@ CodeLexDynamicReference(ByRef Code,ByRef Position,ByRef Errors,ByRef Output)
   Output .= CurrentChar
  }
  Position ++
+ ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value","%")) ;add the dereference operator to the token array
+ ObjInsert(Tokens,Object("Type","IDENTIFIER","Value",Output)) ;add the identifier to the token array
 }
 
 ;parses a number, and if it is not parsable, notify that it may be an identifier
-CodeLexNumber(ByRef Code,ByRef Position,ByRef Output)
+CodeLexNumber(ByRef Code,ByRef Position,ByRef Tokens,ByRef Output)
 { ;returns 1 when parsing failed, nothing otherwise
  global IdentifierChars
  Output := "", Position1 := Position, NumberChars := "1234567890"
@@ -172,7 +187,7 @@ CodeLexNumber(ByRef Code,ByRef Position,ByRef Output)
  {
   CurrentChar := SubStr(Code,Position,1)
   If (CurrentChar = "") ;past end of string
-   Return
+   Break
   If InStr(NumberChars,CurrentChar) ;is a valid number character
    Output .= CurrentChar
   Else If InStr(IdentifierChars,CurrentChar) ;notify if the code is a valid identifier char if it cannot be parsed as a number, otherwise end number
@@ -181,13 +196,14 @@ CodeLexNumber(ByRef Code,ByRef Position,ByRef Output)
    Return, 1
   }
   Else
-   Return
+   Break
   Position ++
  }
+ ObjInsert(Tokens,Object("Type","LITERAL_NUMBER","Value",Output)) ;add the number literal to the token array
 }
 
 ;parses an identifier
-CodeLexIdentifier(ByRef Code,ByRef Position,ByRef Output)
+CodeLexIdentifier(ByRef Code,ByRef Position,ByRef Tokens,ByRef Output)
 {
  global IdentifierChars
  Output := ""
@@ -195,13 +211,14 @@ CodeLexIdentifier(ByRef Code,ByRef Position,ByRef Output)
  {
   CurrentChar := SubStr(Code,Position,1)
   If (CurrentChar = "" || !InStr(IdentifierChars,CurrentChar)) ;past end of string, or found a character that was not part of the identifier
-   Return
+   Break
   Output .= CurrentChar, Position ++
  }
+ ObjInsert(Tokens,Object("Type","IDENTIFIER","Value",Output)) ;add the identifier to the token array
 }
 
 ;parses a syntax token
-CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Errors,ByRef Output)
+CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef Output)
 { ;returns 1 on error, nothing otherwise
  global SyntaxElements
  MaxLength := SyntaxElements._MaxIndex(), Temp1 := MaxLength
@@ -210,6 +227,7 @@ CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Errors,ByRef Output)
   If InStr(SyntaxElements[Temp1],"`n" . (Output := SubStr(Code,Position,Temp1)) . "`n") ;check for a match with a syntax element
   {
    Position += Temp1
+   ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value",Output)) ;add the found syntax element to the token array
    Return
   }
   Temp1 --

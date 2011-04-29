@@ -17,7 +17,7 @@ If CodeLex(Code,Tokens,Errors)
 {
  ErrorMessage := CodeGetError(Code,Errors)
  FileAppend(ErrorMessage,"*") ;display error at standard output
- ExitApp, 1
+ ExitApp(1)
 }
 MsgBox(Clipboard := ShowObject(Tokens))
 ExitApp()
