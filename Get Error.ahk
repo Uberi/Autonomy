@@ -5,6 +5,7 @@ CodeGetError(ByRef Code,ByRef Errors)
 {
  DisplayLength := 15 ;amount of characters to display on either side of the code
 
+ ErrorReport := ""
  For ErrorIndex, CurrentError In Errors
  {
   CodeGetErrorBounds(CurrentError,ErrorStart,ErrorEnd)

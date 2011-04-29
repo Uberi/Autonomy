@@ -8,6 +8,7 @@ ShowObject(ShowObject,Padding = "")
   ListLines, On
   Return, Padding . ShowObject
  }
+ ObjectContents := ""
  For Key, Value In ShowObject
  {
   If IsObject(Value)
