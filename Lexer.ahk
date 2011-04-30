@@ -30,7 +30,7 @@ CodeLex(Code,ByRef Tokens,ByRef Errors,ByRef Position = 1)
   }
   Else If InStr(" " . A_Tab,CurrentChar)
   {
-   If (SubStr(Code,Position + 1) = ";") ;single line comment
+   If (SubStr(Code,Position + 1,1) = ";") ;single line comment
     CodeLexSingleLineComment(Code,Position)
    Else ;whitespace
     Position ++
@@ -49,13 +49,9 @@ CodeLex(Code,ByRef Tokens,ByRef Errors,ByRef Position = 1)
    
   }
   Else If InStr(IdentifierChars,CurrentChar) ;an identifier
-  {
-   MsgBox % """" . CurrentChar . """`n""" . SubStr(Code,Position)
    CodeLexIdentifier(Code,Position,Tokens,Output)
-  }
   Else If CodeLexSyntaxElement(Code,Position,Tokens,Errors,Output) ;invalid character
    Return, 1
-  ;MsgBox % """" . CurrentChar . """`n""" . SubStr(Code,Position)
  }
 }
 
@@ -78,22 +74,21 @@ CodeLexLine(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors)
  }
 
  ;determine whether the line should be parsed as an expression instead of a statement
- If !(InStr("`r`n, " . A_Tab,SubStr(Code,Position,1)) && InStr(StatementList,"`n" . Statement . "`n"))
+ If !(InStr("`r`n, " . A_Tab,SubStr(Code,Position,1)) && InStr(StatementList,"`n" . Statement . "`n")) ;not a statement, so must be expression
  {
   Position := Position1 ;move the position back to the beginning of the line, to allow it to be parsed again as an expression
   Return, 1
  }
 
- ;skip over whitespace, and up to one comma
+ ;line is a statement, so skip over whitespace, and up to one comma
  Temp1 := ""
- While, (InStr(" " . A_Tab . (Temp1 ? "" : ","),Temp2 := SubStr(Code,Position,1)) && (Temp2 <> ""))
-  Position ++, (Temp2 = ",") ? (Temp1 := 1) : ""
+ While, (InStr(" " . A_Tab . Temp1,Temp2 := SubStr(Code,Position,1)) && (Temp2 <> ""))
+  Position ++, (Temp2 = ",") ? (Temp1 := ",") : ""
 
+ ;extract statement parameters
  Parameters := ""
- While, InStr("`r`n",CurrentChar := SubStr(Code,Position,1))
+ While, !InStr("`r`n",CurrentChar := SubStr(Code,Position,1))
   Position ++, Parameters .= CurrentChar
-
- MsgBox % """" . SubStr(Code,Position)
 
  ObjInsert(Tokens,Object("Type","STATEMENT","Value",Statement)) ;add the statement to the token array
  ObjInsert(Tokens,Object("Type","STATEMENT_PARAMETERS","Value",Parameters)) ;add the statement parameters to the token array
