@@ -2,7 +2,28 @@
 
 ;wip: attach position info and file name to each token, to allow error handler to display errors from parser
 
-;wip: labels, multiline expressions
+;wip: labels, multiline expressions, remove globals (use params instead)
+
+;initializes resources that the lexer requires
+CodeLexInit()
+{
+ global EscapeChar, IdentifierChars, StatementList, SyntaxElements
+
+ EscapeChar := "``" ;the escape character
+ IdentifierChars := "abcdefghijklmnopqrstuvwxyz_1234567890#" ;characters that make up a an identifier
+ StatementList := "`n#Include`n#IncludeAgain`n#SingleInstance`n#Warn`nWhile`nLoop`nFor`nIf`nElse`nBreak`nContinue`nReturn`nGosub`nGoto`nlocal`nglobal`nstatic`n"
+ SyntaxElements := "<<=`n>>=`n//=`n . `n*=`n.=`n|=`n&=`n^=`n-=`n+=`n||`n&&`n--`n==`n<>`n!=`n++`n/=`n>=`n<=`n:=`n**`n<<`n>>`n//`n/`n*`n-`n!`n~`n+`n|`n^`n&`n<`n>`n=`n.`n(`n)`n,`n[`n]`n{`n}`n?`n:"
+
+ Temp1 := SyntaxElements, SyntaxElements := Object()
+ Loop, Parse, Temp1, `n
+ {
+  Length := StrLen(A_LoopField)
+  If IsObject(SyntaxElements[Length])
+   ObjInsert(SyntaxElements[Length],A_LoopField,"")
+  Else
+   SyntaxElements[Length] := Object(A_LoopField,"")
+ }
+}
 
 ;parses AHK code, including all syntax
 CodeLex(Code,ByRef Tokens,ByRef Errors,ByRef Position = 1)
@@ -123,7 +144,7 @@ CodeLexString(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef Output) 
 ;parses a single line comment
 CodeLexSingleLineComment(ByRef Code,ByRef Position)
 {
- Position += 2
+ Position ++
  While, !InStr("`r`n",SubStr(Code,Position,1)) ;loop until a newline is found
   Position ++
 }
@@ -227,7 +248,7 @@ CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef O
  MaxLength := SyntaxElements._MaxIndex(), Temp1 := MaxLength
  Loop, %MaxLength%
  {
-  If InStr(SyntaxElements[Temp1],"`n" . (Output := SubStr(Code,Position,Temp1)) . "`n") ;check for a match with a syntax element
+  If ObjHasKey(SyntaxElements[Temp1],Output := SubStr(Code,Position,Temp1)) ;check for a match with a syntax element
   {
    Position += Temp1
    ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value",Output)) ;add the found syntax element to the token array
