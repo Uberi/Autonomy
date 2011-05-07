@@ -96,6 +96,16 @@ CodeLexLine(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors)
   Statement .= CurrentChar, Position ++
  }
 
+ ;detect labels
+ If ((CurrentChar = ":") && InStr("`r`n " . A_Tab,SubStr(Code,Position + 1,1))) ;is a label
+ {
+  Position ++
+  While, (InStr(" " . A_Tab,CurrentChar := SubStr(Code,Position,1)) && (CurrentChar <> "")) ;move past whitespace
+   Position ++
+  ObjInsert(Tokens,Object("Type","LABEL","Value",Statement)) ;add the label to the token array
+  Return
+ }
+
  ;determine whether the line should be parsed as an expression instead of a statement
  If !(InStr("`r`n, " . A_Tab,SubStr(Code,Position,1)) && InStr(StatementList,"`n" . Statement . "`n")) ;not a statement, so must be expression
  {
@@ -105,8 +115,8 @@ CodeLexLine(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors)
 
  ;line is a statement, so skip over whitespace, and up to one comma
  Temp1 := ","
- While, (InStr(" " . A_Tab . Temp1,Temp2 := SubStr(Code,Position,1)) && (Temp2 <> ""))
-  Position ++, (Temp2 = ",") ? (Temp1 := "") : ""
+ While, (InStr(" " . A_Tab . Temp1,CurrentChar := SubStr(Code,Position,1)) && (CurrentChar <> ""))
+  Position ++, (CurrentChar = ",") ? (Temp1 := "") : ""
 
  ;extract statement parameters
  Parameters := ""
@@ -146,6 +156,8 @@ CodeLexSingleLineComment(ByRef Code,ByRef Position)
 {
  Position ++
  While, !InStr("`r`n",SubStr(Code,Position,1)) ;loop until a newline is found
+  Position ++
+ While, InStr("`r`n",SubStr(Code,Position,1)) ;loop over newlines
   Position ++
 }
 

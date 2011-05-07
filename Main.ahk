@@ -2,6 +2,8 @@
 
 ;#Warn All
 
+Start:
+
 SetBatchLines(-1)
 
 #Include %A_ScriptDir%\Functions.ahk
@@ -18,8 +20,8 @@ If CodeLex(Code,Tokens,Errors)
  FileAppend(ErrorMessage,"*") ;display error at standard output
  ExitApp(1)
 }
-MsgBox(Clipboard := ShowObject(Tokens))
-;MsgBox(Clipboard := CodeReconstruct(Tokens))
+;MsgBox(Clipboard := ShowObject(Tokens))
+MsgBox(Clipboard := CodeReconstruct(Tokens))
 ExitApp()
 
 CodeReconstruct(Tokens)
@@ -34,6 +36,8 @@ CodeReconstruct(Tokens)
    Code .= TokenValue . " "
   Else If ((TokenType = "IDENTIFIER") && (TokenValue = "ByRef")) ;add sufficient whitespace around byref parameter
    Code .= TokenValue . " "
+  Else If (TokenType = "LABEL") ;add colon to end of label name
+   Code .= TokenValue . ":"
   Else ;can be appended to code directly
    Code .= TokenValue
  }
