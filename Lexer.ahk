@@ -2,7 +2,7 @@
 
 ;wip: attach position info and file name to each token, to allow error handler to display errors from parser
 
-;wip: labels, multiline expressions, remove globals (use params instead)
+;wip: multiline expressions, remove globals (use params instead)
 
 ;initializes resources that the lexer requires
 CodeLexInit()
@@ -29,7 +29,7 @@ CodeLexInit()
 CodeLex(Code,ByRef Tokens,ByRef Errors,ByRef Position = 1)
 { ;returns 1 on error, nothing otherwise
  global IdentifierChars
- Tokens := Object(), Errors := Object(), PreviousChar := ""
+ Tokens := Object(), Errors := Object()
  Loop
  {
   CurrentChar := SubStr(Code,Position,1), CurrentTwoChar := SubStr(Code,Position,2)
@@ -37,17 +37,23 @@ CodeLex(Code,ByRef Tokens,ByRef Errors,ByRef Position = 1)
    Break
   If ((InStr("`r`n",CurrentChar) <> 0) || (A_Index = 1)) ;beginning of a line
   {
-   ;wip: check if line is not multiline expression first
-   ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value","`n")) ;add the statement end to the token array
-   CodeLexLine(Code,Position,Tokens,Errors) ;line is a statement
+   ;move past any whitespace
+   While, (InStr("`r`n " . A_Tab,CurrentChar := SubStr(Code,Position,1)) && (CurrentChar <> ""))
+    Position ++
+   If (SubStr(Code,Position,1) = ";") ;single line comment
+    CodeLexSingleLineComment(Code,Position)
+   Else
+   {
+    ;wip: check if line is not multiline expression first
+    ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value","`n")) ;add the statement end to the token array
+    CodeLexLine(Code,Position,Tokens,Errors) ;line is a statement
+   }
   }
   Else If (CurrentChar = """") ;begin literal string
   {
    If CodeLexString(Code,Position,Tokens,Errors,Output) ;invalid string
     Return, 1
   }
-  Else If (InStr("`r`n " . A_Tab,PreviousChar) && (CurrentChar = ";")) ;single line comment
-    CodeLexSingleLineComment(Code,Position)
   Else If (CurrentTwoChar = "/*") ;begin comment
    CodeLexMultilineComment(Code,Position) ;skip over the comment block
   Else If (CurrentTwoChar = "*/") ;end comment
@@ -66,7 +72,12 @@ CodeLex(Code,ByRef Tokens,ByRef Errors,ByRef Position = 1)
   Else If CodeLexSyntaxElement(Code,Position,Tokens,Errors,Output) ;invalid character
   {
    If InStr(" " . A_Tab,CurrentChar) ;whitespace
-    Position ++
+   {
+    If (SubStr(Code,Position + 1,1) = ";") ;single line comment
+     CodeLexSingleLineComment(Code,Position)
+    Else
+     Position ++
+   }
    Else
    {
     ObjInsert(Errors,Object("Identifier","INVALID_CHARACTER","Highlight","","Caret",Position)) ;add an error to the error log
@@ -74,17 +85,12 @@ CodeLex(Code,ByRef Tokens,ByRef Errors,ByRef Position = 1)
    }
   }
  }
- PreviousChar := CurrentChar
 }
 
 ;parses a new line, to find control structures, directives, etc.
 CodeLexLine(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors)
 { ;returns 1 if the line cannot be parsed as a statement, nothing otherwise
  global IdentifierChars, StatementList
-
- ;move past any whitespace
- While, (InStr("`r`n " . A_Tab,CurrentChar := SubStr(Code,Position,1)) && (CurrentChar <> ""))
-  Position ++
 
  ;store the candidate statement
  Position1 := Position, Statement := ""
@@ -156,8 +162,6 @@ CodeLexSingleLineComment(ByRef Code,ByRef Position)
 {
  Position ++
  While, !InStr("`r`n",SubStr(Code,Position,1)) ;loop until a newline is found
-  Position ++
- While, InStr("`r`n",SubStr(Code,Position,1)) ;loop over newlines
   Position ++
 }
 

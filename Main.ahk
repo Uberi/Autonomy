@@ -1,6 +1,6 @@
 #NoEnv
 
-;#Warn All
+#Warn All
 
 Start:
 
@@ -15,7 +15,7 @@ FileRead(Code,A_ScriptFullPath)
 CodeLexInit()
 If CodeLex(Code,Tokens,Errors)
 {
- ;MsgBox(ShowObject(Tokens))
+ MsgBox(Clipboard := ShowObject(Tokens))
  ErrorMessage := CodeGetError(Code,Errors)
  FileAppend(ErrorMessage,"*") ;display error at standard output
  ExitApp(1)
