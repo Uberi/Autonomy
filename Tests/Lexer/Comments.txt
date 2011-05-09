@@ -9,6 +9,11 @@ another multiline comment
 that has multiple lines...
   */
 Variable *= Value
+Variable -= /*
+*/Value
+Variable /= Value
+/*
+*/Variable <<= Value
 ---
 1: 
 	Type: SYNTAX_ELEMENT
@@ -83,14 +88,65 @@ Variable *= Value
 	Value: 
 
 
-19: 
+18: 
 	Type: IDENTIFIER
 	Value: Variable
 
-20: 
+19: 
 	Type: SYNTAX_ELEMENT
 	Value: *=
 
+20: 
+	Type: IDENTIFIER
+	Value: Value
+
 21: 
+	Type: SYNTAX_ELEMENT
+	Value: 
+
+
+22: 
+	Type: IDENTIFIER
+	Value: Variable
+
+23: 
+	Type: SYNTAX_ELEMENT
+	Value: -=
+
+24: 
+	Type: IDENTIFIER
+	Value: Value
+
+25: 
+	Type: SYNTAX_ELEMENT
+	Value: 
+
+
+26: 
+	Type: IDENTIFIER
+	Value: Variable
+
+27: 
+	Type: SYNTAX_ELEMENT
+	Value: /=
+
+28: 
+	Type: IDENTIFIER
+	Value: Value
+
+29: 
+	Type: SYNTAX_ELEMENT
+	Value: 
+
+
+30: 
+	Type: IDENTIFIER
+	Value: Variable
+
+31: 
+	Type: SYNTAX_ELEMENT
+	Value: <<=
+
+32: 
 	Type: IDENTIFIER
 	Value: Value
