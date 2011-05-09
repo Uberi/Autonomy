@@ -1,0 +1,96 @@
+;this is a comment
+FunctionCall()
+/* A multiline comment */ Variable := Value ;another comment
+Variable += Value
+;single line comment
+FunctionCall()
+  /*
+another multiline comment
+that has multiple lines...
+  */
+Variable *= Value
+---
+1: 
+	Type: SYNTAX_ELEMENT
+	Value: 
+
+
+2: 
+	Type: IDENTIFIER
+	Value: FunctionCall
+
+3: 
+	Type: SYNTAX_ELEMENT
+	Value: (
+
+4: 
+	Type: SYNTAX_ELEMENT
+	Value: )
+
+5: 
+	Type: SYNTAX_ELEMENT
+	Value: 
+
+
+6: 
+	Type: IDENTIFIER
+	Value: Variable
+
+7: 
+	Type: SYNTAX_ELEMENT
+	Value: :=
+
+8: 
+	Type: IDENTIFIER
+	Value: Value
+
+9: 
+	Type: SYNTAX_ELEMENT
+	Value: 
+
+
+10: 
+	Type: IDENTIFIER
+	Value: Variable
+
+11: 
+	Type: SYNTAX_ELEMENT
+	Value: +=
+
+12: 
+	Type: IDENTIFIER
+	Value: Value
+
+13: 
+	Type: SYNTAX_ELEMENT
+	Value: 
+
+
+14: 
+	Type: IDENTIFIER
+	Value: FunctionCall
+
+15: 
+	Type: SYNTAX_ELEMENT
+	Value: (
+
+16: 
+	Type: SYNTAX_ELEMENT
+	Value: )
+
+17: 
+	Type: SYNTAX_ELEMENT
+	Value: 
+
+
+19: 
+	Type: IDENTIFIER
+	Value: Variable
+
+20: 
+	Type: SYNTAX_ELEMENT
+	Value: *=
+
+21: 
+	Type: IDENTIFIER
+	Value: Value
