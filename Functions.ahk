@@ -16,7 +16,7 @@ ShowObject(ShowObject,Padding = "")
  If !IsObject(ShowObject)
  {
   ListLines, On
-  Return, Padding . ShowObject
+  Return, ShowObject
  }
  ObjectContents := ""
  For Key, Value In ShowObject
@@ -25,11 +25,9 @@ ShowObject(ShowObject,Padding = "")
    Value := "`n" . ShowObject(Value,Padding . A_Tab)
   ObjectContents .= Padding . Key . ": " . Value . "`n"
  }
+ ObjectContents := SubStr(ObjectContents,1,-1)
  If (Padding = "")
- {
-  ObjectContents := SubStr(ObjectContents,1,-1)
   ListLines, On
- }
  Return, ObjectContents
 }
 

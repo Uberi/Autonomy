@@ -28,14 +28,15 @@ CodeLexInit()
 Loop, %A_ScriptDir%\Lexer\*.txt
 {
  FileRead(Code,A_LoopFileLongPath)
- StringReplace, Code, Code, `r,, All
- Temp1 := InStr(Code,"`n---`n"), Expected := SubStr(Code,Temp1 + 5), Code := SubStr(Code,1,Temp1 - 1) ;extract fields from test file
+ Temp1 := RegExMatch(Code,"S)\n---\r?\n",Divider), Expected := SubStr(Code,Temp1 + StrLen(Divider)), Code := SubStr(Code,1,Temp1 - 1) ;extract fields from test file
+ StringReplace, Expected, Expected, `r,, All
  If CodeLex(Code,Tokens,Errors)
   ExtraInfo := CodeGetError(Code,Errors), TestStatus := "Fail"
  Else If (ShowObject(Tokens) = Expected)
   ExtraInfo := "None", TestStatus := "Pass"
  Else
   ExtraInfo := "Tokenized output does not match expected output.", TestStatus := "Fail"
+ MsgBox % Clipboard := ShowObject(Tokens)
  LV_Add("",A_Index,A_LoopFileName,TestStatus,ExtraInfo)
 }
 Return

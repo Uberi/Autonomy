@@ -19,134 +19,106 @@ Variable /= Value
 	Type: SYNTAX_ELEMENT
 	Value: 
 
-
 2: 
 	Type: IDENTIFIER
 	Value: FunctionCall
-
 3: 
 	Type: SYNTAX_ELEMENT
 	Value: (
-
 4: 
 	Type: SYNTAX_ELEMENT
 	Value: )
-
 5: 
 	Type: SYNTAX_ELEMENT
 	Value: 
 
-
 6: 
 	Type: IDENTIFIER
 	Value: Variable
-
 7: 
 	Type: SYNTAX_ELEMENT
 	Value: :=
-
 8: 
 	Type: IDENTIFIER
 	Value: Value
-
 9: 
 	Type: SYNTAX_ELEMENT
 	Value: 
 
-
 10: 
 	Type: IDENTIFIER
 	Value: Variable
-
 11: 
 	Type: SYNTAX_ELEMENT
 	Value: +=
-
 12: 
 	Type: IDENTIFIER
 	Value: Value
-
 13: 
 	Type: SYNTAX_ELEMENT
 	Value: 
 
-
 14: 
 	Type: IDENTIFIER
 	Value: FunctionCall
-
 15: 
 	Type: SYNTAX_ELEMENT
 	Value: (
-
 16: 
 	Type: SYNTAX_ELEMENT
 	Value: )
-
 17: 
 	Type: SYNTAX_ELEMENT
 	Value: 
 
-
 18: 
 	Type: IDENTIFIER
 	Value: Variable
-
 19: 
 	Type: SYNTAX_ELEMENT
 	Value: *=
-
 20: 
 	Type: IDENTIFIER
 	Value: Value
-
 21: 
 	Type: SYNTAX_ELEMENT
 	Value: 
 
-
 22: 
 	Type: IDENTIFIER
 	Value: Variable
-
 23: 
 	Type: SYNTAX_ELEMENT
 	Value: -=
-
 24: 
 	Type: IDENTIFIER
 	Value: Value
-
 25: 
 	Type: SYNTAX_ELEMENT
 	Value: 
 
-
 26: 
 	Type: IDENTIFIER
 	Value: Variable
-
 27: 
 	Type: SYNTAX_ELEMENT
 	Value: /=
-
 28: 
 	Type: IDENTIFIER
 	Value: Value
-
 29: 
 	Type: SYNTAX_ELEMENT
 	Value: 
 
-
 30: 
 	Type: IDENTIFIER
 	Value: Variable
-
 31: 
 	Type: SYNTAX_ELEMENT
 	Value: <<=
-
 32: 
 	Type: IDENTIFIER
 	Value: Value
+33: 
+	Type: SYNTAX_ELEMENT
+	Value: 

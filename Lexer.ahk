@@ -93,6 +93,9 @@ CodeLex(Code,ByRef Tokens,ByRef Errors,ByRef Position = 1)
    }
   }
  }
+ Temp1 := Tokens[Tokens._MaxIndex()] ;get most recent token
+ If !(Temp1.Type = "SYNTAX_ELEMENT" && Temp1.Value = "`n") ;token was not a newline
+  ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value","`n")) ;add the statement end to the token array
 }
 
 ;parses a new line, to find control structures, directives, etc.
