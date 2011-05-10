@@ -71,10 +71,8 @@ CodeLex(Code,ByRef Tokens,ByRef Errors,ByRef Position = 1)
    If CodeLexDynamicReference(Code,Position,Tokens,Errors,Output) ;invalid dynamic reference
     Return, 1
   }
-  Else If (InStr("1234567890",CurrentChar) && !CodeLexNumber(Code,Position,Tokens,Output)) ;a number, not an identifier
-  {
-   
-  }
+  Else If (InStr("1234567890",CurrentChar) && !CodeLexNumber(Code,Position,Output)) ;a number, not an identifier
+   ObjInsert(Tokens,Object("Type","LITERAL_NUMBER","Value",Output)) ;add the number literal to the token array
   Else If InStr(LexerIdentifierChars,CurrentChar) ;an identifier
    CodeLexIdentifier(Code,Position,Tokens,Output)
   Else If CodeLexSyntaxElement(Code,Position,Tokens,Errors,Output) ;invalid character
@@ -228,29 +226,37 @@ CodeLexDynamicReference(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRe
 }
 
 ;parses a number, and if it is not parsable, notify that it may be an identifier
-CodeLexNumber(ByRef Code,ByRef Position,ByRef Tokens,ByRef Output)
+CodeLexNumber(ByRef Code,ByRef Position,ByRef Output)
 { ;returns 1 when parsing failed, nothing otherwise
  global LexerIdentifierChars
- Output := "", Position1 := Position, NumberChars := "1234567890"
+ Output := "", Position1 := Position, NumberChars := "1234567890", DecimalUsed := 0
  If (SubStr(Code,Position,2) = "0x") ;hexidecimal number
-  Position += 2, Output .= "0x", NumberChars .= "abcdefABCDEF" ;skip over the identifying characters, append them to the number, and expand the valid number characters set
+  DecimalUsed := 1, Position += 2, Output .= "0x", NumberChars .= "abcdefABCDEF" ;prevent the usage of decimals in hex numbers, skip over the identifying characters, append them to the number, and expand the valid number characters set
  Loop
  {
   CurrentChar := SubStr(Code,Position,1)
   If (CurrentChar = "") ;past end of string
-   Break
+   Return
   If InStr(NumberChars,CurrentChar) ;is a valid number character
    Output .= CurrentChar
+  Else If (CurrentChar = ".") ;is a decimal point
+  {
+   If DecimalUsed ;input already had a decimal point, so is probably an identifier
+   {
+    Position := Position1 ;return the position back to the start of this section, to try to parse it again as an identifier
+    Return, 1
+   }
+   Output .= CurrentChar, DecimalUsed := 1 ;set a flag to show that a decimal point has been used
+  }
   Else If InStr(LexerIdentifierChars,CurrentChar) ;notify if the code is a valid identifier char if it cannot be parsed as a number, otherwise end number
   {
    Position := Position1 ;return the position back to the start of this section, to try to parse it again as an identifier
    Return, 1
   }
   Else
-   Break
+   Return
   Position ++
  }
- ObjInsert(Tokens,Object("Type","LITERAL_NUMBER","Value",Output)) ;add the number literal to the token array
 }
 
 ;parses an identifier

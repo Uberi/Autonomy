@@ -1,0 +1,72 @@
+Var := 0x20 + 23 + 1234a + 4.0 + 67b89 + 1 + 0x20.321 + 98.76.54
+---
+1: 
+	Type: SYNTAX_ELEMENT
+	Value: 
+
+2: 
+	Type: IDENTIFIER
+	Value: Var
+3: 
+	Type: SYNTAX_ELEMENT
+	Value: :=
+4: 
+	Type: LITERAL_NUMBER
+	Value: 0x20
+5: 
+	Type: SYNTAX_ELEMENT
+	Value: +
+6: 
+	Type: LITERAL_NUMBER
+	Value: 23
+7: 
+	Type: SYNTAX_ELEMENT
+	Value: +
+8: 
+	Type: IDENTIFIER
+	Value: 1234a
+9: 
+	Type: SYNTAX_ELEMENT
+	Value: +
+10: 
+	Type: LITERAL_NUMBER
+	Value: 4.0
+11: 
+	Type: SYNTAX_ELEMENT
+	Value: +
+12: 
+	Type: IDENTIFIER
+	Value: 67b89
+13: 
+	Type: SYNTAX_ELEMENT
+	Value: +
+14: 
+	Type: LITERAL_NUMBER
+	Value: 1
+15: 
+	Type: SYNTAX_ELEMENT
+	Value: +
+16: 
+	Type: IDENTIFIER
+	Value: 0x20
+17: 
+	Type: SYNTAX_ELEMENT
+	Value: .
+18: 
+	Type: LITERAL_NUMBER
+	Value: 321
+19: 
+	Type: SYNTAX_ELEMENT
+	Value: +
+20: 
+	Type: IDENTIFIER
+	Value: 98
+21: 
+	Type: SYNTAX_ELEMENT
+	Value: .
+22: 
+	Type: LITERAL_NUMBER
+	Value: 76.54
+23: 
+	Type: SYNTAX_ELEMENT
+	Value: 

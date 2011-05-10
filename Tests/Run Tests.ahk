@@ -53,6 +53,7 @@ TestInterpreter:
 
 Return
 
+GuiEscape:
 GuiClose:
 ExitApp
 
