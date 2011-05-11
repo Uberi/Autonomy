@@ -2,13 +2,13 @@
 
 #Warn All
 
-Start:
-
 SetBatchLines(-1)
 
 #Include %A_ScriptDir%\Functions.ahk
 #Include %A_ScriptDir%\Lexer.ahk
 #Include %A_ScriptDir%\Get Error.ahk
+
+Start:
 
 FileRead(Code,A_ScriptFullPath)
 

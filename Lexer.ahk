@@ -1,8 +1,7 @@
 #NoEnv
 
-;wip: attach position info and file name to each token, to allow error handler to display errors from parser
-
 ;wip: multiline expressions, remove globals (use params instead)
+;wip: have identifier lexer set a flag that allows numbers as array elements in dot notation: Variable.123[i].456
 
 ;initializes resources that the lexer requires
 CodeLexInit()
@@ -26,15 +25,16 @@ CodeLexInit()
 }
 
 ;parses AHK code, including all syntax
-CodeLex(Code,ByRef Tokens,ByRef Errors,ByRef Position = 1)
+CodeLex(Code,ByRef Tokens,ByRef Errors,ByRef Position = 1,ByRef FileName = "")
 { ;returns 1 on error, nothing otherwise
  global LexerIdentifierChars
  Tokens := Object(), Errors := Object()
  Loop
  {
-  CurrentChar := SubStr(Code,Position,1), CurrentTwoChar := SubStr(Code,Position,2)
+  CurrentChar := SubStr(Code,Position,1)
   If (CurrentChar = "") ;past the end of the string
    Break
+  CurrentTwoChar := SubStr(Code,Position,2), Position1 := Position
   If ((InStr("`r`n",CurrentChar) <> 0) || (A_Index = 1)) ;beginning of a line
   {
    ;move past any whitespace
@@ -42,24 +42,22 @@ CodeLex(Code,ByRef Tokens,ByRef Errors,ByRef Position = 1)
     Position ++
    If (SubStr(Code,Position,1) = ";") ;single line comment
     CodeLexSingleLineComment(Code,Position) ;skip over comment
-   Else If (SubStr(Code,Position,2) = "/*") ;begin multiline comment
+   Else ;input is a multiline comment or normal line
    {
-    CodeLexMultilineComment(Code,Position) ;skip over the comment block
-    ;move past any whitespace, to ensure there are no duplicate lines
-    While, (InStr("`r`n",CurrentChar := SubStr(Code,Position,1)) && (CurrentChar <> ""))
-     Position ++
-    ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value","`n")) ;add the statement end to the token array
-   }
-   Else
-   {
-    ;wip: check if line is not multiline expression first
-    ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value","`n")) ;add the statement end to the token array
-    CodeLexLine(Code,Position,Tokens,Errors) ;line is a statement
+    If (SubStr(Code,Position,2) = "/*") ;begin multiline comment
+    {
+     CodeLexMultilineComment(Code,Position) ;skip over the comment block
+     ;move past any whitespace, to ensure there are no duplicate lines
+     While, (InStr("`r`n",CurrentChar := SubStr(Code,Position,1)) && (CurrentChar <> ""))
+      Position ++
+    }
+    ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value","`n","Position",Position - 1,"File",FileName)) ;add the statement end to the token array
+    CodeLexLine(Code,Position,Tokens,Errors,FileName) ;parse for statements
    }
   }
   Else If (CurrentChar = """") ;begin literal string
   {
-   If CodeLexString(Code,Position,Tokens,Errors,Output) ;invalid string
+   If CodeLexString(Code,Position,Tokens,Errors,Output,FileName) ;invalid string
     Return, 1
   }
   Else If (CurrentTwoChar = "/*") ;begin multiline comment
@@ -68,14 +66,14 @@ CodeLex(Code,ByRef Tokens,ByRef Errors,ByRef Position = 1)
    Position += 2 ;can be skipped over
   Else If (CurrentChar = "%") ;dynamic variable reference or dynamic function call
   {
-   If CodeLexDynamicReference(Code,Position,Tokens,Errors,Output) ;invalid dynamic reference
+   If CodeLexDynamicReference(Code,Position,Tokens,Errors,Output,FileName) ;invalid dynamic reference
     Return, 1
   }
   Else If (InStr("1234567890",CurrentChar) && !CodeLexNumber(Code,Position,Output)) ;a number, not an identifier
-   ObjInsert(Tokens,Object("Type","LITERAL_NUMBER","Value",Output)) ;add the number literal to the token array
+   ObjInsert(Tokens,Object("Type","LITERAL_NUMBER","Value",Output,"Position",Position1,"File",FileName)) ;add the number literal to the token array
   Else If InStr(LexerIdentifierChars,CurrentChar) ;an identifier
-   CodeLexIdentifier(Code,Position,Tokens,Output)
-  Else If CodeLexSyntaxElement(Code,Position,Tokens,Errors,Output) ;invalid character
+   CodeLexIdentifier(Code,Position,Tokens,Output,FileName)
+  Else If CodeLexSyntaxElement(Code,Position,Tokens,Errors,Output,FileName) ;invalid character
   {
    If InStr(" " . A_Tab,CurrentChar) ;whitespace
    {
@@ -93,11 +91,11 @@ CodeLex(Code,ByRef Tokens,ByRef Errors,ByRef Position = 1)
  }
  Temp1 := Tokens[Tokens._MaxIndex()] ;get most recent token
  If !(Temp1.Type = "SYNTAX_ELEMENT" && Temp1.Value = "`n") ;token was not a newline
-  ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value","`n")) ;add the statement end to the token array
+  ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value","`n","Position",Position,"File",FileName)) ;add the statement end to the token array
 }
 
 ;parses a new line, to find control structures, directives, etc.
-CodeLexLine(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors)
+CodeLexLine(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef FileName)
 { ;returns 1 if the line cannot be parsed as a statement, nothing otherwise
  global LexerIdentifierChars, LexerStatementList
 
@@ -117,7 +115,7 @@ CodeLexLine(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors)
   Position ++
   While, (InStr(" " . A_Tab,CurrentChar := SubStr(Code,Position,1)) && (CurrentChar <> "")) ;move past whitespace
    Position ++
-  ObjInsert(Tokens,Object("Type","LABEL","Value",Statement)) ;add the label to the token array
+  ObjInsert(Tokens,Object("Type","LABEL","Value",Statement,"Position",Position1,"File",FileName)) ;add the label to the token array
   Return
  }
 
@@ -128,22 +126,23 @@ CodeLexLine(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors)
   Return, 1
  }
 
+ ObjInsert(Tokens,Object("Type","STATEMENT","Value",Statement,"Position",Position1,"File",FileName)) ;add the statement to the token array
+
  ;line is a statement, so skip over whitespace, and up to one comma
  Temp1 := ","
  While, (InStr(" " . A_Tab . Temp1,CurrentChar := SubStr(Code,Position,1)) && (CurrentChar <> ""))
   Position ++, (CurrentChar = ",") ? (Temp1 := "") : ""
 
  ;extract statement parameters
- Parameters := ""
+ Parameters := "", Position1 := Position
  While, !InStr("`r`n",CurrentChar := SubStr(Code,Position,1))
   Position ++, Parameters .= CurrentChar
 
- ObjInsert(Tokens,Object("Type","STATEMENT","Value",Statement)) ;add the statement to the token array
- ObjInsert(Tokens,Object("Type","STATEMENT_PARAMETERS","Value",Parameters)) ;add the statement parameters to the token array
+ ObjInsert(Tokens,Object("Type","STATEMENT_PARAMETERS","Value",Parameters,"Position",Position1,"File",FileName)) ;add the statement parameters to the token array
 }
 
 ;parses a quoted string, handling escaped characters
-CodeLexString(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef Output) ;input code, current position in code, output to store the detected string in
+CodeLexString(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef Output,ByRef FileName) ;input code, current position in code, output to store the detected string in, name of input file
 { ;returns 1 on error, nothing otherwise
  global LexerEscapeChar
  Position1 := Position, Output := "", Position ++ ;move to after the opening quotation mark
@@ -163,7 +162,7 @@ CodeLexString(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef Output) 
    Output .= CurrentChar, Position ++ ;append the character to the output
  }
  Position ++ ;move to after the closing quotation mark
- ObjInsert(Tokens,Object("Type","LITERAL_STRING","Value",Output)) ;add the string literal to the token array
+ ObjInsert(Tokens,Object("Type","LITERAL_STRING","Value",Output,"Position",Position1,"File",FileName)) ;add the string literal to the token array
 }
 
 ;parses a single line comment
@@ -199,7 +198,7 @@ CodeLexMultilineComment(ByRef Code,ByRef Position)
 }
 
 ;parses dynamic variable and function references
-CodeLexDynamicReference(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef Output)
+CodeLexDynamicReference(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef Output,ByRef FileName)
 { ;returns 1 on error, nothing otherwise
  global LexerIdentifierChars
  Output := "", Position1 := Position
@@ -221,8 +220,8 @@ CodeLexDynamicReference(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRe
   Output .= CurrentChar
  }
  Position ++
- ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value","%")) ;add the dereference operator to the token array
- ObjInsert(Tokens,Object("Type","IDENTIFIER","Value",Output)) ;add the identifier to the token array
+ ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value","%","Position",Position1,"File",FileName)) ;add the dereference operator to the token array
+ ObjInsert(Tokens,Object("Type","IDENTIFIER","Value",Output,"Position",Position1 + 1,"File",FileName)) ;add the identifier to the token array
 }
 
 ;parses a number, and if it is not parsable, notify that it may be an identifier
@@ -260,10 +259,10 @@ CodeLexNumber(ByRef Code,ByRef Position,ByRef Output)
 }
 
 ;parses an identifier
-CodeLexIdentifier(ByRef Code,ByRef Position,ByRef Tokens,ByRef Output)
+CodeLexIdentifier(ByRef Code,ByRef Position,ByRef Tokens,ByRef Output,ByRef FileName)
 {
  global LexerIdentifierChars
- Output := ""
+ Output := "", Position1 := Position
  Loop
  {
   CurrentChar := SubStr(Code,Position,1)
@@ -271,11 +270,11 @@ CodeLexIdentifier(ByRef Code,ByRef Position,ByRef Tokens,ByRef Output)
    Break
   Output .= CurrentChar, Position ++
  }
- ObjInsert(Tokens,Object("Type","IDENTIFIER","Value",Output)) ;add the identifier to the token array
+ ObjInsert(Tokens,Object("Type","IDENTIFIER","Value",Output,"Position",Position1,"File",FileName)) ;add the identifier to the token array
 }
 
 ;parses a syntax token
-CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef Output)
+CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef Output,ByRef FileName)
 { ;returns 1 on error, nothing otherwise
  global LexerSyntaxElements
  MaxLength := LexerSyntaxElements._MaxIndex(), Temp1 := MaxLength
@@ -283,8 +282,8 @@ CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef O
  {
   If ObjHasKey(LexerSyntaxElements[Temp1],Output := SubStr(Code,Position,Temp1)) ;check for a match with a syntax element
   {
+   ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value",Output,"Position",Position,"File",FileName)) ;add the found syntax element to the token array
    Position += Temp1
-   ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value",Output)) ;add the found syntax element to the token array
    Return
   }
   Temp1 --

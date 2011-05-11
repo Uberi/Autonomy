@@ -36,7 +36,6 @@ Loop, %A_ScriptDir%\Lexer\*.txt
   ExtraInfo := "None", TestStatus := "Pass"
  Else
   ExtraInfo := "Tokenized output does not match expected output.", TestStatus := "Fail"
- MsgBox % Clipboard := ShowObject(Tokens)
  LV_Add("",A_Index,A_LoopFileName,TestStatus,ExtraInfo)
 }
 Return
