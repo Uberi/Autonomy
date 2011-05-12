@@ -1,7 +1,6 @@
 #NoEnv
 
-;wip: multiline expressions, remove globals (use params instead)
-;wip: have identifier lexer set a flag that allows numbers as array elements in dot notation: Variable.123[i].456
+;wip: multiline expressions
 
 ;initializes resources that the lexer requires
 CodeLexInit()

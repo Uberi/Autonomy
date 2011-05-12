@@ -1,0 +1,87 @@
+SomeLabel:
+Variable := Value
+GoTo, SomeOtherLabel
+
+SomeOtherLabel:
+Return
+---
+1: 
+	File: 
+	Position: 0
+	Type: SYNTAX_ELEMENT
+	Value: 
+
+2: 
+	File: 
+	Position: 1
+	Type: LABEL
+	Value: SomeLabel
+3: 
+	File: 
+	Position: 12
+	Type: SYNTAX_ELEMENT
+	Value: 
+
+4: 
+	File: 
+	Position: 13
+	Type: IDENTIFIER
+	Value: Variable
+5: 
+	File: 
+	Position: 22
+	Type: SYNTAX_ELEMENT
+	Value: :=
+6: 
+	File: 
+	Position: 25
+	Type: IDENTIFIER
+	Value: Value
+7: 
+	File: 
+	Position: 31
+	Type: SYNTAX_ELEMENT
+	Value: 
+
+8: 
+	File: 
+	Position: 32
+	Type: STATEMENT
+	Value: GoTo
+9: 
+	File: 
+	Position: 38
+	Type: STATEMENT_PARAMETERS
+	Value: SomeOtherLabel
+10: 
+	File: 
+	Position: 55
+	Type: SYNTAX_ELEMENT
+	Value: 
+
+11: 
+	File: 
+	Position: 56
+	Type: LABEL
+	Value: SomeOtherLabel
+12: 
+	File: 
+	Position: 72
+	Type: SYNTAX_ELEMENT
+	Value: 
+
+13: 
+	File: 
+	Position: 73
+	Type: STATEMENT
+	Value: Return
+14: 
+	File: 
+	Position: 79
+	Type: STATEMENT_PARAMETERS
+	Value: 
+15: 
+	File: 
+	Position: 79
+	Type: SYNTAX_ELEMENT
+	Value: 

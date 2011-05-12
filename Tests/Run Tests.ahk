@@ -36,7 +36,7 @@ Loop, %A_ScriptDir%\Lexer\*.txt
   ExtraInfo := "None", TestStatus := "Pass"
  Else
   ExtraInfo := "Tokenized output does not match expected output.", TestStatus := "Fail"
- LV_Add("",A_Index,A_LoopFileName,TestStatus,ExtraInfo)
+ LV_Add("",A_Index,"Lexer - " . A_LoopFileName,TestStatus,ExtraInfo)
 }
 Return
 
