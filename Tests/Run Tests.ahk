@@ -1,6 +1,7 @@
 #NoEnv
 
 #Include %A_ScriptDir%\..\Functions.ahk
+;#Include %A_ScriptDir%\..\Get Error.ahk
 #Include %A_ScriptDir%\..\Lexer.ahk
 #Include %A_ScriptDir%\..\Get Error.ahk
 
@@ -27,6 +28,8 @@ TestLexer:
 CodeLexInit()
 Loop, %A_ScriptDir%\Lexer\*.txt
 {
+ ;If (A_LoopFileName <> "DynamicReference.txt")
+  ;Continue
  FileRead(FileContents,A_LoopFileLongPath)
  If RegExMatch(FileContents,"sS)^(?P<Code>.*?)\r?\n---\r?\n(?P<ErrorOutput>.*?)\r?\n---\r?\n(?P<TokenOutput>.*)$",Test)
  {
@@ -39,6 +42,8 @@ Loop, %A_ScriptDir%\Lexer\*.txt
    ExtraInfo := "Tokenized output does not match expected output.", TestStatus := "Fail"
   Else
    ExtraInfo := "None", TestStatus := "Pass"
+  ;MsgBox % Clipboard := ShowObject(Tokens)
+  ;MsgBox % Clipboard := CodeGetError(TestCode,Errors)
  }
  Else
   ExtraInfo := "Invalid test.", TestStatus := "Fail"

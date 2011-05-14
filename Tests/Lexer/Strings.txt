@@ -1,6 +1,19 @@
-MsgBox("Hello, World!","`"This string `n contains `" escaped `t characters `"")
+Var := "This quote is unmatched
+Var := "Hello, World!" . "`"This string `n contains `" escaped `t characters `""
+Var := "This is also unmatched
 ---
-
+1: 
+	Caret: 32
+	Highlight: 
+		Length: 24
+		Position: 8
+	Identifier: UNMATCHED_QUOTE
+2: 
+	Caret: 146
+	Highlight: 
+		Length: 23
+		Position: 123
+	Identifier: UNMATCHED_QUOTE
 ---
 1: 
 	File: 
@@ -12,34 +25,61 @@ MsgBox("Hello, World!","`"This string `n contains `" escaped `t characters `"")
 	File: 
 	Position: 1
 	Type: IDENTIFIER
-	Value: MsgBox
+	Value: Var
 3: 
 	File: 
-	Position: 7
+	Position: 5
 	Type: SYNTAX_ELEMENT
-	Value: (
+	Value: :=
 4: 
 	File: 
-	Position: 8
-	Type: LITERAL_STRING
-	Value: Hello, World!
+	Position: 33
+	Type: SYNTAX_ELEMENT
+	Value: 
+
 5: 
 	File: 
-	Position: 23
-	Type: SYNTAX_ELEMENT
-	Value: ,
+	Position: 34
+	Type: IDENTIFIER
+	Value: Var
 6: 
 	File: 
-	Position: 24
-	Type: LITERAL_STRING
-	Value: `"This string `n contains `" escaped `t characters `"
+	Position: 38
+	Type: SYNTAX_ELEMENT
+	Value: :=
 7: 
 	File: 
-	Position: 79
-	Type: SYNTAX_ELEMENT
-	Value: )
+	Position: 41
+	Type: LITERAL_STRING
+	Value: Hello, World!
 8: 
 	File: 
-	Position: 80
+	Position: 56
+	Type: SYNTAX_ELEMENT
+	Value:  . 
+9: 
+	File: 
+	Position: 59
+	Type: LITERAL_STRING
+	Value: `"This string `n contains `" escaped `t characters `"
+10: 
+	File: 
+	Position: 115
+	Type: SYNTAX_ELEMENT
+	Value: 
+
+11: 
+	File: 
+	Position: 116
+	Type: IDENTIFIER
+	Value: Var
+12: 
+	File: 
+	Position: 120
+	Type: SYNTAX_ELEMENT
+	Value: :=
+13: 
+	File: 
+	Position: 146
 	Type: SYNTAX_ELEMENT
 	Value: 

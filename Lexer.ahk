@@ -37,7 +37,7 @@ CodeLex(Code,ByRef Tokens,ByRef Errors,ByRef Position = 1,ByRef FileName = "")
   If ((InStr("`r`n",CurrentChar) <> 0) || (A_Index = 1)) ;beginning of a line
   {
    ;move past any whitespace
-   While, (InStr("`r`n " . A_Tab,CurrentChar := SubStr(Code,Position,1)) && (CurrentChar <> ""))
+   While, (InStr("`r`n`t ",CurrentChar := SubStr(Code,Position,1)) && (CurrentChar <> ""))
     Position ++
    If (SubStr(Code,Position,1) = ";") ;single line comment
     CodeLexSingleLineComment(Code,Position) ;skip over comment
@@ -68,7 +68,7 @@ CodeLex(Code,ByRef Tokens,ByRef Errors,ByRef Position = 1,ByRef FileName = "")
    CodeLexIdentifier(Code,Position,Tokens,Output,FileName)
   Else If CodeLexSyntaxElement(Code,Position,Tokens,Errors,Output,FileName) ;input is not a syntax element
   {
-   If InStr(" " . A_Tab,CurrentChar) ;whitespace
+   If InStr("`t ",CurrentChar) ;whitespace
    {
     If (SubStr(Code,Position + 1,1) = ";") ;single line comment
      CodeLexSingleLineComment(Code,Position) ;skip over comment
@@ -104,17 +104,17 @@ CodeLexLine(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef FileName)
  }
 
  ;detect labels
- If ((CurrentChar = ":") && InStr("`r`n " . A_Tab,SubStr(Code,Position + 1,1))) ;is a label
+ If ((CurrentChar = ":") && InStr("`r`n`t ",SubStr(Code,Position + 1,1))) ;is a label
  {
   Position ++
-  While, (InStr(" " . A_Tab,CurrentChar := SubStr(Code,Position,1)) && (CurrentChar <> "")) ;move past whitespace
+  While, (InStr("`t ",CurrentChar := SubStr(Code,Position,1)) && (CurrentChar <> "")) ;move past whitespace
    Position ++
   ObjInsert(Tokens,Object("Type","LABEL","Value",Statement,"Position",Position1,"File",FileName)) ;add the label to the token array
   Return
  }
 
  ;determine whether the line should be parsed as an expression instead of a statement
- If !(InStr("`r`n, " . A_Tab,SubStr(Code,Position,1)) && InStr(LexerStatementList,"`n" . Statement . "`n")) ;not a statement, so must be expression
+ If !(InStr("`r`n`t, ",SubStr(Code,Position,1)) && InStr(LexerStatementList,"`n" . Statement . "`n")) ;not a statement, so must be expression
  {
   Position := Position1 ;move the position back to the beginning of the line, to allow it to be parsed again as an expression
   Return, 1
@@ -124,7 +124,7 @@ CodeLexLine(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef FileName)
 
  ;line is a statement, so skip over whitespace, and up to one comma
  Temp1 := ","
- While, (InStr(" " . A_Tab . Temp1,CurrentChar := SubStr(Code,Position,1)) && (CurrentChar <> ""))
+ While, (InStr("`t " . Temp1,CurrentChar := SubStr(Code,Position,1)) && (CurrentChar <> ""))
   Position ++, (CurrentChar = ",") ? (Temp1 := "") : ""
 
  ;extract statement parameters
@@ -201,7 +201,7 @@ CodeLexDynamicReference(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRe
   Position ++, CurrentChar := SubStr(Code,Position,1)
   If (CurrentChar = "%") ;found percent sign
    Break
-  If (CurrentChar = "") ;past end of string
+  If (CurrentChar = "" || InStr("`r`n",CurrentChar)) ;past end of string, or found newline before percent sign was matched
   {
    ObjInsert(Errors,Object("Identifier","UNMATCHED_PERCENT_SIGN","Highlight",Object("Position",Position1,"Length",Position - Position1),"Caret",Position1)) ;add an error to the error log
    Return, 1

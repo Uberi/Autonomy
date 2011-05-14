@@ -10,6 +10,10 @@ CodeGetError(ByRef Code,ByRef Errors)
  {
   CodeGetErrorBounds(CurrentError,ErrorStart,ErrorEnd)
 
+  ;move back one character if there is a newline at the end
+  If InStr("`r`n",SubStr(Code,ErrorEnd,1))
+   ErrorEnd --
+
   ;ensure there is enough padding for the highlights and caret
   ErrorDisplay := ""
   Loop, % ErrorEnd - ErrorStart
@@ -38,7 +42,7 @@ CodeGetError(ByRef Code,ByRef Errors)
   }
 
   CodeGetErrorShowBefore(Code,ErrorSection,ErrorDisplay,ErrorStart,DisplayLength)
-  ErrorSection .= SubStr(Code,ErrorStart,ErrorEnd - ErrorStart) ;show the code that is causing the error, and remove the right amount of padding
+  ErrorSection .= SubStr(Code,ErrorStart,ErrorEnd - ErrorStart) ;show the code that is causing the error
   CodeGetErrorShowAfter(Code,ErrorSection,ErrorEnd,DisplayLength)
   CodeGetErrorPosition(Code,Caret,Line,Column)
   Message := CodeGetErrorMessage(CurrentError.Identifier) ;get the error message
@@ -124,10 +128,11 @@ CodeGetErrorPosition(ByRef Code,Caret,ByRef Line,ByRef Column)
 ;retrieves an error message given an error code
 CodeGetErrorMessage(ErrorCode)
 {
- static UNMATCHED_QUOTE := "Missing closing quotation mark."
- static INVALID_CHARACTER := "Character is invalid."
- static INVALID_IDENTIFIER := "Identifier contains invalid characters."
- static UNMATCHED_PERCENT_SIGN := "Identifier is missing ending percent sign."
- static INVALID_SCOPE_DECLARATION := "Scope declaration is invalid."
- Return, (%ErrorCode%)
+ Errors := Object()
+ Errors.UNMATCHED_QUOTE := "Missing closing quotation mark."
+ Errors.INVALID_CHARACTER := "Character is invalid."
+ Errors.INVALID_IDENTIFIER := "Identifier contains invalid characters."
+ Errors.UNMATCHED_PERCENT_SIGN := "Identifier is missing ending percent sign."
+ Errors.INVALID_SCOPE_DECLARATION := "Scope declaration is invalid."
+ Return, Errors[ErrorCode]
 }

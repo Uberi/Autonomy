@@ -1,0 +1,167 @@
+~!@#$%^&*()_+`1234567890-=	ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz
+[]\;',./{}:"<>?
+---
+1: 
+	Caret: 3
+	Highlight: 
+	Identifier: INVALID_CHARACTER
+2: 
+	Caret: 5
+	Highlight: 
+	Identifier: INVALID_CHARACTER
+3: 
+	Caret: 7
+	Highlight: 
+		Length: 1
+		Position: 6
+	Identifier: INVALID_IDENTIFIER
+4: 
+	Caret: 14
+	Highlight: 
+	Identifier: INVALID_CHARACTER
+5: 
+	Caret: 85
+	Highlight: 
+	Identifier: INVALID_CHARACTER
+6: 
+	Caret: 86
+	Highlight: 
+	Identifier: INVALID_CHARACTER
+7: 
+	Caret: 87
+	Highlight: 
+	Identifier: INVALID_CHARACTER
+8: 
+	Caret: 98
+	Highlight: 
+		Length: 4
+		Position: 94
+	Identifier: UNMATCHED_QUOTE
+---
+1: 
+	File: 
+	Position: 0
+	Type: SYNTAX_ELEMENT
+	Value: 
+
+2: 
+	File: 
+	Position: 1
+	Type: SYNTAX_ELEMENT
+	Value: ~
+3: 
+	File: 
+	Position: 2
+	Type: SYNTAX_ELEMENT
+	Value: !
+4: 
+	File: 
+	Position: 4
+	Type: IDENTIFIER
+	Value: #
+5: 
+	File: 
+	Position: 7
+	Type: SYNTAX_ELEMENT
+	Value: ^
+6: 
+	File: 
+	Position: 8
+	Type: SYNTAX_ELEMENT
+	Value: &
+7: 
+	File: 
+	Position: 9
+	Type: SYNTAX_ELEMENT
+	Value: *
+8: 
+	File: 
+	Position: 10
+	Type: SYNTAX_ELEMENT
+	Value: (
+9: 
+	File: 
+	Position: 11
+	Type: SYNTAX_ELEMENT
+	Value: )
+10: 
+	File: 
+	Position: 12
+	Type: IDENTIFIER
+	Value: _
+11: 
+	File: 
+	Position: 13
+	Type: SYNTAX_ELEMENT
+	Value: +
+12: 
+	File: 
+	Position: 15
+	Type: LITERAL_NUMBER
+	Value: 1234567890
+13: 
+	File: 
+	Position: 25
+	Type: SYNTAX_ELEMENT
+	Value: -=
+14: 
+	File: 
+	Position: 28
+	Type: IDENTIFIER
+	Value: ABCDEFGHIJKLMNOPQRSTUVWXYZ
+15: 
+	File: 
+	Position: 55
+	Type: IDENTIFIER
+	Value: abcdefghijklmnopqrstuvwxyz
+16: 
+	File: 
+	Position: 82
+	Type: SYNTAX_ELEMENT
+	Value: 
+
+17: 
+	File: 
+	Position: 83
+	Type: SYNTAX_ELEMENT
+	Value: [
+18: 
+	File: 
+	Position: 84
+	Type: SYNTAX_ELEMENT
+	Value: ]
+19: 
+	File: 
+	Position: 88
+	Type: SYNTAX_ELEMENT
+	Value: ,
+20: 
+	File: 
+	Position: 89
+	Type: SYNTAX_ELEMENT
+	Value: .
+21: 
+	File: 
+	Position: 90
+	Type: SYNTAX_ELEMENT
+	Value: /
+22: 
+	File: 
+	Position: 91
+	Type: SYNTAX_ELEMENT
+	Value: {
+23: 
+	File: 
+	Position: 92
+	Type: SYNTAX_ELEMENT
+	Value: }
+24: 
+	File: 
+	Position: 93
+	Type: SYNTAX_ELEMENT
+	Value: :
+25: 
+	File: 
+	Position: 98
+	Type: SYNTAX_ELEMENT
+	Value: 

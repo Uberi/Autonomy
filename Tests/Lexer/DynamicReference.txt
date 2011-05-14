@@ -1,0 +1,112 @@
+Variable := %SomeVariable%
+OtherVariable := %UnclosedPercentSign
+Var := %Invalid Char
+%SomeFunc%()
+---
+1: 
+	Caret: 46
+	Highlight: 
+		Length: 20
+		Position: 46
+	Identifier: UNMATCHED_PERCENT_SIGN
+2: 
+	Caret: 83
+	Highlight: 
+		Length: 8
+		Position: 75
+	Identifier: INVALID_IDENTIFIER
+---
+1: 
+	File: 
+	Position: 0
+	Type: SYNTAX_ELEMENT
+	Value: 
+
+2: 
+	File: 
+	Position: 1
+	Type: IDENTIFIER
+	Value: Variable
+3: 
+	File: 
+	Position: 10
+	Type: SYNTAX_ELEMENT
+	Value: :=
+4: 
+	File: 
+	Position: 13
+	Type: SYNTAX_ELEMENT
+	Value: %
+5: 
+	File: 
+	Position: 14
+	Type: IDENTIFIER
+	Value: SomeVariable
+6: 
+	File: 
+	Position: 28
+	Type: SYNTAX_ELEMENT
+	Value: 
+
+7: 
+	File: 
+	Position: 29
+	Type: IDENTIFIER
+	Value: OtherVariable
+8: 
+	File: 
+	Position: 43
+	Type: SYNTAX_ELEMENT
+	Value: :=
+9: 
+	File: 
+	Position: 67
+	Type: SYNTAX_ELEMENT
+	Value: 
+
+10: 
+	File: 
+	Position: 68
+	Type: IDENTIFIER
+	Value: Var
+11: 
+	File: 
+	Position: 72
+	Type: SYNTAX_ELEMENT
+	Value: :=
+12: 
+	File: 
+	Position: 84
+	Type: IDENTIFIER
+	Value: Char
+13: 
+	File: 
+	Position: 89
+	Type: SYNTAX_ELEMENT
+	Value: 
+
+14: 
+	File: 
+	Position: 90
+	Type: SYNTAX_ELEMENT
+	Value: %
+15: 
+	File: 
+	Position: 91
+	Type: IDENTIFIER
+	Value: SomeFunc
+16: 
+	File: 
+	Position: 100
+	Type: SYNTAX_ELEMENT
+	Value: (
+17: 
+	File: 
+	Position: 101
+	Type: SYNTAX_ELEMENT
+	Value: )
+18: 
+	File: 
+	Position: 102
+	Type: SYNTAX_ELEMENT
+	Value: 
