@@ -10,7 +10,7 @@ Progress
 
     <tr><td>Error Handler</td> <td><em>Working</em></td></tr>
     <tr><td>Lexer</td>         <td><em>Working</em></td></tr>
-    <tr><td>Parser</td>        <td><em>Pending</em></td></tr>
+    <tr><td>Parser</td>        <td><em>In Progress</em></td></tr>
     <tr><td>Bytecode</td>      <td><em>Pending</em></td></tr>
     <tr><td>Interpreter</td>   <td><em>Pending</em></td></tr>
 </table>

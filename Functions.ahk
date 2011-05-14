@@ -1,15 +1,5 @@
 #NoEnv
 
-GetArgs()
-{
- global
- local Args
- Args := Object()
- Loop, %0%
-  ObjInsert(Args,%A_Index%)
- Return, Args
-}
-
 ShowObject(ShowObject,Padding = "")
 {
  ListLines, Off
@@ -46,24 +36,7 @@ FileAppend(Text,Filename)
  FileAppend, %Text%, %Filename%
 }
 
-MsgBox(Text = "")
-{
- If (Text = "")
-  MsgBox
- Else
-  MsgBox, %Text%
-}
-
 ExitApp(ExitCode = 0)
 {
  ExitApp, %ExitCode%
-}
-
-StringSplit(ByRef InputVar,Delimiters = "",OmitChars = "")
-{
- StringSplit, Output, InputVar, %Delimiters%, %OmitChars%
- OutputArray := Object()
- Loop, %Output0%
-  ObjInsert(OutputArray,Output%A_Index%)
- Return, OutputArray
 }

@@ -21,7 +21,7 @@ CodeLexInit()
  }
 }
 
-;parses AHK code, including all syntax
+;lexes AHK code, including all syntax
 CodeLex(Code,ByRef Tokens,ByRef Errors,ByRef Position = 1,ByRef FileName = "")
 { ;returns 1 on error, nothing otherwise
  global LexerIdentifierChars
