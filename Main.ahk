@@ -10,10 +10,6 @@ SetBatchLines(-1)
 
 Start:
 
-ToolTip % A_ScriptDir
-ToolTip Te'st
-ToolTip Some"thing
-
 FileRead(Code,A_ScriptFullPath)
 
 CodeLexInit()

@@ -1,7 +1,5 @@
 #NoEnv
 
-;wip: multiline expressions
-
 ;initializes resources that the lexer requires
 CodeLexInit()
 {
