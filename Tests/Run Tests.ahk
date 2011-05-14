@@ -27,15 +27,21 @@ TestLexer:
 CodeLexInit()
 Loop, %A_ScriptDir%\Lexer\*.txt
 {
- FileRead(Code,A_LoopFileLongPath)
- Temp1 := RegExMatch(Code,"S)\n---\r?\n",Divider), Expected := SubStr(Code,Temp1 + StrLen(Divider)), Code := SubStr(Code,1,Temp1 - 1) ;extract fields from test file
- StringReplace, Expected, Expected, `r,, All
- If CodeLex(Code,Tokens,Errors)
-  ExtraInfo := CodeGetError(Code,Errors), TestStatus := "Fail"
- Else If (ShowObject(Tokens) = Expected)
-  ExtraInfo := "None", TestStatus := "Pass"
+ FileRead(FileContents,A_LoopFileLongPath)
+ If RegExMatch(FileContents,"sS)^(?P<Code>.*?)\r?\n---\r?\n(?P<ErrorOutput>.*?)\r?\n---\r?\n(?P<TokenOutput>.*)$",Test)
+ {
+  StringReplace, TestErrorOutput, TestErrorOutput, `r,, All
+  StringReplace, TestTokenOutput, TestTokenOutput, `r,, All
+  CodeLex(TestCode,Tokens,Errors)
+  If (ShowObject(Errors) <> TestErrorOutput)
+   ExtraInfo := "Generated errors do not match expected errors.", TestStatus := "Fail"
+  Else If (ShowObject(Tokens) <> TestTokenOutput)
+   ExtraInfo := "Tokenized output does not match expected output.", TestStatus := "Fail"
+  Else
+   ExtraInfo := "None", TestStatus := "Pass"
+ }
  Else
-  ExtraInfo := "Tokenized output does not match expected output.", TestStatus := "Fail"
+  ExtraInfo := "Invalid test.", TestStatus := "Fail"
  LV_Add("",A_Index,"Lexer - " . A_LoopFileName,TestStatus,ExtraInfo)
 }
 Return

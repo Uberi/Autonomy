@@ -1,0 +1,45 @@
+MsgBox("Hello, World!","`"This string `n contains `" escaped `t characters `"")
+---
+
+---
+1: 
+	File: 
+	Position: 0
+	Type: SYNTAX_ELEMENT
+	Value: 
+
+2: 
+	File: 
+	Position: 1
+	Type: IDENTIFIER
+	Value: MsgBox
+3: 
+	File: 
+	Position: 7
+	Type: SYNTAX_ELEMENT
+	Value: (
+4: 
+	File: 
+	Position: 8
+	Type: LITERAL_STRING
+	Value: Hello, World!
+5: 
+	File: 
+	Position: 23
+	Type: SYNTAX_ELEMENT
+	Value: ,
+6: 
+	File: 
+	Position: 24
+	Type: LITERAL_STRING
+	Value: `"This string `n contains `" escaped `t characters `"
+7: 
+	File: 
+	Position: 79
+	Type: SYNTAX_ELEMENT
+	Value: )
+8: 
+	File: 
+	Position: 80
+	Type: SYNTAX_ELEMENT
+	Value: 

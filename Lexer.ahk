@@ -55,24 +55,18 @@ CodeLex(Code,ByRef Tokens,ByRef Errors,ByRef Position = 1,ByRef FileName = "")
    }
   }
   Else If (CurrentChar = """") ;begin literal string
-  {
-   If CodeLexString(Code,Position,Tokens,Errors,Output,FileName) ;invalid string
-    Return, 1
-  }
+   CodeLexString(Code,Position,Tokens,Errors,Output,FileName)
   Else If (CurrentTwoChar = "/*") ;begin multiline comment
    CodeLexMultilineComment(Code,Position) ;skip over the comment block
   Else If (CurrentTwoChar = "*/") ;end multiline comment
    Position += 2 ;can be skipped over
   Else If (CurrentChar = "%") ;dynamic variable reference or dynamic function call
-  {
-   If CodeLexDynamicReference(Code,Position,Tokens,Errors,Output,FileName) ;invalid dynamic reference
-    Return, 1
-  }
+   CodeLexDynamicReference(Code,Position,Tokens,Errors,Output,FileName)
   Else If (InStr("1234567890",CurrentChar) && !CodeLexNumber(Code,Position,Output)) ;a number, not an identifier
    ObjInsert(Tokens,Object("Type","LITERAL_NUMBER","Value",Output,"Position",Position1,"File",FileName)) ;add the number literal to the token array
   Else If InStr(LexerIdentifierChars,CurrentChar) ;an identifier
    CodeLexIdentifier(Code,Position,Tokens,Output,FileName)
-  Else If CodeLexSyntaxElement(Code,Position,Tokens,Errors,Output,FileName) ;invalid character
+  Else If CodeLexSyntaxElement(Code,Position,Tokens,Errors,Output,FileName) ;input is not a syntax element
   {
    If InStr(" " . A_Tab,CurrentChar) ;whitespace
    {
@@ -84,13 +78,14 @@ CodeLex(Code,ByRef Tokens,ByRef Errors,ByRef Position = 1,ByRef FileName = "")
    Else
    {
     ObjInsert(Errors,Object("Identifier","INVALID_CHARACTER","Highlight","","Caret",Position)) ;add an error to the error log
-    Return, 1
+    Position ++
    }
   }
  }
  Temp1 := Tokens[Tokens._MaxIndex()] ;get most recent token
  If !(Temp1.Type = "SYNTAX_ELEMENT" && Temp1.Value = "`n") ;token was not a newline
   ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value","`n","Position",Position,"File",FileName)) ;add the statement end to the token array
+ Return, !!Errors._MaxIndex() ;indicate whether or not there were errors
 }
 
 ;parses a new line, to find control structures, directives, etc.
@@ -152,7 +147,7 @@ CodeLexString(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef Output,B
    Output .= SubStr(Code,Position,2), Position += 2 ;append the escape sequence to the output, and move past it
   Else If (CurrentChar = "" || InStr("`r`n",CurrentChar)) ;past end of string, or reached a newline before the open quote has been closed
   {
-   ObjInsert(Errors,Object("Identifier","UNMATCHED_QUOTE","Highlight",Object("Position",Position1,"Length",Position - Position1)),"Caret",Position) ;add an error to the error log
+   ObjInsert(Errors,Object("Identifier","UNMATCHED_QUOTE","Highlight",Object("Position",Position1,"Length",Position - Position1),"Caret",Position)) ;add an error to the error log
    Return, 1
   }
   Else If (CurrentChar = """") ;closing quote mark found
@@ -208,12 +203,12 @@ CodeLexDynamicReference(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRe
    Break
   If (CurrentChar = "") ;past end of string
   {
-   ObjInsert(Errors,Object("Identifier","UNMATCHED_PERCENT_SIGN","Highlight",Object("Position",Position1,"Length",Position - Position1)),"Caret",Position1) ;add an error to the error log
+   ObjInsert(Errors,Object("Identifier","UNMATCHED_PERCENT_SIGN","Highlight",Object("Position",Position1,"Length",Position - Position1),"Caret",Position1)) ;add an error to the error log
    Return, 1
   }
   If !InStr(LexerIdentifierChars,CurrentChar) ;invalid character found
   {
-   ObjInsert(Errors,Object("Identifier","INVALID_IDENTIFIER","Highlight",Object("Position",Position1,"Length",Position - Position1)),"Caret",Position) ;add an error to the error log
+   ObjInsert(Errors,Object("Identifier","INVALID_IDENTIFIER","Highlight",Object("Position",Position1,"Length",Position - Position1),"Caret",Position)) ;add an error to the error log
    Return, 1
   }
   Output .= CurrentChar

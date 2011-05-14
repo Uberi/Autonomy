@@ -5,6 +5,8 @@ GoTo, SomeOtherLabel
 SomeOtherLabel:
 Return
 ---
+
+---
 1: 
 	File: 
 	Position: 0

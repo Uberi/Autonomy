@@ -10,12 +10,16 @@ SetBatchLines(-1)
 
 Start:
 
+ToolTip % A_ScriptDir
+ToolTip Te'st
+ToolTip Some"thing
+
 FileRead(Code,A_ScriptFullPath)
 
 CodeLexInit()
 If CodeLex(Code,Tokens,Errors)
 {
- MsgBox(Clipboard := ShowObject(Tokens))
+ ;MsgBox(Clipboard := ShowObject(Tokens))
  ErrorMessage := CodeGetError(Code,Errors)
  FileAppend(ErrorMessage,"*") ;display error at standard output
  ExitApp(1)
