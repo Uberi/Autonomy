@@ -1,18 +1,21 @@
 #NoEnv
 
-#Warn All
+;#Warn All
 
 SetBatchLines(-1)
 
-#Include %A_ScriptDir%\Functions.ahk
-#Include %A_ScriptDir%\Get Error.ahk
+#Include Functions.ahk
+#Include Get Error.ahk
 
-#Include %A_ScriptDir%\Lexer.ahk
-#Include %A_ScriptDir%\Parser.ahk
+#Include Lexer.ahk
+#Include Parser.ahk
+
+;wip: give error handler different error levels: Info, Warning, and Error
 
 Code = 
 (
-
+MsgBox
+Return, 1 + 1
 )
 
 CodeLexInit()

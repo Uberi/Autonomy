@@ -132,7 +132,7 @@ CodeGetErrorMessage(ErrorCode)
  Errors.UNMATCHED_QUOTE := "Missing closing quotation mark."
  Errors.INVALID_CHARACTER := "Character is invalid."
  Errors.INVALID_IDENTIFIER := "Identifier contains invalid characters."
+ Errors.INVALID_SYNTAX := "Syntax is incorrect."
  Errors.UNMATCHED_PERCENT_SIGN := "Identifier is missing ending percent sign."
- Errors.INVALID_SCOPE_DECLARATION := "Scope declaration is invalid."
  Return, Errors[ErrorCode]
 }

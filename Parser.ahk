@@ -9,5 +9,8 @@ CodeParseInit()
 ;parses AHK token stream
 CodeParse(ByRef Tokens)
 {
- 
+ For CurrentToken In Tokens
+ {
+  
+ }
 }

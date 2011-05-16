@@ -17,96 +17,96 @@ Var := %Invalid Char
 	Identifier: INVALID_IDENTIFIER
 ---
 1: 
-	File: 
+	File: Test
 	Position: 0
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 2: 
-	File: 
+	File: Test
 	Position: 1
 	Type: IDENTIFIER
 	Value: Variable
 3: 
-	File: 
+	File: Test
 	Position: 10
 	Type: SYNTAX_ELEMENT
 	Value: :=
 4: 
-	File: 
+	File: Test
 	Position: 13
 	Type: SYNTAX_ELEMENT
 	Value: %
 5: 
-	File: 
+	File: Test
 	Position: 14
 	Type: IDENTIFIER
 	Value: SomeVariable
 6: 
-	File: 
+	File: Test
 	Position: 28
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 7: 
-	File: 
+	File: Test
 	Position: 29
 	Type: IDENTIFIER
 	Value: OtherVariable
 8: 
-	File: 
+	File: Test
 	Position: 43
 	Type: SYNTAX_ELEMENT
 	Value: :=
 9: 
-	File: 
+	File: Test
 	Position: 67
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 10: 
-	File: 
+	File: Test
 	Position: 68
 	Type: IDENTIFIER
 	Value: Var
 11: 
-	File: 
+	File: Test
 	Position: 72
 	Type: SYNTAX_ELEMENT
 	Value: :=
 12: 
-	File: 
+	File: Test
 	Position: 84
 	Type: IDENTIFIER
 	Value: Char
 13: 
-	File: 
+	File: Test
 	Position: 89
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 14: 
-	File: 
+	File: Test
 	Position: 90
 	Type: SYNTAX_ELEMENT
 	Value: %
 15: 
-	File: 
+	File: Test
 	Position: 91
 	Type: IDENTIFIER
 	Value: SomeFunc
 16: 
-	File: 
+	File: Test
 	Position: 100
 	Type: SYNTAX_ELEMENT
 	Value: (
 17: 
-	File: 
+	File: Test
 	Position: 101
 	Type: SYNTAX_ELEMENT
 	Value: )
 18: 
-	File: 
+	File: Test
 	Position: 102
 	Type: SYNTAX_ELEMENT
 	Value: 
