@@ -9,7 +9,7 @@ CodeLexInit()
  LexerIdentifierChars := "abcdefghijklmnopqrstuvwxyz_1234567890#" ;characters that make up a an identifier
  LexerStatementList := "#Include`n#IncludeAgain`n#SingleInstance`n#Warn`nWhile`nLoop`nFor`nIf`nElse`nBreak`nContinue`nReturn`nGosub`nGoto`nlocal`nglobal`nstatic" ;statements that can be found on the beginning of a line
  LexerStatementLiteralList := "#Include`n#IncludeAgain`n#SingleInstance`n#Warn`nBreak`nContinue`nGosub`nGoto`nlocal`nglobal`nstatic" ;statements that accept literals as parameters
- LexerSyntaxElements := "<<=`n>>=`n//=`n . `n*=`n.=`n|=`n&=`n^=`n-=`n+=`n||`n&&`n--`n==`n<>`n!=`n++`n/=`n>=`n<=`n:=`n**`n<<`n>>`n//`n/`n*`n-`n!`n~`n+`n|`n^`n&`n<`n>`n=`n.`n(`n)`n,`n[`n]`n{`n}`n?`n:" ;elements that make up other parts of the syntax (excludes % and `n because they are handled separately by the lexer)
+ LexerSyntaxElements := "<<=`n>>=`n//=`n*=`n.=`n|=`n&=`n^=`n-=`n+=`n||`n&&`n--`n==`n<>`n!=`n++`n/=`n>=`n<=`n:=`n**`n<<`n>>`n//`n/`n*`n-`n!`n~`n+`n|`n^`n&`n<`n>`n=`n(`n)`n,`n[`n]`n{`n}`n?`n:" ;elements that make up other parts of the syntax (excludes " . ", "%", ".", and "`n", because they are handled separately by the lexer)
 
  ;convert statements string list to an object
  Temp1 := LexerStatementList, LexerStatementList := Object()
@@ -56,8 +56,7 @@ CodeLex(Code,ByRef Tokens,ByRef Errors,ByRef FileName = "")
     If (SubStr(Code,Position,2) = "/*") ;begin multiline comment
     {
      CodeLexMultilineComment(Code,Position) ;skip over the comment block
-     ;move past any whitespace, to ensure there are no duplicate lines
-     While, (InStr("`r`n",CurrentChar := SubStr(Code,Position,1)) && (CurrentChar <> ""))
+     While, (InStr("`r`n",CurrentChar := SubStr(Code,Position,1)) && (CurrentChar <> "")) ;move past any whitespace, to ensure there are no duplicate lines
       Position ++
     }
     ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value","`n","Position",(Position - 1),"File",FileName)) ;add the statement end to the token array
@@ -72,19 +71,31 @@ CodeLex(Code,ByRef Tokens,ByRef Errors,ByRef FileName = "")
    Position += 2 ;can be skipped over
   Else If (CurrentChar = "%") ;dynamic variable reference or dynamic function call
    CodeLexDynamicReference(Code,Position,Tokens,Errors,Output,FileName)
+  Else If (CurrentChar = ".") ;object access (explicit handling ensures that Var.123.456 will have the purely numberical keys interpreted as identifiers instead of numbers)
+  {
+   ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value",".","Position",Position,"File",FileName)) ;add a object access token to the token array
+   Position ++ ;move to next char
+   If InStr(LexerIdentifierChars,CurrentChar) ;an identifier
+    CodeLexIdentifier(Code,Position,Tokens,FileName)
+  }
   Else If !CodeLexSyntaxElement(Code,Position,Output) ;input is a syntax element
    ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value",Output,"Position",Position1,"File",FileName)) ;add the found syntax element to the token array
+  Else If InStr("`t ",CurrentChar) ;whitespace
+  {
+   Position ++, CurrentChar := SubStr(Code,Position,1) ;skip over whitespace, retrieve character from updated position
+   If (CurrentChar = ";") ;single line comment
+    CodeLexSingleLineComment(Code,Position) ;skip over comment
+   Else If (CurrentChar = ".") ;concatenation operator (whitespace preceded it)
+   {
+    ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value"," . ","Position",Position,"File",FileName)), Position ++ ;add a concatenation token to the token array, move past dot operator
+    If !InStr("`t ",SubStr(Code,Position,1)) ;there must be whitespace on both sides of the concat operator
+     ObjInsert(Errors,Object("Identifier","INVALID_SYNTAX","Highlight",Object("Position",Position1,"Length",(Position - Position1)),"Caret",Position)) ;add an error to the error log
+   }
+  }
   Else If (InStr("1234567890",CurrentChar) && !CodeLexNumber(Code,Position,Output)) ;a number, not an identifier
    ObjInsert(Tokens,Object("Type","LITERAL_NUMBER","Value",Output,"Position",Position1,"File",FileName)) ;add the number literal to the token array
   Else If InStr(LexerIdentifierChars,CurrentChar) ;an identifier
    CodeLexIdentifier(Code,Position,Tokens,FileName)
-  Else If InStr("`t ",CurrentChar) ;whitespace
-  {
-   If (SubStr(Code,Position + 1,1) = ";") ;single line comment
-    CodeLexSingleLineComment(Code,Position) ;skip over comment
-   Else
-    Position ++
-  }
   Else ;invalid character
   {
    ObjInsert(Errors,Object("Identifier","INVALID_CHARACTER","Highlight","","Caret",Position)) ;add an error to the error log
@@ -164,16 +175,14 @@ CodeLexForLoop(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef FileNam
   Return, 1
  }
 
- ;skip over whitespace
- While, (InStr("`t ",CurrentChar := SubStr(Code,Position,1)) && CurrentChar <> "")
+ While, (InStr("`t ",CurrentChar := SubStr(Code,Position,1)) && CurrentChar <> "") ;skip over whitespace
   Position ++
 
  If (SubStr(Code,Position,1) = ",") ;variable that receives the value was given
  {
   Position ++ ;move past the comma
 
-  ;skip over whitespace
-  While, (InStr("`t ",CurrentChar := SubStr(Code,Position,1)) && CurrentChar <> "")
+  While, (InStr("`t ",CurrentChar := SubStr(Code,Position,1)) && CurrentChar <> "") ;skip over whitespace
    Position ++
 
   ;lex the variable that receives the value, or give an error if it is not valid
@@ -185,8 +194,7 @@ CodeLexForLoop(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef FileNam
    Return, 1
   }
 
-  ;skip over whitespace
-  While, (InStr("`t ",CurrentChar := SubStr(Code,Position,1)) && CurrentChar <> "")
+  While, (InStr("`t ",CurrentChar := SubStr(Code,Position,1)) && CurrentChar <> "") ;skip over whitespace
    Position ++
  }
 
@@ -200,8 +208,7 @@ CodeLexForLoop(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef FileNam
  ObjInsert(Tokens,Object("Type","LITERAL_STRING","Value",",","Position",Position,"File",FileName)) ;add a separator to the token array
  Position += 3 ;skip over the "In" keyword
 
- ;skip over whitespace
- While, (InStr("`t ",CurrentChar := SubStr(Code,Position,1)) && CurrentChar <> "")
+ While, (InStr("`t ",CurrentChar := SubStr(Code,Position,1)) && CurrentChar <> "") ;skip over whitespace
   Position ++
 }
 
@@ -232,7 +239,7 @@ CodeLexString(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef Output,B
 ;lexes a single line comment
 CodeLexSingleLineComment(ByRef Code,ByRef Position)
 {
- Position ++
+ Position ++ ;skip over semicolon
  While, !InStr("`r`n",SubStr(Code,Position,1)) ;loop until a newline is found
   Position ++
 }

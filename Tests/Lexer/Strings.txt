@@ -54,7 +54,7 @@ Var := "This is also unmatched
 	Value: Hello, World!
 8: 
 	File: Test
-	Position: 56
+	Position: 57
 	Type: SYNTAX_ELEMENT
 	Value:  . 
 9: 
