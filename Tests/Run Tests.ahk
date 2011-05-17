@@ -4,9 +4,9 @@
 #Include ..\Lexer.ahk
 #Include ..\Get Error.ahk
 
-;#Warn All
+#Warn All
 
-;wip: add test for syntax elements. tests for error handler as well
+;wip: tests for error handler as well
 
 Gui, Font, s12 Bold, Arial
 Gui, Add, Text, x2 y0 w510 h20 +Center, Unit Test Results:

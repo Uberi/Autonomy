@@ -1,0 +1,101 @@
+Var . "Something"
+Variable.Value
+Var1 .Var2
+Var3. Var4
+---
+1: 
+	Caret: 42
+	Highlight: 
+		Length: 2
+		Position: 40
+	Identifier: INVALID_SYNTAX
+---
+1: 
+	File: Test
+	Position: 0
+	Type: SYNTAX_ELEMENT
+	Value: 
+
+2: 
+	File: Test
+	Position: 1
+	Type: IDENTIFIER
+	Value: Var
+3: 
+	File: Test
+	Position: 5
+	Type: SYNTAX_ELEMENT
+	Value:  . 
+4: 
+	File: Test
+	Position: 7
+	Type: LITERAL_STRING
+	Value: Something
+5: 
+	File: Test
+	Position: 19
+	Type: SYNTAX_ELEMENT
+	Value: 
+
+6: 
+	File: Test
+	Position: 20
+	Type: IDENTIFIER
+	Value: Variable
+7: 
+	File: Test
+	Position: 28
+	Type: SYNTAX_ELEMENT
+	Value: .
+8: 
+	File: Test
+	Position: 29
+	Type: IDENTIFIER
+	Value: Value
+9: 
+	File: Test
+	Position: 35
+	Type: SYNTAX_ELEMENT
+	Value: 
+
+10: 
+	File: Test
+	Position: 36
+	Type: IDENTIFIER
+	Value: Var1
+11: 
+	File: Test
+	Position: 41
+	Type: SYNTAX_ELEMENT
+	Value:  . 
+12: 
+	File: Test
+	Position: 42
+	Type: IDENTIFIER
+	Value: Var2
+13: 
+	File: Test
+	Position: 47
+	Type: SYNTAX_ELEMENT
+	Value: 
+
+14: 
+	File: Test
+	Position: 48
+	Type: IDENTIFIER
+	Value: Var3
+15: 
+	File: Test
+	Position: 52
+	Type: SYNTAX_ELEMENT
+	Value: .
+16: 
+	File: Test
+	Position: 54
+	Type: IDENTIFIER
+	Value: Var4
+17: 
+	File: Test
+	Position: 58
+	Type: SYNTAX_ELEMENT
+	Value: 
