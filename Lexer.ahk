@@ -37,11 +37,7 @@ CodeLexInit()
 CodeLex(Code,ByRef Tokens,ByRef Errors,ByRef FileName = "")
 { ;returns 1 on error, nothing otherwise
  global LexerIdentifierChars
- If !IsObject(Tokens)
-  Tokens := Object()
- If !IsObject(Errors)
-  Errors := Object()
- Position := 1
+ Tokens := Object(), Errors := Object(), Position := 1 ;initialize variables
  Loop
  {
   CurrentChar := SubStr(Code,Position,1)
@@ -65,7 +61,7 @@ CodeLex(Code,ByRef Tokens,ByRef Errors,ByRef FileName = "")
       Position ++
     }
     ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value","`n","Position",(Position - 1),"File",FileName)) ;add the statement end to the token array
-    CodeLexLine(Code,Position,Tokens,Errors,FileName) ;parse for statements
+    CodeLexLine(Code,Position,Tokens,Errors,FileName) ;check for statements
    }
   }
   Else If (CurrentChar = """") ;begin literal string
@@ -76,10 +72,8 @@ CodeLex(Code,ByRef Tokens,ByRef Errors,ByRef FileName = "")
    Position += 2 ;can be skipped over
   Else If (CurrentChar = "%") ;dynamic variable reference or dynamic function call
    CodeLexDynamicReference(Code,Position,Tokens,Errors,Output,FileName)
-  Else If !CodeLexSyntaxElement(Code,Position,Tokens,Errors,FileName) ;input is a syntax element
-  {
-   ;do nothing
-  }
+  Else If !CodeLexSyntaxElement(Code,Position,Output) ;input is a syntax element
+   ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value",Output,"Position",Position1,"File",FileName)) ;add the found syntax element to the token array
   Else If (InStr("1234567890",CurrentChar) && !CodeLexNumber(Code,Position,Output)) ;a number, not an identifier
    ObjInsert(Tokens,Object("Type","LITERAL_NUMBER","Value",Output,"Position",Position1,"File",FileName)) ;add the number literal to the token array
   Else If InStr(LexerIdentifierChars,CurrentChar) ;an identifier
@@ -103,9 +97,9 @@ CodeLex(Code,ByRef Tokens,ByRef Errors,ByRef FileName = "")
  Return, !!ObjMaxIndex(Errors) ;indicate whether or not there were errors
 }
 
-;parses a new line, to find control structures, directives, etc.
+;lexes a new line, to find control structures, directives, etc.
 CodeLexLine(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef FileName)
-{ ;returns 1 if the line cannot be parsed as a statement, nothing otherwise
+{ ;returns 1 if the line cannot be lexed as a statement, nothing otherwise
  global LexerIdentifierChars, LexerStatementList, LexerStatementLiteralList
 
  ;store the candidate statement
@@ -128,10 +122,10 @@ CodeLexLine(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef FileName)
   Return
  }
 
- ;determine whether the line should be parsed as an expression instead of a statement
+ ;determine whether the line should be processed as an expression instead of a statement
  If !(InStr("`r`n`t, ",SubStr(Code,Position,1)) && ObjHasKey(LexerStatementList,Statement)) ;not a statement, so must be expression
  {
-  Position := Position1 ;move the position back to the beginning of the line, to allow it to be parsed again as an expression
+  Position := Position1 ;move the position back to the beginning of the line, to allow it to be processed again as an expression
   Return, 1
  }
 
@@ -235,7 +229,7 @@ CodeLexString(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef Output,B
  ObjInsert(Tokens,Object("Type","LITERAL_STRING","Value",Output,"Position",Position1,"File",FileName)) ;add the string literal to the token array
 }
 
-;parses a single line comment
+;lexes a single line comment
 CodeLexSingleLineComment(ByRef Code,ByRef Position)
 {
  Position ++
@@ -243,7 +237,7 @@ CodeLexSingleLineComment(ByRef Code,ByRef Position)
   Position ++
 }
 
-;parses a multiline comment, including any nested comments it may contain
+;lexes a multiline comment, including any nested comments it may contain
 CodeLexMultilineComment(ByRef Code,ByRef Position)
 {
  global LexerEscapeChar
@@ -264,7 +258,7 @@ CodeLexMultilineComment(ByRef Code,ByRef Position)
  Position += 2 ;skip over the closing comment
 }
 
-;parses dynamic variable and function references
+;lexes dynamic variable and function references
 CodeLexDynamicReference(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef Output,ByRef FileName)
 { ;returns 1 on error, nothing otherwise
  global LexerIdentifierChars
@@ -291,7 +285,24 @@ CodeLexDynamicReference(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRe
  ObjInsert(Tokens,Object("Type","IDENTIFIER","Value",Output,"Position",Position1 + 1,"File",FileName)) ;add the identifier to the token array
 }
 
-;parses a number, and if it is not parsable, notify that it may be an identifier
+;lexes a syntax token
+CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Output)
+{ ;returns 1 on error, nothing otherwise
+ global LexerSyntaxElements
+ MaxLength := ObjMaxIndex(LexerSyntaxElements), Temp1 := MaxLength
+ Loop, %MaxLength%
+ {
+  If ObjHasKey(LexerSyntaxElements[Temp1],Output := SubStr(Code,Position,Temp1)) ;check for a match with a syntax element
+  {
+   Position += Temp1
+   Return
+  }
+  Temp1 --
+ }
+ Return, 1
+}
+
+;lexes a number, and if it is not a valid number, notify that it may be an identifier
 CodeLexNumber(ByRef Code,ByRef Position,ByRef Output)
 { ;returns 1 when parsing failed, nothing otherwise
  global LexerIdentifierChars
@@ -309,27 +320,26 @@ CodeLexNumber(ByRef Code,ByRef Position,ByRef Output)
   {
    If DecimalUsed ;input already had a decimal point, so is probably an identifier
    {
-    Position := Position1 ;return the position back to the start of this section, to try to parse it again as an identifier
+    Position := Position1 ;return the position back to the start of this section, to try to process it again as an identifier
     Return, 1
    }
    Output .= CurrentChar, DecimalUsed := 1 ;set a flag to show that a decimal point has been used
   }
-  Else If InStr(LexerIdentifierChars,CurrentChar) ;notify if the code is a valid identifier char if it cannot be parsed as a number, otherwise end number
+  Else If InStr(LexerIdentifierChars,CurrentChar) ;notify if the code is a valid identifier char if it cannot be processed as a number
   {
    Position := Position1 ;return the position back to the start of this section, to try to parse it again as an identifier
    Return, 1
   }
-  Else
+  Else ;end of number
    Return
   Position ++
  }
 }
 
-;parses an identifier
+;lexes an identifier
 CodeLexIdentifier(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileName)
 {
  global LexerIdentifierChars
- ;MsgBox % Position . "`n""" . SubStr(Code,Position) . "`n`n" . Clipboard := ShowObject(Tokens)
  Output := "", Position1 := Position
  Loop
  {
@@ -339,22 +349,4 @@ CodeLexIdentifier(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileName)
   Output .= CurrentChar, Position ++
  }
  ObjInsert(Tokens,Object("Type","IDENTIFIER","Value",Output,"Position",Position1,"File",FileName)) ;add the identifier to the token array
-}
-
-;parses a syntax token
-CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef FileName)
-{ ;returns 1 on error, nothing otherwise
- global LexerSyntaxElements
- MaxLength := ObjMaxIndex(LexerSyntaxElements), Temp1 := MaxLength
- Loop, %MaxLength%
- {
-  If ObjHasKey(LexerSyntaxElements[Temp1],Output := SubStr(Code,Position,Temp1)) ;check for a match with a syntax element
-  {
-   ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value",Output,"Position",Position,"File",FileName)) ;add the found syntax element to the token array
-   Position += Temp1
-   Return
-  }
-  Temp1 --
- }
- Return, 1
 }

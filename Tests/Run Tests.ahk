@@ -6,7 +6,7 @@
 
 ;#Warn All
 
-;wip: add test for numbers, identifiers, and syntax elements. tests for error handler as well
+;wip: add test for identifiers and syntax elements. tests for error handler as well
 
 Gui, Font, s12 Bold, Arial
 Gui, Add, Text, x2 y0 w510 h20 +Center, Unit Test Results:
@@ -40,13 +40,9 @@ Loop, %A_ScriptDir%\Lexer\*.txt
   If (ShowObject(Errors) <> TestErrorOutput)
    ExtraInfo := "Generated errors do not match expected errors.", TestStatus := "Fail"
   Else If (ShowObject(Tokens) <> TestTokenOutput)
-  {
    ExtraInfo := "Tokenized output does not match expected output.", TestStatus := "Fail"
-   MsgBox % Clipboard := ShowObject(Tokens)
-  }
   Else
    ExtraInfo := "None", TestStatus := "Pass"
-  Errors := "", Tokens := ""
  }
  Else
   ExtraInfo := "Invalid test.", TestStatus := "Fail"

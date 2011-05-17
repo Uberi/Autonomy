@@ -2,6 +2,7 @@ Variable := %SomeVariable%
 OtherVariable := %UnclosedPercentSign
 Var := %Invalid Char
 %SomeFunc%()
+Composite%Reference% := Composite%Function%Call()
 ---
 1: 
 	Caret: 46
@@ -107,6 +108,62 @@ Var := %Invalid Char
 	Value: )
 18: 
 	File: Test
-	Position: 102
+	Position: 103
+	Type: SYNTAX_ELEMENT
+	Value: 
+
+19: 
+	File: Test
+	Position: 104
+	Type: IDENTIFIER
+	Value: Composite
+20: 
+	File: Test
+	Position: 113
+	Type: SYNTAX_ELEMENT
+	Value: %
+21: 
+	File: Test
+	Position: 114
+	Type: IDENTIFIER
+	Value: Reference
+22: 
+	File: Test
+	Position: 125
+	Type: SYNTAX_ELEMENT
+	Value: :=
+23: 
+	File: Test
+	Position: 128
+	Type: IDENTIFIER
+	Value: Composite
+24: 
+	File: Test
+	Position: 137
+	Type: SYNTAX_ELEMENT
+	Value: %
+25: 
+	File: Test
+	Position: 138
+	Type: IDENTIFIER
+	Value: Function
+26: 
+	File: Test
+	Position: 147
+	Type: IDENTIFIER
+	Value: Call
+27: 
+	File: Test
+	Position: 151
+	Type: SYNTAX_ELEMENT
+	Value: (
+28: 
+	File: Test
+	Position: 152
+	Type: SYNTAX_ELEMENT
+	Value: )
+29: 
+	File: Test
+	Position: 153
 	Type: SYNTAX_ELEMENT
 	Value: 

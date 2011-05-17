@@ -31,5 +31,4 @@ If CodeParse(Code)
  FileAppend(ErrorMessage,"*") ;display error at standard output
  ExitApp(1)
 }
-
 ExitApp()
