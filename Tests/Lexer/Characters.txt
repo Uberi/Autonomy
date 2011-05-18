@@ -5,38 +5,46 @@
 	Caret: 3
 	Highlight: 
 	Identifier: INVALID_CHARACTER
+	Level: Error
 2: 
 	Caret: 5
 	Highlight: 
 	Identifier: INVALID_CHARACTER
+	Level: Error
 3: 
 	Caret: 7
 	Highlight: 
 		Length: 1
 		Position: 6
 	Identifier: INVALID_IDENTIFIER
+	Level: Error
 4: 
 	Caret: 14
 	Highlight: 
 	Identifier: INVALID_CHARACTER
+	Level: Error
 5: 
 	Caret: 85
 	Highlight: 
 	Identifier: INVALID_CHARACTER
+	Level: Error
 6: 
 	Caret: 86
 	Highlight: 
 	Identifier: INVALID_CHARACTER
+	Level: Error
 7: 
 	Caret: 87
 	Highlight: 
 	Identifier: INVALID_CHARACTER
+	Level: Error
 8: 
 	Caret: 98
 	Highlight: 
 		Length: 4
 		Position: 94
 	Identifier: UNMATCHED_QUOTE
+	Level: Error
 ---
 1: 
 	File: Test

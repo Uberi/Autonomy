@@ -10,12 +10,14 @@ Composite%Reference% := Composite%Function%Call()
 		Length: 20
 		Position: 46
 	Identifier: UNMATCHED_PERCENT_SIGN
+	Level: Error
 2: 
 	Caret: 83
 	Highlight: 
 		Length: 8
 		Position: 75
 	Identifier: INVALID_IDENTIFIER
+	Level: Error
 ---
 1: 
 	File: Test

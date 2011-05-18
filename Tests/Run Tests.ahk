@@ -2,6 +2,7 @@
 
 #Include ..\Functions.ahk
 #Include ..\Lexer.ahk
+#Include ..\Parser.ahk
 #Include ..\Get Error.ahk
 
 #Warn All
@@ -51,7 +52,27 @@ Loop, %A_ScriptDir%\Lexer\*.txt
 Return
 
 TestParser:
-
+CodeParseInit()
+Loop, %A_ScriptDir%\Parser\*.txt
+{
+ FileRead(FileContents,A_LoopFileLongPath)
+ If RegExMatch(FileContents,"sS)^(?P<Tokens>.*?)\r?\n---\r?\n(?P<ErrorOutput>.*?)\r?\n---\r?\n(?P<TreeOutput>.*)$",Test)
+ {
+  Tokens := ParseObject(TestTokens)
+  StringReplace, TestErrorOutput, TestErrorOutput, `r,, All
+  StringReplace, TestTokenOutput, TestTokenOutput, `r,, All
+  CodeParse(Tokens,SyntaxTree,Errors)
+  If (ShowObject(Errors) <> TestErrorOutput)
+   ExtraInfo := "Generated errors do not match expected errors.", TestStatus := "Fail"
+  Else If (ShowObject(SyntaxTree) <> TestTreeOutput)
+   ExtraInfo := "Syntax tree does not match expected output.", TestStatus := "Fail"
+  Else
+   ExtraInfo := "None", TestStatus := "Pass"
+ }
+ Else
+  ExtraInfo := "Invalid test.", TestStatus := "Fail"
+ LV_Add("",A_Index,"Parser - " . A_LoopFileName,TestStatus,ExtraInfo)
+}
 Return
 
 TestBytecode:

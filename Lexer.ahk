@@ -46,8 +46,7 @@ CodeLex(Code,ByRef Tokens,ByRef Errors,ByRef FileName = "")
   CurrentTwoChar := SubStr(Code,Position,2), Position1 := Position
   If ((InStr("`r`n",CurrentChar) <> 0) || (A_Index = 1)) ;beginning of a line
   {
-   ;move past any whitespace
-   While, (InStr("`r`n`t ",CurrentChar := SubStr(Code,Position,1)) && (CurrentChar <> ""))
+   While, (InStr("`r`n`t ",CurrentChar := SubStr(Code,Position,1)) && (CurrentChar <> "")) ;move past any whitespace
     Position ++
    If (SubStr(Code,Position,1) = ";") ;single line comment
     CodeLexSingleLineComment(Code,Position) ;skip over comment
@@ -59,7 +58,7 @@ CodeLex(Code,ByRef Tokens,ByRef Errors,ByRef FileName = "")
      While, (InStr("`r`n",CurrentChar := SubStr(Code,Position,1)) && (CurrentChar <> "")) ;move past any whitespace, to ensure there are no duplicate lines
       Position ++
     }
-    ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value","`n","Position",(Position - 1),"File",FileName)) ;add the statement end to the token array
+    ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value","`n","Position",Position - 1,"File",FileName)) ;add the statement end to the token array
     CodeLexLine(Code,Position,Tokens,Errors,FileName) ;check for statements
    }
   }
@@ -89,7 +88,7 @@ CodeLex(Code,ByRef Tokens,ByRef Errors,ByRef FileName = "")
    {
     ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value"," . ","Position",Position,"File",FileName)), Position ++ ;add a concatenation token to the token array, move past dot operator
     If !InStr("`t ",SubStr(Code,Position,1)) ;there must be whitespace on both sides of the concat operator
-     ObjInsert(Errors,Object("Identifier","INVALID_SYNTAX","Highlight",Object("Position",Position1,"Length",(Position - Position1)),"Caret",Position)) ;add an error to the error log
+     ObjInsert(Errors,Object("Identifier","INVALID_SYNTAX","Level","Error","Highlight",Object("Position",Position1,"Length",Position - Position1),"Caret",Position)) ;add an error to the error log
    }
   }
   Else If (InStr("1234567890",CurrentChar) && !CodeLexNumber(Code,Position,Output)) ;a number, not an identifier
@@ -98,7 +97,7 @@ CodeLex(Code,ByRef Tokens,ByRef Errors,ByRef FileName = "")
    CodeLexIdentifier(Code,Position,Tokens,FileName)
   Else ;invalid character
   {
-   ObjInsert(Errors,Object("Identifier","INVALID_CHARACTER","Highlight","","Caret",Position)) ;add an error to the error log
+   ObjInsert(Errors,Object("Identifier","INVALID_CHARACTER","Level","Error","Highlight","","Caret",Position)) ;add an error to the error log
    Position ++
   }
  }
@@ -171,7 +170,7 @@ CodeLexForLoop(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef FileNam
   CodeLexIdentifier(Code,Position,Tokens,FileName)
  Else
  {
-  ObjInsert(Errors,Object("Identifier","INVALID_IDENTIFIER","Highlight","","Caret",Position)) ;add an error to the error log
+  ObjInsert(Errors,Object("Identifier","INVALID_IDENTIFIER","Level","Error","Highlight","","Caret",Position)) ;add an error to the error log
   Return, 1
  }
 
@@ -190,7 +189,7 @@ CodeLexForLoop(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef FileNam
    CodeLexIdentifier(Code,Position,Tokens,FileName)
   Else
   {
-   ObjInsert(Errors,Object("Identifier","INVALID_IDENTIFIER","Highlight","","Caret",Position)) ;add an error to the error log
+   ObjInsert(Errors,Object("Identifier","INVALID_IDENTIFIER","Level","Error","Highlight","","Caret",Position)) ;add an error to the error log
    Return, 1
   }
 
@@ -201,7 +200,7 @@ CodeLexForLoop(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef FileNam
  ;make sure the "In" keyword follows immediately after
  If !(SubStr(Code,Position,2) = "In" && InStr("`t ",CurrentChar := SubStr(Code,Position + 2,1)) && CurrentChar <> "")
  {
-  ObjInsert(Errors,Object("Identifier","INVALID_SYNTAX","Highlight","","Caret",Position)) ;add an error to the error log
+  ObjInsert(Errors,Object("Identifier","INVALID_SYNTAX","Level","Error","Highlight","","Caret",Position)) ;add an error to the error log
   Return, 1
  }
 
@@ -224,7 +223,7 @@ CodeLexString(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef Output,B
    Output .= SubStr(Code,Position,2), Position += 2 ;append the escape sequence to the output, and move past it
   Else If (CurrentChar = "" || InStr("`r`n",CurrentChar)) ;past end of string, or reached a newline before the open quote has been closed
   {
-   ObjInsert(Errors,Object("Identifier","UNMATCHED_QUOTE","Highlight",Object("Position",Position1,"Length",(Position - Position1)),"Caret",Position)) ;add an error to the error log
+   ObjInsert(Errors,Object("Identifier","UNMATCHED_QUOTE","Level","Error","Highlight",Object("Position",Position1,"Length",Position - Position1),"Caret",Position)) ;add an error to the error log
    Return, 1
   }
   Else If (CurrentChar = """") ;closing quote mark found
@@ -277,17 +276,17 @@ CodeLexDynamicReference(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRe
    Break
   If (CurrentChar = "" || InStr("`r`n",CurrentChar)) ;past end of string, or found newline before percent sign was matched
   {
-   ObjInsert(Errors,Object("Identifier","UNMATCHED_PERCENT_SIGN","Highlight",Object("Position",Position1,"Length",(Position - Position1)),"Caret",Position1)) ;add an error to the error log
+   ObjInsert(Errors,Object("Identifier","UNMATCHED_PERCENT_SIGN","Level","Error","Highlight",Object("Position",Position1,"Length",Position - Position1),"Caret",Position1)) ;add an error to the error log
    Return, 1
   }
   If !InStr(LexerIdentifierChars,CurrentChar) ;invalid character found
   {
-   ObjInsert(Errors,Object("Identifier","INVALID_IDENTIFIER","Highlight",Object("Position",Position1,"Length",(Position - Position1)),"Caret",Position)) ;add an error to the error log
+   ObjInsert(Errors,Object("Identifier","INVALID_IDENTIFIER","Level","Error","Highlight",Object("Position",Position1,"Length",Position - Position1),"Caret",Position)) ;add an error to the error log
    Return, 1
   }
   Output .= CurrentChar
  }
- Position ++
+ Position ++ ;move past matching percent sign
  ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value","%","Position",Position1,"File",FileName)) ;add the dereference operator to the token array
  ObjInsert(Tokens,Object("Type","IDENTIFIER","Value",Output,"Position",Position1 + 1,"File",FileName)) ;add the identifier to the token array
 }

@@ -10,8 +10,6 @@ SetBatchLines(-1)
 #Include Lexer.ahk
 #Include Parser.ahk
 
-;wip: give error handler different error levels: Info, Warning, and Error
-
 Code = 
 (
 MsgBox
@@ -25,7 +23,7 @@ If CodeLex(Code,Tokens,Errors)
  FileAppend(ErrorMessage,"*") ;display error at standard output
  ExitApp(1)
 }
-If CodeParse(Code)
+If CodeParse(Tokens,SyntaxTree,Errors)
 {
  ErrorMessage := CodeGetError(Code,Errors)
  FileAppend(ErrorMessage,"*") ;display error at standard output

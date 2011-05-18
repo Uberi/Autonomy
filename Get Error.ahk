@@ -1,5 +1,17 @@
 #NoEnv
 
+/*
+Error Array Format
+
+Index (\d+): [Object]
+    Level: the class of the error ["Error", "Warning", or "Info"]
+	Identifier: the name of the error [word]
+	Caret: exact location of error [number]
+	Highlight: [Object or blank]
+		Length: length of the highlighted section [number]
+		Position: position of hightlighted section [number]
+*/
+
 ;creates a formatted summary of errors
 CodeGetError(ByRef Code,ByRef Errors)
 {
@@ -46,7 +58,7 @@ CodeGetError(ByRef Code,ByRef Errors)
   CodeGetErrorShowAfter(Code,ErrorSection,ErrorEnd,DisplayLength)
   CodeGetErrorPosition(Code,Caret,Line,Column)
   Message := CodeGetErrorMessage(CurrentError.Identifier) ;get the error message
-  ErrorReport .= "Error (Line " . Line . ", Column " . Column . "): " . Message . "`nSpecifically: " . ErrorSection . "`n              " . ErrorDisplay . "`n`n"
+  ErrorReport .= CurrentError.Level . " (Line " . Line . ", Column " . Column . "): " . Message . "`nSpecifically: " . ErrorSection . "`n              " . ErrorDisplay . "`n`n"
  }
  Return, ErrorReport
 }

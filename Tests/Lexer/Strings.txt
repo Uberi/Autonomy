@@ -8,12 +8,14 @@ Var := "This is also unmatched
 		Length: 24
 		Position: 8
 	Identifier: UNMATCHED_QUOTE
+	Level: Error
 2: 
 	Caret: 146
 	Highlight: 
 		Length: 23
 		Position: 123
 	Identifier: UNMATCHED_QUOTE
+	Level: Error
 ---
 1: 
 	File: Test

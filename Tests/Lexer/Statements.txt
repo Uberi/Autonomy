@@ -13,6 +13,7 @@ While, (100 - A_Index)
 	Caret: 42
 	Highlight: 
 	Identifier: INVALID_SYNTAX
+	Level: Error
 ---
 1: 
 	File: Test

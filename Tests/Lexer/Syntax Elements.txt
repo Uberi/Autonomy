@@ -1,4 +1,4 @@
-Var . "Something"
+Var .	"Something"
 Variable.Value
 Var1 .Var2
 Var3. Var4
@@ -9,6 +9,7 @@ Var3. Var4
 		Length: 2
 		Position: 40
 	Identifier: INVALID_SYNTAX
+	Level: Error
 ---
 1: 
 	File: Test

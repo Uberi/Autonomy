@@ -7,9 +7,10 @@ CodeParseInit()
 }
 
 ;parses AHK token stream
-CodeParse(ByRef Tokens)
+CodeParse(ByRef Tokens,ByRef SyntaxTree,ByRef Errors)
 {
- For CurrentToken In Tokens
+ SyntaxTree := Object()
+ For Index, CurrentToken In Tokens
  {
   
  }
