@@ -10,6 +10,8 @@ SetBatchLines(-1)
 #Include Lexer.ahk
 #Include Parser.ahk
 
+;wip: add file display to error handler
+
 Code = 
 (
 MsgBox
@@ -17,7 +19,7 @@ Return, 1 + 1
 )
 
 CodeLexInit()
-If CodeLex(Code,Tokens,Errors)
+If CodeLex(Code,Tokens,Errors,Files)
 {
  ErrorMessage := CodeGetError(Code,Errors)
  FileAppend(ErrorMessage,"*") ;display error at standard output

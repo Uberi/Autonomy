@@ -1,5 +1,25 @@
 #NoEnv
 
+;wip: have lexer process #Include, and put file names in the Files array
+
+/*
+Token Stream Format
+
+[Index]: [Object]
+	Type: the type of the token [Word]
+	Value: the value of the token [String]
+	Position: position of token within the file [Number]
+	File: the file index the current token is located in [Number]
+
+Example
+
+2:
+	Type: IDENTIFIER
+	Value: SomeVariable
+	Position: 15
+	File: 3
+*/
+
 ;initializes resources that the lexer requires
 CodeLexInit()
 {
@@ -34,10 +54,10 @@ CodeLexInit()
 }
 
 ;lexes AHK code, including all syntax
-CodeLex(Code,ByRef Tokens,ByRef Errors,ByRef FileName = "")
+CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef Files = "",ByRef FileName = "")
 { ;returns 1 on error, nothing otherwise
  global LexerIdentifierChars
- Tokens := Object(), Errors := Object(), Position := 1 ;initialize variables
+ Tokens := Object(), Errors := Object(), Files := Object(), Position := 1 ;initialize variables
  Loop
  {
   CurrentChar := SubStr(Code,Position,1)

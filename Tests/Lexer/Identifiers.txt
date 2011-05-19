@@ -4,134 +4,134 @@ Variable.Property[Result].Value.123.ABC.456.789.Something
 
 ---
 1: 
-	File: Test
+	File: 4
 	Position: 0
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 2: 
-	File: Test
+	File: 4
 	Position: 1
 	Type: IDENTIFIER
 	Value: Result
 3: 
-	File: Test
+	File: 4
 	Position: 8
 	Type: SYNTAX_ELEMENT
 	Value: :=
 4: 
-	File: Test
+	File: 4
 	Position: 11
 	Type: IDENTIFIER
 	Value: Function
 5: 
-	File: Test
+	File: 4
 	Position: 19
 	Type: SYNTAX_ELEMENT
 	Value: (
 6: 
-	File: Test
+	File: 4
 	Position: 20
 	Type: SYNTAX_ELEMENT
 	Value: )
 7: 
-	File: Test
+	File: 4
 	Position: 22
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 8: 
-	File: Test
+	File: 4
 	Position: 23
 	Type: IDENTIFIER
 	Value: Variable
 9: 
-	File: Test
+	File: 4
 	Position: 31
 	Type: SYNTAX_ELEMENT
 	Value: .
 10: 
-	File: Test
+	File: 4
 	Position: 32
 	Type: IDENTIFIER
 	Value: Property
 11: 
-	File: Test
+	File: 4
 	Position: 40
 	Type: SYNTAX_ELEMENT
 	Value: [
 12: 
-	File: Test
+	File: 4
 	Position: 41
 	Type: IDENTIFIER
 	Value: Result
 13: 
-	File: Test
+	File: 4
 	Position: 47
 	Type: SYNTAX_ELEMENT
 	Value: ]
 14: 
-	File: Test
+	File: 4
 	Position: 48
 	Type: SYNTAX_ELEMENT
 	Value: .
 15: 
-	File: Test
+	File: 4
 	Position: 49
 	Type: IDENTIFIER
 	Value: Value
 16: 
-	File: Test
+	File: 4
 	Position: 54
 	Type: SYNTAX_ELEMENT
 	Value: .
 17: 
-	File: Test
+	File: 4
 	Position: 55
 	Type: IDENTIFIER
 	Value: 123
 18: 
-	File: Test
+	File: 4
 	Position: 58
 	Type: SYNTAX_ELEMENT
 	Value: .
 19: 
-	File: Test
+	File: 4
 	Position: 59
 	Type: IDENTIFIER
 	Value: ABC
 20: 
-	File: Test
+	File: 4
 	Position: 62
 	Type: SYNTAX_ELEMENT
 	Value: .
 21: 
-	File: Test
+	File: 4
 	Position: 63
 	Type: IDENTIFIER
 	Value: 456
 22: 
-	File: Test
+	File: 4
 	Position: 66
 	Type: SYNTAX_ELEMENT
 	Value: .
 23: 
-	File: Test
+	File: 4
 	Position: 67
 	Type: IDENTIFIER
 	Value: 789
 24: 
-	File: Test
+	File: 4
 	Position: 70
 	Type: SYNTAX_ELEMENT
 	Value: .
 25: 
-	File: Test
+	File: 4
 	Position: 71
 	Type: IDENTIFIER
 	Value: Something
 26: 
-	File: Test
+	File: 4
 	Position: 80
 	Type: SYNTAX_ELEMENT
 	Value: 

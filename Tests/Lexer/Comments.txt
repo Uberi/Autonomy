@@ -18,175 +18,175 @@ Variable /= Value
 
 ---
 1: 
-	File: Test
+	File: 4
 	Position: 20
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 2: 
-	File: Test
+	File: 4
 	Position: 21
 	Type: IDENTIFIER
 	Value: FunctionCall
 3: 
-	File: Test
+	File: 4
 	Position: 33
 	Type: SYNTAX_ELEMENT
 	Value: (
 4: 
-	File: Test
+	File: 4
 	Position: 34
 	Type: SYNTAX_ELEMENT
 	Value: )
 5: 
-	File: Test
+	File: 4
 	Position: 61
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 6: 
-	File: Test
+	File: 4
 	Position: 63
 	Type: IDENTIFIER
 	Value: Variable
 7: 
-	File: Test
+	File: 4
 	Position: 72
 	Type: SYNTAX_ELEMENT
 	Value: :=
 8: 
-	File: Test
+	File: 4
 	Position: 75
 	Type: IDENTIFIER
 	Value: Value
 9: 
-	File: Test
+	File: 4
 	Position: 98
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 10: 
-	File: Test
+	File: 4
 	Position: 99
 	Type: IDENTIFIER
 	Value: Variable
 11: 
-	File: Test
+	File: 4
 	Position: 108
 	Type: SYNTAX_ELEMENT
 	Value: +=
 12: 
-	File: Test
+	File: 4
 	Position: 111
 	Type: IDENTIFIER
 	Value: Value
 13: 
-	File: Test
+	File: 4
 	Position: 139
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 14: 
-	File: Test
+	File: 4
 	Position: 140
 	Type: IDENTIFIER
 	Value: FunctionCall
 15: 
-	File: Test
+	File: 4
 	Position: 152
 	Type: SYNTAX_ELEMENT
 	Value: (
 16: 
-	File: Test
+	File: 4
 	Position: 153
 	Type: SYNTAX_ELEMENT
 	Value: )
 17: 
-	File: Test
+	File: 4
 	Position: 222
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 18: 
-	File: Test
+	File: 4
 	Position: 223
 	Type: IDENTIFIER
 	Value: Variable
 19: 
-	File: Test
+	File: 4
 	Position: 232
 	Type: SYNTAX_ELEMENT
 	Value: *=
 20: 
-	File: Test
+	File: 4
 	Position: 235
 	Type: IDENTIFIER
 	Value: Value
 21: 
-	File: Test
+	File: 4
 	Position: 241
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 22: 
-	File: Test
+	File: 4
 	Position: 242
 	Type: IDENTIFIER
 	Value: Variable
 23: 
-	File: Test
+	File: 4
 	Position: 251
 	Type: SYNTAX_ELEMENT
 	Value: -=
 24: 
-	File: Test
+	File: 4
 	Position: 260
 	Type: IDENTIFIER
 	Value: Value
 25: 
-	File: Test
+	File: 4
 	Position: 266
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 26: 
-	File: Test
+	File: 4
 	Position: 267
 	Type: IDENTIFIER
 	Value: Variable
 27: 
-	File: Test
+	File: 4
 	Position: 276
 	Type: SYNTAX_ELEMENT
 	Value: /=
 28: 
-	File: Test
+	File: 4
 	Position: 279
 	Type: IDENTIFIER
 	Value: Value
 29: 
-	File: Test
+	File: 4
 	Position: 291
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 30: 
-	File: Test
+	File: 4
 	Position: 292
 	Type: IDENTIFIER
 	Value: Variable
 31: 
-	File: Test
+	File: 4
 	Position: 301
 	Type: SYNTAX_ELEMENT
 	Value: <<=
 32: 
-	File: Test
+	File: 4
 	Position: 305
 	Type: IDENTIFIER
 	Value: Value
 33: 
-	File: Test
+	File: 4
 	Position: 310
 	Type: SYNTAX_ELEMENT
 	Value: 

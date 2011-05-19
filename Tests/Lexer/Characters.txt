@@ -47,129 +47,129 @@
 	Level: Error
 ---
 1: 
-	File: Test
+	File: 4
 	Position: 0
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 2: 
-	File: Test
+	File: 4
 	Position: 1
 	Type: SYNTAX_ELEMENT
 	Value: ~
 3: 
-	File: Test
+	File: 4
 	Position: 2
 	Type: SYNTAX_ELEMENT
 	Value: !
 4: 
-	File: Test
+	File: 4
 	Position: 4
 	Type: IDENTIFIER
 	Value: #
 5: 
-	File: Test
+	File: 4
 	Position: 7
 	Type: SYNTAX_ELEMENT
 	Value: ^
 6: 
-	File: Test
+	File: 4
 	Position: 8
 	Type: SYNTAX_ELEMENT
 	Value: &
 7: 
-	File: Test
+	File: 4
 	Position: 9
 	Type: SYNTAX_ELEMENT
 	Value: *
 8: 
-	File: Test
+	File: 4
 	Position: 10
 	Type: SYNTAX_ELEMENT
 	Value: (
 9: 
-	File: Test
+	File: 4
 	Position: 11
 	Type: SYNTAX_ELEMENT
 	Value: )
 10: 
-	File: Test
+	File: 4
 	Position: 12
 	Type: IDENTIFIER
 	Value: _
 11: 
-	File: Test
+	File: 4
 	Position: 13
 	Type: SYNTAX_ELEMENT
 	Value: +
 12: 
-	File: Test
+	File: 4
 	Position: 15
 	Type: LITERAL_NUMBER
 	Value: 1234567890
 13: 
-	File: Test
+	File: 4
 	Position: 25
 	Type: SYNTAX_ELEMENT
 	Value: -=
 14: 
-	File: Test
+	File: 4
 	Position: 28
 	Type: IDENTIFIER
 	Value: ABCDEFGHIJKLMNOPQRSTUVWXYZ
 15: 
-	File: Test
+	File: 4
 	Position: 55
 	Type: IDENTIFIER
 	Value: abcdefghijklmnopqrstuvwxyz
 16: 
-	File: Test
+	File: 4
 	Position: 82
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 17: 
-	File: Test
+	File: 4
 	Position: 83
 	Type: SYNTAX_ELEMENT
 	Value: [
 18: 
-	File: Test
+	File: 4
 	Position: 84
 	Type: SYNTAX_ELEMENT
 	Value: ]
 19: 
-	File: Test
+	File: 4
 	Position: 88
 	Type: SYNTAX_ELEMENT
 	Value: ,
 20: 
-	File: Test
+	File: 4
 	Position: 89
 	Type: SYNTAX_ELEMENT
 	Value: .
 21: 
-	File: Test
+	File: 4
 	Position: 90
 	Type: SYNTAX_ELEMENT
 	Value: /
 22: 
-	File: Test
+	File: 4
 	Position: 91
 	Type: SYNTAX_ELEMENT
 	Value: {
 23: 
-	File: Test
+	File: 4
 	Position: 92
 	Type: SYNTAX_ELEMENT
 	Value: }
 24: 
-	File: Test
+	File: 4
 	Position: 93
 	Type: SYNTAX_ELEMENT
 	Value: :
 25: 
-	File: Test
+	File: 4
 	Position: 98
 	Type: SYNTAX_ELEMENT
 	Value: 

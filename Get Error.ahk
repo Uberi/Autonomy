@@ -3,13 +3,23 @@
 /*
 Error Array Format
 
-Index (\d+): [Object]
-    Level: the class of the error ["Error", "Warning", or "Info"]
-	Identifier: the name of the error [word]
-	Caret: exact location of error [number]
-	Highlight: [Object or blank]
-		Length: length of the highlighted section [number]
-		Position: position of hightlighted section [number]
+[Index]: [Object]
+	Level: the class of the error ["Error", "Warning", or "Info"]
+	Identifier: the name of the error [Word]
+	Caret: exact location of error [Number]
+	Highlight: [Object or Blank]
+		Length: length of the highlighted section [Number]
+		Position: position of hightlighted section [Number]
+
+Example
+
+4:
+	Level: Error
+	Identifier: INVALID_SYNTAX
+	Caret: 17
+	Highlight:
+		Length: 3
+		Position: 13
 */
 
 ;creates a formatted summary of errors

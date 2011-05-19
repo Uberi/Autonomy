@@ -8,77 +8,77 @@ Return
 
 ---
 1: 
-	File: Test
+	File: 4
 	Position: 0
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 2: 
-	File: Test
+	File: 4
 	Position: 1
 	Type: LABEL
 	Value: SomeLabel
 3: 
-	File: Test
+	File: 4
 	Position: 12
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 4: 
-	File: Test
+	File: 4
 	Position: 13
 	Type: IDENTIFIER
 	Value: Variable
 5: 
-	File: Test
+	File: 4
 	Position: 22
 	Type: SYNTAX_ELEMENT
 	Value: :=
 6: 
-	File: Test
+	File: 4
 	Position: 25
 	Type: IDENTIFIER
 	Value: Value
 7: 
-	File: Test
+	File: 4
 	Position: 31
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 8: 
-	File: Test
+	File: 4
 	Position: 32
 	Type: STATEMENT
 	Value: GoTo
 9: 
-	File: Test
+	File: 4
 	Position: 38
 	Type: LITERAL_STRING
 	Value: SomeOtherLabel
 10: 
-	File: Test
+	File: 4
 	Position: 55
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 11: 
-	File: Test
+	File: 4
 	Position: 56
 	Type: LABEL
 	Value: SomeOtherLabel
 12: 
-	File: Test
+	File: 4
 	Position: 72
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 13: 
-	File: Test
+	File: 4
 	Position: 73
 	Type: STATEMENT
 	Value: Return
 14: 
-	File: Test
+	File: 4
 	Position: 79
 	Type: SYNTAX_ELEMENT
 	Value: 

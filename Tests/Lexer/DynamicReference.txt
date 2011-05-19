@@ -20,152 +20,152 @@ Composite%Reference% := Composite%Function%Call()
 	Level: Error
 ---
 1: 
-	File: Test
+	File: 4
 	Position: 0
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 2: 
-	File: Test
+	File: 4
 	Position: 1
 	Type: IDENTIFIER
 	Value: Variable
 3: 
-	File: Test
+	File: 4
 	Position: 10
 	Type: SYNTAX_ELEMENT
 	Value: :=
 4: 
-	File: Test
+	File: 4
 	Position: 13
 	Type: SYNTAX_ELEMENT
 	Value: %
 5: 
-	File: Test
+	File: 4
 	Position: 14
 	Type: IDENTIFIER
 	Value: SomeVariable
 6: 
-	File: Test
+	File: 4
 	Position: 28
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 7: 
-	File: Test
+	File: 4
 	Position: 29
 	Type: IDENTIFIER
 	Value: OtherVariable
 8: 
-	File: Test
+	File: 4
 	Position: 43
 	Type: SYNTAX_ELEMENT
 	Value: :=
 9: 
-	File: Test
+	File: 4
 	Position: 67
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 10: 
-	File: Test
+	File: 4
 	Position: 68
 	Type: IDENTIFIER
 	Value: Var
 11: 
-	File: Test
+	File: 4
 	Position: 72
 	Type: SYNTAX_ELEMENT
 	Value: :=
 12: 
-	File: Test
+	File: 4
 	Position: 84
 	Type: IDENTIFIER
 	Value: Char
 13: 
-	File: Test
+	File: 4
 	Position: 89
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 14: 
-	File: Test
+	File: 4
 	Position: 90
 	Type: SYNTAX_ELEMENT
 	Value: %
 15: 
-	File: Test
+	File: 4
 	Position: 91
 	Type: IDENTIFIER
 	Value: SomeFunc
 16: 
-	File: Test
+	File: 4
 	Position: 100
 	Type: SYNTAX_ELEMENT
 	Value: (
 17: 
-	File: Test
+	File: 4
 	Position: 101
 	Type: SYNTAX_ELEMENT
 	Value: )
 18: 
-	File: Test
+	File: 4
 	Position: 103
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 19: 
-	File: Test
+	File: 4
 	Position: 104
 	Type: IDENTIFIER
 	Value: Composite
 20: 
-	File: Test
+	File: 4
 	Position: 113
 	Type: SYNTAX_ELEMENT
 	Value: %
 21: 
-	File: Test
+	File: 4
 	Position: 114
 	Type: IDENTIFIER
 	Value: Reference
 22: 
-	File: Test
+	File: 4
 	Position: 125
 	Type: SYNTAX_ELEMENT
 	Value: :=
 23: 
-	File: Test
+	File: 4
 	Position: 128
 	Type: IDENTIFIER
 	Value: Composite
 24: 
-	File: Test
+	File: 4
 	Position: 137
 	Type: SYNTAX_ELEMENT
 	Value: %
 25: 
-	File: Test
+	File: 4
 	Position: 138
 	Type: IDENTIFIER
 	Value: Function
 26: 
-	File: Test
+	File: 4
 	Position: 147
 	Type: IDENTIFIER
 	Value: Call
 27: 
-	File: Test
+	File: 4
 	Position: 151
 	Type: SYNTAX_ELEMENT
 	Value: (
 28: 
-	File: Test
+	File: 4
 	Position: 152
 	Type: SYNTAX_ELEMENT
 	Value: )
 29: 
-	File: Test
+	File: 4
 	Position: 153
 	Type: SYNTAX_ELEMENT
 	Value: 

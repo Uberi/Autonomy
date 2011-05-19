@@ -16,185 +16,185 @@ While, (100 - A_Index)
 	Level: Error
 ---
 1: 
-	File: Test
+	File: 4
 	Position: 0
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 2: 
-	File: Test
+	File: 4
 	Position: 1
 	Type: IDENTIFIER
 	Value: NotAStatement
 3: 
-	File: Test
+	File: 4
 	Position: 14
 	Type: SYNTAX_ELEMENT
 	Value: ,
 4: 
-	File: Test
+	File: 4
 	Position: 16
 	Type: IDENTIFIER
 	Value: Something
 5: 
-	File: Test
+	File: 4
 	Position: 26
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 6: 
-	File: Test
+	File: 4
 	Position: 27
 	Type: STATEMENT
 	Value: For
 7: 
-	File: Test
+	File: 4
 	Position: 31
 	Type: IDENTIFIER
 	Value: InvalidLine
 8: 
-	File: Test
+	File: 4
 	Position: 47
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 9: 
-	File: Test
+	File: 4
 	Position: 48
 	Type: STATEMENT
 	Value: For
 10: 
-	File: Test
+	File: 4
 	Position: 52
 	Type: IDENTIFIER
 	Value: Var
 11: 
-	File: Test
+	File: 4
 	Position: 56
 	Type: LITERAL_STRING
 	Value: ,
 12: 
-	File: Test
+	File: 4
 	Position: 59
 	Type: IDENTIFIER
 	Value: Object
 13: 
-	File: Test
+	File: 4
 	Position: 66
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 14: 
-	File: Test
+	File: 4
 	Position: 67
 	Type: STATEMENT
 	Value: For
 15: 
-	File: Test
+	File: 4
 	Position: 71
 	Type: IDENTIFIER
 	Value: Key
 16: 
-	File: Test
+	File: 4
 	Position: 76
 	Type: IDENTIFIER
 	Value: Value
 17: 
-	File: Test
+	File: 4
 	Position: 82
 	Type: LITERAL_STRING
 	Value: ,
 18: 
-	File: Test
+	File: 4
 	Position: 85
 	Type: IDENTIFIER
 	Value: OtherObject
 19: 
-	File: Test
+	File: 4
 	Position: 99
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 20: 
-	File: Test
+	File: 4
 	Position: 100
 	Type: STATEMENT
 	Value: #Include
 21: 
-	File: Test
+	File: 4
 	Position: 110
 	Type: LITERAL_STRING
 	Value: Something.ahk
 22: 
-	File: Test
+	File: 4
 	Position: 124
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 23: 
-	File: Test
+	File: 4
 	Position: 125
 	Type: STATEMENT
 	Value: #IncludeAgain
 24: 
-	File: Test
+	File: 4
 	Position: 139
 	Type: LITERAL_STRING
 	Value: SomethingElse.ahk
 25: 
-	File: Test
+	File: 4
 	Position: 159
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 26: 
-	File: Test
+	File: 4
 	Position: 160
 	Type: STATEMENT
 	Value: While
 27: 
-	File: Test
+	File: 4
 	Position: 167
 	Type: SYNTAX_ELEMENT
 	Value: (
 28: 
-	File: Test
+	File: 4
 	Position: 168
 	Type: LITERAL_NUMBER
 	Value: 100
 29: 
-	File: Test
+	File: 4
 	Position: 172
 	Type: SYNTAX_ELEMENT
 	Value: -
 30: 
-	File: Test
+	File: 4
 	Position: 174
 	Type: IDENTIFIER
 	Value: A_Index
 31: 
-	File: Test
+	File: 4
 	Position: 181
 	Type: SYNTAX_ELEMENT
 	Value: )
 32: 
-	File: Test
+	File: 4
 	Position: 185
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 33: 
-	File: Test
+	File: 4
 	Position: 186
 	Type: STATEMENT
 	Value: Return
 34: 
-	File: Test
+	File: 4
 	Position: 194
 	Type: LITERAL_NUMBER
 	Value: 50
 35: 
-	File: Test
+	File: 4
 	Position: 196
 	Type: SYNTAX_ELEMENT
 	Value: 
