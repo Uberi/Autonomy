@@ -4,6 +4,7 @@ Var := "This is also unmatched
 ---
 1: 
 	Caret: 32
+	File: 4
 	Highlight: 
 		Length: 24
 		Position: 8
@@ -11,6 +12,7 @@ Var := "This is also unmatched
 	Level: Error
 2: 
 	Caret: 146
+	File: 4
 	Highlight: 
 		Length: 23
 		Position: 123

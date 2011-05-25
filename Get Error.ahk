@@ -68,7 +68,7 @@ CodeGetError(ByRef Code,ByRef Errors)
   CodeGetErrorShowAfter(Code,ErrorSection,ErrorEnd,DisplayLength)
   CodeGetErrorPosition(Code,Caret,Line,Column)
   Message := CodeGetErrorMessage(CurrentError.Identifier) ;get the error message
-  ErrorReport .= CurrentError.Level . " (Line " . Line . ", Column " . Column . "): " . Message . "`nSpecifically: " . ErrorSection . "`n              " . ErrorDisplay . "`n`n"
+  ErrorReport .= CurrentError.Level . " in " . CurrentError.File . " (Line " . Line . ", Column " . Column . "): " . Message . "`nSpecifically: " . ErrorSection . "`n              " . ErrorDisplay . "`n`n"
  }
  Return, ErrorReport
 }

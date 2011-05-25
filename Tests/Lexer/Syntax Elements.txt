@@ -5,6 +5,7 @@ Var3. Var4
 ---
 1: 
 	Caret: 42
+	File: 4
 	Highlight: 
 		Length: 2
 		Position: 40

@@ -6,6 +6,7 @@ Composite%Reference% := Composite%Function%Call()
 ---
 1: 
 	Caret: 46
+	File: 4
 	Highlight: 
 		Length: 20
 		Position: 46
@@ -13,6 +14,7 @@ Composite%Reference% := Composite%Function%Call()
 	Level: Error
 2: 
 	Caret: 83
+	File: 4
 	Highlight: 
 		Length: 8
 		Position: 75

@@ -11,6 +11,7 @@ Progress
     <tr><td>Error Handler</td> <td><em>Working</em></td></tr>
     <tr><td>Lexer</td>         <td><em>Working</em></td></tr>
     <tr><td>Parser</td>        <td><em>In Progress</em></td></tr>
+    <tr><td>Optimiser</td>        <td><em>Pending</em></td></tr>
     <tr><td>Bytecode</td>      <td><em>Pending</em></td></tr>
     <tr><td>Interpreter</td>   <td><em>Pending</em></td></tr>
 </table>
@@ -40,9 +41,11 @@ Implements a tokenizer for raw source code given as input. Outputs a token array
 
 ### Parser.ahk
 
-Not yet implemented. Will parse a token array given as input and output an abstract syntax tree, and perform 
+Not yet implemented. Will parse a token array given as input and output an abstract syntax tree. Uses modified and extended shunting yard algorithm.
 
-optimisations and tree transformations as well.
+### Optimise.ahk
+
+Not yet implemented. Will perform optimisations and transformations to a syntax tree given as input.
 
 ### Bytecode.ahk
 

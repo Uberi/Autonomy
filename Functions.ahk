@@ -66,14 +66,25 @@ SetBatchLines(Amount)
 FileRead(ByRef OutputVar,Filename)
 {
  FileRead, OutputVar, %Filename%
+ Return, ErrorLevel
 }
 
 FileAppend(Text,Filename)
 {
  FileAppend, %Text%, %Filename%
+ Return, ErrorLevel
 }
 
 ExitApp(ExitCode = 0)
 {
  ExitApp, %ExitCode%
+}
+
+StringSplit(InputVar,Delimiters = "",OmitChars = "")
+{
+ StringSplit, Array, InputVar, %Delimiters%, %OmitChars%
+ Result := Object()
+ Loop, %Array0%
+  ObjInsert(Result,A_Index,Array%A_Index%)
+ Return, Result
 }
