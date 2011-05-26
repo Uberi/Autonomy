@@ -19,7 +19,11 @@ MsgBox
 Return, 1 + 1
 )
 
-CodeInit()
+If CodeInit()
+{
+ FileAppend("Error initializing code tools.","*") ;display error at standard output
+ ExitApp(1)
+}
 
 CodeLexInit()
 If CodeLex(Code,Tokens,Errors,Files,4)
