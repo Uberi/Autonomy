@@ -33,7 +33,8 @@ CodeGetError(ByRef Code,ByRef Errors)
   CodeGetErrorBounds(CurrentError,ErrorStart,ErrorEnd)
 
   ;move back one character if there is a newline at the end
-  If InStr("`r`n",SubStr(Code,ErrorEnd,1))
+  Temp1 := SubStr(Code,ErrorEnd,1)
+  If ((Temp1 <> "") && InStr("`r`n",Temp1)) ;not past the end of the input, and newline found at the end of the error
    ErrorEnd --
 
   ;ensure there is enough padding for the highlights and caret

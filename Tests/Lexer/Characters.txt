@@ -1,5 +1,5 @@
-~!@#$%^&*()_+`1234567890-=	ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz
-[]\;',./{}:"<>?
+~!@#$%^&*()_+`1234567890-=	ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvw"xyz
+[]\;',./{}:<>?
 ---
 1: 
 	Caret: 3
@@ -28,10 +28,12 @@
 	Identifier: INVALID_CHARACTER
 	Level: Error
 5: 
-	Caret: 85
+	Caret: 82
 	File: 4
 	Highlight: 
-	Identifier: INVALID_CHARACTER
+		Length: 4
+		Position: 78
+	Identifier: UNMATCHED_QUOTE
 	Level: Error
 6: 
 	Caret: 86
@@ -46,12 +48,22 @@
 	Identifier: INVALID_CHARACTER
 	Level: Error
 8: 
-	Caret: 98
+	Caret: 88
 	File: 4
 	Highlight: 
-		Length: 4
-		Position: 94
-	Identifier: UNMATCHED_QUOTE
+	Identifier: INVALID_CHARACTER
+	Level: Error
+9: 
+	Caret: 94
+	File: 4
+	Highlight: 
+	Identifier: INVALID_CHARACTER
+	Level: Error
+10: 
+	Caret: 97
+	File: 4
+	Highlight: 
+	Identifier: INVALID_CHARACTER
 	Level: Error
 ---
 1: 
@@ -129,54 +141,59 @@
 	File: 4
 	Position: 55
 	Type: IDENTIFIER
-	Value: abcdefghijklmnopqrstuvwxyz
+	Value: abcdefghijklmnopqrstuvw
 16: 
 	File: 4
-	Position: 82
+	Position: 83
 	Type: SYNTAX_ELEMENT
 	Value: 
 
 17: 
 	File: 4
-	Position: 83
+	Position: 84
 	Type: SYNTAX_ELEMENT
 	Value: [
 18: 
 	File: 4
-	Position: 84
+	Position: 85
 	Type: SYNTAX_ELEMENT
 	Value: ]
 19: 
 	File: 4
-	Position: 88
+	Position: 89
 	Type: SYNTAX_ELEMENT
 	Value: ,
 20: 
 	File: 4
-	Position: 89
+	Position: 90
 	Type: SYNTAX_ELEMENT
 	Value: .
 21: 
 	File: 4
-	Position: 90
-	Type: SYNTAX_ELEMENT
-	Value: /
+	Position: 91
+	Type: IDENTIFIER
+	Value: 
 22: 
 	File: 4
 	Position: 91
 	Type: SYNTAX_ELEMENT
-	Value: {
+	Value: /
 23: 
 	File: 4
 	Position: 92
 	Type: SYNTAX_ELEMENT
-	Value: }
+	Value: {
 24: 
 	File: 4
 	Position: 93
 	Type: SYNTAX_ELEMENT
-	Value: :
+	Value: }
 25: 
+	File: 4
+	Position: 95
+	Type: SYNTAX_ELEMENT
+	Value: <>
+26: 
 	File: 4
 	Position: 98
 	Type: SYNTAX_ELEMENT

@@ -11,6 +11,14 @@ Var3. Var4
 		Position: 40
 	Identifier: INVALID_SYNTAX
 	Level: Error
+2: 
+	Caret: 53
+	File: 4
+	Highlight: 
+		Length: 1
+		Position: 52
+	Identifier: INVALID_SYNTAX
+	Level: Error
 ---
 1: 
 	File: 4
@@ -93,10 +101,15 @@ Var3. Var4
 	Value: .
 16: 
 	File: 4
+	Position: 53
+	Type: IDENTIFIER
+	Value: 
+17: 
+	File: 4
 	Position: 54
 	Type: IDENTIFIER
 	Value: Var4
-17: 
+18: 
 	File: 4
 	Position: 58
 	Type: SYNTAX_ELEMENT

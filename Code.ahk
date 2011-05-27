@@ -11,16 +11,14 @@ For Each Operator:
 */
 
 ;initializes resources that will be required by the code tools
-CodeInit()
+CodeInit(OperatorTableFile = "OperatorTable.txt")
 {
- global OperatorTable
-
- OperatorTableFile := "SyntaxElements.txt"
+ global CodeOperatorTable
 
  If (FileRead(Temp1,OperatorTableFile) <> 0) ;error reading file
   Return, 1
 
- OperatorTable := Object()
+ CodeOperatorTable := Object()
  Loop, Parse, Temp1, `n
-  Line := StringSplit(A_LoopField,"`t"), ObjInsert(OperatorTable,Line.1,Object("Precedence",Line.2,"Associativity",Line.3,"Arity",Line.4))
+  Line := StringSplit(A_LoopField,"`t"), ObjInsert(CodeOperatorTable,Line.1,Object("Precedence",Line.2,"Associativity",Line.3,"Arity",Line.4))
 }

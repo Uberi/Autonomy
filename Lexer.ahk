@@ -23,13 +23,13 @@ Example
 ;initializes resources that the lexer requires
 CodeLexInit()
 {
- global LexerEscapeChar, LexerIdentifierChars, LexerStatementList, LexerStatementLiteralList, LexerSyntaxElements
+ global LexerEscapeChar, LexerIdentifierChars, LexerStatementList, LexerStatementLiteralList, LexerSyntaxElements, LexerSyntaxElementsMaxLength, CodeOperatorTable
 
  LexerEscapeChar := "``" ;the escape character
  LexerIdentifierChars := "abcdefghijklmnopqrstuvwxyz_1234567890#" ;characters that make up a an identifier
  LexerStatementList := "#Include`n#IncludeAgain`n#SingleInstance`n#Warn`nWhile`nLoop`nFor`nIf`nElse`nBreak`nContinue`nReturn`nGosub`nGoto`nlocal`nglobal`nstatic" ;statements that can be found on the beginning of a line
  LexerStatementLiteralList := "#Include`n#IncludeAgain`n#SingleInstance`n#Warn`nBreak`nContinue`nGosub`nGoto`nlocal`nglobal`nstatic" ;statements that accept literals as parameters
- LexerSyntaxElements := "<<=`n>>=`n//=`n*=`n.=`n|=`n&=`n^=`n-=`n+=`n||`n&&`n--`n==`n<>`n!=`n++`n/=`n>=`n<=`n:=`n**`n<<`n>>`n//`n/`n*`n-`n!`n~`n+`n|`n^`n&`n<`n>`n=`n(`n)`n,`n[`n]`n{`n}`n?`n:" ;elements that make up other parts of the syntax (excludes " . ", "%", ".", and "`n", because they are handled separately by the lexer)
+ LexerSyntaxElements := ",`n(`n)`n[`n]`n{`n}" ;elements that make up other parts of the syntax (excludes " . ", "%", ".", and "`n", because they are handled separately by the lexer)
 
  ;convert statements string list to an object
  Temp1 := LexerStatementList, LexerStatementList := Object()
@@ -41,16 +41,14 @@ CodeLexInit()
  Loop, Parse, Temp1, `n
   ObjInsert(LexerStatementLiteralList,A_LoopField,"")
 
+ LexerSyntaxElementsMaxLength := 0
+ For Temp1 In CodeOperatorTable
+  Temp2 := StrLen(Temp1), (Temp2 > LexerSyntaxElementsMaxLength) ? (LexerSyntaxElementsMaxLength := Temp2) : ""
+
  ;convert syntax elements string list to an object
  Temp1 := LexerSyntaxElements, LexerSyntaxElements := Object()
  Loop, Parse, Temp1, `n
- {
-  Length := StrLen(A_LoopField)
-  If IsObject(LexerSyntaxElements[Length])
-   ObjInsert(LexerSyntaxElements[Length],A_LoopField,"")
-  Else
-   LexerSyntaxElements[Length] := Object(A_LoopField,"")
- }
+  ObjInsert(LexerSyntaxElements,A_LoopField,""), Temp2 := StrLen(A_LoopField), (Temp2 > LexerSyntaxElementsMaxLength) ? (LexerSyntaxElementsMaxLength := Temp2) : ""
 }
 
 ;lexes AHK code, including all syntax
@@ -94,11 +92,10 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef Files = "",ByRef FileName = "
   {
    ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value",".","Position",Position,"File",FileName)) ;add a object access token to the token array
    Position ++ ;move to next char
-   If InStr(LexerIdentifierChars,CurrentChar) ;an identifier
-    CodeLexIdentifier(Code,Position,Tokens,FileName)
+   If InStr(" `t",SubStr(Code,Position,1)) ;object access operator must be followed by an identifier, without whitespace
+    ObjInsert(Errors,Object("Identifier","INVALID_SYNTAX","Level","Error","Highlight",Object("Position",Position1,"Length",Position - Position1),"Caret",Position,"File",FileName)) ;add an error to the error log
+   CodeLexIdentifier(Code,Position,Tokens,FileName) ;lex identifier
   }
-  Else If !CodeLexSyntaxElement(Code,Position,Output) ;input is a syntax element
-   ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value",Output,"Position",Position1,"File",FileName)) ;add the found syntax element to the token array
   Else If InStr("`t ",CurrentChar) ;whitespace
   {
    Position ++, CurrentChar := SubStr(Code,Position,1) ;skip over whitespace, retrieve character from updated position
@@ -111,6 +108,8 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef Files = "",ByRef FileName = "
      ObjInsert(Errors,Object("Identifier","INVALID_SYNTAX","Level","Error","Highlight",Object("Position",Position1,"Length",Position - Position1),"Caret",Position,"File",FileName)) ;add an error to the error log
    }
   }
+  Else If !CodeLexSyntaxElement(Code,Position,Output) ;input is a syntax element
+   ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value",Output,"Position",Position1,"File",FileName)) ;add the found syntax element to the token array
   Else If (InStr("1234567890",CurrentChar) && !CodeLexNumber(Code,Position,Output)) ;a number, not an identifier
    ObjInsert(Tokens,Object("Type","LITERAL_NUMBER","Value",Output,"Position",Position1,"File",FileName)) ;add the number literal to the token array
   Else If InStr(LexerIdentifierChars,CurrentChar) ;an identifier
@@ -314,18 +313,19 @@ CodeLexDynamicReference(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRe
 ;lexes a syntax token
 CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Output)
 { ;returns 1 on error, nothing otherwise
- global LexerSyntaxElements
- MaxLength := ObjMaxIndex(LexerSyntaxElements), Temp1 := MaxLength
- Loop, %MaxLength%
+ global CodeOperatorTable, LexerSyntaxElements, LexerSyntaxElementsMaxLength
+ Temp1 := LexerSyntaxElementsMaxLength
+ Loop, %LexerSyntaxElementsMaxLength%
  {
-  If ObjHasKey(LexerSyntaxElements[Temp1],Output := SubStr(Code,Position,Temp1)) ;check for a match with a syntax element
+  Output := SubStr(Code,Position,Temp1)
+  If ((ObjHasKey(CodeOperatorTable,Output) || ObjHasKey(LexerSyntaxElements,Output)) && (StrLen(Output) = Temp1)) ;found operator or syntax element, and position is not past end of input
   {
    Position += Temp1
    Return
   }
-  Temp1 --
+  Temp1 -- ;reduce the length of the input to be checked
  }
- Return, 1
+ Return, 1 ;not an operator or syntax element
 }
 
 ;lexes a number, and if it is not a valid number, notify that it may be an identifier

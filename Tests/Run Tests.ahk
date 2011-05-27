@@ -1,13 +1,16 @@
 #NoEnv
 
 #Include ..\Functions.ahk
+#Include ..\Get Error.ahk
+
+#Include ..\Code.ahk
 #Include ..\Lexer.ahk
 #Include ..\Parser.ahk
-#Include ..\Get Error.ahk
 
 #Warn All
 
 ;wip: tests for error handler as well
+;wip: ternary operator should be added to operator table
 
 Gui, Font, s12 Bold, Arial
 Gui, Add, Text, x2 y0 w510 h20 +Center, Unit Test Results:
@@ -17,6 +20,8 @@ Gui, Font, s10
 Gui, Add, Button, x2 y350 w260 h30 gCopyReport Default, Copy To Clipboard
 Gui, Add, Button, x262 y350 w250 h30 gSaveReport, Save To File
 GuiControl, Focus, Button1
+
+CodeInit(A_ScriptDir . "\..\OperatorTable.txt")
 
 Gosub, TestLexer
 Gosub, TestParser
@@ -106,7 +111,7 @@ ExitApp
 GenerateReport(ByRef TestReport)
 {
  TestReport := "", PassAmount := 0, FailAmount := 0
- Index := LV_GetCount()
+ Index := LV_GetCount(), PassList := "", FailList := ""
  Loop, %Index%
  {
   LV_GetText(Temp1,A_Index,2)

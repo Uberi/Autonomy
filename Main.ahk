@@ -15,7 +15,7 @@ SetBatchLines(-1)
 
 Code = 
 (
-MsgBox
+Var := Something
 Return, 1 + 1
 )
 
