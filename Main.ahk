@@ -4,7 +4,7 @@
 
 SetBatchLines(-1)
 
-#Include Functions.ahk
+#Include Resources\Functions.ahk
 #Include Get Error.ahk
 
 #Include Code.ahk

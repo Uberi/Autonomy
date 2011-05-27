@@ -11,7 +11,7 @@ For Each Operator:
 */
 
 ;initializes resources that will be required by the code tools
-CodeInit(OperatorTableFile = "OperatorTable.txt")
+CodeInit(OperatorTableFile = "Resources\OperatorTable.txt")
 {
  global CodeOperatorTable
 

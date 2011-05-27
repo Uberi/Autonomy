@@ -1,6 +1,6 @@
 #NoEnv
 
-#Include ..\Functions.ahk
+#Include ..\Resources\Functions.ahk
 #Include ..\Get Error.ahk
 
 #Include ..\Code.ahk
@@ -21,7 +21,7 @@ Gui, Add, Button, x2 y350 w260 h30 gCopyReport Default, Copy To Clipboard
 Gui, Add, Button, x262 y350 w250 h30 gSaveReport, Save To File
 GuiControl, Focus, Button1
 
-CodeInit(A_ScriptDir . "\..\OperatorTable.txt")
+CodeInit("..\Resources\OperatorTable.txt")
 
 Gosub, TestLexer
 Gosub, TestParser
