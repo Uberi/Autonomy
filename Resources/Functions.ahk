@@ -1,5 +1,28 @@
 #NoEnv
 
+DisplayObject(DisplayObject,ParentID = 0)
+{
+ ;ListLines, Off
+ If (ParentID = 0)
+ {
+  Gui, Add, Text, x10 y0 w300 h30 Center, Object Contents
+  Gui, Add, TreeView, x10 y30 w300 h230
+ }
+ For Key, Value In DisplayObject
+  IsObject(Value) ? DisplayObject(Value,TV_Add(Key,ParentID,"Bold Expand")) : TV_Add(Key . ": " . Value,ParentID)
+ If (ParentID = 0)
+ {
+  Gui, +ToolWindow +AlwaysOnTop +LastFound
+  WindowID := WinExist()
+  Gui, Show, w320 h270
+  While, WinExist("ahk_id " . WindowID)
+   Sleep, 100
+  Gui, Destroy
+  ListLines, On
+  Return
+ }
+}
+
 ShowObject(ShowObject,Padding = "")
 {
  ListLines, Off
@@ -69,9 +92,9 @@ FileRead(ByRef OutputVar,Filename)
  Return, ErrorLevel
 }
 
-FileAppend(Text,Filename)
+Display(DisplayText)
 {
- FileAppend, %Text%, %Filename%
+ FileAppend, %DisplayText%, *
  Return, ErrorLevel
 }
 

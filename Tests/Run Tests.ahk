@@ -9,9 +9,6 @@
 
 #Warn All
 
-;wip: tests for error handler as well
-;wip: ternary operator should be added to operator table
-
 Gui, Font, s12 Bold, Arial
 Gui, Add, Text, x2 y0 w510 h20 +Center, Unit Test Results:
 Gui, Font, s8 Norm

@@ -12,6 +12,7 @@ http://en.wikipedia.org/wiki/Compiler_optimization
 - Something // (2 ** SomethingElse) -> Something >> SomethingElse ;or multiplied by anything that will evaluate to a power of two
 - Floor(Something / SomethingElse) -> Something // SomethingElse
 - [Evaluates to 1] * Something, Something * [Evaluates to 1] -> Something
+- Mod(Something,[Power of 2: SomethingElse]) -> Something & [SomethingElse - 1]
 ...
 */
 

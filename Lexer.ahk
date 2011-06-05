@@ -62,7 +62,7 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef Files = "",ByRef FileName = "
   If (CurrentChar = "") ;past the end of the string
    Break
   CurrentTwoChar := SubStr(Code,Position,2), Position1 := Position
-  If ((InStr("`r`n",CurrentChar) <> 0) || (A_Index = 1)) ;beginning of a line
+  If (CurrentChar = "`r" || CurrentChar = "`n" || A_Index = 1) ;beginning of a line
   {
    While, (InStr("`r`n`t ",CurrentChar := SubStr(Code,Position,1)) && (CurrentChar <> "")) ;move past any whitespace
     Position ++
@@ -73,7 +73,7 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef Files = "",ByRef FileName = "
     If (SubStr(Code,Position,2) = "/*") ;begin multiline comment
     {
      CodeLexMultilineComment(Code,Position) ;skip over the comment block
-     While, (InStr("`r`n",CurrentChar := SubStr(Code,Position,1)) && (CurrentChar <> "")) ;move past any whitespace, to ensure there are no duplicate lines
+     While, ((CurrentChar := SubStr(Code,Position,1)) = "`r" || CurrentChar = "`n") ;move past any whitespace, to ensure there are no duplicate lines
       Position ++
     }
     ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value","`n","Position",Position - 1,"File",FileName)) ;add the statement end to the token array
@@ -91,12 +91,12 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef Files = "",ByRef FileName = "
   Else If (CurrentChar = ".") ;object access (explicit handling ensures that Var.123.456 will have the purely numberical keys interpreted as identifiers instead of numbers)
   {
    ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value",".","Position",Position,"File",FileName)) ;add a object access token to the token array
-   Position ++ ;move to next char
-   If InStr(" `t",SubStr(Code,Position,1)) ;object access operator must be followed by an identifier, without whitespace
+   Position ++, CurrentChar := SubStr(Code,Position,1) ;move to next char
+   If (CurrentChar = " " || CurrentChar = "`t") ;object access operator must be followed by an identifier, without whitespace
     ObjInsert(Errors,Object("Identifier","INVALID_SYNTAX","Level","Error","Highlight",Object("Position",Position1,"Length",Position - Position1),"Caret",Position,"File",FileName)) ;add an error to the error log
    CodeLexIdentifier(Code,Position,Tokens,FileName) ;lex identifier
   }
-  Else If InStr("`t ",CurrentChar) ;whitespace
+  Else If (CurrentChar = " " || CurrentChar = "`t") ;whitespace
   {
    Position ++, CurrentChar := SubStr(Code,Position,1) ;skip over whitespace, retrieve character from updated position
    If (CurrentChar = ";") ;single line comment
@@ -104,7 +104,8 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef Files = "",ByRef FileName = "
    Else If (CurrentChar = ".") ;concatenation operator (whitespace preceded it)
    {
     ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value"," . ","Position",Position,"File",FileName)), Position ++ ;add a concatenation token to the token array, move past dot operator
-    If !InStr("`t ",SubStr(Code,Position,1)) ;there must be whitespace on both sides of the concat operator
+    CurrentChar := SubStr(Code,Position,1)
+    If !(CurrentChar = " " || CurrentChar = "`t") ;there must be whitespace on both sides of the concat operator
      ObjInsert(Errors,Object("Identifier","INVALID_SYNTAX","Level","Error","Highlight",Object("Position",Position1,"Length",Position - Position1),"Caret",Position,"File",FileName)) ;add an error to the error log
    }
   }

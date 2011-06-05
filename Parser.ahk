@@ -12,6 +12,7 @@ Syntax Tree Format
 Example
 
 1:
+	Type: NODE
 	1: +
 	2:
 		Type: INTEGER
@@ -39,7 +40,11 @@ CodeParse(ByRef Tokens,ByRef SyntaxTree,ByRef Errors)
    NextToken := Tokens[A_Index + 1]
    If (NextToken.Type = "SYNTAX_ELEMENT" && NextToken.Value = "(") ;opening parenthesis after identifier, is a function call
    {
-    ;ObjInsert(CurrentNode,
+    ;ObjInsert( ;process function token
+   }
+   Else ;variable reference
+   {
+    
    }
   }
  }
