@@ -17,7 +17,7 @@ Variable.Property[Result].Value.123.ABC.456.789.Something
 3: 
 	File: 4
 	Position: 8
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value: :=
 4: 
 	File: 4
@@ -48,7 +48,7 @@ Variable.Property[Result].Value.123.ABC.456.789.Something
 9: 
 	File: 4
 	Position: 31
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value: .
 10: 
 	File: 4
@@ -73,7 +73,7 @@ Variable.Property[Result].Value.123.ABC.456.789.Something
 14: 
 	File: 4
 	Position: 48
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value: .
 15: 
 	File: 4
@@ -83,7 +83,7 @@ Variable.Property[Result].Value.123.ABC.456.789.Something
 16: 
 	File: 4
 	Position: 54
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value: .
 17: 
 	File: 4
@@ -93,7 +93,7 @@ Variable.Property[Result].Value.123.ABC.456.789.Something
 18: 
 	File: 4
 	Position: 58
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value: .
 19: 
 	File: 4
@@ -103,7 +103,7 @@ Variable.Property[Result].Value.123.ABC.456.789.Something
 20: 
 	File: 4
 	Position: 62
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value: .
 21: 
 	File: 4
@@ -113,7 +113,7 @@ Variable.Property[Result].Value.123.ABC.456.789.Something
 22: 
 	File: 4
 	Position: 66
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value: .
 23: 
 	File: 4
@@ -123,7 +123,7 @@ Variable.Property[Result].Value.123.ABC.456.789.Something
 24: 
 	File: 4
 	Position: 70
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value: .
 25: 
 	File: 4

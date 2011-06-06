@@ -90,7 +90,7 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef Files = "",ByRef FileName = "
    CodeLexDynamicReference(Code,Position,Tokens,Errors,Output,FileName)
   Else If (CurrentChar = ".") ;object access (explicit handling ensures that Var.123.456 will have the purely numberical keys interpreted as identifiers instead of numbers)
   {
-   ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value",".","Position",Position,"File",FileName)) ;add a object access token to the token array
+   ObjInsert(Tokens,Object("Type","OPERATOR","Value",".","Position",Position,"File",FileName)) ;add a object access token to the token array
    Position ++, CurrentChar := SubStr(Code,Position,1) ;move to next char
    If (CurrentChar = " " || CurrentChar = "`t") ;object access operator must be followed by an identifier, without whitespace
     ObjInsert(Errors,Object("Identifier","INVALID_SYNTAX","Level","Error","Highlight",Object("Position",Position1,"Length",Position - Position1),"Caret",Position,"File",FileName)) ;add an error to the error log
@@ -103,14 +103,16 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef Files = "",ByRef FileName = "
     CodeLexSingleLineComment(Code,Position) ;skip over comment
    Else If (CurrentChar = ".") ;concatenation operator (whitespace preceded it)
    {
-    ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value"," . ","Position",Position,"File",FileName)), Position ++ ;add a concatenation token to the token array, move past dot operator
+    ObjInsert(Tokens,Object("Type","OPERATOR","Value"," . ","Position",Position,"File",FileName)), Position ++ ;add a concatenation token to the token array, move past dot operator
     CurrentChar := SubStr(Code,Position,1)
     If !(CurrentChar = " " || CurrentChar = "`t") ;there must be whitespace on both sides of the concat operator
      ObjInsert(Errors,Object("Identifier","INVALID_SYNTAX","Level","Error","Highlight",Object("Position",Position1,"Length",Position - Position1),"Caret",Position,"File",FileName)) ;add an error to the error log
    }
   }
-  Else If !CodeLexSyntaxElement(Code,Position,Output) ;input is a syntax element
-   ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value",Output,"Position",Position1,"File",FileName)) ;add the found syntax element to the token array
+  Else If !CodeLexSyntaxElement(Code,Position,Tokens,FileName) ;input is a syntax element
+  {
+   
+  }
   Else If (InStr("1234567890",CurrentChar) && !CodeLexNumber(Code,Position,Output)) ;a number, not an identifier
    ObjInsert(Tokens,Object("Type","LITERAL_NUMBER","Value",Output,"Position",Position1,"File",FileName)) ;add the number literal to the token array
   Else If InStr(LexerIdentifierChars,CurrentChar) ;an identifier
@@ -224,7 +226,7 @@ CodeLexForLoop(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef FileNam
   Return, 1
  }
 
- ObjInsert(Tokens,Object("Type","LITERAL_STRING","Value",",","Position",Position,"File",FileName)) ;add a separator to the token array
+ ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value",",","Position",Position,"File",FileName)) ;add a separator to the token array
  Position += 3 ;skip over the "In" keyword
 
  While, (InStr("`t ",CurrentChar := SubStr(Code,Position,1)) && CurrentChar <> "") ;skip over whitespace
@@ -307,22 +309,30 @@ CodeLexDynamicReference(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRe
   Output .= CurrentChar
  }
  Position ++ ;move past matching percent sign
- ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value","%","Position",Position1,"File",FileName)) ;add the dereference operator to the token array
+ ObjInsert(Tokens,Object("Type","OPERATOR","Value","%","Position",Position1,"File",FileName)) ;add the dereference operator to the token array
  ObjInsert(Tokens,Object("Type","IDENTIFIER","Value",Output,"Position",Position1 + 1,"File",FileName)) ;add the identifier to the token array
 }
 
 ;lexes a syntax token
-CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Output)
+CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileName)
 { ;returns 1 on error, nothing otherwise
  global CodeOperatorTable, LexerSyntaxElements, LexerSyntaxElementsMaxLength
- Temp1 := LexerSyntaxElementsMaxLength
+ Temp1 := LexerSyntaxElementsMaxLength, Position1 := Position
  Loop, %LexerSyntaxElementsMaxLength%
  {
   Output := SubStr(Code,Position,Temp1)
-  If ((ObjHasKey(CodeOperatorTable,Output) || ObjHasKey(LexerSyntaxElements,Output)) && (StrLen(Output) = Temp1)) ;found operator or syntax element, and position is not past end of input
+  If (StrLen(Output) = Temp1) ;position is not past end of input
   {
-   Position += Temp1
-   Return
+   If ObjHasKey(CodeOperatorTable,Output) ;found operator
+   {
+    Position += Temp1, ObjInsert(Tokens,Object("Type","OPERATOR","Value",Output,"Position",Position1,"File",FileName)) ;add the found operator to the token array
+    Return
+   }
+   If ObjHasKey(LexerSyntaxElements,Output) ;found syntax element
+   {
+    Position += Temp1, ObjInsert(Tokens,Object("Type","SYNTAX_ELEMENT","Value",Output,"Position",Position1,"File",FileName)) ;add the found syntax element to the token array
+    Return
+   }
   }
   Temp1 -- ;reduce the length of the input to be checked
  }

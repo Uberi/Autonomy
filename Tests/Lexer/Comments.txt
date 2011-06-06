@@ -52,7 +52,7 @@ Variable /= Value
 7: 
 	File: 4
 	Position: 72
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value: :=
 8: 
 	File: 4
@@ -73,7 +73,7 @@ Variable /= Value
 11: 
 	File: 4
 	Position: 108
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value: +=
 12: 
 	File: 4
@@ -115,7 +115,7 @@ Variable /= Value
 19: 
 	File: 4
 	Position: 232
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value: *=
 20: 
 	File: 4
@@ -136,7 +136,7 @@ Variable /= Value
 23: 
 	File: 4
 	Position: 251
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value: -=
 24: 
 	File: 4
@@ -157,7 +157,7 @@ Variable /= Value
 27: 
 	File: 4
 	Position: 276
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value: /=
 28: 
 	File: 4
@@ -178,7 +178,7 @@ Variable /= Value
 31: 
 	File: 4
 	Position: 301
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value: <<=
 32: 
 	File: 4

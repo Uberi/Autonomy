@@ -72,7 +72,7 @@ While, (100 - A_Index)
 11: 
 	File: 4
 	Position: 56
-	Type: LITERAL_STRING
+	Type: SYNTAX_ELEMENT
 	Value: ,
 12: 
 	File: 4
@@ -103,7 +103,7 @@ While, (100 - A_Index)
 17: 
 	File: 4
 	Position: 82
-	Type: LITERAL_STRING
+	Type: SYNTAX_ELEMENT
 	Value: ,
 18: 
 	File: 4
@@ -166,7 +166,7 @@ While, (100 - A_Index)
 29: 
 	File: 4
 	Position: 172
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value: -
 30: 
 	File: 4

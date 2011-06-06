@@ -32,7 +32,7 @@ Return
 5: 
 	File: 4
 	Position: 22
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value: :=
 6: 
 	File: 4

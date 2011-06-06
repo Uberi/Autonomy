@@ -33,7 +33,7 @@ Var := "This is also unmatched
 3: 
 	File: 4
 	Position: 5
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value: :=
 4: 
 	File: 4
@@ -49,7 +49,7 @@ Var := "This is also unmatched
 6: 
 	File: 4
 	Position: 38
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value: :=
 7: 
 	File: 4
@@ -59,7 +59,7 @@ Var := "This is also unmatched
 8: 
 	File: 4
 	Position: 57
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value:  . 
 9: 
 	File: 4
@@ -80,7 +80,7 @@ Var := "This is also unmatched
 12: 
 	File: 4
 	Position: 120
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value: :=
 13: 
 	File: 4

@@ -34,7 +34,7 @@ Var3. Var4
 3: 
 	File: 4
 	Position: 5
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value:  . 
 4: 
 	File: 4
@@ -55,7 +55,7 @@ Var3. Var4
 7: 
 	File: 4
 	Position: 28
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value: .
 8: 
 	File: 4
@@ -76,7 +76,7 @@ Var3. Var4
 11: 
 	File: 4
 	Position: 41
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value:  . 
 12: 
 	File: 4
@@ -97,7 +97,7 @@ Var3. Var4
 15: 
 	File: 4
 	Position: 52
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value: .
 16: 
 	File: 4

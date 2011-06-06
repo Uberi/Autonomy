@@ -35,12 +35,12 @@ Composite%Reference% := Composite%Function%Call()
 3: 
 	File: 4
 	Position: 10
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value: :=
 4: 
 	File: 4
 	Position: 13
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value: %
 5: 
 	File: 4
@@ -61,7 +61,7 @@ Composite%Reference% := Composite%Function%Call()
 8: 
 	File: 4
 	Position: 43
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value: :=
 9: 
 	File: 4
@@ -77,7 +77,7 @@ Composite%Reference% := Composite%Function%Call()
 11: 
 	File: 4
 	Position: 72
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value: :=
 12: 
 	File: 4
@@ -93,7 +93,7 @@ Composite%Reference% := Composite%Function%Call()
 14: 
 	File: 4
 	Position: 90
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value: %
 15: 
 	File: 4
@@ -124,7 +124,7 @@ Composite%Reference% := Composite%Function%Call()
 20: 
 	File: 4
 	Position: 113
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value: %
 21: 
 	File: 4
@@ -134,7 +134,7 @@ Composite%Reference% := Composite%Function%Call()
 22: 
 	File: 4
 	Position: 125
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value: :=
 23: 
 	File: 4
@@ -144,7 +144,7 @@ Composite%Reference% := Composite%Function%Call()
 24: 
 	File: 4
 	Position: 137
-	Type: SYNTAX_ELEMENT
+	Type: OPERATOR
 	Value: %
 25: 
 	File: 4

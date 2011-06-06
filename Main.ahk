@@ -43,4 +43,7 @@ If CodeParse(Tokens,SyntaxTree,Errors)
  Display(CodeGetError(Code,Errors)) ;display error at standard output
  ExitApp(1)
 }
+
+Display(ShowObject(SyntaxTree) . "`n")
+
 ExitApp()
