@@ -155,7 +155,9 @@ CodeGetErrorMessage(ErrorCode)
  Errors.UNMATCHED_QUOTE := "Missing closing quotation mark."
  Errors.INVALID_CHARACTER := "Character is invalid."
  Errors.INVALID_IDENTIFIER := "Identifier contains invalid characters."
- Errors.INVALID_SYNTAX := "Syntax is incorrect."
+ Errors.INVALID_OBJECT_ACCESS := "Invalid identifier given for object access."
+ Errors.INVALID_CONCATENATION := "Concatenation operator must have whitespace on both sides."
+ Errors.INVALID_FOR_LOOP := "Incorrect For loop syntax."
  Errors.UNMATCHED_PERCENT_SIGN := "Identifier is missing ending percent sign."
  Return, Errors[ErrorCode]
 }

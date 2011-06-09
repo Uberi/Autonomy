@@ -1,13 +1,14 @@
 #NoEnv
 
 /*
-Syntax Element Table Format:
+Syntax Element Table Format
+---------------------------
 
 For Each Operator:
-	Operator Symbol
-	Precendence
-	Associativity
-	Arity
+	- Operator Symbol
+	- Precendence
+	- Associativity
+	- Arity
 */
 
 ;initializes resources that will be required by the code tools
@@ -19,6 +20,6 @@ CodeInit(OperatorTableFile = "Resources\OperatorTable.txt")
   Return, 1
 
  CodeOperatorTable := Object()
- Loop, Parse, Temp1, `n
+ Loop, Parse, Temp1, `n, `r
   Line := StringSplit(A_LoopField,"`t"), ObjInsert(CodeOperatorTable,Line.1,Object("Precedence",Line.2,"Associativity",Line.3,"Arity",Line.4))
 }

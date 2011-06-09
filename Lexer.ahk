@@ -1,9 +1,8 @@
 #NoEnv
 
-;wip: have lexer process #Include, and put file names in the Files array
-
 /*
 Token Stream Format
+-------------------
 
 [Index]: [Object]
 	Type: the type of the token [Word]
@@ -11,13 +10,25 @@ Token Stream Format
 	Position: position of token within the file [Number]
 	File: the file index the current token is located in [Number]
 
-Example
+Example Token Stream
+--------------------
 
 2:
 	Type: IDENTIFIER
 	Value: SomeVariable
 	Position: 15
 	File: 3
+
+Token Types
+-----------
+
+- OPERATOR
+- LITERAL_NUMBER
+- SYNTAX_ELEMENT
+- LABEL
+- STATEMENT
+- LITERAL_STRING
+- IDENTIFIER
 */
 
 ;initializes resources that the lexer requires
@@ -92,8 +103,8 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef Files = "",ByRef FileName = "
   {
    ObjInsert(Tokens,Object("Type","OPERATOR","Value",".","Position",Position,"File",FileName)) ;add a object access token to the token array
    Position ++, CurrentChar := SubStr(Code,Position,1) ;move to next char
-   If (CurrentChar = " " || CurrentChar = "`t") ;object access operator must be followed by an identifier, without whitespace
-    ObjInsert(Errors,Object("Identifier","INVALID_SYNTAX","Level","Error","Highlight",Object("Position",Position1,"Length",Position - Position1),"Caret",Position,"File",FileName)) ;add an error to the error log
+   If (CurrentChar = " " || CurrentChar = "`t") ;object access operator cannot be followed by whitespace
+    ObjInsert(Errors,Object("Identifier","INVALID_OBJECT_ACCESS","Level","Error","Highlight",Object("Position",Position1,"Length",Position - Position1),"Caret",Position,"File",FileName)) ;add an error to the error log
    CodeLexIdentifier(Code,Position,Tokens,FileName) ;lex identifier
   }
   Else If (CurrentChar = " " || CurrentChar = "`t") ;whitespace
@@ -106,7 +117,7 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef Files = "",ByRef FileName = "
     ObjInsert(Tokens,Object("Type","OPERATOR","Value"," . ","Position",Position,"File",FileName)), Position ++ ;add a concatenation token to the token array, move past dot operator
     CurrentChar := SubStr(Code,Position,1)
     If !(CurrentChar = " " || CurrentChar = "`t") ;there must be whitespace on both sides of the concat operator
-     ObjInsert(Errors,Object("Identifier","INVALID_SYNTAX","Level","Error","Highlight",Object("Position",Position1,"Length",Position - Position1),"Caret",Position,"File",FileName)) ;add an error to the error log
+     ObjInsert(Errors,Object("Identifier","INVALID_CONCATENATION","Level","Error","Highlight",Object("Position",Position1,"Length",Position - Position1),"Caret",Position,"File",FileName)) ;add an error to the error log
    }
   }
   Else If !CodeLexSyntaxElement(Code,Position,Tokens,FileName) ;input is a syntax element
@@ -222,7 +233,7 @@ CodeLexForLoop(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef FileNam
  ;make sure the "In" keyword follows immediately after
  If !(SubStr(Code,Position,2) = "In" && InStr("`t ",CurrentChar := SubStr(Code,Position + 2,1)) && CurrentChar <> "")
  {
-  ObjInsert(Errors,Object("Identifier","INVALID_SYNTAX","Level","Error","Highlight","","Caret",Position,"File",FileName)) ;add an error to the error log
+  ObjInsert(Errors,Object("Identifier","INVALID_FOR_LOOP","Level","Error","Highlight","","Caret",Position,"File",FileName)) ;add an error to the error log
   Return, 1
  }
 

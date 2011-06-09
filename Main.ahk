@@ -11,8 +11,9 @@ SetBatchLines(-1)
 #Include Lexer.ahk
 #Include Parser.ahk
 
+;wip: use an external text file for error messages
 ;wip: ternary operator should be added to operator table
-;wip: improve Files handling (storing the filename in each token takes too much memory, so use an index)
+;wip: improve Files handling (storing the filename in each token takes too much memory, so use an index and a filename array)
 ;wip: use enumerations for token types, such as "SYNTAX_ELEMENT", or "LITERAL_STRING". enumerations should be used instead of strings wherever possible
 ;wip: support a command syntax, that is translated to a function call on load: MsgBox, "Title", "Text"
 
@@ -25,6 +26,8 @@ Code =
 Var := Something
 Return, 1 + 1
 )
+
+Code := "Something + !SomethingElse * 1 + 3"
 
 If CodeInit()
 {

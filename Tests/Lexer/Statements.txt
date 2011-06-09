@@ -13,7 +13,7 @@ While, (100 - A_Index)
 	Caret: 42
 	File: 4
 	Highlight: 
-	Identifier: INVALID_SYNTAX
+	Identifier: INVALID_FOR_LOOP
 	Level: Error
 ---
 1: 
