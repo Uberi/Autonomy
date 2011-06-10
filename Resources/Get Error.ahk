@@ -1,5 +1,7 @@
 #NoEnv
 
+;#Include Functions.ahk
+
 /*
 Error Array Format
 
@@ -25,6 +27,8 @@ Example
 ;creates a formatted summary of errors
 CodeGetError(ByRef Code,ByRef Errors)
 {
+ global CodeErrorMessages
+
  DisplayLength := 15 ;amount of characters to display on either side of the code
 
  ErrorReport := ""
@@ -68,7 +72,7 @@ CodeGetError(ByRef Code,ByRef Errors)
   ErrorSection .= SubStr(Code,ErrorStart,ErrorEnd - ErrorStart) ;show the code that is causing the error
   CodeGetErrorShowAfter(Code,ErrorSection,ErrorEnd,DisplayLength)
   CodeGetErrorPosition(Code,Caret,Line,Column)
-  Message := CodeGetErrorMessage(CurrentError.Identifier) ;get the error message
+  Message := CodeErrorMessages[CurrentError.Identifier] ;get the error message
   ErrorReport .= CurrentError.Level . " in " . CurrentError.File . " (Line " . Line . ", Column " . Column . "): " . Message . "`nSpecifically: " . ErrorSection . "`n              " . ErrorDisplay . "`n`n"
  }
  Return, ErrorReport
@@ -146,18 +150,4 @@ CodeGetErrorPosition(ByRef Code,Caret,ByRef Line,ByRef Column)
  StringReplace, Temp1, Temp1, `n, `n, UseErrorLevel
  Line := ErrorLevel + 1
  Temp1 := "`n" . Temp1, Column := StrLen(SubStr(Temp1,InStr(Temp1,"`n",1,0) + 1)) + 1
-}
-
-;retrieves an error message given an error code
-CodeGetErrorMessage(ErrorCode)
-{
- Errors := Object()
- Errors.UNMATCHED_QUOTE := "Missing closing quotation mark."
- Errors.INVALID_CHARACTER := "Character is invalid."
- Errors.INVALID_IDENTIFIER := "Identifier contains invalid characters."
- Errors.INVALID_OBJECT_ACCESS := "Invalid identifier given for object access."
- Errors.INVALID_CONCATENATION := "Concatenation operator must have whitespace on both sides."
- Errors.INVALID_FOR_LOOP := "Incorrect For loop syntax."
- Errors.UNMATCHED_PERCENT_SIGN := "Identifier is missing ending percent sign."
- Return, Errors[ErrorCode]
 }

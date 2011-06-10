@@ -10,8 +10,6 @@ CodeReconstructTokens(Tokens)
    Code .= """" . TokenValue . """"
   Else If (TokenType = "STATEMENT") ;add delimiter in a statement
    Code .= TokenValue . " "
-  Else If ((TokenType = "IDENTIFIER") && (TokenValue = "ByRef")) ;add sufficient whitespace around byref parameter
-   Code .= TokenValue . " "
   Else If (TokenType = "LABEL") ;add colon to end of label name
    Code .= TokenValue . ":"
   Else ;can be appended to code directly
@@ -22,6 +20,23 @@ CodeReconstructTokens(Tokens)
 
 CodeRecontructSyntaxTree(SyntaxTree)
 {
- 
- Return, Code
+ ;MsgBox % ShowObject(SyntaxTree)
+ If (SyntaxTree.1.Type = "OPERATOR")
+  Operator := SyntaxTree.1.Value, ObjRemove(SyntaxTree,1,1)
+ For Index, Node In SyntaxTree
+ {
+  NodeType := Node.Type, NodeValue := Node.Value
+  If (NodeType = "NODE")
+   Code .= CodeRecontructSyntaxTree(NodeValue)
+  Else If (NodeType = "LITERAL_STRING")
+   Code .= """" . NodeValue . """"
+  Else If (NodeType = "STATEMENT")
+   Code .= NodeValue . " "
+  Else If (NodeType = "LABEL")
+   Code .= NodeValue . ":"
+  Else
+   Code .= NodeValue
+  Code .= ","
+ }
+ Return, Operator . "(" . SubStr(Code,1,-1) . ")"
 }

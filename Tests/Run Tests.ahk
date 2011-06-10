@@ -1,7 +1,6 @@
 #NoEnv
 
 #Include ..\Resources\Functions.ahk
-#Include ..\Get Error.ahk
 
 #Include ..\Code.ahk
 #Include ..\Lexer.ahk
