@@ -69,132 +69,130 @@
 1: 
 	File: 4
 	Position: 0
-	Type: SYNTAX_ELEMENT
+	Type: 10
 	Value: 
-
 2: 
 	File: 4
 	Position: 1
-	Type: OPERATOR
+	Type: 0
 	Value: ~
 3: 
 	File: 4
 	Position: 2
-	Type: OPERATOR
+	Type: 0
 	Value: !
 4: 
 	File: 4
 	Position: 4
-	Type: IDENTIFIER
+	Type: 9
 	Value: #
 5: 
 	File: 4
 	Position: 7
-	Type: OPERATOR
+	Type: 0
 	Value: ^
 6: 
 	File: 4
 	Position: 8
-	Type: OPERATOR
+	Type: 0
 	Value: &
 7: 
 	File: 4
 	Position: 9
-	Type: OPERATOR
+	Type: 0
 	Value: *
 8: 
 	File: 4
 	Position: 10
-	Type: SYNTAX_ELEMENT
+	Type: 4
 	Value: (
 9: 
 	File: 4
 	Position: 11
-	Type: SYNTAX_ELEMENT
+	Type: 4
 	Value: )
 10: 
 	File: 4
 	Position: 12
-	Type: IDENTIFIER
+	Type: 9
 	Value: _
 11: 
 	File: 4
 	Position: 13
-	Type: OPERATOR
+	Type: 0
 	Value: +
 12: 
 	File: 4
 	Position: 15
-	Type: LITERAL_NUMBER
+	Type: 1
 	Value: 1234567890
 13: 
 	File: 4
 	Position: 25
-	Type: OPERATOR
+	Type: 0
 	Value: -=
 14: 
 	File: 4
 	Position: 28
-	Type: IDENTIFIER
+	Type: 9
 	Value: ABCDEFGHIJKLMNOPQRSTUVWXYZ
 15: 
 	File: 4
 	Position: 55
-	Type: IDENTIFIER
+	Type: 9
 	Value: abcdefghijklmnopqrstuvw
 16: 
 	File: 4
 	Position: 83
-	Type: SYNTAX_ELEMENT
+	Type: 10
 	Value: 
-
 17: 
 	File: 4
 	Position: 84
-	Type: SYNTAX_ELEMENT
+	Type: 5
 	Value: [
 18: 
 	File: 4
 	Position: 85
-	Type: SYNTAX_ELEMENT
+	Type: 5
 	Value: ]
 19: 
 	File: 4
 	Position: 89
-	Type: SYNTAX_ELEMENT
+	Type: 3
 	Value: ,
 20: 
 	File: 4
 	Position: 90
-	Type: OPERATOR
+	Type: 0
 	Value: .
 21: 
 	File: 4
 	Position: 91
-	Type: IDENTIFIER
+	Type: 9
 	Value: 
 22: 
 	File: 4
 	Position: 91
-	Type: OPERATOR
+	Type: 0
 	Value: /
 23: 
 	File: 4
 	Position: 92
-	Type: SYNTAX_ELEMENT
+	Type: 6
 	Value: {
 24: 
 	File: 4
 	Position: 93
-	Type: SYNTAX_ELEMENT
+	Type: 6
 	Value: }
 25: 
 	File: 4
 	Position: 95
-	Type: OPERATOR
+	Type: 0
 	Value: <>
 26: 
 	File: 4
 	Position: 98
-	Type: SYNTAX_ELEMENT
+	Type: 10
 	Value: 

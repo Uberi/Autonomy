@@ -4,11 +4,11 @@
 Syntax Tree Format
 ------------------
 
-[Index]: [Object]
-	1: the operation to perform [String]
-	[1 + Index]: the parameter or parameters of the operation [Object]
-		Type: the type of the parameter (Object, String, Float, Integer, etc.) [Word]
-		Value: the value of the parameter [String]
+[Index]:         the index of the tree node                                       [Object]
+	1:           the operation to perform                                         [String]
+	[1 + Index]: the parameter or parameters of the operation                     [Object]
+		Type:    the type of the parameter (Object, String, Float, Integer, etc.) [Identifier]
+		Value:   the value of the parameter                                       [String]
 
 Example
 -------
@@ -37,12 +37,6 @@ Example
 			Type: LITERAL_NUMBER
 			Value: 8
 */
-
-;initializes resources that the parser requires
-CodeParseInit()
-{
- 
-}
 
 ;parses AHK token stream
 CodeParse(ByRef Tokens,ByRef SyntaxTree,ByRef Errors)

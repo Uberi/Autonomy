@@ -20,7 +20,6 @@ CodeReconstructTokens(Tokens)
 
 CodeRecontructSyntaxTree(SyntaxTree)
 {
- ;MsgBox % ShowObject(SyntaxTree)
  If (SyntaxTree.1.Type = "OPERATOR")
   Operator := SyntaxTree.1.Value, ObjRemove(SyntaxTree,1,1)
  For Index, Node In SyntaxTree

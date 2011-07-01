@@ -17,7 +17,11 @@ Gui, Add, Button, x2 y350 w260 h30 gCopyReport Default, Copy To Clipboard
 Gui, Add, Button, x262 y350 w250 h30 gSaveReport, Save To File
 GuiControl, Focus, Button1
 
-CodeInit("..\Resources\OperatorTable.txt")
+If CodeInit("..\Resources")
+{
+ MsgBox, Error: Could not initialize code tools.
+ ExitApp
+}
 
 Gosub, TestLexer
 Gosub, TestParser
@@ -53,7 +57,6 @@ Loop, %A_ScriptDir%\Lexer\*.txt
 Return
 
 TestParser:
-CodeParseInit()
 Loop, %A_ScriptDir%\Parser\*.txt
 {
  FileRead(FileContents,A_LoopFileLongPath)

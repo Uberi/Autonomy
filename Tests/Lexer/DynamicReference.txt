@@ -24,150 +24,145 @@ Composite%Reference% := Composite%Function%Call()
 1: 
 	File: 4
 	Position: 0
-	Type: SYNTAX_ELEMENT
+	Type: 10
 	Value: 
-
 2: 
 	File: 4
 	Position: 1
-	Type: IDENTIFIER
+	Type: 9
 	Value: Variable
 3: 
 	File: 4
 	Position: 10
-	Type: OPERATOR
+	Type: 0
 	Value: :=
 4: 
 	File: 4
 	Position: 13
-	Type: OPERATOR
+	Type: 0
 	Value: %
 5: 
 	File: 4
 	Position: 14
-	Type: IDENTIFIER
+	Type: 9
 	Value: SomeVariable
 6: 
 	File: 4
 	Position: 28
-	Type: SYNTAX_ELEMENT
+	Type: 10
 	Value: 
-
 7: 
 	File: 4
 	Position: 29
-	Type: IDENTIFIER
+	Type: 9
 	Value: OtherVariable
 8: 
 	File: 4
 	Position: 43
-	Type: OPERATOR
+	Type: 0
 	Value: :=
 9: 
 	File: 4
 	Position: 67
-	Type: SYNTAX_ELEMENT
+	Type: 10
 	Value: 
-
 10: 
 	File: 4
 	Position: 68
-	Type: IDENTIFIER
+	Type: 9
 	Value: Var
 11: 
 	File: 4
 	Position: 72
-	Type: OPERATOR
+	Type: 0
 	Value: :=
 12: 
 	File: 4
 	Position: 84
-	Type: IDENTIFIER
+	Type: 9
 	Value: Char
 13: 
 	File: 4
 	Position: 89
-	Type: SYNTAX_ELEMENT
+	Type: 10
 	Value: 
-
 14: 
 	File: 4
 	Position: 90
-	Type: OPERATOR
+	Type: 0
 	Value: %
 15: 
 	File: 4
 	Position: 91
-	Type: IDENTIFIER
+	Type: 9
 	Value: SomeFunc
 16: 
 	File: 4
 	Position: 100
-	Type: SYNTAX_ELEMENT
+	Type: 4
 	Value: (
 17: 
 	File: 4
 	Position: 101
-	Type: SYNTAX_ELEMENT
+	Type: 4
 	Value: )
 18: 
 	File: 4
 	Position: 103
-	Type: SYNTAX_ELEMENT
+	Type: 10
 	Value: 
-
 19: 
 	File: 4
 	Position: 104
-	Type: IDENTIFIER
+	Type: 9
 	Value: Composite
 20: 
 	File: 4
 	Position: 113
-	Type: OPERATOR
+	Type: 0
 	Value: %
 21: 
 	File: 4
 	Position: 114
-	Type: IDENTIFIER
+	Type: 9
 	Value: Reference
 22: 
 	File: 4
 	Position: 125
-	Type: OPERATOR
+	Type: 0
 	Value: :=
 23: 
 	File: 4
 	Position: 128
-	Type: IDENTIFIER
+	Type: 9
 	Value: Composite
 24: 
 	File: 4
 	Position: 137
-	Type: OPERATOR
+	Type: 0
 	Value: %
 25: 
 	File: 4
 	Position: 138
-	Type: IDENTIFIER
+	Type: 9
 	Value: Function
 26: 
 	File: 4
 	Position: 147
-	Type: IDENTIFIER
+	Type: 9
 	Value: Call
 27: 
 	File: 4
 	Position: 151
-	Type: SYNTAX_ELEMENT
+	Type: 4
 	Value: (
 28: 
 	File: 4
 	Position: 152
-	Type: SYNTAX_ELEMENT
+	Type: 4
 	Value: )
 29: 
 	File: 4
 	Position: 153
-	Type: SYNTAX_ELEMENT
+	Type: 10
 	Value: 

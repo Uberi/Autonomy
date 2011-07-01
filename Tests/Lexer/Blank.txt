@@ -5,5 +5,5 @@
 1: 
 	File: 4
 	Position: 1
-	Type: SYNTAX_ELEMENT
+	Type: 10
 	Value: 

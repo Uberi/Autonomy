@@ -5,13 +5,13 @@
 /*
 Error Array Format
 
-[Index]: [Object]
-	Level: the class of the error ["Error", "Warning", or "Info"]
-	Identifier: the name of the error [Word]
-	Caret: exact location of error [Number]
-	Highlight: [Object or Blank]
-		Length: length of the highlighted section [Number]
-		Position: position of hightlighted section [Number]
+[Index]:          the index of the error            [Object]
+	Level:        the type of the error             [String: "Error", "Warning", or "Info"]
+	Identifier:   the name of the error             [Identifier]
+	Caret:        exact location of error           [Number]
+	Highlight:    the optional area to highlight    [Object or Blank]
+		Length:   length of the highlighted section [Number]
+		Position: position of hightlighted section  [Number]
 
 Example
 

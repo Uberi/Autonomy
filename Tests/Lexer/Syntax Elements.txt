@@ -23,94 +23,90 @@ Var3. Var4
 1: 
 	File: 4
 	Position: 0
-	Type: SYNTAX_ELEMENT
+	Type: 10
 	Value: 
-
 2: 
 	File: 4
 	Position: 1
-	Type: IDENTIFIER
+	Type: 9
 	Value: Var
 3: 
 	File: 4
 	Position: 5
-	Type: OPERATOR
+	Type: 0
 	Value:  . 
 4: 
 	File: 4
 	Position: 7
-	Type: LITERAL_STRING
+	Type: 2
 	Value: Something
 5: 
 	File: 4
 	Position: 19
-	Type: SYNTAX_ELEMENT
+	Type: 10
 	Value: 
-
 6: 
 	File: 4
 	Position: 20
-	Type: IDENTIFIER
+	Type: 9
 	Value: Variable
 7: 
 	File: 4
 	Position: 28
-	Type: OPERATOR
+	Type: 0
 	Value: .
 8: 
 	File: 4
 	Position: 29
-	Type: IDENTIFIER
+	Type: 9
 	Value: Value
 9: 
 	File: 4
 	Position: 35
-	Type: SYNTAX_ELEMENT
+	Type: 10
 	Value: 
-
 10: 
 	File: 4
 	Position: 36
-	Type: IDENTIFIER
+	Type: 9
 	Value: Var1
 11: 
 	File: 4
 	Position: 41
-	Type: OPERATOR
+	Type: 0
 	Value:  . 
 12: 
 	File: 4
 	Position: 42
-	Type: IDENTIFIER
+	Type: 9
 	Value: Var2
 13: 
 	File: 4
 	Position: 47
-	Type: SYNTAX_ELEMENT
+	Type: 10
 	Value: 
-
 14: 
 	File: 4
 	Position: 48
-	Type: IDENTIFIER
+	Type: 9
 	Value: Var3
 15: 
 	File: 4
 	Position: 52
-	Type: OPERATOR
+	Type: 0
 	Value: .
 16: 
 	File: 4
 	Position: 53
-	Type: IDENTIFIER
+	Type: 9
 	Value: 
 17: 
 	File: 4
 	Position: 54
-	Type: IDENTIFIER
+	Type: 9
 	Value: Var4
 18: 
 	File: 4
 	Position: 58
-	Type: SYNTAX_ELEMENT
+	Type: 10
 	Value: 

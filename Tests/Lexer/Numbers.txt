@@ -5,126 +5,125 @@ Var := 0x20 + 23 + 1234a + 4.0 + 67b89 + 1 + 0x20.321 + 98.76.54
 1: 
 	File: 4
 	Position: 0
-	Type: SYNTAX_ELEMENT
+	Type: 10
 	Value: 
-
 2: 
 	File: 4
 	Position: 1
-	Type: IDENTIFIER
+	Type: 9
 	Value: Var
 3: 
 	File: 4
 	Position: 5
-	Type: OPERATOR
+	Type: 0
 	Value: :=
 4: 
 	File: 4
 	Position: 8
-	Type: LITERAL_NUMBER
+	Type: 1
 	Value: 0x20
 5: 
 	File: 4
 	Position: 13
-	Type: OPERATOR
+	Type: 0
 	Value: +
 6: 
 	File: 4
 	Position: 15
-	Type: LITERAL_NUMBER
+	Type: 1
 	Value: 23
 7: 
 	File: 4
 	Position: 18
-	Type: OPERATOR
+	Type: 0
 	Value: +
 8: 
 	File: 4
 	Position: 20
-	Type: IDENTIFIER
+	Type: 9
 	Value: 1234a
 9: 
 	File: 4
 	Position: 26
-	Type: OPERATOR
+	Type: 0
 	Value: +
 10: 
 	File: 4
 	Position: 28
-	Type: LITERAL_NUMBER
+	Type: 1
 	Value: 4.0
 11: 
 	File: 4
 	Position: 32
-	Type: OPERATOR
+	Type: 0
 	Value: +
 12: 
 	File: 4
 	Position: 34
-	Type: IDENTIFIER
+	Type: 9
 	Value: 67b89
 13: 
 	File: 4
 	Position: 40
-	Type: OPERATOR
+	Type: 0
 	Value: +
 14: 
 	File: 4
 	Position: 42
-	Type: LITERAL_NUMBER
+	Type: 1
 	Value: 1
 15: 
 	File: 4
 	Position: 44
-	Type: OPERATOR
+	Type: 0
 	Value: +
 16: 
 	File: 4
 	Position: 46
-	Type: IDENTIFIER
+	Type: 9
 	Value: 0x20
 17: 
 	File: 4
 	Position: 50
-	Type: OPERATOR
+	Type: 0
 	Value: .
 18: 
 	File: 4
 	Position: 51
-	Type: IDENTIFIER
+	Type: 9
 	Value: 321
 19: 
 	File: 4
 	Position: 55
-	Type: OPERATOR
+	Type: 0
 	Value: +
 20: 
 	File: 4
 	Position: 57
-	Type: IDENTIFIER
+	Type: 9
 	Value: 98
 21: 
 	File: 4
 	Position: 59
-	Type: OPERATOR
+	Type: 0
 	Value: .
 22: 
 	File: 4
 	Position: 60
-	Type: IDENTIFIER
+	Type: 9
 	Value: 76
 23: 
 	File: 4
 	Position: 62
-	Type: OPERATOR
+	Type: 0
 	Value: .
 24: 
 	File: 4
 	Position: 63
-	Type: IDENTIFIER
+	Type: 9
 	Value: 54
 25: 
 	File: 4
 	Position: 65
-	Type: SYNTAX_ELEMENT
+	Type: 10
 	Value: 
