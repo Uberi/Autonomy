@@ -1,6 +1,25 @@
 #NoEnv
 
 /*
+Basic AHK Grammar (EBNF-like)
+-----------------
+
+LineBegin := { ^ | "\r" | "\n" }
+Whitespace := { " " | "\t" }
+PrefixOperator := "++" | "--" | "!" | "-" | "~" | "+"
+InfixOperator := "+" | "-" | ;wip
+TernaryOperator := ;wip
+
+Number := { "\d" } [ "." [ { "\d" } ] ] | "." { "\d" } | ( "0x" { "[a-fA-F\d]" } )
+String := "\"" { "\"\"" | . } "\""
+Identifier := { "\w" }
+Expression := [ Number | String | Identifier ] Operator
+
+FunctionParameter := [ "ByRef" Whitespace ] Identifier [ Whitespace "=" Whitespace ] ( String | Number )
+FunctionDefinition := Identifier "(" FunctionParameter [ { [ Whitespace ] "," [ Whitespace ] FunctionParameter } ] ")" [ Whitespace | LineBegin ] "{" ;wip
+
+ForLoop := LineBegin Whitespace "For" Whitespace Identifier [ [ Whitespace ] "," [ Whitespace ] Identifier ] Whitespace "In" Whitespace Expression
+
 Syntax Element Table Format
 ---------------------------
 

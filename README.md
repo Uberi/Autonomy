@@ -9,8 +9,8 @@ Progress
     <th>Module</th><th>Status</th>
 
     <tr><td>Error Handler</td> <td><em>Working</em></td></tr>
-    <tr><td>Lexer</td>         <td><em>Working</em></td></tr>
-    <tr><td>Parser</td>        <td><em>Partially working</em></td></tr>
+    <tr><td>Lexer</td>         <td><em>Working (prone to changes)</em></td></tr>
+    <tr><td>Parser</td>        <td><em>Temporarily broken (undergoing rewrite)</em></td></tr>
     <tr><td>Optimiser</td>     <td><em>Pending</em></td></tr>
     <tr><td>Bytecode</td>      <td><em>Pending</em></td></tr>
     <tr><td>Interpreter</td>   <td><em>Pending</em></td></tr>
