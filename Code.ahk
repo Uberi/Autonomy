@@ -1,29 +1,40 @@
 #NoEnv
 
 /*
-Basic AHK Grammar (EBNF-like)
+Basic AHK Grammar
 -----------------
 
-LineBegin := { ^ | "\r" | "\n" }
-Whitespace := { " " | "\t" }
-PrefixOperator := "++" | "--" | "!" | "-" | "~" | "+"
-InfixOperator := "+" | "-" | ;wip
-TernaryOperator := ;wip
+EBNF as defined by "http://en.wikipedia.org/wiki/Extended_Backus-Naur_Form":
 
-Number := { "\d" } [ "." [ { "\d" } ] ] | "." { "\d" } | ( "0x" { "[a-fA-F\d]" } )
-String := "\"" { "\"\"" | . } "\""
-Identifier := { "\w" }
-Expression := [ Number | String | Identifier ] Operator
+(* basic nonterminals *)
+Whitespace  = " " | "\t"
 
-FunctionParameter := [ "ByRef" Whitespace ] Identifier [ Whitespace "=" Whitespace ] ( String | Number )
-FunctionDefinition := Identifier "(" FunctionParameter [ { [ Whitespace ] "," [ Whitespace ] FunctionParameter } ] ")" [ Whitespace | LineBegin ] "{" ;wip
+(* fundemental types *)
+Digit       = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' ;
+DigitNumber = Digit , { Digit } ;
+HexDigit    = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | Digit ;
+Integer     = [ '+' | '-' ] , ( DigitNumber | ( '0x' , HexDigit , { HexDigit } ) ) ;
+Decimal     = [ '+' | '-' ] , ( ( Digit , { Digit } , '.' , { Digit } ) | ( '.' , Digit , { Digit } ) ) ;
+String      = '"' , { '""' | ? any character ? } , '"' ;
+AlNum       = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L' | 'M' | 'N' | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'U' | 'V' | 'W' | 'X' | 'Y' | 'Z' | Digit | '_' ;
+Identifier  = AlNum , { AlNum } ;
+Operand     = Integer | Decimal | String | Identifier
 
-ForLoop := LineBegin Whitespace "For" Whitespace Identifier [ [ Whitespace ] "," [ Whitespace ] Identifier ] Whitespace "In" Whitespace Expression
+(* operators *)
+Prefix      = "!" | "~" | "&" | "*" | "++" | "--" ;
+Infix       = "||" | "&&" | "==" | "=" | "<>" | "!=" | ">" | "<" | ">=" | "<=" | ( Whitespace , "." , Whitespace ) | "&" | "^" | "|" | "<<" | ">>" | "+" | "-" | "*" | "/" | "//" | "." | ":=" | "+=" | "-=" | "*=" | "/=" | "//=" | ".=" | "|=" | "&=" | "^=" | "<<=" | ">>=" | "**" ;
+Postfix     = "++" | "--"
+Dynamic     = [ Identifier ] , "%" , Identifier , "%" , [ Identifier ] , { "%" , Identifier , "%" , [ Identifier ] } ;
+
+(* expression components *)
+Padding     = [ { Whitespace } ]
+Operation   = ( Prefix , Padding , Operand ) | ( Operand , Padding , Infix , Padding , Operand ) | ( Operand , Padding , Postfix ) ;
+Expression  = Padding , Operation , Padding , { Operation , Padding }
 
 Syntax Element Table Format
 ---------------------------
 
-[Operator]: [Object]
+[Operator]:          the symbol representing the operator     [Object]
 	- Precedence:    the operator's precendence               [Integer]
 	- Associativity: the associativity of the operator        [String: "L" or "R"]
 	- Arity:         the number of operands the operator uses [Integer]

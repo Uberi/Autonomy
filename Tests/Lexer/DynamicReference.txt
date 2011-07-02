@@ -2,7 +2,7 @@ Variable := %SomeVariable%
 OtherVariable := %UnclosedPercentSign
 Var := %Invalid Char
 %SomeFunc%()
-Composite%Reference% := Composite%Function%Call()
+Composite%Variable%%Reference% := Composite%Function%Call()
 ---
 1: 
 	Caret: 46
@@ -125,44 +125,54 @@ Composite%Reference% := Composite%Function%Call()
 	File: 4
 	Position: 114
 	Type: 9
-	Value: Reference
+	Value: Variable
 22: 
 	File: 4
-	Position: 125
-	Type: 0
-	Value: :=
-23: 
-	File: 4
-	Position: 128
-	Type: 9
-	Value: Composite
-24: 
-	File: 4
-	Position: 137
+	Position: 123
 	Type: 0
 	Value: %
+23: 
+	File: 4
+	Position: 124
+	Type: 9
+	Value: Reference
+24: 
+	File: 4
+	Position: 135
+	Type: 0
+	Value: :=
 25: 
 	File: 4
 	Position: 138
 	Type: 9
-	Value: Function
+	Value: Composite
 26: 
 	File: 4
 	Position: 147
-	Type: 9
-	Value: Call
+	Type: 0
+	Value: %
 27: 
 	File: 4
-	Position: 151
-	Type: 4
-	Value: (
+	Position: 148
+	Type: 9
+	Value: Function
 28: 
 	File: 4
-	Position: 152
-	Type: 4
-	Value: )
+	Position: 157
+	Type: 9
+	Value: Call
 29: 
 	File: 4
-	Position: 153
+	Position: 161
+	Type: 4
+	Value: (
+30: 
+	File: 4
+	Position: 162
+	Type: 4
+	Value: )
+31: 
+	File: 4
+	Position: 163
 	Type: 10
 	Value: 
