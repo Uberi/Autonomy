@@ -6,22 +6,23 @@
 Error Array Format
 
 [Index]:          the index of the error            [Object]
-	Level:        the type of the error             [String: "Error", "Warning", or "Info"]
-	Identifier:   the name of the error             [Identifier]
-	Caret:        exact location of error           [Number]
-	Highlight:    the optional area to highlight    [Object or Blank]
-		Length:   length of the highlighted section [Number]
-		Position: position of hightlighted section  [Number]
+    Level:        the type of the error             [String: "Error", "Warning", or "Info"]
+    Identifier:   the name of the error             [Identifier]
+    Caret:        exact location of error           [Number]
+    Highlight:    the optional area to highlight    [Object or Blank]
+        Length:   length of the highlighted section [Number]
+        Position: position of hightlighted section  [Number]
 
 Example
+-------
 
-4:
-	Level: Error
-	Identifier: INVALID_SYNTAX
-	Caret: 17
-	Highlight:
-		Length: 3
-		Position: 13
+    4:
+        Level: Error
+        Identifier: INVALID_SYNTAX
+        Caret: 17
+        Highlight:
+            Length: 3
+            Position: 13
 */
 
 ;creates a formatted summary of errors

@@ -4,20 +4,20 @@
 Token Stream Format
 -------------------
 
-[Index]:      the index of the token                         [Object]
-	Type:     the type of the token                          [Identifier]
-	Value:    the value of the token                         [String]
-	Position: position of token within the file              [Integer]
-	File:     the file index the current token is located in [Integer]
+* _[Index]_:      the index of the token                         _[Object]_
+    * Type:     the type of the token                          _[Identifier]_
+    * Value:    the value of the token                         _[String]_
+    * Position: position of token within the file              _[Integer]_
+    * File:     the file index the current token is located in _[Integer]_
 
 Example Token Stream
 --------------------
 
-2:
-	Type: IDENTIFIER
-	Value: SomeVariable
-	Position: 15
-	File: 3
+    2:
+        Type: IDENTIFIER
+        Value: SomeVariable
+        Position: 15
+        File: 3
 */
 
 ;initializes resources that the lexer requires

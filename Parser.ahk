@@ -4,38 +4,38 @@
 Syntax Tree Format
 ------------------
 
-[Index]:         the index of the tree node                                       [Object]
-	1:           the operation to perform                                         [String]
-	[1 + Index]: the parameter or parameters of the operation                     [Object]
-		Type:    the type of the parameter (Object, String, Float, Integer, etc.) [Identifier]
-		Value:   the value of the parameter                                       [String]
+* _[Index]_:         the index of the tree node                                       _[Object]_
+    * 1:             the operation to perform                                         _[String]_
+    * _[1 + Index]_: the parameter or parameters of the operation                     _[Object]_
+        * Type:      the type of the parameter (Object, String, Float, Integer, etc.) _[Identifier]_
+        * Value:     the value of the parameter                                       _[String]_
 
 Example
 -------
 
 (2 * 3) + 8
 
-1:
-	Type: NODE ;type information
-	Value: ;node value
-		1:
-			Type: OPERATOR
-			Value: +
-		2:
-			Type: NODE
-			Value: ;subnode
-				1:
-					Type: OPERATOR
-					Value: *
-				2:
-					Type: LITERAL_NUMBER
-					Value: 2
-				3:
-					Type: LITERAL_NUMBER
-					Value: 3
-		3:
-			Type: LITERAL_NUMBER
-			Value: 8
+    1:
+        Type: NODE ;type information
+        Value: ;node value
+            1:
+                Type: OPERATOR
+                Value: +
+            2:
+                Type: NODE
+                Value: ;subnode
+                    1:
+                        Type: OPERATOR
+                        Value: *
+                    2:
+                        Type: LITERAL_NUMBER
+                        Value: 2
+                    3:
+                        Type: LITERAL_NUMBER
+                        Value: 3
+            3:
+                Type: LITERAL_NUMBER
+                Value: 8
 */
 
 ;parses AHK token stream

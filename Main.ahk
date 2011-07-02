@@ -12,15 +12,21 @@ SetBatchLines(-1)
 #Include Lexer.ahk
 #Include Parser.ahk
 
-;wip: rewrite parser to not use shunting yard algorithm anymore, it's becoming a big, hackish mess. look into TDOP/Pratt parser instead
-;wip: ternary operator should be added to operator table
-;wip: process directives in lexer
-;wip: support a command syntax, that is translated to a function call on load: Math.Mod, 100, 5
+/*
+TODO
+----
 
-;wip: scope info should be attached to each variable
-;wip: "local" keyword works on current block, instead of current function, and can make block assume-local: If Something { local SomeVar := "Test" } ;SomeVar is freed after the If block goes out of scope
-;wip: function definitions are variables holding function references (implemented as function pointers, and utilising reference counting), so variables and functions are in the same namespace
-;wip: static tail call detection
+* Rewrite parser to not use shunting yard algorithm anymore, it's becoming a big, hackish mess. Look into TDOP/Pratt parser instead
+* Ternary operator should be added to operator table
+* Process directives in lexer
+* Support a command syntax, that is translated to a function call on load: Math.Mod, 100, 5
+*
+* Scope info should be attached to each variable
+* "local" keyword works on current block, instead of current function, and can make block assume-local: If Something { local SomeVar := "Test" } ;SomeVar is freed after the If block goes out of scope
+* Function definitions are variables holding function references (implemented as function pointers, and utilising reference counting), so variables and functions are in the same namespace
+* Static tail call detection
+* Incremental parser and lexer for IDE use, have object mapping line numbers to token indexes, have parser save state at intervals, lex changed lines only, restore parser state the saved state right before the token index of the changed token, keep parsing to the end of the file
+*/
 
 Code = 
 (
