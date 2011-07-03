@@ -6,7 +6,7 @@ Composite%Variable%%Reference% := Composite%Function%Call()
 ---
 1: 
 	Caret: 46
-	File: 4
+	File: 1
 	Highlight: 
 		Length: 20
 		Position: 46
@@ -14,7 +14,7 @@ Composite%Variable%%Reference% := Composite%Function%Call()
 	Level: Error
 2: 
 	Caret: 83
-	File: 4
+	File: 1
 	Highlight: 
 		Length: 8
 		Position: 75
@@ -22,157 +22,157 @@ Composite%Variable%%Reference% := Composite%Function%Call()
 	Level: Error
 ---
 1: 
-	File: 4
+	File: 1
 	Position: 0
 	Type: 10
 	Value: 
 2: 
-	File: 4
+	File: 1
 	Position: 1
 	Type: 9
 	Value: Variable
 3: 
-	File: 4
+	File: 1
 	Position: 10
 	Type: 0
 	Value: :=
 4: 
-	File: 4
+	File: 1
 	Position: 13
 	Type: 0
 	Value: %
 5: 
-	File: 4
+	File: 1
 	Position: 14
 	Type: 9
 	Value: SomeVariable
 6: 
-	File: 4
+	File: 1
 	Position: 28
 	Type: 10
 	Value: 
 7: 
-	File: 4
+	File: 1
 	Position: 29
 	Type: 9
 	Value: OtherVariable
 8: 
-	File: 4
+	File: 1
 	Position: 43
 	Type: 0
 	Value: :=
 9: 
-	File: 4
+	File: 1
 	Position: 67
 	Type: 10
 	Value: 
 10: 
-	File: 4
+	File: 1
 	Position: 68
 	Type: 9
 	Value: Var
 11: 
-	File: 4
+	File: 1
 	Position: 72
 	Type: 0
 	Value: :=
 12: 
-	File: 4
+	File: 1
 	Position: 84
 	Type: 9
 	Value: Char
 13: 
-	File: 4
+	File: 1
 	Position: 89
 	Type: 10
 	Value: 
 14: 
-	File: 4
+	File: 1
 	Position: 90
 	Type: 0
 	Value: %
 15: 
-	File: 4
+	File: 1
 	Position: 91
 	Type: 9
 	Value: SomeFunc
 16: 
-	File: 4
+	File: 1
 	Position: 100
 	Type: 4
 	Value: (
 17: 
-	File: 4
+	File: 1
 	Position: 101
 	Type: 4
 	Value: )
 18: 
-	File: 4
+	File: 1
 	Position: 103
 	Type: 10
 	Value: 
 19: 
-	File: 4
+	File: 1
 	Position: 104
 	Type: 9
 	Value: Composite
 20: 
-	File: 4
+	File: 1
 	Position: 113
 	Type: 0
 	Value: %
 21: 
-	File: 4
+	File: 1
 	Position: 114
 	Type: 9
 	Value: Variable
 22: 
-	File: 4
+	File: 1
 	Position: 123
 	Type: 0
 	Value: %
 23: 
-	File: 4
+	File: 1
 	Position: 124
 	Type: 9
 	Value: Reference
 24: 
-	File: 4
+	File: 1
 	Position: 135
 	Type: 0
 	Value: :=
 25: 
-	File: 4
+	File: 1
 	Position: 138
 	Type: 9
 	Value: Composite
 26: 
-	File: 4
+	File: 1
 	Position: 147
 	Type: 0
 	Value: %
 27: 
-	File: 4
+	File: 1
 	Position: 148
 	Type: 9
 	Value: Function
 28: 
-	File: 4
+	File: 1
 	Position: 157
 	Type: 9
 	Value: Call
 29: 
-	File: 4
+	File: 1
 	Position: 161
 	Type: 4
 	Value: (
 30: 
-	File: 4
+	File: 1
 	Position: 162
 	Type: 4
 	Value: )
 31: 
-	File: 4
+	File: 1
 	Position: 163
 	Type: 10
 	Value: 

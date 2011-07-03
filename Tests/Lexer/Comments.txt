@@ -18,167 +18,167 @@ Variable /= Value
 
 ---
 1: 
-	File: 4
+	File: 1
 	Position: 20
 	Type: 10
 	Value: 
 2: 
-	File: 4
+	File: 1
 	Position: 21
 	Type: 9
 	Value: FunctionCall
 3: 
-	File: 4
+	File: 1
 	Position: 33
 	Type: 4
 	Value: (
 4: 
-	File: 4
+	File: 1
 	Position: 34
 	Type: 4
 	Value: )
 5: 
-	File: 4
+	File: 1
 	Position: 61
 	Type: 10
 	Value: 
 6: 
-	File: 4
+	File: 1
 	Position: 63
 	Type: 9
 	Value: Variable
 7: 
-	File: 4
+	File: 1
 	Position: 72
 	Type: 0
 	Value: :=
 8: 
-	File: 4
+	File: 1
 	Position: 75
 	Type: 9
 	Value: Value
 9: 
-	File: 4
+	File: 1
 	Position: 98
 	Type: 10
 	Value: 
 10: 
-	File: 4
+	File: 1
 	Position: 99
 	Type: 9
 	Value: Variable
 11: 
-	File: 4
+	File: 1
 	Position: 108
 	Type: 0
 	Value: +=
 12: 
-	File: 4
+	File: 1
 	Position: 111
 	Type: 9
 	Value: Value
 13: 
-	File: 4
+	File: 1
 	Position: 139
 	Type: 10
 	Value: 
 14: 
-	File: 4
+	File: 1
 	Position: 140
 	Type: 9
 	Value: FunctionCall
 15: 
-	File: 4
+	File: 1
 	Position: 152
 	Type: 4
 	Value: (
 16: 
-	File: 4
+	File: 1
 	Position: 153
 	Type: 4
 	Value: )
 17: 
-	File: 4
+	File: 1
 	Position: 222
 	Type: 10
 	Value: 
 18: 
-	File: 4
+	File: 1
 	Position: 223
 	Type: 9
 	Value: Variable
 19: 
-	File: 4
+	File: 1
 	Position: 232
 	Type: 0
 	Value: *=
 20: 
-	File: 4
+	File: 1
 	Position: 235
 	Type: 9
 	Value: Value
 21: 
-	File: 4
+	File: 1
 	Position: 241
 	Type: 10
 	Value: 
 22: 
-	File: 4
+	File: 1
 	Position: 242
 	Type: 9
 	Value: Variable
 23: 
-	File: 4
+	File: 1
 	Position: 251
 	Type: 0
 	Value: -=
 24: 
-	File: 4
+	File: 1
 	Position: 260
 	Type: 9
 	Value: Value
 25: 
-	File: 4
+	File: 1
 	Position: 266
 	Type: 10
 	Value: 
 26: 
-	File: 4
+	File: 1
 	Position: 267
 	Type: 9
 	Value: Variable
 27: 
-	File: 4
+	File: 1
 	Position: 276
 	Type: 0
 	Value: /=
 28: 
-	File: 4
+	File: 1
 	Position: 279
 	Type: 9
 	Value: Value
 29: 
-	File: 4
+	File: 1
 	Position: 291
 	Type: 10
 	Value: 
 30: 
-	File: 4
+	File: 1
 	Position: 292
 	Type: 9
 	Value: Variable
 31: 
-	File: 4
+	File: 1
 	Position: 301
 	Type: 0
 	Value: <<=
 32: 
-	File: 4
+	File: 1
 	Position: 305
 	Type: 9
 	Value: Value
 33: 
-	File: 4
+	File: 1
 	Position: 310
 	Type: 10
 	Value: 

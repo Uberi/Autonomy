@@ -58,7 +58,7 @@ Token Types Enumeration
 ;initializes resources that will be required by the code tools
 CodeInit(ResourcesPath = "Resources")
 { ;returns 1 on failure, nothing otherwise
- global CodeOperatorTable, CodeErrorMessages, CodeTokenTypes
+ global CodeOperatorTable, CodeErrorMessages, CodeTokenTypes, CodeFiles
 
  ;ensure the path ends with a directory separator ;wip: not cross-platform
  If (SubStr(ResourcesPath,0) <> "\")
@@ -85,4 +85,7 @@ CodeInit(ResourcesPath = "Resources")
  CodeTokenTypes := Object(), Index := 0
  Loop, Parse, Temp1, |
   ObjInsert(CodeTokenTypes,A_LoopField,Index), Index ++
+
+ ;an array of files included by the script, as well as the script itself
+ CodeFiles := Object()
 }

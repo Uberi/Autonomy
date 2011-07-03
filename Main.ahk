@@ -18,7 +18,6 @@ TODO
 
 * Rewrite parser to not use shunting yard algorithm anymore, it's becoming a big, hackish mess. Look into TDOP/Pratt parser instead
 * Ternary operator should be added to operator table
-* Process directives in lexer
 * Support a command syntax, that is translated to a function call on load: Math.Mod, 100, 5
 *
 * Scope info should be attached to each variable
@@ -43,7 +42,7 @@ If CodeInit()
 }
 
 CodeLexInit()
-If CodeLex(Code,Tokens,Errors,Files,4)
+If CodeLex(Code,Tokens,Errors,"Test")
 {
  Display(CodeGetError(Code,Errors)) ;display error at standard output
  ExitApp(1)

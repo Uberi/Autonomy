@@ -3,19 +3,19 @@
 ---
 1: 
 	Caret: 3
-	File: 4
+	File: 1
 	Highlight: 
 	Identifier: INVALID_CHARACTER
 	Level: Error
 2: 
 	Caret: 5
-	File: 4
+	File: 1
 	Highlight: 
 	Identifier: INVALID_CHARACTER
 	Level: Error
 3: 
 	Caret: 7
-	File: 4
+	File: 1
 	Highlight: 
 		Length: 1
 		Position: 6
@@ -23,13 +23,13 @@
 	Level: Error
 4: 
 	Caret: 14
-	File: 4
+	File: 1
 	Highlight: 
 	Identifier: INVALID_CHARACTER
 	Level: Error
 5: 
 	Caret: 82
-	File: 4
+	File: 1
 	Highlight: 
 		Length: 4
 		Position: 78
@@ -37,162 +37,162 @@
 	Level: Error
 6: 
 	Caret: 86
-	File: 4
+	File: 1
 	Highlight: 
 	Identifier: INVALID_CHARACTER
 	Level: Error
 7: 
 	Caret: 87
-	File: 4
+	File: 1
 	Highlight: 
 	Identifier: INVALID_CHARACTER
 	Level: Error
 8: 
 	Caret: 88
-	File: 4
+	File: 1
 	Highlight: 
 	Identifier: INVALID_CHARACTER
 	Level: Error
 9: 
 	Caret: 94
-	File: 4
+	File: 1
 	Highlight: 
 	Identifier: INVALID_CHARACTER
 	Level: Error
 10: 
 	Caret: 97
-	File: 4
+	File: 1
 	Highlight: 
 	Identifier: INVALID_CHARACTER
 	Level: Error
 ---
 1: 
-	File: 4
+	File: 1
 	Position: 0
 	Type: 10
 	Value: 
 2: 
-	File: 4
+	File: 1
 	Position: 1
 	Type: 0
 	Value: ~
 3: 
-	File: 4
+	File: 1
 	Position: 2
 	Type: 0
 	Value: !
 4: 
-	File: 4
+	File: 1
 	Position: 4
 	Type: 9
 	Value: #
 5: 
-	File: 4
+	File: 1
 	Position: 7
 	Type: 0
 	Value: ^
 6: 
-	File: 4
+	File: 1
 	Position: 8
 	Type: 0
 	Value: &
 7: 
-	File: 4
+	File: 1
 	Position: 9
 	Type: 0
 	Value: *
 8: 
-	File: 4
+	File: 1
 	Position: 10
 	Type: 4
 	Value: (
 9: 
-	File: 4
+	File: 1
 	Position: 11
 	Type: 4
 	Value: )
 10: 
-	File: 4
+	File: 1
 	Position: 12
 	Type: 9
 	Value: _
 11: 
-	File: 4
+	File: 1
 	Position: 13
 	Type: 0
 	Value: +
 12: 
-	File: 4
+	File: 1
 	Position: 15
 	Type: 1
 	Value: 1234567890
 13: 
-	File: 4
+	File: 1
 	Position: 25
 	Type: 0
 	Value: -=
 14: 
-	File: 4
+	File: 1
 	Position: 28
 	Type: 9
 	Value: ABCDEFGHIJKLMNOPQRSTUVWXYZ
 15: 
-	File: 4
+	File: 1
 	Position: 55
 	Type: 9
 	Value: abcdefghijklmnopqrstuvw
 16: 
-	File: 4
+	File: 1
 	Position: 83
 	Type: 10
 	Value: 
 17: 
-	File: 4
+	File: 1
 	Position: 84
 	Type: 5
 	Value: [
 18: 
-	File: 4
+	File: 1
 	Position: 85
 	Type: 5
 	Value: ]
 19: 
-	File: 4
+	File: 1
 	Position: 89
 	Type: 3
 	Value: ,
 20: 
-	File: 4
+	File: 1
 	Position: 90
 	Type: 0
 	Value: .
 21: 
-	File: 4
+	File: 1
 	Position: 91
 	Type: 9
 	Value: 
 22: 
-	File: 4
+	File: 1
 	Position: 91
 	Type: 0
 	Value: /
 23: 
-	File: 4
+	File: 1
 	Position: 92
 	Type: 6
 	Value: {
 24: 
-	File: 4
+	File: 1
 	Position: 93
 	Type: 6
 	Value: }
 25: 
-	File: 4
+	File: 1
 	Position: 95
 	Type: 0
 	Value: <>
 26: 
-	File: 4
+	File: 1
 	Position: 98
 	Type: 10
 	Value: 

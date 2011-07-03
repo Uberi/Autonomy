@@ -42,13 +42,14 @@ Loop, %A_ScriptDir%\Lexer\*.txt
  {
   StringReplace, TestErrorOutput, TestErrorOutput, `r,, All
   StringReplace, TestTokenOutput, TestTokenOutput, `r,, All
-  CodeLex(TestCode,Tokens,Errors,Files,4)
+  CodeLex(TestCode,Tokens,Errors,"Test")
   If (ShowObject(Errors) <> TestErrorOutput)
    ExtraInfo := "Generated errors do not match expected errors.", TestStatus := "Fail"
   Else If (ShowObject(Tokens) <> TestTokenOutput)
    ExtraInfo := "Tokenized output does not match expected output.", TestStatus := "Fail"
   Else
    ExtraInfo := "None", TestStatus := "Pass"
+  ObjRemove(CodeFiles) ;clean up files list
  }
  Else
   ExtraInfo := "Invalid test.", TestStatus := "Fail"

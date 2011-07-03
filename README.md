@@ -10,8 +10,9 @@ Progress
 
     <tr><td>Error Handler</td> <td><em>Working</em></td></tr>
     <tr><td>Lexer</td>         <td><em>Working (prone to changes)</em></td></tr>
-    <tr><td>Parser</td>        <td><em>Temporarily broken (undergoing rewrite)</em></td></tr>
-    <tr><td>Optimiser</td>     <td><em>Pending</em></td></tr>
+    <tr><td>Preprocessor</td>  <td><em>In Progress</em></td></tr>
+    <tr><td>Parser</td>        <td><em>Temporarily broken (soon undergoing rewrite)</em></td></tr>
+    <tr><td>Simplifier</td>    <td><em>Pending</em></td></tr>
     <tr><td>Bytecode</td>      <td><em>Pending</em></td></tr>
     <tr><td>Interpreter</td>   <td><em>Pending</em></td></tr>
 </table>
@@ -39,17 +40,21 @@ out a specific character.
 
 Implements a tokenizer for raw source code given as input. Outputs a token array.
 
+### Preprocess.ahk
+
+Preprocesses directives within a token array given as input. 
+
 ### Parser.ahk
 
-Not yet implemented. Will parse a token array given as input and output an abstract syntax tree. Uses modified and extended shunting yard algorithm.
+Parses a token array given as input and output an abstract syntax tree.
 
-### Optimise.ahk
+### Simplify.ahk
 
-Not yet implemented. Will perform optimisations and transformations to a syntax tree given as input.
+Performs simplifications and transformations to a syntax tree given as input.
 
 ### Bytecode.ahk
 
-Not yet implemented. Will accept an abstract syntax tree given as input and output a bytecode format suitable for 
+Accepts an abstract syntax tree given as input and outputs a bytecode format suitable for 
 
 interpretation or compilation.
 
