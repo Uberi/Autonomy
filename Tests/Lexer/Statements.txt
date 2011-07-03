@@ -3,7 +3,7 @@ For InvalidLine
     For Var In Object
 For Key, Value In OtherObject
 
-#Include, Something.ahk
+#Include, Something.ahk   
 #IncludeAgain SomethingElse.ahk
 
 While, (100 - A_Index)
@@ -123,71 +123,71 @@ While, (100 - A_Index)
 	Value: Something.ahk
 22: 
 	File: 1
-	Position: 124
+	Position: 127
 	Type: 10
 	Value: 
 23: 
 	File: 1
-	Position: 125
+	Position: 128
 	Type: 8
 	Value: #IncludeAgain
 24: 
 	File: 1
-	Position: 139
+	Position: 142
 	Type: 2
 	Value: SomethingElse.ahk
 25: 
 	File: 1
-	Position: 159
+	Position: 162
 	Type: 10
 	Value: 
 26: 
 	File: 1
-	Position: 160
+	Position: 163
 	Type: 8
 	Value: While
 27: 
 	File: 1
-	Position: 167
+	Position: 170
 	Type: 4
 	Value: (
 28: 
 	File: 1
-	Position: 168
+	Position: 171
 	Type: 1
 	Value: 100
 29: 
 	File: 1
-	Position: 172
+	Position: 175
 	Type: 0
 	Value: -
 30: 
 	File: 1
-	Position: 174
+	Position: 177
 	Type: 9
 	Value: A_Index
 31: 
 	File: 1
-	Position: 181
+	Position: 184
 	Type: 4
 	Value: )
 32: 
 	File: 1
-	Position: 185
+	Position: 188
 	Type: 10
 	Value: 
 33: 
 	File: 1
-	Position: 186
+	Position: 189
 	Type: 8
 	Value: Return
 34: 
 	File: 1
-	Position: 194
+	Position: 197
 	Type: 1
 	Value: 50
 35: 
 	File: 1
-	Position: 196
+	Position: 199
 	Type: 10
 	Value: 

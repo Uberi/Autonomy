@@ -172,8 +172,14 @@ CodeLexLine(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef FileIndex)
  {
   ;extract statement parameters
   Parameters := "", Position1 := Position
-  While, !InStr("`r`n",CurrentChar := SubStr(Code,Position,1))
+  While, (!((CurrentChar := SubStr(Code,Position,1)) = "`r" || CurrentChar = "`n") && CurrentChar <> "") ;move to the end of the line
    Position ++, Parameters .= CurrentChar
+
+  ;trim trailing whitespace from paramters
+  Length := Position - Position1
+  While, ((CurrentChar := SubStr(Parameters,Length,1)) = " " || CurrentChar = "`t")
+   Length --
+  Parameters := SubStr(Parameters,1,Length)
 
   ObjInsert(Tokens,Object("Type",CodeTokenTypes.LITERAL_STRING,"Value",Parameters,"Position",Position1,"File",FileIndex)) ;add the statement parameters to the token array
  }

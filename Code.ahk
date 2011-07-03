@@ -86,6 +86,6 @@ CodeInit(ResourcesPath = "Resources")
  Loop, Parse, Temp1, |
   ObjInsert(CodeTokenTypes,A_LoopField,Index), Index ++
 
- ;an array of files included by the script, as well as the script itself
+ ;an array of files included by the script, as well as the script itself (script is at index 1, included files after this)
  CodeFiles := Object()
 }

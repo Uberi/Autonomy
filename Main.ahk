@@ -10,6 +10,7 @@ SetBatchLines(-1)
 
 #Include Code.ahk
 #Include Lexer.ahk
+#Include Preprocessor.ahk
 #Include Parser.ahk
 
 /*
@@ -19,7 +20,7 @@ TODO
 * Rewrite parser to not use shunting yard algorithm anymore, it's becoming a big, hackish mess. Look into TDOP/Pratt parser instead
 * Ternary operator should be added to operator table
 * Support a command syntax, that is translated to a function call on load: Math.Mod, 100, 5
-*
+
 * Scope info should be attached to each variable
 * "local" keyword works on current block, instead of current function, and can make block assume-local: If Something { local SomeVar := "Test" } ;SomeVar is freed after the If block goes out of scope
 * Function definitions are variables holding function references (implemented as function pointers, and utilising reference counting), so variables and functions are in the same namespace
@@ -29,11 +30,12 @@ TODO
 
 Code = 
 (
+#Include <A_File>
 Var := Something
 Return, 1 + 1
 )
 
-Code := "a + !b * (1 + 3)"
+;Code := "a + !b * (1 + 3)"
 
 If CodeInit()
 {
@@ -43,6 +45,12 @@ If CodeInit()
 
 CodeLexInit()
 If CodeLex(Code,Tokens,Errors,"Test")
+{
+ Display(CodeGetError(Code,Errors)) ;display error at standard output
+ ExitApp(1)
+}
+
+If CodePreprocess(Tokens,Errors)
 {
  Display(CodeGetError(Code,Errors)) ;display error at standard output
  ExitApp(1)
