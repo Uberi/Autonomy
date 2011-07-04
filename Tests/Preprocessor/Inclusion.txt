@@ -128,6 +128,21 @@
 	Position: 139
 	Type: 10
 	Value: 
+27: 
+	File: 1
+	Position: 140
+	Type: 8
+	Value: #Include
+28: 
+	File: 1
+	Position: 149
+	Type: 2
+	Value: <TestLibrary.ahk>
+29: 
+	File: 1
+	Position: 166
+	Type: 10
+	Value: 
 ---
 1: 
 	Caret: 

@@ -36,17 +36,6 @@ Var := Something
 Return, 1 + 1
 )
 
-Code = 
-(
-#Include Preprocessor\
-SomeFunc()
-#Include TestScript.ahk
-SomeVar + 1
-#Include NonExistant.ahk
-Something(Var)
-#IncludeAgain TestScript.ahk
-)
-
 ;Code := "a + !b * (1 + 3)"
 
 If CodeInit()

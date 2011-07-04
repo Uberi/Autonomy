@@ -43,8 +43,7 @@ CodePreprocessInclusion(Token,ByRef ProcessedTokens,ByRef Errors,AllowDuplicates
   Parameter := SubStr(Parameter,2,-1) ;remove surrounding angle brackets
   For Index, Path In PreprocessorLibraryPaths ;loop through each folder looking for the file
   {
-   Temp1 := Parameter
-   Attributes := CodePreprocessExpandPath(Temp1,Path)
+   Temp1 := Parameter, Attributes := CodePreprocessExpandPath(Temp1,Path)
    If (Attributes <> "") ;found script file
    {
     Parameter := Temp1
@@ -105,10 +104,7 @@ CodePreprocessInclusion(Token,ByRef ProcessedTokens,ByRef Errors,AllowDuplicates
 CodePreprocessExpandPath(ByRef Path,CurrentDirectory = "")
 {
  If (CurrentDirectory <> "")
- {
-  WorkingDirectory := A_WorkingDir
-  SetWorkingDir(CurrentDirectory)
- }
+  WorkingDirectory := A_WorkingDir, SetWorkingDir(CurrentDirectory)
  Temp1 := Path, Path := ""
  If (SubStr(Temp1,0) = "\") ;remove trailing slash if present
   Temp1 := SubStr(Temp1,1,-1)
