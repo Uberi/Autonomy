@@ -8,13 +8,13 @@ Progress
 <table>
     <th>Module</th><th>Status</th>
 
-    <tr><td>Error Handler</td> <td><em>Working</em></td></tr>
     <tr><td>Lexer</td>         <td><em>Working (prone to changes)</em></td></tr>
     <tr><td>Preprocessor</td>  <td><em>In Progress</em></td></tr>
     <tr><td>Parser</td>        <td><em>Temporarily broken (soon undergoing rewrite)</em></td></tr>
     <tr><td>Simplifier</td>    <td><em>Pending</em></td></tr>
     <tr><td>Bytecode</td>      <td><em>Pending</em></td></tr>
     <tr><td>Interpreter</td>   <td><em>Pending</em></td></tr>
+    <tr><td>Error Handler</td> <td><em>Working</em></td></tr>
 </table>
 
 Goal
@@ -30,34 +30,42 @@ eventually, a self hosting compiler.
 Modules
 -------
 
-### Get Error.ahk
+### Code.ahk
 
-Implements error formatting. Can display line and column information, underline code causing the error, and point 
-
-out a specific character.
+Implements initialization routines. Accesses the filesystem.
 
 ### Lexer.ahk
 
 Implements a tokenizer for raw source code given as input. Outputs a token array.
 
-### Preprocess.ahk
+### Preprocessor.ahk
 
-Preprocesses directives within a token array given as input. 
+Implements preprocessor directive handling within a token array given as input. Depends on Lexer.ahk. Accesses the filesystem.
 
 ### Parser.ahk
 
-Parses a token array given as input and output an abstract syntax tree.
+Implements parsing of a token array given as input and output an abstract syntax tree.
 
 ### Simplify.ahk
 
-Performs simplifications and transformations to a syntax tree given as input.
+Implements simplification of a syntax tree given as input.
 
 ### Bytecode.ahk
 
-Accepts an abstract syntax tree given as input and outputs a bytecode format suitable for 
-
-interpretation or compilation.
+Implements the conversion of an abstract syntax tree given as input to a bytecode format suitable for interpretation or compilation.
 
 ### Interpreter.ahk
 
-Not yet implemented. Will execute bytecode given as input.
+Implements a runtime execution environment for bytecode given as input.
+
+### Resources/Get Error.ahk
+
+Formats error records into a human readable form. Can display line and column information, as well as underline and point out incorrect code.
+
+### Resources/Functions.ahk
+
+Utility functions bridging compatibility differences between the original version of AutoHotkey and the "AHK Code Tools" dialect. Required for use until the compiler is fully self hosting, will be removed afterwards.
+
+### Resources/Reconstruct.ahk
+
+Routines for the reconstruction of code from the various stages of compilation, such as a token stream, or a syntax tree. Used for debugging purposes, but also has applications outside of this.

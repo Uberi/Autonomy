@@ -81,10 +81,7 @@ CodeInit(ResourcesPath = "Resources")
   Line := StringSplit(A_LoopField,"`t"), ObjInsert(CodeErrorMessages,Line.1,Line.2)
 
  ;set up token type enumeration
- Temp1 := "OPERATOR|LITERAL_NUMBER|LITERAL_STRING|SEPARATOR|PARENTHESIS|OBJECT_BRACE|BLOCK_BRACE|LABEL|STATEMENT|IDENTIFIER|LINE_END"
- CodeTokenTypes := Object(), Index := 0
- Loop, Parse, Temp1, |
-  ObjInsert(CodeTokenTypes,A_LoopField,Index), Index ++
+ CodeTokenTypes := Object("OPERATOR",0,"LITERAL_NUMBER",1,"LITERAL_STRING",2,"SEPARATOR",3,"PARENTHESIS",4,"OBJECT_BRACE",5,"BLOCK_BRACE",6,"LABEL",7,"STATEMENT",8,"IDENTIFIER",9,"LINE_END",10)
 
  ;an array of files included by the script, as well as the script itself (script is at index 1, included files after this)
  CodeFiles := Object()

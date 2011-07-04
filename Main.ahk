@@ -1,6 +1,6 @@
 #NoEnv
 
-;#Warn All
+#Warn All
 
 SetBatchLines(-1)
 
@@ -17,6 +17,7 @@ SetBatchLines(-1)
 TODO
 ----
 
+* Have all code be stored in CodeFiles, to make it simpler for error handler to access it
 * Rewrite parser to not use shunting yard algorithm anymore, it's becoming a big, hackish mess. Look into TDOP/Pratt parser instead
 * Ternary operator should be added to operator table
 * Support a command syntax, that is translated to a function call on load: Math.Mod, 100, 5
@@ -30,9 +31,20 @@ TODO
 
 Code = 
 (
-#Include <A_File>
+#Include TestScript.txt
 Var := Something
 Return, 1 + 1
+)
+
+Code = 
+(
+#Include Preprocessor\
+SomeFunc()
+#Include TestScript.ahk
+SomeVar + 1
+#Include NonExistant.ahk
+Something(Var)
+#IncludeAgain TestScript.ahk
 )
 
 ;Code := "a + !b * (1 + 3)"
@@ -40,29 +52,28 @@ Return, 1 + 1
 If CodeInit()
 {
  Display("Error initializing code tools.`n") ;display error at standard output
- ExitApp(1)
+ ExitApp(1) ;fatal error
 }
+
+CodeFiles.1 := "C:\Users\Someone\Scripts\Test Script.ahk" ;set the file name of the current file
+Errors := Object() ;initialize the errors array
 
 CodeLexInit()
-If CodeLex(Code,Tokens,Errors,"Test")
-{
- Display(CodeGetError(Code,Errors)) ;display error at standard output
- ExitApp(1)
-}
+CodeLex(Code,Tokens,Errors)
+;DisplayObject(Tokens)
 
-If CodePreprocess(Tokens,Errors)
-{
- Display(CodeGetError(Code,Errors)) ;display error at standard output
- ExitApp(1)
-}
+CodePreprocessInit()
+CodePreprocess(Tokens,ProcessedTokens,Errors)
+DisplayObject(ProcessedTokens)
+DisplayObject(Errors)
 
-If CodeParse(Tokens,SyntaxTree,Errors)
-{
- Display(CodeGetError(Code,Errors)) ;display error at standard output
- ExitApp(1)
-}
+CodeParse(ProcessedTokens,SyntaxTree,Errors)
+;DisplayObject(SyntaxTree)
 
-Display(ShowObject(SyntaxTree) . "`n")
-MsgBox % CodeRecontructSyntaxTree(SyntaxTree)
+If (ObjMaxIndex(Errors) <> "")
+ Display(CodeGetError(Code,Errors)) ;display error at standard output
+
+;DisplayObject(SyntaxTree)
+;MsgBox % CodeRecontructSyntaxTree(SyntaxTree)
 
 ExitApp()

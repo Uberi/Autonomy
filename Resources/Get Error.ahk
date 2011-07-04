@@ -6,9 +6,9 @@
 Error Array Format
 
 [Index]:          the index of the error            [Object]
-    Level:        the type of the error             [String: "Error", "Warning", or "Info"]
+    Level:        the type of the error             [String: "Error", "Warning", or "Notice"]
     Identifier:   the name of the error             [Identifier]
-    Caret:        exact location of error           [Number]
+    Caret:        exact location of error           [Number or Blank]
     Highlight:    the optional area to highlight    [Object or Blank]
         Length:   length of the highlighted section [Number]
         Position: position of hightlighted section  [Number]
@@ -28,7 +28,7 @@ Example
 ;creates a formatted summary of errors
 CodeGetError(ByRef Code,ByRef Errors)
 {
- global CodeErrorMessages
+ global CodeErrorMessages, CodeFiles
 
  DisplayLength := 15 ;amount of characters to display on either side of the code
 
@@ -74,7 +74,7 @@ CodeGetError(ByRef Code,ByRef Errors)
   CodeGetErrorShowAfter(Code,ErrorSection,ErrorEnd,DisplayLength)
   CodeGetErrorPosition(Code,Caret,Line,Column)
   Message := CodeErrorMessages[CurrentError.Identifier] ;get the error message
-  ErrorReport .= CurrentError.Level . " in " . CurrentError.File . " (Line " . Line . ", Column " . Column . "): " . Message . "`nSpecifically: " . ErrorSection . "`n              " . ErrorDisplay . "`n`n"
+  ErrorReport .= CurrentError.Level . " in """ . CodeFiles[CurrentError.File] . """ (Line " . Line . ", Column " . Column . "): " . Message . "`nSpecifically: " . ErrorSection . "`n              " . ErrorDisplay . "`n`n"
  }
  Return, ErrorReport
 }

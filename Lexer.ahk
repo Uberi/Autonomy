@@ -27,18 +27,8 @@ CodeLexInit()
 
  LexerEscapeChar := "``" ;the escape character
  LexerIdentifierChars := "abcdefghijklmnopqrstuvwxyz_1234567890#" ;characters that make up a an identifier
- LexerStatementList := "#Include`n#IncludeAgain`n#SingleInstance`n#Warn`n#Define`nWhile`nLoop`nFor`nIf`nElse`nBreak`nContinue`nReturn`nGosub`nGoto`nlocal`nglobal`nstatic" ;statements that can be found on the beginning of a line
- LexerStatementLiteralList := "#Include`n#IncludeAgain`n#SingleInstance`n#Warn`n#Define`nBreak`nContinue`nGosub`nGoto" ;statements that accept literals as parameters
-
- ;convert statements string list to an object
- Temp1 := LexerStatementList, LexerStatementList := Object()
- Loop, Parse, Temp1, `n
-  ObjInsert(LexerStatementList,A_LoopField,"")
-
- ;convert statements string list to an object
- Temp1 := LexerStatementLiteralList, LexerStatementLiteralList := Object()
- Loop, Parse, Temp1, `n
-  ObjInsert(LexerStatementLiteralList,A_LoopField,"")
+ LexerStatementList := Object("#Include","","#IncludeAgain","","#SingleInstance","","#Warn","","#Define","","While","","Loop","","For","","If","","Else","","Break","","Continue","","Return","","Gosub","","Goto","","local","","global","","static","") ;statements that can be found on the beginning of a line
+ LexerStatementLiteralList := Object("#Include","","#IncludeAgain","","#SingleInstance","","#Warn","","#Define","","Break","","Continue","","Gosub","","Goto","") ;statements that accept literals as parameters
 
  LexerOperatorMaxLength := 1 ;one is the maximum length of the other syntax elements - commas, parentheses, square brackets, and curly brackets
  For Temp1 In CodeOperatorTable
@@ -46,13 +36,11 @@ CodeLexInit()
 }
 
 ;lexes AHK code, including all syntax
-CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileName = "")
+CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
 { ;returns 1 on error, nothing otherwise
- global CodeTokenTypes, CodeFiles, LexerIdentifierChars
- FileIndex := ObjMaxIndex(CodeFiles), (FileIndex = "") ? (FileIndex := 1) : (FileIndex ++) ;get the index to insert the file entry at
- ObjInsert(CodeFiles,FileIndex,FileName) ;add the current script file to the file array
+ global CodeTokenTypes, LexerIdentifierChars
 
- Tokens := Object(), Errors := Object(), Position := 1 ;initialize variables
+ Tokens := Object(), Position := 1 ;initialize variables
  Loop
  {
   CurrentChar := SubStr(Code,Position,1)
@@ -123,7 +111,7 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileName = "")
  Temp1 := Tokens[ObjMaxIndex(Tokens)] ;get most recent token
  If (Temp1.Type <> "LINE_END") ;token was not a newline
   ObjInsert(Tokens,Object("Type",CodeTokenTypes.LINE_END,"Value","","Position",Position,"File",FileIndex)) ;add the statement end to the token array
- Return, !!ObjMaxIndex(Errors) ;indicate whether or not there were errors
+ Return, ObjMaxIndex(Errors) ? 1 : "" ;indicate whether or not there were errors
 }
 
 ;lexes a new line, to find control structures, directives, etc.
