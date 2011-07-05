@@ -2,8 +2,10 @@
 
 CodePreprocessInit()
 {
- global CodeFiles, PreprocessorLibraryPaths
+ global CodeFiles, PreprocessorLibraryPaths, PreprocessorRecursionDepth, PreprocessorRecursionWarning
  PreprocessorLibraryPaths := Object(1,SplitPath(CodeFiles.1).Directory . "\Lib\",2,A_MyDocuments . "\AutoHotkey\Lib\",3,A_ScriptDir . "\Lib\") ;wip: not cross-platform
+ PreprocessorRecursionDepth := 0
+ PreprocessorRecursionWarning := 8 ;level at which to warn about the high level of recursion
 }
 
 CodePreprocess(ByRef Tokens,ByRef ProcessedTokens,ByRef Errors,FileIndex = 1)
@@ -28,15 +30,15 @@ CodePreprocess(ByRef Tokens,ByRef ProcessedTokens,ByRef Errors,FileIndex = 1)
    Index += 2 ;wip: process here
   Else If (Statement = "#Undefine") ;removal of existing macro
    Index += 2 ;wip: process here
-  Else If (Statement = "#IfMacro") ;conditional code checking definition truthiness
+  Else If (Statement = "#IfDefinition") ;conditional code checking definition truthiness
    Index += 2 ;wip: process here
-  Else If (Statement = "#IfNotMacro") ;conditional code checking definition falsiness
+  Else If (Statement = "#IfNotDefinition") ;conditional code checking definition falsiness
    Index += 2 ;wip: process here
   Else If (Statement = "#Else") ;conditional code checking alternative
    Index += 2 ;wip: process here
-  Else If (Statement = "#ElseIfMacro") ;conditional code checking alternative definition truthiness
+  Else If (Statement = "#ElseIfDefinition") ;conditional code checking alternative definition truthiness
    Index += 2 ;wip: process here
-  Else If (Statement = "#ElseIfNotMacro") ;conditional code checking alternative definition falsiness
+  Else If (Statement = "#ElseIfNotDefinition") ;conditional code checking alternative definition falsiness
    Index += 2 ;wip: process here
   Else If (Statement = "#EndIf") ;conditional code block end
    Index += 2 ;wip: process here
@@ -48,7 +50,7 @@ CodePreprocess(ByRef Tokens,ByRef ProcessedTokens,ByRef Errors,FileIndex = 1)
 
 CodePreprocessInclusion(Token,ByRef ProcessedTokens,ByRef Errors,AllowDuplicates,FileIndex)
 { ;returns 1 on inclusion failure, nothing otherwise
- global CodeFiles, PreprocessorLibraryPaths
+ global CodeFiles, PreprocessorLibraryPaths, PreprocessorRecursionDepth, PreprocessorRecursionWarning
  static CurrentIncludeDirectory := ""
  Parameter := Token.Value, Length := StrLen(Parameter) ;retrieve the next token, the parameters given to the statement
 
@@ -57,7 +59,7 @@ CodePreprocessInclusion(Token,ByRef ProcessedTokens,ByRef Errors,AllowDuplicates
   Parameter := SubStr(Parameter,2,-1) ;remove surrounding angle brackets
   For Index, Path In PreprocessorLibraryPaths ;loop through each folder looking for the file
   {
-   Temp1 := Parameter, Attributes := CodePreprocessExpandPath(Temp1,Path)
+   Temp1 := Parameter, Attributes := ExpandPath(Temp1,Path)
    If (Attributes <> "") ;found script file
    {
     Parameter := Temp1
@@ -66,7 +68,7 @@ CodePreprocessInclusion(Token,ByRef ProcessedTokens,ByRef Errors,AllowDuplicates
   }
  }
  Else
-  Attributes := CodePreprocessExpandPath(Parameter,CurrentIncludeDirectory)
+  Attributes := ExpandPath(Parameter,CurrentIncludeDirectory)
  If (Attributes = "") ;file not found
  {
   ObjInsert(Errors,Object("Identifier","FILE_ERROR","Level","Error","Highlight",Object("Position",Token.Position,"Length",Length),"Caret","","File",FileIndex)) ;add an error to the error log
@@ -106,28 +108,16 @@ CodePreprocessInclusion(Token,ByRef ProcessedTokens,ByRef Errors,AllowDuplicates
  }
  If CodeLex(Code,FileTokens,Errors,FileIndex) ;errors while lexing file
   Return, 1
- If CodePreprocess(FileTokens,FileProcessedTokens,Errors,FileIndex) ;errors while preprocessing file
+ PreprocessorRecursionDepth ++ ;increase the recursion depth counter
+ If (PreprocessorRecursionDepth = PreprocessorRecursionWarning) ;at recursion warning level, give warning
+  ObjInsert(Errors,Object("Identifier","RECURSION_WARNING","Level","Warning","Highlight",Object("Position",Token.Position,"Length",Length),"Caret","","File",FileIndex)) ;add an error to the error log
+ Temp1 := CodePreprocess(FileTokens,FileProcessedTokens,Errors,FileIndex)
+ PreprocessorRecursionDepth -- ;decrease the recursion depth counter
+ If Temp1 ;errors while preprocessing file
   Return, 1
 
  ;copy tokens from included file into the main token stream
- Index := 2
+ Index := 2 ;start at the second token to skip past the first one
  Loop, % ObjMaxIndex(FileProcessedTokens) - 1 ;loop through all tokens except the first, which is a LINE_END type
   ObjInsert(ProcessedTokens,FileProcessedTokens[Index]), Index ++
-}
-
-CodePreprocessExpandPath(ByRef Path,CurrentDirectory = "")
-{ ;returns blank if there was a filesystem error, the attributes otherwise
- If (CurrentDirectory <> "")
-  WorkingDirectory := A_WorkingDir, SetWorkingDir(CurrentDirectory)
- Temp1 := Path, Path := "", Attributes := ""
- If (SubStr(Temp1,0) = "\") ;remove trailing slash if present
-  Temp1 := SubStr(Temp1,1,-1)
- Loop, %Temp1%, 1
- {
-  Path := A_LoopFileLongPath, Attributes := A_LoopFileAttrib
-  Break
- }
- If (CurrentDirectory <> "")
-  SetWorkingDir(WorkingDirectory)
- Return, Attributes
 }

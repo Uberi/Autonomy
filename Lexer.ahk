@@ -26,11 +26,11 @@ CodeLexInit()
  global CodeOperatorTable, LexerEscapeChar, LexerIdentifierChars, LexerStatementList, LexerStatementLiteralList, LexerOperatorMaxLength
  LexerEscapeChar := "``" ;the escape character
  LexerIdentifierChars := "abcdefghijklmnopqrstuvwxyz_1234567890#" ;characters that make up a an identifier
- LexerStatementList := Object("#Include","","#IncludeAgain","","#SingleInstance","","#Warn","","#Define","","While","","Loop","","For","","If","","Else","","Break","","Continue","","Return","","Gosub","","Goto","","local","","global","","static","") ;statements that can be found on the beginning of a line
- LexerStatementLiteralList := Object("#Include","","#IncludeAgain","","#SingleInstance","","#Warn","","#Define","","Break","","Continue","","Gosub","","Goto","") ;statements that accept literals as parameters
+ LexerStatementList := Object("#Include","","#IncludeAgain","","#SingleInstance","","#Warn","","#Define","","#Undefine","","#IfDefinition","","#IfNotDefinition","","#Else","","#ElseIfDefinition","","#ElseIfNotDefinition","","#EndIf","","While","","Loop","","For","","If","","Else","","Break","","Continue","","Return","","Gosub","","Goto","","local","","global","","static","") ;statements that can be found on the beginning of a line
+ LexerStatementLiteralList := Object("#Include","","#IncludeAgain","","#SingleInstance","","#Warn","","#Define","","#Undefine","","#IfDefinition","","#IfNotDefinition","","#Else","","#ElseIfDefinition","","#ElseIfNotDefinition","","#EndIf","","Break","","Continue","","Gosub","","Goto","") ;statements that accept literals as parameters
 
  LexerOperatorMaxLength := 1 ;one is the maximum length of the other syntax elements - commas, parentheses, square brackets, and curly brackets
- For Temp1 In CodeOperatorTable
+ For Temp1 In CodeOperatorTable ;get the length of the longest operator
   Temp2 := StrLen(Temp1), (Temp2 > LexerOperatorMaxLength) ? (LexerOperatorMaxLength := Temp2) : ""
 }
 

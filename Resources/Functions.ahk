@@ -60,7 +60,24 @@ SplitPath(InputVar)
  Return, Object("FileName",OutFileName,"Directory",OutDir,"Extension",OutExtension,"FileNameNoExtension",OutNameNoExt,"Drive",OutDrive)
 }
 
-SetWorkingDir(DirName)
-{
- SetWorkingDir, %DirName%
+ExpandPath(ByRef Path,CurrentDirectory = "")
+{ ;returns blank if there was a filesystem error, the attributes otherwise
+ ListLines, Off
+ If (CurrentDirectory <> "")
+ {
+  WorkingDirectory := A_WorkingDir
+  SetWorkingDir, %CurrentDirectory%
+ }
+ Temp1 := Path, Path := "", Attributes := ""
+ If (SubStr(Temp1,0) = "\") ;remove trailing slash if present
+  Temp1 := SubStr(Temp1,1,-1)
+ Loop, %Temp1%, 1
+ {
+  Path := A_LoopFileLongPath, Attributes := A_LoopFileAttrib
+  Break
+ }
+ If (CurrentDirectory <> "")
+  SetWorkingDir, %WorkingDirectory%
+ ListLines, On
+ Return, Attributes
 }

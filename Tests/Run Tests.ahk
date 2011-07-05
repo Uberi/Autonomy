@@ -74,7 +74,7 @@ If CodeInit("..\Resources")
  ExitApp
 }
 
-CodeFiles.1 := A_ScriptDir . "\Script.ahk" ;set the file name of the current file
+FileName := A_ScriptDir . "\Run Tests.ahk" ;set the file name of the current file
 
 TestIndex := 1
 Gosub, TestLexer
@@ -89,6 +89,7 @@ Gui, Show, w515 h385, Unit Test
 Return
 
 TestLexer:
+CodeSetScript(FileName)
 CodeLexInit()
 Loop, %A_ScriptDir%\Lexer\*.txt
 {
@@ -113,9 +114,7 @@ Loop, %A_ScriptDir%\Lexer\*.txt
 Return
 
 TestPreprocessor:
-CodeFiles1 := CodeFiles.1
-CodeFiles.1 := A_ScriptDir . "\Preprocessor\Script.ahk" ;temporarily change the test directory to the directory the tests are located
-
+CodeSetScript(A_ScriptDir . "\Preprocessor\Inclusion.txt") ;set the current script file
 CodePreprocessInit()
 Loop, %A_ScriptDir%\Preprocessor\*.txt
 {
@@ -128,10 +127,7 @@ Loop, %A_ScriptDir%\Preprocessor\*.txt
   Errors := Object()
   CodePreprocess(TestTokens,ProcessedTokens,Errors)
   If (ShowObject(Errors) <> TestErrorOutput)
-  {
    ExtraInfo := "Generated errors do not match expected errors.", TestStatus := "Fail"
-   MsgBox % Clipboard := ShowObject(Errors)
-  }
   Else If (ShowObject(ProcessedTokens) <> TestTokenOutput)
    ExtraInfo := "Output does not match expected output.", TestStatus := "Fail"
   Else
@@ -142,10 +138,10 @@ Loop, %A_ScriptDir%\Preprocessor\*.txt
   ExtraInfo := "Invalid test.", TestStatus := "Fail"
  LV_Add("",TestIndex,"Preprocessor - " . A_LoopFileName,TestStatus,ExtraInfo), TestIndex ++
 }
-CodeFiles.1 := CodeFiles1
 Return
 
 TestParser:
+CodeSetScript(FileName)
 Loop, %A_ScriptDir%\Parser\*.txt
 {
  FileRead(FileContents,A_LoopFileLongPath)
@@ -170,10 +166,12 @@ Loop, %A_ScriptDir%\Parser\*.txt
 Return
 
 TestBytecode:
+CodeSetScript(FileName)
 
 Return
 
 TestInterpreter:
+CodeSetScript(FileName)
 
 Return
 

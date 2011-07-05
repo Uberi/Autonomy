@@ -83,3 +83,12 @@ CodeInit(ResourcesPath = "Resources")
  ;an array of files included by the script, as well as the script itself (script is at index 1, included files after this)
  CodeFiles := Object()
 }
+
+CodeSetScript(FileName = "",ByRef Code = "",ByRef Errors = "")
+{
+ global CodeFiles
+ If (FileName <> "")
+  ExpandPath(FileName), CodeFiles.1 := FileName ;store the file name in the key
+ ;wip: can store code text completely in CodeFiles
+ Errors := Object()
+}
