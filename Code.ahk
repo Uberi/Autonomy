@@ -59,11 +59,8 @@ Token Types Enumeration
 CodeInit(ResourcesPath = "Resources")
 { ;returns 1 on failure, nothing otherwise
  global CodeOperatorTable, CodeErrorMessages, CodeTokenTypes, CodeFiles
-
- ;ensure the path ends with a directory separator ;wip: not cross-platform
- If (SubStr(ResourcesPath,0) <> "\")
+ If (SubStr(ResourcesPath,0) <> "\") ;ensure the path ends with a directory separator ;wip: not cross-platform
   ResourcesPath .= "\"
-
  If (FileRead(Temp1,ResourcesPath . "OperatorTable.txt") <> 0) ;error reading file
   Return, 1
 

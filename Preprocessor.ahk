@@ -3,7 +3,6 @@
 CodePreprocessInit()
 {
  global CodeFiles, PreprocessorLibraryPaths
-
  PreprocessorLibraryPaths := Object(1,SplitPath(CodeFiles.1).Directory . "\Lib\",2,A_MyDocuments . "\AutoHotkey\Lib\",3,A_ScriptDir . "\Lib\") ;wip: not cross-platform
 }
 
@@ -13,21 +12,36 @@ CodePreprocess(ByRef Tokens,ByRef ProcessedTokens,ByRef Errors,FileIndex = 1)
  ProcessedTokens := Object(), Index := 1, PreprocessError := 0
  While, IsObject(Token := Tokens[Index])
  {
-  Index ++
+  Index ++ ;move past the statement, or the token if it is not a statement
   If (Token.Type <> CodeTokenTypes.STATEMENT) ;skip over any tokens that are not statements
   {
    ObjInsert(ProcessedTokens,Token) ;copy the token to the output stream
    Continue
   }
   Statement := Token.Value
-  ;#Include #IncludeAgain #Define #Undefine #IfDefined #IfNotDefined #ElseIfDefined #ElseIfNotDefined
+  ;wip: add all these extra directives to the lexer
   If (Statement = "#Include") ;script inclusion, duplication ignored
-   PreprocessError := CodePreprocessInclusion(Tokens[Index],ProcessedTokens,Errors,0,FileIndex) || PreprocessError
+   PreprocessError := CodePreprocessInclusion(Tokens[Index],ProcessedTokens,Errors,0,FileIndex) || PreprocessError, Index += 2
   Else If (Statement = "#IncludeAgain") ;script inclusion, duplication allowed
-   PreprocessError := CodePreprocessInclusion(Tokens[Index],ProcessedTokens,Errors,1,FileIndex) || PreprocessError
+   PreprocessError := CodePreprocessInclusion(Tokens[Index],ProcessedTokens,Errors,1,FileIndex) || PreprocessError, Index += 2
+  Else If (Statement = "#Define") ;identifier macro or function macro definition
+   Index += 2 ;wip: process here
+  Else If (Statement = "#Undefine") ;removal of existing macro
+   Index += 2 ;wip: process here
+  Else If (Statement = "#IfMacro") ;conditional code checking definition truthiness
+   Index += 2 ;wip: process here
+  Else If (Statement = "#IfNotMacro") ;conditional code checking definition falsiness
+   Index += 2 ;wip: process here
+  Else If (Statement = "#Else") ;conditional code checking alternative
+   Index += 2 ;wip: process here
+  Else If (Statement = "#ElseIfMacro") ;conditional code checking alternative definition truthiness
+   Index += 2 ;wip: process here
+  Else If (Statement = "#ElseIfNotMacro") ;conditional code checking alternative definition falsiness
+   Index += 2 ;wip: process here
+  Else If (Statement = "#EndIf") ;conditional code block end
+   Index += 2 ;wip: process here
   Else
-   ObjInsert(ProcessedTokens,Token) ;copy the token to the output stream
-  Index += 2 ;move past the parameter string and line ending
+   ObjInsert(ProcessedTokens,Token), Index ++ ;copy the token to the output stream, move past the parameter if present, or the line end
  }
  Return, PreprocessError
 }
@@ -102,18 +116,18 @@ CodePreprocessInclusion(Token,ByRef ProcessedTokens,ByRef Errors,AllowDuplicates
 }
 
 CodePreprocessExpandPath(ByRef Path,CurrentDirectory = "")
-{
+{ ;returns blank if there was a filesystem error, the attributes otherwise
  If (CurrentDirectory <> "")
   WorkingDirectory := A_WorkingDir, SetWorkingDir(CurrentDirectory)
- Temp1 := Path, Path := ""
+ Temp1 := Path, Path := "", Attributes := ""
  If (SubStr(Temp1,0) = "\") ;remove trailing slash if present
   Temp1 := SubStr(Temp1,1,-1)
  Loop, %Temp1%, 1
  {
-  Path := A_LoopFileLongPath
+  Path := A_LoopFileLongPath, Attributes := A_LoopFileAttrib
   Break
  }
  If (CurrentDirectory <> "")
   SetWorkingDir(WorkingDirectory)
- Return, FileExist(Path)
+ Return, Attributes
 }

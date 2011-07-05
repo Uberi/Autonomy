@@ -24,7 +24,6 @@ Example Token Stream
 CodeLexInit()
 {
  global CodeOperatorTable, LexerEscapeChar, LexerIdentifierChars, LexerStatementList, LexerStatementLiteralList, LexerOperatorMaxLength
-
  LexerEscapeChar := "``" ;the escape character
  LexerIdentifierChars := "abcdefghijklmnopqrstuvwxyz_1234567890#" ;characters that make up a an identifier
  LexerStatementList := Object("#Include","","#IncludeAgain","","#SingleInstance","","#Warn","","#Define","","While","","Loop","","For","","If","","Else","","Break","","Continue","","Return","","Gosub","","Goto","","local","","global","","static","") ;statements that can be found on the beginning of a line

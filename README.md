@@ -9,7 +9,7 @@ Progress
     <th>Module</th><th>Status</th>
 
     <tr><td>Lexer</td>         <td><em>Working (prone to changes)</em></td></tr>
-    <tr><td>Preprocessor</td>  <td><em>In Progress</em></td></tr>
+    <tr><td>Preprocessor</td>  <td><em>Partially working</em></td></tr>
     <tr><td>Parser</td>        <td><em>Temporarily broken (soon undergoing rewrite)</em></td></tr>
     <tr><td>Simplifier</td>    <td><em>Pending</em></td></tr>
     <tr><td>Bytecode</td>      <td><em>Pending</em></td></tr>
