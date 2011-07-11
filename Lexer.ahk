@@ -39,7 +39,7 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
 { ;returns 1 on error, nothing otherwise
  global CodeTokenTypes, LexerIdentifierChars
 
- Tokens := Object(), Position := 1 ;initialize variables
+ Tokens := Array(), Position := 1 ;initialize variables
  Loop
  {
   CurrentChar := SubStr(Code,Position,1)

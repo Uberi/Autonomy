@@ -23,13 +23,14 @@ TODO
 * Support a command syntax, that is translated to a function call on load: Math.Mod, 100, 5
 
 * Scope info should be attached to each variable
+* Incremental parser and lexer for IDE use, have object mapping line numbers to token indexes, have parser save state at intervals, lex changed lines only, restore parser state to the saved state right before the token index of the changed token, keep parsing to the end of the file
 * "local" keyword works on current block, instead of current function, and can make block assume-local: If Something { local SomeVar := "Test" } ;SomeVar is freed after the If block goes out of scope
 * Function definitions are variables holding function references (implemented as function pointers, and utilising reference counting), so variables and functions are in the same namespace
 * Static tail call detection
-* Incremental parser and lexer for IDE use, have object mapping line numbers to token indexes, have parser save state at intervals, lex changed lines only, restore parser state to the saved state right before the token index of the changed token, keep parsing to the end of the file
+* Distinct Array type using contingous memory, faster than Object hash table implementation
 */
 
-FileName := "C:\Users\Someone\Scripts\Test Script.ahk" ;set the file name of the current file
+FileName := A_ScriptFullPath ;set the file name of the current file
 
 Code = 
 (

@@ -81,7 +81,7 @@ CodeInit(ResourcesPath = "Resources")
  CodeTokenTypes := Object("OPERATOR",0,"LITERAL_NUMBER",1,"LITERAL_STRING",2,"SEPARATOR",3,"PARENTHESIS",4,"OBJECT_BRACE",5,"BLOCK_BRACE",6,"LABEL",7,"STATEMENT",8,"IDENTIFIER",9,"LINE_END",10)
 
  ;an array of files included by the script, as well as the script itself (script is at index 1, included files after this)
- CodeFiles := Object()
+ CodeFiles := Array()
 }
 
 CodeSetScript(FileName = "",ByRef Code = "",ByRef Errors = "")
@@ -90,5 +90,5 @@ CodeSetScript(FileName = "",ByRef Code = "",ByRef Errors = "")
  If (FileName <> "")
   ExpandPath(FileName), CodeFiles.1 := FileName ;store the file name in the key
  ;wip: can store code text completely in CodeFiles
- Errors := Object()
+ Errors := Array()
 }

@@ -81,3 +81,50 @@ ExpandPath(ByRef Path,CurrentDirectory = "")
  ListLines, On
  Return, Attributes
 }
+
+PathJoin(Path1,Path2 = "",Path3 = "",Path4 = "",Path5 = "",Path6 = "")
+{
+ /*
+ #Define HOST_OS = "WINDOWS"
+ #If HOST_OS = "WINDOWS"
+  Separator := "\"
+ #ElseIf HOST_OS = "LINUX"
+  Separator := "/"
+ #EndIf
+ */
+ HOST_OS := "WINDOWS"
+ If (HOST_OS = "WINDOWS")
+  Separator := "\"
+ Else If (HOST_OS = "LINUX")
+  Separator := "/"
+
+ ;remove any leading separator characters if present
+ If (SubStr(Path1,1,1) = Separator)
+  Path1 := SubStr(Path1,2)
+ If (SubStr(Path2,1,1) = Separator)
+  Path2 := SubStr(Path2,2)
+ If (SubStr(Path3,1,1) = Separator)
+  Path3 := SubStr(Path3,2)
+ If (SubStr(Path4,1,1) = Separator)
+  Path4 := SubStr(Path4,2)
+ If (SubStr(Path5,1,1) = Separator)
+  Path5 := SubStr(Path5,2)
+ If (SubStr(Path6,1,1) = Separator)
+  Path6 := SubStr(Path6,2)
+
+ ;append a separator character if the path element does not end in one, and is not blank
+ If (Path1 <> "" && SubStr(Path1,0) <> Separator)
+  Path1 .= Separator
+ If (Path2 <> "" && SubStr(Path2,0) <> Separator)
+  Path2 .= Separator
+ If (Path3 <> "" && SubStr(Path3,0) <> Separator)
+  Path3 .= Separator
+ If (Path4 <> "" && SubStr(Path4,0) <> Separator)
+  Path4 .= Separator
+ If (Path5 <> "" && SubStr(Path5,0) <> Separator)
+  Path5 .= Separator
+ If (Path6 <> "" && SubStr(Path6,0) <> Separator)
+  Path6 .= Separator
+
+ Return, SubStr(Path1 . Path2 . Path3 . Path4 . Path5 . Path6,1,-1)
+}

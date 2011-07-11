@@ -3,7 +3,7 @@
 CodePreprocessInit()
 {
  global CodeFiles, PreprocessorLibraryPaths, PreprocessorRecursionDepth, PreprocessorRecursionWarning
- PreprocessorLibraryPaths := Object(1,SplitPath(CodeFiles.1).Directory . "\Lib\",2,A_MyDocuments . "\AutoHotkey\Lib\",3,A_ScriptDir . "\Lib\") ;wip: not cross-platform
+ PreprocessorLibraryPaths := Array(PathJoin(SplitPath(CodeFiles.1).Directory,"Lib"),PathJoin(A_MyDocuments,"AutoHotkey","Lib"),PathJoin(A_ScriptDir,"Lib"))
  PreprocessorRecursionDepth := 0
  PreprocessorRecursionWarning := 8 ;level at which to warn about the high level of recursion
 }
@@ -11,7 +11,7 @@ CodePreprocessInit()
 CodePreprocess(ByRef Tokens,ByRef ProcessedTokens,ByRef Errors,FileIndex = 1)
 { ;returns 1 on error, nothing otherwise
  global CodeTokenTypes
- ProcessedTokens := Object(), Index := 1, PreprocessError := 0
+ ProcessedTokens := Array(), Index := 1, PreprocessError := 0
  While, IsObject(Token := Tokens[Index])
  {
   Index ++ ;move past the statement, or the token if it is not a statement
@@ -30,15 +30,11 @@ CodePreprocess(ByRef Tokens,ByRef ProcessedTokens,ByRef Errors,FileIndex = 1)
    Index += 2 ;wip: process here
   Else If (Statement = "#Undefine") ;removal of existing macro
    Index += 2 ;wip: process here
-  Else If (Statement = "#IfDefinition") ;conditional code checking definition truthiness
-   Index += 2 ;wip: process here
-  Else If (Statement = "#IfNotDefinition") ;conditional code checking definition falsiness
+  Else If (Statement = "#If") ;conditional code checking simple expressions against definitions
    Index += 2 ;wip: process here
   Else If (Statement = "#Else") ;conditional code checking alternative
    Index += 2 ;wip: process here
-  Else If (Statement = "#ElseIfDefinition") ;conditional code checking alternative definition truthiness
-   Index += 2 ;wip: process here
-  Else If (Statement = "#ElseIfNotDefinition") ;conditional code checking alternative definition falsiness
+  Else If (Statement = "#ElseIf") ;conditional code checking alternative simple expressions against definitions
    Index += 2 ;wip: process here
   Else If (Statement = "#EndIf") ;conditional code block end
    Index += 2 ;wip: process here
