@@ -9,71 +9,61 @@ Return
 ---
 1: 
 	File: 1
-	Position: 0
-	Type: 10
-	Value: 
-2: 
-	File: 1
 	Position: 1
 	Type: 7
 	Value: SomeLabel
-3: 
+2: 
 	File: 1
 	Position: 12
 	Type: 10
 	Value: 
-4: 
+3: 
 	File: 1
 	Position: 13
 	Type: 9
 	Value: Variable
-5: 
+4: 
 	File: 1
 	Position: 22
 	Type: 0
 	Value: :=
-6: 
+5: 
 	File: 1
 	Position: 25
 	Type: 9
 	Value: Value
-7: 
+6: 
 	File: 1
 	Position: 31
 	Type: 10
 	Value: 
-8: 
+7: 
 	File: 1
 	Position: 32
 	Type: 8
 	Value: GoTo
-9: 
+8: 
 	File: 1
 	Position: 38
 	Type: 2
 	Value: SomeOtherLabel
-10: 
+9: 
 	File: 1
 	Position: 55
 	Type: 10
 	Value: 
-11: 
+10: 
 	File: 1
 	Position: 56
 	Type: 7
 	Value: SomeOtherLabel
-12: 
+11: 
 	File: 1
 	Position: 72
 	Type: 10
 	Value: 
-13: 
+12: 
 	File: 1
 	Position: 73
 	Type: 8
 	Value: Return
-14: 
-	File: 1
-	Position: 79
-	Type: 10
-	Value: 

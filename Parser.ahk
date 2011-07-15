@@ -108,7 +108,7 @@ CodeParse(ByRef Tokens,ByRef SyntaxTree,ByRef Errors)
 
 ;builds a subtree out of the current tree, the stack, and an operator, and inserts it into the syntax tree
 CodeParseStackPop(ByRef SyntaxTree,ByRef TreeIndex,ByRef Stack,ByRef StackIndex)
-{ ;returns 1 on failure, nothing otherwise
+{ ;returns 1 on failure, 0 otherwise
  global CodeOperatorTable
  If (StackIndex = 0)
  {
@@ -119,25 +119,26 @@ CodeParseStackPop(ByRef SyntaxTree,ByRef TreeIndex,ByRef Stack,ByRef StackIndex)
  If (StackOperator.Type <> "OPERATOR" && StackOperator.Type <> "FUNCTION") ;wip: if the type is FUNCTION, the number of parameters (arity) is not known.
  {
   ObjInsert(SyntaxTree,StackOperator), TreeIndex ++ ;append the operator to the output
-  Return
+  Return, 0
  }
  TreeNode := Object(1,StackOperator) ;initialise the node to be inserted into the tree
  Arity := CodeOperatorTable[StackOperator.Value].Arity, NodeIndex := Arity + 1 ;get the number of arguments the current operator accepts
  Loop, %Arity% ;remove the previous parameters to add them to the operator's subtree
   ObjInsert(TreeNode,NodeIndex,SyntaxTree[TreeIndex]), NodeIndex --, ObjRemove(SyntaxTree), TreeIndex -- ;pop operators off the stack and place them onto the output in their original order
  ObjInsert(SyntaxTree,Object("Type","NODE","Value",TreeNode)), TreeIndex ++ ;insert the subtree into the main tree
+ Return, 0
 }
 
 ;iterates through the stack until an opening parenthesis is found, while updating the syntax tree
 CodeParseStackMatchParenthesis(ByRef SyntaxTree,ByRef TreeIndex,ByRef Stack,ByRef StackIndex)
-{ ;return 1 on error, nothing otherwise
+{ ;return 1 on error, 0 otherwise
  Loop ;iterate through the stack until a left parenthesis is found
  {
   If (StackIndex = 0) ;stack is empty
    Return, 1
   Temp1 := Stack[StackIndex] ;top stack entry
   If (Temp1.Type = "SYNTAX_ELEMENT" && Temp1.Value = "(") ;found a left parenthesis
-   Return
+   Return, 0
   CodeParseStackPop(SyntaxTree,TreeIndex,Stack,StackIndex) ;pop operator off the stack and onto the output
  }
 }

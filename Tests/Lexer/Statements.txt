@@ -4,93 +4,87 @@ For InvalidLine
 For Key, Value In OtherObject
 
 #Include, Something.ahk   
-#IncludeAgain SomethingElse.ahk
 
 While, (100 - A_Index)
   Return, 50
 ---
-1: 
-	Caret: 42
-	File: 1
-	Highlight: 
-	Identifier: INVALID_FOR_LOOP
-	Level: Error
+
 ---
 1: 
-	File: 1
-	Position: 0
-	Type: 10
-	Value: 
-2: 
 	File: 1
 	Position: 1
 	Type: 9
 	Value: NotAStatement
-3: 
+2: 
 	File: 1
 	Position: 14
 	Type: 3
 	Value: ,
-4: 
+3: 
 	File: 1
 	Position: 16
 	Type: 9
 	Value: Something
-5: 
+4: 
 	File: 1
 	Position: 26
 	Type: 10
 	Value: 
-6: 
+5: 
 	File: 1
 	Position: 27
 	Type: 8
 	Value: For
-7: 
+6: 
 	File: 1
 	Position: 31
 	Type: 9
 	Value: InvalidLine
-8: 
+7: 
 	File: 1
 	Position: 47
 	Type: 10
 	Value: 
-9: 
+8: 
 	File: 1
 	Position: 48
 	Type: 8
 	Value: For
-10: 
+9: 
 	File: 1
 	Position: 52
 	Type: 9
 	Value: Var
-11: 
+10: 
 	File: 1
 	Position: 56
-	Type: 3
-	Value: ,
-12: 
+	Type: 9
+	Value: In
+11: 
 	File: 1
 	Position: 59
 	Type: 9
 	Value: Object
-13: 
+12: 
 	File: 1
 	Position: 66
 	Type: 10
 	Value: 
-14: 
+13: 
 	File: 1
 	Position: 67
 	Type: 8
 	Value: For
-15: 
+14: 
 	File: 1
 	Position: 71
 	Type: 9
 	Value: Key
+15: 
+	File: 1
+	Position: 74
+	Type: 3
+	Value: ,
 16: 
 	File: 1
 	Position: 76
@@ -99,8 +93,8 @@ While, (100 - A_Index)
 17: 
 	File: 1
 	Position: 82
-	Type: 3
-	Value: ,
+	Type: 9
+	Value: In
 18: 
 	File: 1
 	Position: 85
@@ -123,71 +117,51 @@ While, (100 - A_Index)
 	Value: Something.ahk
 22: 
 	File: 1
-	Position: 127
+	Position: 129
 	Type: 10
 	Value: 
 23: 
 	File: 1
-	Position: 128
-	Type: 8
-	Value: #IncludeAgain
-24: 
-	File: 1
-	Position: 142
-	Type: 2
-	Value: SomethingElse.ahk
-25: 
-	File: 1
-	Position: 162
-	Type: 10
-	Value: 
-26: 
-	File: 1
-	Position: 163
+	Position: 130
 	Type: 8
 	Value: While
-27: 
+24: 
 	File: 1
-	Position: 170
+	Position: 137
 	Type: 4
 	Value: (
-28: 
+25: 
 	File: 1
-	Position: 171
+	Position: 138
 	Type: 1
 	Value: 100
-29: 
+26: 
 	File: 1
-	Position: 175
+	Position: 142
 	Type: 0
 	Value: -
-30: 
+27: 
 	File: 1
-	Position: 177
+	Position: 144
 	Type: 9
 	Value: A_Index
-31: 
+28: 
 	File: 1
-	Position: 184
+	Position: 151
 	Type: 4
 	Value: )
-32: 
+29: 
 	File: 1
-	Position: 188
+	Position: 155
 	Type: 10
 	Value: 
-33: 
+30: 
 	File: 1
-	Position: 189
+	Position: 156
 	Type: 8
 	Value: Return
-34: 
+31: 
 	File: 1
-	Position: 197
+	Position: 164
 	Type: 1
 	Value: 50
-35: 
-	File: 1
-	Position: 199
-	Type: 10
-	Value: 

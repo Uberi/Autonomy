@@ -213,27 +213,6 @@ GenerateReport(ByRef TestReport)
  TestReport := "Tested with " . Index . " test(s):`r`n" . TestReport . "`r`n`r`n" . FailAmount . " test(s) failed:`r`n" . FailList . "`r`n`r`n" . PassAmount . " test(s) passed:`r`n" . PassList
 }
 
-ShowObject(ShowObject,Padding = "")
-{
- ListLines, Off
- If !IsObject(ShowObject)
- {
-  ListLines, On
-  Return, ShowObject
- }
- ObjectContents := ""
- For Key, Value In ShowObject
- {
-  If IsObject(Value)
-   Value := "`n" . ShowObject(Value,Padding . A_Tab)
-  ObjectContents .= Padding . Key . ": " . Value . "`n"
- }
- ObjectContents := SubStr(ObjectContents,1,-1)
- If (Padding = "")
-  ListLines, On
- Return, ObjectContents
-}
-
 ParseObject(ObjectDescription)
 {
  ListLines, Off

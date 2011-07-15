@@ -21,66 +21,56 @@ Var := "This is also unmatched
 ---
 1: 
 	File: 1
-	Position: 0
-	Type: 10
-	Value: 
-2: 
-	File: 1
 	Position: 1
 	Type: 9
 	Value: Var
-3: 
+2: 
 	File: 1
 	Position: 5
 	Type: 0
 	Value: :=
-4: 
+3: 
 	File: 1
 	Position: 33
 	Type: 10
 	Value: 
-5: 
+4: 
 	File: 1
 	Position: 34
 	Type: 9
 	Value: Var
-6: 
+5: 
 	File: 1
 	Position: 38
 	Type: 0
 	Value: :=
-7: 
+6: 
 	File: 1
 	Position: 41
 	Type: 2
 	Value: Hello, World!
-8: 
+7: 
 	File: 1
 	Position: 57
 	Type: 0
 	Value:  . 
-9: 
+8: 
 	File: 1
 	Position: 59
 	Type: 2
 	Value: `"This string `n contains `" escaped `t characters `"
-10: 
+9: 
 	File: 1
 	Position: 115
 	Type: 10
 	Value: 
-11: 
+10: 
 	File: 1
 	Position: 116
 	Type: 9
 	Value: Var
-12: 
+11: 
 	File: 1
 	Position: 120
 	Type: 0
 	Value: :=
-13: 
-	File: 1
-	Position: 146
-	Type: 10
-	Value: 

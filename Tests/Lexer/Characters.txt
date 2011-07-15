@@ -68,131 +68,121 @@
 ---
 1: 
 	File: 1
-	Position: 0
-	Type: 10
-	Value: 
-2: 
-	File: 1
 	Position: 1
 	Type: 0
 	Value: ~
-3: 
+2: 
 	File: 1
 	Position: 2
 	Type: 0
 	Value: !
-4: 
+3: 
 	File: 1
 	Position: 4
 	Type: 9
 	Value: #
-5: 
+4: 
 	File: 1
 	Position: 7
 	Type: 0
 	Value: ^
-6: 
+5: 
 	File: 1
 	Position: 8
 	Type: 0
 	Value: &
-7: 
+6: 
 	File: 1
 	Position: 9
 	Type: 0
 	Value: *
-8: 
+7: 
 	File: 1
 	Position: 10
 	Type: 4
 	Value: (
-9: 
+8: 
 	File: 1
 	Position: 11
 	Type: 4
 	Value: )
-10: 
+9: 
 	File: 1
 	Position: 12
 	Type: 9
 	Value: _
-11: 
+10: 
 	File: 1
 	Position: 13
 	Type: 0
 	Value: +
-12: 
+11: 
 	File: 1
 	Position: 15
 	Type: 1
 	Value: 1234567890
-13: 
+12: 
 	File: 1
 	Position: 25
 	Type: 0
 	Value: -=
-14: 
+13: 
 	File: 1
 	Position: 28
 	Type: 9
 	Value: ABCDEFGHIJKLMNOPQRSTUVWXYZ
-15: 
+14: 
 	File: 1
 	Position: 55
 	Type: 9
 	Value: abcdefghijklmnopqrstuvw
-16: 
+15: 
 	File: 1
 	Position: 83
 	Type: 10
 	Value: 
-17: 
+16: 
 	File: 1
 	Position: 84
 	Type: 5
 	Value: [
-18: 
+17: 
 	File: 1
 	Position: 85
 	Type: 5
 	Value: ]
-19: 
+18: 
 	File: 1
 	Position: 89
 	Type: 3
 	Value: ,
-20: 
+19: 
 	File: 1
 	Position: 90
 	Type: 0
 	Value: .
-21: 
+20: 
 	File: 1
 	Position: 91
 	Type: 9
 	Value: 
-22: 
+21: 
 	File: 1
 	Position: 91
 	Type: 0
 	Value: /
-23: 
+22: 
 	File: 1
 	Position: 92
 	Type: 6
 	Value: {
-24: 
+23: 
 	File: 1
 	Position: 93
 	Type: 6
 	Value: }
-25: 
+24: 
 	File: 1
 	Position: 95
 	Type: 0
 	Value: <>
-26: 
-	File: 1
-	Position: 98
-	Type: 10
-	Value: 

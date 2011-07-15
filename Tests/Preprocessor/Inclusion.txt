@@ -1,148 +1,123 @@
 1: 
 	File: 1
-	Position: 0
-	Type: 10
-	Value: 
-2: 
-	File: 1
 	Position: 1
 	Type: 8
 	Value: #Include
-3: 
+2: 
 	File: 1
 	Position: 10
 	Type: 2
 	Value: Preprocessor\
-4: 
+3: 
 	File: 1
 	Position: 23
 	Type: 10
 	Value: 
-5: 
+4: 
 	File: 1
 	Position: 24
 	Type: 9
 	Value: SomeFunc
-6: 
+5: 
 	File: 1
 	Position: 32
 	Type: 4
 	Value: (
-7: 
+6: 
 	File: 1
 	Position: 33
 	Type: 4
 	Value: )
-8: 
+7: 
 	File: 1
 	Position: 34
 	Type: 10
 	Value: 
-9: 
+8: 
 	File: 1
 	Position: 35
 	Type: 8
 	Value: #Include
-10: 
+9: 
 	File: 1
 	Position: 44
 	Type: 2
 	Value: TestScript.ahk
-11: 
+10: 
 	File: 1
 	Position: 58
 	Type: 10
 	Value: 
-12: 
+11: 
 	File: 1
 	Position: 59
 	Type: 9
 	Value: SomeVar
-13: 
+12: 
 	File: 1
 	Position: 67
 	Type: 0
 	Value: +
-14: 
+13: 
 	File: 1
 	Position: 69
 	Type: 1
 	Value: 1
-15: 
+14: 
 	File: 1
 	Position: 70
 	Type: 10
 	Value: 
-16: 
+15: 
 	File: 1
 	Position: 71
 	Type: 8
 	Value: #Include
-17: 
+16: 
 	File: 1
 	Position: 80
 	Type: 2
 	Value: NonExistant.ahk
-18: 
+17: 
 	File: 1
 	Position: 95
 	Type: 10
 	Value: 
-19: 
+18: 
 	File: 1
 	Position: 96
 	Type: 9
 	Value: Something
-20: 
+19: 
 	File: 1
 	Position: 105
 	Type: 4
 	Value: (
-21: 
+20: 
 	File: 1
 	Position: 106
 	Type: 9
 	Value: Var
-22: 
+21: 
 	File: 1
 	Position: 109
 	Type: 4
 	Value: )
-23: 
+22: 
 	File: 1
 	Position: 110
 	Type: 10
 	Value: 
-24: 
+23: 
 	File: 1
 	Position: 111
 	Type: 8
-	Value: #IncludeAgain
-25: 
-	File: 1
-	Position: 125
-	Type: 2
-	Value: TestScript.ahk
-26: 
-	File: 1
-	Position: 139
-	Type: 10
-	Value: 
-27: 
-	File: 1
-	Position: 140
-	Type: 8
 	Value: #Include
-28: 
+24: 
 	File: 1
-	Position: 149
+	Position: 120
 	Type: 2
 	Value: <TestLibrary.ahk>
-29: 
-	File: 1
-	Position: 166
-	Type: 10
-	Value: 
 ---
 1: 
 	Caret: 
@@ -163,111 +138,111 @@
 ---
 1: 
 	File: 1
-	Position: 0
-	Type: 10
-	Value: 
-2: 
-	File: 1
 	Position: 24
 	Type: 9
 	Value: SomeFunc
-3: 
+2: 
 	File: 1
 	Position: 32
 	Type: 4
 	Value: (
-4: 
+3: 
 	File: 1
 	Position: 33
 	Type: 4
 	Value: )
-5: 
+4: 
 	File: 1
 	Position: 34
 	Type: 10
 	Value: 
-6: 
+5: 
 	File: 2
 	Position: 1
 	Type: 9
 	Value: Test
-7: 
+6: 
 	File: 2
 	Position: 5
 	Type: 4
 	Value: (
-8: 
+7: 
 	File: 2
 	Position: 6
 	Type: 4
 	Value: )
-9: 
+8: 
 	File: 2
 	Position: 8
 	Type: 10
 	Value: 
-10: 
+9: 
 	File: 2
 	Position: 34
 	Type: 9
 	Value: Something
-11: 
+10: 
 	File: 2
 	Position: 44
 	Type: 0
 	Value: <<
-12: 
+11: 
 	File: 2
 	Position: 47
 	Type: 1
 	Value: 8
-13: 
-	File: 2
-	Position: 48
+12: 
+	File: 1
+	Position: 58
 	Type: 10
 	Value: 
-14: 
+13: 
 	File: 1
 	Position: 59
 	Type: 9
 	Value: SomeVar
-15: 
+14: 
 	File: 1
 	Position: 67
 	Type: 0
 	Value: +
-16: 
+15: 
 	File: 1
 	Position: 69
 	Type: 1
 	Value: 1
-17: 
+16: 
 	File: 1
 	Position: 70
 	Type: 10
 	Value: 
-18: 
+17: 
 	File: 1
 	Position: 96
 	Type: 9
 	Value: Something
-19: 
+18: 
 	File: 1
 	Position: 105
 	Type: 4
 	Value: (
-20: 
+19: 
 	File: 1
 	Position: 106
 	Type: 9
 	Value: Var
-21: 
+20: 
 	File: 1
 	Position: 109
 	Type: 4
 	Value: )
-22: 
+21: 
 	File: 1
 	Position: 110
 	Type: 10
 	Value: 
+22: 
+	File: 3
+	Position: 1
+	Type: 9
+	Value: Something

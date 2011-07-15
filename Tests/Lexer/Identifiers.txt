@@ -5,131 +5,121 @@ Variable.Property[Result].Value.123.ABC.456.789.Something
 ---
 1: 
 	File: 1
-	Position: 0
-	Type: 10
-	Value: 
-2: 
-	File: 1
 	Position: 1
 	Type: 9
 	Value: Result
-3: 
+2: 
 	File: 1
 	Position: 8
 	Type: 0
 	Value: :=
-4: 
+3: 
 	File: 1
 	Position: 11
 	Type: 9
 	Value: Function
-5: 
+4: 
 	File: 1
 	Position: 19
 	Type: 4
 	Value: (
-6: 
+5: 
 	File: 1
 	Position: 20
 	Type: 4
 	Value: )
-7: 
+6: 
 	File: 1
 	Position: 22
 	Type: 10
 	Value: 
-8: 
+7: 
 	File: 1
 	Position: 23
 	Type: 9
 	Value: Variable
-9: 
+8: 
 	File: 1
 	Position: 31
 	Type: 0
 	Value: .
-10: 
+9: 
 	File: 1
 	Position: 32
 	Type: 9
 	Value: Property
-11: 
+10: 
 	File: 1
 	Position: 40
 	Type: 5
 	Value: [
-12: 
+11: 
 	File: 1
 	Position: 41
 	Type: 9
 	Value: Result
-13: 
+12: 
 	File: 1
 	Position: 47
 	Type: 5
 	Value: ]
-14: 
+13: 
 	File: 1
 	Position: 48
 	Type: 0
 	Value: .
-15: 
+14: 
 	File: 1
 	Position: 49
 	Type: 9
 	Value: Value
-16: 
+15: 
 	File: 1
 	Position: 54
 	Type: 0
 	Value: .
-17: 
+16: 
 	File: 1
 	Position: 55
 	Type: 9
 	Value: 123
-18: 
+17: 
 	File: 1
 	Position: 58
 	Type: 0
 	Value: .
-19: 
+18: 
 	File: 1
 	Position: 59
 	Type: 9
 	Value: ABC
-20: 
+19: 
 	File: 1
 	Position: 62
 	Type: 0
 	Value: .
-21: 
+20: 
 	File: 1
 	Position: 63
 	Type: 9
 	Value: 456
-22: 
+21: 
 	File: 1
 	Position: 66
 	Type: 0
 	Value: .
-23: 
+22: 
 	File: 1
 	Position: 67
 	Type: 9
 	Value: 789
-24: 
+23: 
 	File: 1
 	Position: 70
 	Type: 0
 	Value: .
-25: 
+24: 
 	File: 1
 	Position: 71
 	Type: 9
 	Value: Something
-26: 
-	File: 1
-	Position: 80
-	Type: 10
-	Value: 

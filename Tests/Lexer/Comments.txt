@@ -19,166 +19,156 @@ Variable /= Value
 ---
 1: 
 	File: 1
-	Position: 20
-	Type: 10
-	Value: 
-2: 
-	File: 1
 	Position: 21
 	Type: 9
 	Value: FunctionCall
-3: 
+2: 
 	File: 1
 	Position: 33
 	Type: 4
 	Value: (
-4: 
+3: 
 	File: 1
 	Position: 34
 	Type: 4
 	Value: )
-5: 
+4: 
 	File: 1
 	Position: 61
 	Type: 10
 	Value: 
-6: 
+5: 
 	File: 1
 	Position: 63
 	Type: 9
 	Value: Variable
-7: 
+6: 
 	File: 1
 	Position: 72
 	Type: 0
 	Value: :=
-8: 
+7: 
 	File: 1
 	Position: 75
 	Type: 9
 	Value: Value
-9: 
+8: 
 	File: 1
 	Position: 98
 	Type: 10
 	Value: 
-10: 
+9: 
 	File: 1
 	Position: 99
 	Type: 9
 	Value: Variable
-11: 
+10: 
 	File: 1
 	Position: 108
 	Type: 0
 	Value: +=
-12: 
+11: 
 	File: 1
 	Position: 111
 	Type: 9
 	Value: Value
-13: 
+12: 
 	File: 1
 	Position: 139
 	Type: 10
 	Value: 
-14: 
+13: 
 	File: 1
 	Position: 140
 	Type: 9
 	Value: FunctionCall
-15: 
+14: 
 	File: 1
 	Position: 152
 	Type: 4
 	Value: (
-16: 
+15: 
 	File: 1
 	Position: 153
 	Type: 4
 	Value: )
-17: 
+16: 
 	File: 1
 	Position: 222
 	Type: 10
 	Value: 
-18: 
+17: 
 	File: 1
 	Position: 223
 	Type: 9
 	Value: Variable
-19: 
+18: 
 	File: 1
 	Position: 232
 	Type: 0
 	Value: *=
-20: 
+19: 
 	File: 1
 	Position: 235
 	Type: 9
 	Value: Value
-21: 
+20: 
 	File: 1
 	Position: 241
 	Type: 10
 	Value: 
-22: 
+21: 
 	File: 1
 	Position: 242
 	Type: 9
 	Value: Variable
-23: 
+22: 
 	File: 1
 	Position: 251
 	Type: 0
 	Value: -=
-24: 
+23: 
 	File: 1
 	Position: 260
 	Type: 9
 	Value: Value
-25: 
+24: 
 	File: 1
 	Position: 266
 	Type: 10
 	Value: 
-26: 
+25: 
 	File: 1
 	Position: 267
 	Type: 9
 	Value: Variable
-27: 
+26: 
 	File: 1
 	Position: 276
 	Type: 0
 	Value: /=
-28: 
+27: 
 	File: 1
 	Position: 279
 	Type: 9
 	Value: Value
-29: 
+28: 
 	File: 1
 	Position: 291
 	Type: 10
 	Value: 
-30: 
+29: 
 	File: 1
 	Position: 292
 	Type: 9
 	Value: Variable
-31: 
+30: 
 	File: 1
 	Position: 301
 	Type: 0
 	Value: <<=
-32: 
+31: 
 	File: 1
 	Position: 305
 	Type: 9
 	Value: Value
-33: 
-	File: 1
-	Position: 310
-	Type: 10
-	Value: 

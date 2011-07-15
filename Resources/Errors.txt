@@ -3,7 +3,6 @@ INVALID_CHARACTER	Character is invalid.
 INVALID_IDENTIFIER	Identifier contains invalid characters.
 INVALID_OBJECT_ACCESS	Invalid identifier given for object access.
 INVALID_CONCATENATION	Concatenation operator must have whitespace on both sides.
-INVALID_FOR_LOOP	Incorrect For loop syntax.
 UNMATCHED_PERCENT_SIGN	Identifier is missing ending percent sign.
 FILE_ERROR	Could not load file.
 DUPLICATE_INCLUSION	File has been referenced by inclusions multiple times.

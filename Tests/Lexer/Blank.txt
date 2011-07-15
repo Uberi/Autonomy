@@ -2,8 +2,3 @@
 ---
 
 ---
-1: 
-	File: 1
-	Position: 1
-	Type: 10
-	Value: 

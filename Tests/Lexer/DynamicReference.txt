@@ -23,156 +23,146 @@ Composite%Variable%%Reference% := Composite%Function%Call()
 ---
 1: 
 	File: 1
-	Position: 0
-	Type: 10
-	Value: 
-2: 
-	File: 1
 	Position: 1
 	Type: 9
 	Value: Variable
-3: 
+2: 
 	File: 1
 	Position: 10
 	Type: 0
 	Value: :=
-4: 
+3: 
 	File: 1
 	Position: 13
 	Type: 0
 	Value: %
-5: 
+4: 
 	File: 1
 	Position: 14
 	Type: 9
 	Value: SomeVariable
-6: 
+5: 
 	File: 1
 	Position: 28
 	Type: 10
 	Value: 
-7: 
+6: 
 	File: 1
 	Position: 29
 	Type: 9
 	Value: OtherVariable
-8: 
+7: 
 	File: 1
 	Position: 43
 	Type: 0
 	Value: :=
-9: 
+8: 
 	File: 1
 	Position: 67
 	Type: 10
 	Value: 
-10: 
+9: 
 	File: 1
 	Position: 68
 	Type: 9
 	Value: Var
-11: 
+10: 
 	File: 1
 	Position: 72
 	Type: 0
 	Value: :=
-12: 
+11: 
 	File: 1
 	Position: 84
 	Type: 9
 	Value: Char
-13: 
+12: 
 	File: 1
 	Position: 89
 	Type: 10
 	Value: 
-14: 
+13: 
 	File: 1
 	Position: 90
 	Type: 0
 	Value: %
-15: 
+14: 
 	File: 1
 	Position: 91
 	Type: 9
 	Value: SomeFunc
-16: 
+15: 
 	File: 1
 	Position: 100
 	Type: 4
 	Value: (
-17: 
+16: 
 	File: 1
 	Position: 101
 	Type: 4
 	Value: )
-18: 
+17: 
 	File: 1
 	Position: 103
 	Type: 10
 	Value: 
-19: 
+18: 
 	File: 1
 	Position: 104
 	Type: 9
 	Value: Composite
-20: 
+19: 
 	File: 1
 	Position: 113
 	Type: 0
 	Value: %
-21: 
+20: 
 	File: 1
 	Position: 114
 	Type: 9
 	Value: Variable
-22: 
+21: 
 	File: 1
 	Position: 123
 	Type: 0
 	Value: %
-23: 
+22: 
 	File: 1
 	Position: 124
 	Type: 9
 	Value: Reference
-24: 
+23: 
 	File: 1
 	Position: 135
 	Type: 0
 	Value: :=
-25: 
+24: 
 	File: 1
 	Position: 138
 	Type: 9
 	Value: Composite
-26: 
+25: 
 	File: 1
 	Position: 147
 	Type: 0
 	Value: %
-27: 
+26: 
 	File: 1
 	Position: 148
 	Type: 9
 	Value: Function
-28: 
+27: 
 	File: 1
 	Position: 157
 	Type: 9
 	Value: Call
-29: 
+28: 
 	File: 1
 	Position: 161
 	Type: 4
 	Value: (
-30: 
+29: 
 	File: 1
 	Position: 162
 	Type: 4
 	Value: )
-31: 
-	File: 1
-	Position: 163
-	Type: 10
-	Value: 

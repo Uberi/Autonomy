@@ -22,91 +22,81 @@ Var3. Var4
 ---
 1: 
 	File: 1
-	Position: 0
-	Type: 10
-	Value: 
-2: 
-	File: 1
 	Position: 1
 	Type: 9
 	Value: Var
-3: 
+2: 
 	File: 1
 	Position: 5
 	Type: 0
 	Value:  . 
-4: 
+3: 
 	File: 1
 	Position: 7
 	Type: 2
 	Value: Something
-5: 
+4: 
 	File: 1
 	Position: 19
 	Type: 10
 	Value: 
-6: 
+5: 
 	File: 1
 	Position: 20
 	Type: 9
 	Value: Variable
-7: 
+6: 
 	File: 1
 	Position: 28
 	Type: 0
 	Value: .
-8: 
+7: 
 	File: 1
 	Position: 29
 	Type: 9
 	Value: Value
-9: 
+8: 
 	File: 1
 	Position: 35
 	Type: 10
 	Value: 
-10: 
+9: 
 	File: 1
 	Position: 36
 	Type: 9
 	Value: Var1
-11: 
+10: 
 	File: 1
 	Position: 41
 	Type: 0
 	Value:  . 
-12: 
+11: 
 	File: 1
 	Position: 42
 	Type: 9
 	Value: Var2
-13: 
+12: 
 	File: 1
 	Position: 47
 	Type: 10
 	Value: 
-14: 
+13: 
 	File: 1
 	Position: 48
 	Type: 9
 	Value: Var3
-15: 
+14: 
 	File: 1
 	Position: 52
 	Type: 0
 	Value: .
-16: 
+15: 
 	File: 1
 	Position: 53
 	Type: 9
 	Value: 
-17: 
+16: 
 	File: 1
 	Position: 54
 	Type: 9
 	Value: Var4
-18: 
-	File: 1
-	Position: 58
-	Type: 10
-	Value: 

@@ -4,126 +4,116 @@ Var := 0x20 + 23 + 1234a + 4.0 + 67b89 + 1 + 0x20.321 + 98.76.54
 ---
 1: 
 	File: 1
-	Position: 0
-	Type: 10
-	Value: 
-2: 
-	File: 1
 	Position: 1
 	Type: 9
 	Value: Var
-3: 
+2: 
 	File: 1
 	Position: 5
 	Type: 0
 	Value: :=
-4: 
+3: 
 	File: 1
 	Position: 8
 	Type: 1
 	Value: 0x20
-5: 
+4: 
 	File: 1
 	Position: 13
 	Type: 0
 	Value: +
-6: 
+5: 
 	File: 1
 	Position: 15
 	Type: 1
 	Value: 23
-7: 
+6: 
 	File: 1
 	Position: 18
 	Type: 0
 	Value: +
-8: 
+7: 
 	File: 1
 	Position: 20
 	Type: 9
 	Value: 1234a
-9: 
+8: 
 	File: 1
 	Position: 26
 	Type: 0
 	Value: +
-10: 
+9: 
 	File: 1
 	Position: 28
 	Type: 1
 	Value: 4.0
-11: 
+10: 
 	File: 1
 	Position: 32
 	Type: 0
 	Value: +
-12: 
+11: 
 	File: 1
 	Position: 34
 	Type: 9
 	Value: 67b89
-13: 
+12: 
 	File: 1
 	Position: 40
 	Type: 0
 	Value: +
-14: 
+13: 
 	File: 1
 	Position: 42
 	Type: 1
 	Value: 1
-15: 
+14: 
 	File: 1
 	Position: 44
 	Type: 0
 	Value: +
-16: 
+15: 
 	File: 1
 	Position: 46
 	Type: 9
 	Value: 0x20
-17: 
+16: 
 	File: 1
 	Position: 50
 	Type: 0
 	Value: .
-18: 
+17: 
 	File: 1
 	Position: 51
 	Type: 9
 	Value: 321
-19: 
+18: 
 	File: 1
 	Position: 55
 	Type: 0
 	Value: +
-20: 
+19: 
 	File: 1
 	Position: 57
 	Type: 9
 	Value: 98
-21: 
+20: 
 	File: 1
 	Position: 59
 	Type: 0
 	Value: .
-22: 
+21: 
 	File: 1
 	Position: 60
 	Type: 9
 	Value: 76
-23: 
+22: 
 	File: 1
 	Position: 62
 	Type: 0
 	Value: .
-24: 
+23: 
 	File: 1
 	Position: 63
 	Type: 9
 	Value: 54
-25: 
-	File: 1
-	Position: 65
-	Type: 10
-	Value: 

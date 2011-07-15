@@ -24,6 +24,7 @@ TODO
 
 * Scope info should be attached to each variable
 * Incremental parser and lexer for IDE use, have object mapping line numbers to token indexes, have parser save state at intervals, lex changed lines only, restore parser state to the saved state right before the token index of the changed token, keep parsing to the end of the file
+* Lua-like _G[] mechanism to replace dynamic variables
 * "local" keyword works on current block, instead of current function, and can make block assume-local: If Something { local SomeVar := "Test" } ;SomeVar is freed after the If block goes out of scope
 * Function definitions are variables holding function references (implemented as function pointers, and utilising reference counting), so variables and functions are in the same namespace
 * Static tail call detection
@@ -34,7 +35,6 @@ FileName := A_ScriptFullPath ;set the file name of the current file
 
 Code = 
 (
-#Include TestScript.txt
 Var := Something
 Return, 1 + 1
 )
