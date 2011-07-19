@@ -40,6 +40,9 @@ CodePreprocess(ByRef Tokens,ByRef ProcessedTokens,ByRef Errors,FileIndex = 1)
   Else
    ObjInsert(ProcessedTokens,Token) ;copy the token to the output stream, move past the parameter if present, or the line end
  }
+ Temp1 := ObjMaxIndex(ProcessedTokens) ;get the highest token index
+ If (ProcessedTokens[Temp1].Type = CodeTokenTypes.LINE_END) ;token is a newline
+  ObjRemove(ProcessedTokens,Temp1,"") ;remove the last token
  Return, PreprocessError
 }
 
@@ -96,21 +99,12 @@ CodePreprocessInclusion(Token,ByRef TokenIndex,ByRef ProcessedTokens,ByRef Error
   TokenIndex ++ ;skip past extra line end token
   Return, 1
  }
- If CodeLex(Code,FileTokens,Errors,FileIndex) ;errors while lexing file
- {
-  TokenIndex ++ ;skip past extra line end token
-  Return, 1
- }
+ CodeLex(Code,FileTokens,Errors,FileIndex) ;lex the external file
  PreprocessorRecursionDepth ++ ;increase the recursion depth counter
  If (PreprocessorRecursionDepth = PreprocessorRecursionWarning) ;at recursion warning level, give warning
   ObjInsert(Errors,Object("Identifier","RECURSION_WARNING","Level","Warning","Highlight",Object("Position",Token.Position,"Length",Length),"Caret","","File",FileIndex)) ;add an error to the error log
- Temp1 := CodePreprocess(FileTokens,FileProcessedTokens,Errors,FileIndex)
+ CodePreprocess(FileTokens,FileProcessedTokens,Errors,FileIndex) ;preprocess the tokens
  PreprocessorRecursionDepth -- ;decrease the recursion depth counter
- If Temp1 ;errors while preprocessing file
- {
-  TokenIndex ++ ;skip past extra line end token
-  Return, 1
- }
 
  ;copy tokens from included file into the main token stream
  For Index, Token In FileProcessedTokens

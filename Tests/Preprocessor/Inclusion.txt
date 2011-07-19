@@ -118,6 +118,41 @@
 	Position: 120
 	Type: 2
 	Value: <TestLibrary.ahk>
+25: 
+	File: 1
+	Position: 137
+	Type: 10
+	Value: 
+26: 
+	File: 1
+	Position: 138
+	Type: 9
+	Value: SomeVar
+27: 
+	File: 1
+	Position: 146
+	Type: 0
+	Value: -
+28: 
+	File: 1
+	Position: 148
+	Type: 1
+	Value: 1
+29: 
+	File: 1
+	Position: 149
+	Type: 10
+	Value: 
+30: 
+	File: 1
+	Position: 150
+	Type: 8
+	Value: #Include
+31: 
+	File: 1
+	Position: 159
+	Type: 2
+	Value: TestScript.ahk
 ---
 1: 
 	Caret: 
@@ -135,6 +170,14 @@
 		Position: 80
 	Identifier: FILE_ERROR
 	Level: Error
+3: 
+	Caret: 
+	File: 1
+	Highlight: 
+		Length: 14
+		Position: 159
+	Identifier: DUPLICATE_INCLUSION
+	Level: Notice
 ---
 1: 
 	File: 1
@@ -246,3 +289,23 @@
 	Position: 1
 	Type: 9
 	Value: Something
+23: 
+	File: 1
+	Position: 137
+	Type: 10
+	Value: 
+24: 
+	File: 1
+	Position: 138
+	Type: 9
+	Value: SomeVar
+25: 
+	File: 1
+	Position: 146
+	Type: 0
+	Value: -
+26: 
+	File: 1
+	Position: 148
+	Type: 1
+	Value: 1
