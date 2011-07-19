@@ -1,76 +1,59 @@
-Var := "This quote is unmatched
-Var := "Hello, World!" . "`"This string `n contains `" escaped `t characters `""
-Var := "This is also unmatched
+"This quote is unmatched
+"Hello, World!" . "`"This string `n contains `" escaped `t characters `""
+"This is also unmatched
+"This string spans`
+multiple lines"
+
 ---
 1: 
-	Caret: 32
+	Caret: 25
 	File: 1
 	Highlight: 
 		Length: 24
-		Position: 8
+		Position: 1
 	Identifier: UNMATCHED_QUOTE
 	Level: Error
 2: 
-	Caret: 146
+	Caret: 125
 	File: 1
 	Highlight: 
 		Length: 23
-		Position: 123
+		Position: 102
 	Identifier: UNMATCHED_QUOTE
 	Level: Error
 ---
 1: 
 	File: 1
-	Position: 1
-	Type: 9
-	Value: Var
+	Position: 26
+	Type: 10
+	Value: 
 2: 
 	File: 1
-	Position: 5
-	Type: 0
-	Value: :=
-3: 
-	File: 1
-	Position: 33
-	Type: 10
-	Value: 
-4: 
-	File: 1
-	Position: 34
-	Type: 9
-	Value: Var
-5: 
-	File: 1
-	Position: 38
-	Type: 0
-	Value: :=
-6: 
-	File: 1
-	Position: 41
+	Position: 27
 	Type: 2
 	Value: Hello, World!
-7: 
+3: 
 	File: 1
-	Position: 57
+	Position: 43
 	Type: 0
 	Value:  . 
-8: 
+4: 
 	File: 1
-	Position: 59
+	Position: 45
 	Type: 2
 	Value: `"This string `n contains `" escaped `t characters `"
-9: 
+5: 
 	File: 1
-	Position: 115
+	Position: 101
 	Type: 10
 	Value: 
-10: 
+6: 
 	File: 1
-	Position: 116
-	Type: 9
-	Value: Var
-11: 
+	Position: 126
+	Type: 10
+	Value: 
+7: 
 	File: 1
-	Position: 120
-	Type: 0
-	Value: :=
+	Position: 127
+	Type: 2
+	Value: This string spans`nmultiple lines

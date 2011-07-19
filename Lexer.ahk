@@ -67,7 +67,7 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
      While, ((CurrentChar := SubStr(Code,Position,1)) = "`r" || CurrentChar = "`n") ;move past any whitespace, to ensure there are no duplicate lines
       Position ++
     }
-    If (A_Index <> 1)
+    If (A_Index <> 1) ;skip insertion of line end token on first iteration
      ObjInsert(Tokens,Object("Type",CodeTokenTypes.LINE_END,"Value","","Position",Position - 1,"File",FileIndex)) ;add the statement end to the token array
     CodeLexLine(Code,Position,Tokens,FileIndex) ;check for statements
    }
@@ -155,10 +155,15 @@ CodeLexLine(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
 
  ObjInsert(Tokens,Object("Type",CodeTokenTypes.STATEMENT,"Value",Statement,"Position",Position1,"File",FileIndex)) ;add the statement to the token array
 
- ;line is a statement, so skip over whitespace, and up to one comma
- Temp1 := ","
- While, (InStr("`t " . Temp1,CurrentChar := SubStr(Code,Position,1)) && CurrentChar <> "")
-  Position ++, (CurrentChar = ",") ? (Temp1 := "") : ""
+ ;skip past whitespace, and up to one comma
+ While, ((CurrentChar := SubStr(Code,Position,1)) = "`t" || CurrentChar = " ")
+  Position ++
+ If (CurrentChar = ",") ;comma found
+ {
+  Position ++ ;move past the comma
+  While, ((CurrentChar := SubStr(Code,Position,1)) = "`t" || CurrentChar = " ") ;skip over any remaining whitespace
+   Position ++
+ }
 
  If ObjHasKey(LexerStatementLiteralList,Statement) ;the current statement accepts the parameters literally
  {
@@ -187,7 +192,20 @@ CodeLexString(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef LexerErr
  {
   CurrentChar := SubStr(Code,Position,1)
   If (CurrentChar = LexerEscapeChar) ;next character is escaped
-   Output .= SubStr(Code,Position,2), Position += 2 ;append the escape sequence to the output, and move past it
+  {
+   Position ++, NextChar := SubStr(Code,Position,1) ;get the next character
+   ;handle the escaping of the end of a line
+   If (NextChar = "`r")
+   {
+    If (SubStr(Code,Position + 1,1) = "`n")
+     Position ++ ;move to the next character
+    Output .= LexerEscapeChar . "n", Position ++ ;always concatenate with the newline character
+    Continue
+   }
+   If (NextChar = "`n")
+    NextChar := "n" ;change the escape sequence character to "n"
+   Output .= LexerEscapeChar . NextChar, Position ++ ;append the escape sequence to the output, and move past it
+  }
   Else If (CurrentChar = "" || InStr("`r`n",CurrentChar)) ;past end of string, or reached a newline before the open quote has been closed
   {
    ObjInsert(Errors,Object("Identifier","UNMATCHED_QUOTE","Level","Error","Highlight",Object("Position",Position1,"Length",Position - Position1),"Caret",Position,"File",FileIndex)), LexerError := 1 ;add an error to the error log

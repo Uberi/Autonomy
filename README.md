@@ -20,11 +20,7 @@ Progress
 Goal
 ----
 
-To create a set of basic tools for the AutoHotkey language that will enable the creation of code-modifying tools. 
-
-Examples of these include code minifiers, code tidying and reformatting tools, translators to other languages, and 
-
-eventually, a self hosting compiler.
+To create a set of basic tools for the AutoHotkey language that will enable the creation of code-modifying tools. Examples of these include code minifiers, code tidying and reformatting tools, translators to other languages, and eventually, a self hosting compiler.
 
 
 Modules
