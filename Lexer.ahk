@@ -47,14 +47,14 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
   CurrentTwoChar := SubStr(Code,Position,2), Position1 := Position
   If (CurrentChar = "`r" || CurrentChar = "`n" || A_Index = 1) ;beginning of a line
   {
-   While, (InStr("`r`n`t ",CurrentChar := SubStr(Code,Position,1)) && (CurrentChar <> "")) ;move past any whitespace
+   While, ((CurrentChar := SubStr(Code,Position,1)) = "`r" || CurrentChar = "`n" || CurrentChar = " " || CurrentChar = "`t") ;move past any whitespace
     Position ++
    If (SubStr(Code,Position,1) = ";") ;single line comment
    {
     CodeLexSingleLineComment(Code,Position) ;skip over comment
     If (A_Index = 1) ;on the first iteration, skip insertion of a line end token
     {
-     While, (InStr("`r`n`t ",CurrentChar := SubStr(Code,Position,1)) && (CurrentChar <> "")) ;move past any whitespace
+     While, ((CurrentChar := SubStr(Code,Position,1)) = "`r" || CurrentChar = "`n" || CurrentChar = " " || CurrentChar = "`t") ;move past any whitespace
       Position ++
     }
     CodeLexLine(Code,Position,Tokens,FileIndex) ;check for statements
@@ -137,17 +137,17 @@ CodeLexLine(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
  }
 
  ;detect labels
- If ((CurrentChar = ":") && InStr("`r`n`t ",SubStr(Code,Position + 1,1))) ;is a label
+ If ((CurrentChar = ":") && ((CurrentChar := SubStr(Code,Position + 1,1)) = "`r" || CurrentChar = "`n" || CurrentChar = " " || CurrentChar = "`t" || CurrentChar = "")) ;is a label
  {
-  Position ++
-  While, (InStr("`t ",CurrentChar := SubStr(Code,Position,1)) && (CurrentChar <> "")) ;move past whitespace
+  Position ++ ;move past the whitespace character after the colon
+  While, ((CurrentChar := SubStr(Code,Position,1)) = " " || CurrentChar = "`t") ;move past whitespace
    Position ++
   ObjInsert(Tokens,Object("Type",CodeTokenTypes.LABEL,"Value",Statement,"Position",Position1,"File",FileIndex)) ;add the label to the token array
   Return, 0
  }
 
  ;determine whether the line should be processed as an expression instead of a statement
- If !(InStr("`r`n`t, ",SubStr(Code,Position,1)) && ObjHasKey(LexerStatementList,Statement)) ;not a statement, so must be expression
+ If !(((CurrentChar := SubStr(Code,Position,1)) = "`r" || CurrentChar = "`n" || CurrentChar = "," || CurrentChar = " " || CurrentChar = "`t" || CurrentChar = "") && ObjHasKey(LexerStatementList,Statement)) ;not a statement, so must be expression
  {
   Position := Position1 ;move the position back to the beginning of the line, to allow it to be processed again as an expression
   Return, 1
@@ -156,12 +156,12 @@ CodeLexLine(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
  ObjInsert(Tokens,Object("Type",CodeTokenTypes.STATEMENT,"Value",Statement,"Position",Position1,"File",FileIndex)) ;add the statement to the token array
 
  ;skip past whitespace, and up to one comma
- While, ((CurrentChar := SubStr(Code,Position,1)) = "`t" || CurrentChar = " ")
+ While, ((CurrentChar := SubStr(Code,Position,1)) = " " || CurrentChar = "`t")
   Position ++
  If (CurrentChar = ",") ;comma found
  {
   Position ++ ;move past the comma
-  While, ((CurrentChar := SubStr(Code,Position,1)) = "`t" || CurrentChar = " ") ;skip over any remaining whitespace
+  While, ((CurrentChar := SubStr(Code,Position,1)) = " " || CurrentChar = "`t") ;skip over any remaining whitespace
    Position ++
  }
 
@@ -169,7 +169,7 @@ CodeLexLine(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
  {
   ;extract statement parameters
   Parameters := "", Position1 := Position
-  While, (!((CurrentChar := SubStr(Code,Position,1)) = "`r" || CurrentChar = "`n") && CurrentChar <> "") ;move to the end of the line
+  While, ((CurrentChar := SubStr(Code,Position,1)) <> "`r" && CurrentChar <> "`n" && CurrentChar <> "") ;move to the end of the line
    Position ++, Parameters .= CurrentChar
 
   ;trim trailing whitespace from paramters
@@ -206,7 +206,7 @@ CodeLexString(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef LexerErr
     NextChar := "n" ;change the escape sequence character to "n"
    Output .= LexerEscapeChar . NextChar, Position ++ ;append the escape sequence to the output, and move past it
   }
-  Else If (CurrentChar = "" || InStr("`r`n",CurrentChar)) ;past end of string, or reached a newline before the open quote has been closed
+  Else If (CurrentChar = "`r" || CurrentChar = "`n" || CurrentChar = "") ;past end of string, or reached a newline before the open quote has been closed
   {
    ObjInsert(Errors,Object("Identifier","UNMATCHED_QUOTE","Level","Error","Highlight",Object("Position",Position1,"Length",Position - Position1),"Caret",Position,"File",FileIndex)), LexerError := 1 ;add an error to the error log
    Return, 1
@@ -225,7 +225,7 @@ CodeLexString(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef LexerErr
 CodeLexSingleLineComment(ByRef Code,ByRef Position)
 {
  Position ++ ;skip over semicolon
- While, !InStr("`r`n",SubStr(Code,Position,1)) ;loop until a newline is found
+ While, ((CurrentChar := SubStr(Code,Position,1)) <> "`r" && CurrentChar <> "`n" && CurrentChar <> "") ;loop until a newline is found
   Position ++
 }
 
@@ -234,11 +234,11 @@ CodeLexMultilineComment(ByRef Code,ByRef Position)
 {
  global LexerEscapeChar
  CommentLevel := 1
- While, CommentLevel ;loop until the comment has ended
+ While, (CommentLevel <> 0) ;loop until the comment has ended
  {
   Position ++
   CurrentChar := SubStr(Code,Position,1), CurrentTwoChar := SubStr(Code,Position,2)
-  If (CurrentChar = "")
+  If (CurrentChar = "") ;past the end of the string
    Return
   If (CurrentChar = LexerEscapeChar) ;an escaped character in the comment
    Position += 2 ;skip over the entire esape sequence (allows escaping of comment chars: /* Some `/* Comment */)
@@ -260,7 +260,7 @@ CodeLexDynamicReference(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRe
   Position ++, CurrentChar := SubStr(Code,Position,1)
   If (CurrentChar = "%") ;found percent sign
    Break
-  If (CurrentChar = "" || InStr("`r`n",CurrentChar)) ;past end of string, or found newline before percent sign was matched
+  If (CurrentChar = "`r" || CurrentChar = "`n" || CurrentChar = "") ;past end of string, or found newline before percent sign was matched
   {
    ObjInsert(Errors,Object("Identifier","UNMATCHED_PERCENT_SIGN","Level","Error","Highlight",Object("Position",Position1,"Length",Position - Position1),"Caret",Position1,"File",FileIndex)), LexerError := 1 ;add an error to the error log
    Return, 1
@@ -287,7 +287,7 @@ CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
  {
   Output := SubStr(Code,Position,Temp1)
   IdentifierChar := InStr(LexerIdentifierChars,SubStr(Output,0)) ;last character of output is an identifier character, make sure output is not an identifier
-  If (ObjHasKey(CodeOperatorTable,Output) && (!IdentifierChar || IdentifierChar && !InStr(LexerIdentifierChars,SubStr(Code,Position + Temp1,1)))) ;found operator
+  If (ObjHasKey(CodeOperatorTable,Output) && (!IdentifierChar || (IdentifierChar && !InStr(LexerIdentifierChars,SubStr(Code,Position + Temp1,1))))) ;found operator
    TokenType := CodeTokenTypes.OPERATOR
   Else If (Output = ",") ;found separator
    TokenType := CodeTokenTypes.SEPARATOR
@@ -325,7 +325,7 @@ CodeLexNumber(ByRef Code,ByRef Position,ByRef Output)
    Output .= CurrentChar
   Else If (CurrentChar = ".") ;is a decimal point
   {
-   If DecimalUsed ;input already had a decimal point, so is probably an identifier
+   If (DecimalUsed = 1) ;input already had a decimal point, so is probably an identifier
    {
     Position := Position1 ;return the position back to the start of this section, to try to process it again as an identifier
     Return, 1

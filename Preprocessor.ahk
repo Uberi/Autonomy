@@ -1,5 +1,7 @@
 #NoEnv
 
+;dependant on Lexer.ahk for lexing capabilities
+
 CodePreprocessInit()
 {
  global CodeFiles, PreprocessorLibraryPaths, PreprocessorRecursionDepth, PreprocessorRecursionWarning

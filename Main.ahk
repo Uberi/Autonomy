@@ -19,7 +19,7 @@ TODO
 
 * Have all code be stored in CodeFiles, to make it simpler for error handler to access it
 * Rewrite parser to not use shunting yard algorithm anymore, it's becoming a big, hackish mess. Look into TDOP/Pratt parser instead. This will also remove the need for the operator table
-* Support a command syntax, that is translated to a function call on load: Math.Mod, 100, 5
+* Support a command syntax, that is translated to a function call on load (dotted notation only - no square brackets support): Math.Mod, 100, 5
 
 * Scope info should be attached to each variable
 * Incremental parser and lexer for IDE use, have object mapping line numbers to token indexes, have parser save state at intervals, lex changed lines only, restore parser state to the saved state right before the token index of the changed token, keep parsing to the end of the file
