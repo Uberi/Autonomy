@@ -41,20 +41,15 @@ Lexer unit test:
     ---
     1: 
         File: 1
-        Position: 0
-        Type: 10
-        Value: 
-    2: 
-        File: 1
         Position: 1
         Type: 9
         Value: MsgBox
-    3: 
+    2: 
         File: 1
         Position: 7
         Type: 4
         Value: (
-    4: 
+    3: 
         File: 1
         Position: 23
         Type: 10
@@ -62,13 +57,15 @@ Lexer unit test:
 */
 
 Gui, Font, s12 Bold, Arial
-Gui, Add, Text, x2 y0 w510 h20 +Center, Unit Test Results:
+Gui, Add, Text, x0 y0 h20 vTitle Center, Unit Test Results:
 Gui, Font, s8 Norm
-Gui, Add, ListView, x2 y20 w510 h320, Index|Test Name|Result|Additional Info
+Gui, Add, ListView, x2 y20 vResults, Index|Test Name|Result|Additional Info
 Gui, Font, s10
-Gui, Add, Button, x2 y350 w260 h30 gCopyReport Default, Copy To Clipboard
-Gui, Add, Button, x262 y350 w250 h30 gSaveReport, Save To File
+Gui, Add, Button, x2 w150 h30 vCopyReport gCopyReport Default, Copy To Clipboard
+Gui, Add, Button, w150 h30 vSaveReport gSaveReport, Save To File
 GuiControl, Focus, Button1
+Gui, +Resize
+Gosub, GuiSize
 
 If CodeInit("..\Resources")
 {
@@ -181,6 +178,13 @@ Return
 TestInterpreter:
 CodeSetScript(FileName)
 
+Return
+
+GuiSize:
+GuiControl, MoveDraw, Title, w%A_GuiWidth%
+GuiControl, Move, Results, % "w" . (A_GuiWidth - 4) . " h" . (A_GuiHeight - 65)
+GuiControl, Move, CopyReport, % "y" . (A_GuiHeight - 35)
+GuiControl, MoveDraw, SaveReport, % "x" . (A_GuiWidth - 152) . " y" . (A_GuiHeight - 35)
 Return
 
 GuiEscape:
