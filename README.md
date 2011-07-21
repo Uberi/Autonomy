@@ -8,7 +8,7 @@ Progress
 <table>
     <th>Module</th><th>Status</th>
 
-    <tr><td>Lexer</td>         <td><em>Working (prone to changes)</em></td></tr>
+    <tr><td>Lexer</td>         <td><em>Working</em></td></tr>
     <tr><td>Preprocessor</td>  <td><em>Partially working</em></td></tr>
     <tr><td>Parser</td>        <td><em>Temporarily broken (soon undergoing rewrite)</em></td></tr>
     <tr><td>Simplifier</td>    <td><em>Pending</em></td></tr>
@@ -29,19 +29,19 @@ Modules
 
 ### Code.ahk
 
-Implements initialization routines. Accesses the filesystem.
+Implements general initialization routines. Requires filesystem access.
 
 ### Lexer.ahk
 
-Implements a tokenizer for raw source code given as input. Outputs a token array.
+Implements tokenization of plain source code given as input. Outputs a token array.
 
 ### Preprocessor.ahk
 
-Implements preprocessor directive handling within a token array given as input. Depends on Lexer.ahk. Accesses the filesystem.
+Implements processing of preprocessor directives within a token array given as input. Depends on Lexer.ahk. Requires filesystem access.
 
 ### Parser.ahk
 
-Implements parsing of a token array given as input and output an abstract syntax tree.
+Implements parsing of a token array given as input and outputs an abstract syntax tree.
 
 ### Simplify.ahk
 
@@ -65,4 +65,4 @@ Utility functions bridging compatibility differences between the original versio
 
 ### Resources/Reconstruct.ahk
 
-Routines for the reconstruction of code from the various stages of compilation, such as a token stream, or a syntax tree. Used for debugging purposes, but also has applications outside of this.
+Routines for the reconstruction of code from the various stages of compilation, such as from a token stream or syntax tree. Used for debugging purposes, but also has applications outside of this.
