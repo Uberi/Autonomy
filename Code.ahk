@@ -58,7 +58,7 @@ Token Types Enumeration
 ;initializes resources that will be required by the code tools
 CodeInit(ResourcesPath = "Resources")
 { ;returns 1 on failure, 0 otherwise
- global CodeOperatorTable, CodeErrorMessages, CodeTokenTypes, CodeFiles
+ global CodeOperatorTable, CodeErrorMessages, CodeTokenTypes
  If (SubStr(ResourcesPath,0) <> "\") ;ensure the path ends with a directory separator ;wip: not cross-platform
   ResourcesPath .= "\"
  If (FileRead(Temp1,ResourcesPath . "OperatorTable.txt") <> 0) ;error reading file
@@ -80,15 +80,13 @@ CodeInit(ResourcesPath = "Resources")
  ;set up token type enumeration
  CodeTokenTypes := Object("OPERATOR",0,"LITERAL_NUMBER",1,"LITERAL_STRING",2,"SEPARATOR",3,"PARENTHESIS",4,"OBJECT_BRACE",5,"BLOCK_BRACE",6,"LABEL",7,"STATEMENT",8,"IDENTIFIER",9,"LINE_END",10)
 
- CodeFiles := Array() ;an array of files included by the script, as well as the script itself (main script is at index 1, included files after this)
  Return, 0
 }
 
-CodeSetScript(FileName = "",ByRef Code = "",ByRef Errors = "")
+CodeSetScript(Path = "",ByRef Errors = "")
 {
  global CodeFiles
- If (FileName <> "")
-  ExpandPath(FileName), CodeFiles.1 := FileName ;store the file name in the key
- ;wip: can store code text completely in CodeFiles
+ If (Path <> "")
+  ExpandPath(Path), CodeFiles := Array(Path) ;create an array to store the path of each script
  Errors := Array()
 }

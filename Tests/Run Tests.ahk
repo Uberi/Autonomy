@@ -8,6 +8,8 @@
 #Include ..\Parser.ahk
 
 #Warn All
+SetBatchLines, -1
+Process, Priority,, RealTime
 
 /*
 Unit Test Format
@@ -98,14 +100,16 @@ Loop, %A_ScriptDir%\Lexer\*.txt
  {
   StringReplace, TestErrorOutput, TestErrorOutput, `r,, All
   StringReplace, TestTokenOutput, TestTokenOutput, `r,, All
-  Errors := Object()
+  Errors := Array()
+  Temp1 := StartTimer()
   CodeLex(TestCode,Tokens,Errors)
+  Temp1 := StopTimer(Temp1)
   If (ShowObject(Errors) <> TestErrorOutput)
    ExtraInfo := "Generated errors do not match expected errors.", TestStatus := "Fail"
   Else If (ShowObject(Tokens) <> TestTokenOutput)
    ExtraInfo := "Output does not match expected output.", TestStatus := "Fail"
   Else
-   ExtraInfo := "None", TestStatus := "Pass"
+   ExtraInfo := "Executed in " . Temp1 . " milliseconds.", TestStatus := "Pass"
  }
  Else
   ExtraInfo := "Invalid test.", TestStatus := "Fail"
@@ -124,14 +128,16 @@ Loop, %A_ScriptDir%\Preprocessor\*.txt
   TestTokens := ParseObject(TestTokens)
   StringReplace, TestErrorOutput, TestErrorOutput, `r,, All
   StringReplace, TestTokenOutput, TestTokenOutput, `r,, All
-  Errors := Object()
+  Errors := Array()
+  Temp1 := StartTimer()
   CodePreprocess(TestTokens,ProcessedTokens,Errors)
+  Temp1 := StopTimer(Temp1)
   If (ShowObject(Errors) <> TestErrorOutput)
    ExtraInfo := "Generated errors do not match expected errors.", TestStatus := "Fail"
   Else If (ShowObject(ProcessedTokens) <> TestTokenOutput)
    ExtraInfo := "Output does not match expected output.", TestStatus := "Fail"
   Else
-   ExtraInfo := "None", TestStatus := "Pass"
+   ExtraInfo := "Executed in " . Temp1 . " milliseconds.", TestStatus := "Pass"
   ObjRemove(CodeFiles) ;clean up files list
  }
  Else
@@ -150,14 +156,16 @@ Loop, %A_ScriptDir%\Parser\*.txt
   TestTokens := ParseObject(TestTokens)
   StringReplace, TestErrorOutput, TestErrorOutput, `r,, All
   StringReplace, TestTokenOutput, TestTokenOutput, `r,, All
-  Errors := Object()
+  Errors := Array()
+  Temp1 := StartTimer()
   CodeParse(TestTokens,SyntaxTree,Errors)
+  Temp1 := StopTimer(Temp1)
   If (ShowObject(Errors) <> TestErrorOutput)
    ExtraInfo := "Generated errors do not match expected errors.", TestStatus := "Fail"
   Else If (ShowObject(SyntaxTree) <> TestTreeOutput)
    ExtraInfo := "Output does not match expected output.", TestStatus := "Fail"
   Else
-   ExtraInfo := "None", TestStatus := "Pass"
+   ExtraInfo := "Executed in " . Temp1 . " milliseconds.", TestStatus := "Pass"
  }
  Else
   ExtraInfo := "Invalid test.", TestStatus := "Fail"
@@ -211,6 +219,18 @@ GenerateReport(ByRef TestReport)
   TestReport .= "`r`n" . Temp1 . A_Tab . A_Tab . A_Tab . Temp2 . ((Temp3 <> "None") ? " (" . Temp3 . ")" : "")
  }
  TestReport := "Tested with " . Index . " test(s):`r`n" . TestReport . "`r`n`r`n" . FailAmount . " test(s) failed:`r`n" . FailList . "`r`n`r`n" . PassAmount . " test(s) passed:`r`n" . PassList
+}
+
+StartTimer()
+{
+ TimerBefore := 0, DllCall("QueryPerformanceCounter","Int64*",TimerBefore)
+ Return, TimerBefore
+}
+
+StopTimer(ByRef TimerBefore)
+{
+ TimerAfter := 0, DllCall("QueryPerformanceCounter","Int64*",TimerAfter), TickFrequency := 0, DllCall("QueryPerformanceFrequency","Int64*",TickFrequency)
+ Return, (TimerAfter - TimerBefore) / (TickFrequency / 1000)
 }
 
 ParseObject(ObjectDescription)

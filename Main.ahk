@@ -17,7 +17,6 @@ SetBatchLines(-1)
 TODO
 ----
 
-* Have all code be stored in CodeFiles, to make it simpler for error handler to access it
 * Rewrite parser to not use shunting yard algorithm anymore, it's becoming a big, hackish mess. Look into TDOP/Pratt parser instead. This will also remove the need for the operator table
 * Support a command syntax, that is translated to a function call on load (dotted notation only - no square brackets support): Math.Mod, 100, 5
 
@@ -46,7 +45,7 @@ If CodeInit()
  ExitApp(1) ;fatal error
 }
 
-CodeSetScript(FileName,Code,Errors) ;set the current script file
+CodeSetScript(FileName,Errors) ;set the current script file
 
 CodeLexInit()
 CodeLex(Code,Tokens,Errors)

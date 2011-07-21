@@ -91,16 +91,17 @@ CodePreprocessInclusion(Token,ByRef TokenIndex,ByRef ProcessedTokens,ByRef Error
   }
  }
 
- ;add file to list of included files, since it has not been included yet
- FileIndex := ObjMaxIndex(CodeFiles) + 1 ;get the index to insert the file entry at
- ObjInsert(CodeFiles,FileIndex,Parameter) ;add the current script file to the file array
-
  If (FileRead(Code,Parameter) <> 0) ;error reading file
  {
   ObjInsert(Errors,Object("Identifier","FILE_ERROR","Level","Error","Highlight",Object("Position",Token.Position,"Length",Length),"Caret","","File",FileIndex)) ;add an error to the error log
   TokenIndex ++ ;skip past extra line end token
   Return, 1
  }
+
+ ;add file to list of included files, since it has not been included yet
+ FileIndex := ObjMaxIndex(CodeFiles) + 1 ;get the index to insert the file entry at
+ ObjInsert(CodeFiles,FileIndex,Parameter) ;add the current script file to the file array
+
  CodeLex(Code,FileTokens,Errors,FileIndex) ;lex the external file
  PreprocessorRecursionDepth ++ ;increase the recursion depth counter
  If (PreprocessorRecursionDepth = PreprocessorRecursionWarning) ;at recursion warning level, give warning
