@@ -17,6 +17,7 @@ Progress
     <tr><td>Error Handler</td> <td><em>Working</em></td></tr>
 </table>
 
+
 Goal
 ----
 
@@ -60,7 +61,7 @@ Formats error records into a human readable form. Can display line and column in
 
 ### Resources/Functions.ahk
 
-Utility functions bridging compatibility differences between the original version of AutoHotkey and the "AHK Code Tools" dialect. Required for use until the compiler is fully self hosting, will be removed afterwards.
+Utility functions bridging compatibility differences between the original version of AutoHotkey and the "AHK Code Tools" dialect. Required for development until the compiler is fully self hosting, will be removed afterwards.
 
 ### Resources/Reconstruct.ahk
 
