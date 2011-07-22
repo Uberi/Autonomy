@@ -87,6 +87,6 @@ CodeSetScript(Path = "",ByRef Errors = "")
 {
  global CodeFiles
  If (Path <> "")
-  ExpandPath(Path), CodeFiles := Array(Path) ;create an array to store the path of each script
+  CodeFiles := Array(PathExpand(Path)) ;create an array to store the path of each script
  Errors := Array()
 }

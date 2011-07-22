@@ -1,13 +1,11 @@
 #NoEnv
 
-;dependant on Lexer.ahk for lexing capabilities
-
 CodePreprocessInit()
 {
  global CodeFiles, PreprocessorLibraryPaths, PreprocessorRecursionDepth, PreprocessorRecursionWarning
- PreprocessorLibraryPaths := Array(PathJoin(SplitPath(CodeFiles.1).Directory,"Lib"),PathJoin(A_MyDocuments,"AutoHotkey","Lib"),PathJoin(A_ScriptDir,"Lib"))
+ PreprocessorLibraryPaths := Array(PathJoin(PathSplit(CodeFiles.1).Directory,"Lib"),PathJoin(A_MyDocuments,"AutoHotkey","Lib"),PathJoin(A_ScriptDir,"Lib")) ;paths that are searched for libraries
  PreprocessorRecursionDepth := 0
- PreprocessorRecursionWarning := 8 ;level at which to warn about the high level of recursion
+ PreprocessorRecursionWarning := 8 ;level at which to give a warning about the recursion depth
 }
 
 CodePreprocess(ByRef Tokens,ByRef ProcessedTokens,ByRef Errors,FileIndex = 1)
@@ -59,7 +57,7 @@ CodePreprocessInclusion(Token,ByRef TokenIndex,ByRef ProcessedTokens,ByRef Error
   Parameter := SubStr(Parameter,2,-1) ;remove surrounding angle brackets
   For Index, Path In PreprocessorLibraryPaths ;loop through each folder looking for the file
   {
-   Temp1 := Parameter, Attributes := ExpandPath(Temp1,Path)
+   Temp1 := PathExpand(Parameter,Path,Attributes)
    If (Attributes <> "") ;found script file
    {
     Parameter := Temp1
@@ -68,7 +66,7 @@ CodePreprocessInclusion(Token,ByRef TokenIndex,ByRef ProcessedTokens,ByRef Error
   }
  }
  Else
-  Attributes := ExpandPath(Parameter,CurrentIncludeDirectory)
+  Parameter := PathExpand(Parameter,CurrentIncludeDirectory,Attributes)
  If (Attributes = "") ;file not found
  {
   ObjInsert(Errors,Object("Identifier","FILE_ERROR","Level","Error","Highlight",Object("Position",Token.Position,"Length",Length),"Caret","","File",FileIndex)) ;add an error to the error log

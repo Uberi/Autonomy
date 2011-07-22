@@ -28,20 +28,25 @@ DisplayObject(DisplayObject,ParentID = 0)
  {
   Gui, Add, Text, x10 y0 w300 h30 Center, Object Contents
   Gui, Add, TreeView, x10 y30 w300 h230
+  Gui, Add, Button, x210 y265 w100 h30 gDisplayObjectConfirm Default, OK 
  }
  For Key, Value In DisplayObject
   IsObject(Value) ? DisplayObject(Value,TV_Add(Key,ParentID,"Bold Expand")) : TV_Add(Key . ": " . Value,ParentID)
  If (ParentID = 0)
  {
   Gui, +ToolWindow +AlwaysOnTop +LastFound
-  WindowID := WinExist()
-  Gui, Show, w320 h270
-  While, WinExist("ahk_id " . WindowID)
+  GuiActive := 1, WindowID := WinExist()
+  Gui, Show, w320 h300
+  While, (GuiActive && WinExist("ahk_id " . WindowID))
    Sleep, 100
   Gui, Destroy
   ListLines, On
   Return
  }
+
+ DisplayObjectConfirm:
+ GuiActive := 0
+ Return
 }
 
 SetBatchLines(Amount)
@@ -75,13 +80,13 @@ StringSplit(InputVar,Delimiters = "",OmitChars = "")
  Return, Result
 }
 
-SplitPath(InputVar)
+PathSplit(InputVar)
 {
  SplitPath, InputVar, OutFileName, OutDir, OutExtension, OutNameNoExt, OutDrive
  Return, Object("FileName",OutFileName,"Directory",OutDir,"Extension",OutExtension,"FileNameNoExtension",OutNameNoExt,"Drive",OutDrive)
 }
 
-ExpandPath(ByRef Path,CurrentDirectory = "")
+PathExpand(Path,CurrentDirectory = "",ByRef Attributes = "")
 { ;returns blank if there was a filesystem error, the attributes otherwise
  ListLines, Off
  If (CurrentDirectory <> "")
@@ -89,18 +94,18 @@ ExpandPath(ByRef Path,CurrentDirectory = "")
   WorkingDirectory := A_WorkingDir
   SetWorkingDir, %CurrentDirectory%
  }
- Temp1 := Path, Path := "", Attributes := ""
- If (SubStr(Temp1,0) = "\") ;remove trailing slash if present
-  Temp1 := SubStr(Temp1,1,-1)
- Loop, %Temp1%, 1
+ ExpandedPath := "", Attributes := ""
+ If (SubStr(Path,0) = "\") ;remove trailing slash if present
+  Path := SubStr(Path,1,-1)
+ Loop, %Path%, 1
  {
-  Path := A_LoopFileLongPath, Attributes := A_LoopFileAttrib
+  ExpandedPath := A_LoopFileLongPath, Attributes := A_LoopFileAttrib
   Break
  }
  If (CurrentDirectory <> "")
   SetWorkingDir, %WorkingDirectory%
  ListLines, On
- Return, Attributes
+ Return, ExpandedPath
 }
 
 PathJoin(Path1,Path2 = "",Path3 = "",Path4 = "",Path5 = "",Path6 = "")
@@ -147,5 +152,5 @@ PathJoin(Path1,Path2 = "",Path3 = "",Path4 = "",Path5 = "",Path6 = "")
  If (Path6 <> "" && SubStr(Path6,0) <> Separator)
   Path6 .= Separator
 
- Return, SubStr(Path1 . Path2 . Path3 . Path4 . Path5 . Path6,1,-1)
+ Return, SubStr(Path1 . Path2 . Path3 . Path4 . Path5 . Path6,1,0 - StrLen(Separator))
 }

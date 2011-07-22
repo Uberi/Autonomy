@@ -115,7 +115,7 @@ Loop, %A_ScriptDir%\Lexer\*.txt
 Return
 
 TestPreprocessor:
-CodeSetScript(A_ScriptDir . "\Preprocessor\Inclusion.txt") ;set the current script file
+CodeSetScript(PathJoin(A_ScriptDir,"Preprocessor","Inclusion.txt")) ;set the current script file
 CodePreprocessInit()
 Loop, %A_ScriptDir%\Preprocessor\*.txt
 {

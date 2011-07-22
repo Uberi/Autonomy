@@ -23,8 +23,9 @@ Example Token Stream
 ;initializes resources that the lexer requires
 CodeLexInit()
 {
- global CodeOperatorTable, LexerEscapeChar, LexerIdentifierChars, LexerStatementList, LexerStatementLiteralList, LexerOperatorMaxLength
- LexerEscapeChar := "``" ;the escape character
+ global CodeOperatorTable, LexerEscapeChar, LexerSingleLineCommentChar, LexerIdentifierChars, LexerStatementList, LexerStatementLiteralList, LexerOperatorMaxLength
+ LexerEscapeChar := "``" ;character denoting an escape sequence
+ LexerSingleLineCommentChar := ";" ;character denoting a single line comment
  LexerIdentifierChars := "abcdefghijklmnopqrstuvwxyz_1234567890#" ;characters that make up a an identifier
  LexerStatementList := Object("#Include","","#SingleInstance","","#Warn","","#Define","","#Undefine","","#If","","#Else","","#ElseIf","","#EndIf","","While","","Loop","","For","","If","","Else","","Break","","Continue","","Return","","Gosub","","Goto","","local","","global","","static","") ;statements that can be found on the beginning of a line
  LexerStatementLiteralList := Object("#Include","","#SingleInstance","","#Warn","","#Define","","#Undefine","","#IfDefinition","","#IfNotDefinition","","#Else","","#ElseIfDefinition","","#ElseIfNotDefinition","","#EndIf","","Break","","Continue","","Gosub","","Goto","") ;statements that accept literals as parameters
@@ -37,7 +38,7 @@ CodeLexInit()
 ;lexes AHK code, including all syntax
 CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
 { ;returns 1 on error, 0 otherwise
- global CodeTokenTypes, LexerIdentifierChars
+ global CodeTokenTypes, LexerSingleLineCommentChar, LexerIdentifierChars
  Tokens := Array(), Position := 1, LexerError := 0 ;initialize variables
  Loop
  {
@@ -49,7 +50,7 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
   {
    While, ((CurrentChar := SubStr(Code,Position,1)) = "`r" || CurrentChar = "`n" || CurrentChar = " " || CurrentChar = "`t") ;move past any whitespace
     Position ++
-   If (SubStr(Code,Position,1) = ";") ;single line comment
+   If (SubStr(Code,Position,1) = LexerSingleLineCommentChar) ;single line comment
    {
     CodeLexSingleLineComment(Code,Position) ;skip over comment
     If (A_Index = 1) ;on the first iteration, skip insertion of a line end token
@@ -84,9 +85,10 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
   {
    ObjInsert(Tokens,Object("Type",CodeTokenTypes.OPERATOR,"Value",".","Position",Position,"File",FileIndex)) ;add a object access token to the token array
    Position ++, CurrentChar := SubStr(Code,Position,1) ;move to next char
-   If (CurrentChar = " " || CurrentChar = "`t") ;object access operator cannot be followed by whitespace
+   If InStr(LexerIdentifierChars,CurrentChar) ;object access operator must be followed by an identifier
+    CodeLexIdentifier(Code,Position,Tokens,FileIndex) ;lex identifier
+   Else
     ObjInsert(Errors,Object("Identifier","INVALID_OBJECT_ACCESS","Level","Error","Highlight",Object("Position",Position1,"Length",Position - Position1),"Caret",Position,"File",FileIndex)), LexerError := 1 ;add an error to the error log
-   CodeLexIdentifier(Code,Position,Tokens,FileIndex) ;lex identifier
   }
   Else If (CurrentChar = " " || CurrentChar = "`t") ;whitespace
   {
@@ -347,7 +349,7 @@ CodeLexNumber(ByRef Code,ByRef Position,ByRef Output)
 CodeLexIdentifier(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
 {
  global CodeTokenTypes, LexerIdentifierChars
- Output := "", Position1 := Position
+ Output := SubStr(Code,Position,1), Position1 := Position, Position ++
  Loop
  {
   CurrentChar := SubStr(Code,Position,1)

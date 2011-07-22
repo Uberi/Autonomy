@@ -43,7 +43,7 @@ Implements processing of preprocessor directives within a token array given as i
 
 Implements parsing of a token array given as input and outputs an abstract syntax tree.
 
-### Simplify.ahk
+### Simplifier.ahk
 
 Implements simplification of a syntax tree given as input.
 

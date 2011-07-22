@@ -92,11 +92,6 @@ Var3. Var4
 	Value: .
 15: 
 	File: 1
-	Position: 53
-	Type: 9
-	Value: 
-16: 
-	File: 1
 	Position: 54
 	Type: 9
 	Value: Var4
