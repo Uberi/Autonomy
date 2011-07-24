@@ -101,9 +101,9 @@ Loop, %A_ScriptDir%\Lexer\*.txt
   Temp1 := StartTimer()
   CodeLex(TestCode,Tokens,Errors)
   Temp1 := StopTimer(Temp1)
-  If (ShowObject(Errors) <> TestErrorOutput)
+  If (ShowObject(Errors) != TestErrorOutput)
    ExtraInfo := "Generated errors do not match expected errors.", TestStatus := "Fail"
-  Else If (ShowObject(Tokens) <> TestTokenOutput)
+  Else If (ShowObject(Tokens) != TestTokenOutput)
    ExtraInfo := "Output does not match expected output.", TestStatus := "Fail"
   Else
    ExtraInfo := "Executed in " . Temp1 . " milliseconds.", TestStatus := "Pass"
@@ -129,9 +129,9 @@ Loop, %A_ScriptDir%\Preprocessor\*.txt
   Temp1 := StartTimer()
   CodePreprocess(TestTokens,ProcessedTokens,Errors)
   Temp1 := StopTimer(Temp1)
-  If (ShowObject(Errors) <> TestErrorOutput)
+  If (ShowObject(Errors) != TestErrorOutput)
    ExtraInfo := "Generated errors do not match expected errors.", TestStatus := "Fail"
-  Else If (ShowObject(ProcessedTokens) <> TestTokenOutput)
+  Else If (ShowObject(ProcessedTokens) != TestTokenOutput)
    ExtraInfo := "Output does not match expected output.", TestStatus := "Fail"
   Else
    ExtraInfo := "Executed in " . Temp1 . " milliseconds.", TestStatus := "Pass"
@@ -157,9 +157,9 @@ Loop, %A_ScriptDir%\Parser\*.txt
   Temp1 := StartTimer()
   CodeParse(TestTokens,SyntaxTree,Errors)
   Temp1 := StopTimer(Temp1)
-  If (ShowObject(Errors) <> TestErrorOutput)
+  If (ShowObject(Errors) != TestErrorOutput)
    ExtraInfo := "Generated errors do not match expected errors.", TestStatus := "Fail"
-  Else If (ShowObject(SyntaxTree) <> TestTreeOutput)
+  Else If (ShowObject(SyntaxTree) != TestTreeOutput)
    ExtraInfo := "Output does not match expected output.", TestStatus := "Fail"
   Else
    ExtraInfo := "Executed in " . Temp1 . " milliseconds.", TestStatus := "Pass"
@@ -220,7 +220,7 @@ GenerateReport(ByRef TestReport)
    PassList .= "`r`n" . Temp1, PassAmount ++
   Else
    FailList .= "`r`n" . Temp1, FailAmount ++
-  TestReport .= "`r`n" . Temp1 . A_Tab . A_Tab . A_Tab . Temp2 . ((Temp3 <> "None") ? " (" . Temp3 . ")" : "")
+  TestReport .= "`r`n" . Temp1 . A_Tab . A_Tab . A_Tab . Temp2 . ((Temp3 != "") ? " (" . Temp3 . ")" : "")
  }
  TestReport := "Tested with " . Index . " test(s):`r`n" . TestReport . "`r`n`r`n" . FailAmount . " test(s) failed:`r`n" . FailList . "`r`n`r`n" . PassAmount . " test(s) passed:`r`n" . PassList
 }

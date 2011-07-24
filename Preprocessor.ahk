@@ -16,7 +16,7 @@ CodePreprocess(ByRef Tokens,ByRef ProcessedTokens,ByRef Errors,FileIndex = 1)
  While, IsObject(Token := Tokens[Index])
  {
   Index ++ ;move past the statement, or the token if it is not a statement
-  If (Token.Type <> CodeTokenTypes.STATEMENT) ;skip over any tokens that are not statements
+  If (Token.Type != CodeTokenTypes.STATEMENT) ;skip over any tokens that are not statements
   {
    ObjInsert(ProcessedTokens,Token) ;copy the token to the output stream
    Continue
@@ -58,7 +58,7 @@ CodePreprocessInclusion(Token,ByRef TokenIndex,ByRef ProcessedTokens,ByRef Error
   For Index, Path In PreprocessorLibraryPaths ;loop through each folder looking for the file
   {
    Temp1 := PathExpand(Parameter,Path,Attributes)
-   If (Attributes <> "") ;found script file
+   If (Attributes != "") ;found script file
    {
     Parameter := Temp1
     Break
@@ -89,7 +89,7 @@ CodePreprocessInclusion(Token,ByRef TokenIndex,ByRef ProcessedTokens,ByRef Error
   }
  }
 
- If (FileRead(Code,Parameter) <> 0) ;error reading file
+ If (FileRead(Code,Parameter) != 0) ;error reading file
  {
   ObjInsert(Errors,Object("Identifier","FILE_ERROR","Level","Error","Highlight",Object("Position",Token.Position,"Length",Length),"Caret","","File",FileIndex)) ;add an error to the error log
   TokenIndex ++ ;skip past extra line end token

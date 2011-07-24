@@ -68,7 +68,7 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
      While, ((CurrentChar := SubStr(Code,Position,1)) = "`r" || CurrentChar = "`n") ;move past any whitespace, to ensure there are no duplicate lines
       Position ++
     }
-    If (A_Index <> 1) ;skip insertion of line end token on first iteration
+    If (A_Index > 1) ;skip insertion of line end token on first iteration
      ObjInsert(Tokens,Object("Type",CodeTokenTypes.LINE_END,"Value","","Position",Position - 1,"File",FileIndex)) ;add the statement end to the token array
     CodeLexLine(Code,Position,Tokens,FileIndex) ;check for statements
    }
@@ -171,7 +171,7 @@ CodeLexLine(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
  {
   ;extract statement parameters
   Parameters := "", Position1 := Position
-  While, ((CurrentChar := SubStr(Code,Position,1)) <> "`r" && CurrentChar <> "`n" && CurrentChar <> "") ;move to the end of the line
+  While, ((CurrentChar := SubStr(Code,Position,1)) != "`r" && CurrentChar != "`n" && CurrentChar != "") ;move to the end of the line
    Position ++, Parameters .= CurrentChar
 
   ;trim trailing whitespace from paramters
@@ -227,7 +227,7 @@ CodeLexString(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef LexerErr
 CodeLexSingleLineComment(ByRef Code,ByRef Position)
 {
  Position ++ ;skip over semicolon
- While, ((CurrentChar := SubStr(Code,Position,1)) <> "`r" && CurrentChar <> "`n" && CurrentChar <> "") ;loop until a newline is found
+ While, ((CurrentChar := SubStr(Code,Position,1)) != "`r" && CurrentChar != "`n" && CurrentChar != "") ;loop until a newline is found
   Position ++
 }
 
@@ -236,7 +236,7 @@ CodeLexMultilineComment(ByRef Code,ByRef Position)
 {
  global LexerEscapeChar
  CommentLevel := 1
- While, (CommentLevel <> 0) ;loop until the comment has ended
+ While, (CommentLevel > 0) ;loop until the comment has ended
  {
   Position ++
   CurrentChar := SubStr(Code,Position,1), CurrentTwoChar := SubStr(Code,Position,2)

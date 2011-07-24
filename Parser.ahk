@@ -83,7 +83,7 @@ CodeParse(ByRef Tokens,ByRef SyntaxTree,ByRef Errors)
    Loop ;iterate through the operators on the stack
    {
     Temp1 := Stack[StackIndex] ;get top stack entry
-    If (Temp1.Type <> "OPERATOR") ;must loop only while there are operators at the top of the stack
+    If (Temp1.Type != "OPERATOR") ;must loop only while there are operators at the top of the stack
      Break
     TempOperator := CodeOperatorTable[Temp1.Value]
     If (CurrentAssociativity = "L" && CurrentPrecedence > TempOperator.Precedence) ;if the current operator is left associative, must loop only when the precedence is less than or equal to that of the operator on the stack
@@ -116,7 +116,7 @@ CodeParseStackPop(ByRef SyntaxTree,ByRef TreeIndex,ByRef Stack,ByRef StackIndex)
   Return, 1
  }
  StackOperator := Stack[StackIndex], ObjRemove(Stack), StackIndex -- ;pop the operator off of the stack
- If (StackOperator.Type <> "OPERATOR" && StackOperator.Type <> "FUNCTION") ;wip: if the type is FUNCTION, the number of parameters (arity) is not known.
+ If (StackOperator.Type != "OPERATOR" && StackOperator.Type != "FUNCTION") ;wip: if the type is FUNCTION, the number of parameters (arity) is not known.
  {
   ObjInsert(SyntaxTree,StackOperator), TreeIndex ++ ;append the operator to the output
   Return, 0

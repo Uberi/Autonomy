@@ -20,7 +20,7 @@ Basic AHK Grammar (EBNF as defined by [Wikipedia])
 
     (* operators *)
     Prefix      = "!" | "~" | "&" | "*" | "++" | "--" ;
-    Infix       = "||" | "&&" | "==" | "=" | "<>" | "!=" | ">" | "<" | ">=" | "<=" | ( Whitespace , "." , Whitespace ) | "&" | "^" | "|" | "<<" | ">>" | "+" | "-" | "*" | "/" | "//" | "." | ":=" | "+=" | "-=" | "*=" | "/=" | "//=" | ".=" | "|=" | "&=" | "^=" | "<<=" | ">>=" | "**" ;
+    Infix       = "||" | "&&" | "==" | "=" | "!=" | ">" | "<" | ">=" | "<=" | ( Whitespace , "." , Whitespace ) | "&" | "^" | "|" | "<<" | ">>" | "+" | "-" | "*" | "/" | "//" | "." | ":=" | "+=" | "-=" | "*=" | "/=" | "//=" | ".=" | "|=" | "&=" | "^=" | "<<=" | ">>=" | "**" ;
     Postfix     = "++" | "--"
     Dynamic     = [ Identifier ] , "%" , Identifier , "%" , [ Identifier ] , { "%" , Identifier , "%" , [ Identifier ] } ;
 
@@ -59,9 +59,9 @@ Token Types Enumeration
 CodeInit(ResourcesPath = "Resources")
 { ;returns 1 on failure, 0 otherwise
  global CodeOperatorTable, CodeErrorMessages, CodeTokenTypes
- If (SubStr(ResourcesPath,0) <> "\") ;ensure the path ends with a directory separator ;wip: not cross-platform
+ If (SubStr(ResourcesPath,0) != "\") ;ensure the path ends with a directory separator ;wip: not cross-platform
   ResourcesPath .= "\"
- If (FileRead(Temp1,ResourcesPath . "OperatorTable.txt") <> 0) ;error reading file
+ If (FileRead(Temp1,ResourcesPath . "OperatorTable.txt") != 0) ;error reading file
   Return, 1
 
  ;parse operators table file into object
@@ -69,7 +69,7 @@ CodeInit(ResourcesPath = "Resources")
  Loop, Parse, Temp1, `n, `r
   Line := StringSplit(A_LoopField,"`t"), ObjInsert(CodeOperatorTable,Line.1,Object("Precedence",Line.2,"Associativity",Line.3,"Arity",Line.4))
 
- If (FileRead(Temp1,ResourcesPath . "Errors.txt") <> 0) ;error reading file
+ If (FileRead(Temp1,ResourcesPath . "Errors.txt") != 0) ;error reading file
   Return, 1
 
  ;parse error message file into object, and enumerate error identifiers
@@ -86,7 +86,7 @@ CodeInit(ResourcesPath = "Resources")
 CodeSetScript(Path = "",ByRef Errors = "")
 {
  global CodeFiles
- If (Path <> "")
+ If (Path != "")
   CodeFiles := Array(PathExpand(Path)) ;create an array to store the path of each script
  Errors := Array()
 }
