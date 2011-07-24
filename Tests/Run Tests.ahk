@@ -1,6 +1,7 @@
 #NoEnv
 
 #Include ..\Resources\Functions.ahk
+#Include ..\Resources\Get Error.ahk ;wip: debug
 
 #Include ..\Code.ahk
 #Include ..\Lexer.ahk
@@ -56,6 +57,8 @@ Lexer unit test:
         Value: 
 */
 
+Debug := 0 ;whether or not to copy and display unexpected output
+
 Gui, Font, s12 Bold, Arial
 Gui, Add, Text, x0 y0 h20 vTitle Center, Unit Test Results:
 Gui, Font, s8 Norm
@@ -75,6 +78,10 @@ If CodeInit("..\Resources")
 
 FileName := A_ScriptDir . "\Run Tests.ahk" ;set the file name of the current file
 
+;take a quick control benchmark
+ControlTimer := StartTimer()
+ControlTimer := StopTimer(ControlTimer)
+
 TestIndex := 1
 Gosub, TestLexer
 Gosub, TestPreprocessor
@@ -87,11 +94,20 @@ Loop, 4
 Gui, Show, w515 h385, Unit Test
 Return
 
+ShowOutput(TestName,OutputType,ByRef OutputText)
+{
+ Clipboard := OutputText
+ OutputType := (OutputType = 0) ? "errors" : "output"
+ MsgBox, Unexpected %OutputType% in %TestName%:`n`n%OutputText%
+ ExitApp
+}
+
 TestLexer:
 CodeSetScript(FileName)
 CodeLexInit()
 Loop, %A_ScriptDir%\Lexer\*.txt
 {
+ TestName := "Lexer - " . A_LoopFileName
  FileRead(FileContents,A_LoopFileLongPath)
  If RegExMatch(FileContents,"sS)^(?P<Code>.*?)\r?\n---\r?\n(?P<ErrorOutput>.*?)\r?\n---\r?\n(?P<TokenOutput>.*)$",Test)
  {
@@ -100,17 +116,25 @@ Loop, %A_ScriptDir%\Lexer\*.txt
   Errors := Array()
   Temp1 := StartTimer()
   CodeLex(TestCode,Tokens,Errors)
-  Temp1 := StopTimer(Temp1)
-  If (ShowObject(Errors) != TestErrorOutput)
+  Temp1 := StopTimer(Temp1) - ControlTimer
+  If ((Output := ShowObject(Errors)) != TestErrorOutput)
+  {
    ExtraInfo := "Generated errors do not match expected errors.", TestStatus := "Fail"
-  Else If (ShowObject(Tokens) != TestTokenOutput)
+   If (Debug = 1)
+    ShowOutput(TestName,0,Output)
+  }
+  Else If ((Output := ShowObject(Tokens)) != TestTokenOutput)
+  {
    ExtraInfo := "Output does not match expected output.", TestStatus := "Fail"
+   If (Debug = 1)
+    ShowOutput(TestName,1,Output)
+  }
   Else
    ExtraInfo := "Executed in " . Temp1 . " milliseconds.", TestStatus := "Pass"
  }
  Else
   ExtraInfo := "Invalid test.", TestStatus := "Fail"
- LV_Add("",TestIndex,"Lexer - " . A_LoopFileName,TestStatus,ExtraInfo), TestIndex ++
+ LV_Add("",TestIndex,TestName,TestStatus,ExtraInfo), TestIndex ++
 }
 Return
 
@@ -119,6 +143,7 @@ CodeSetScript(PathJoin(A_ScriptDir,"Preprocessor","Inclusion.txt")) ;set the cur
 CodePreprocessInit()
 Loop, %A_ScriptDir%\Preprocessor\*.txt
 {
+ TestName := "Preprocessor - " . A_LoopFileName
  FileRead(FileContents,A_LoopFileLongPath)
  If RegExMatch(FileContents,"sS)^(?P<Tokens>.*?)\r?\n---\r?\n(?P<ErrorOutput>.*?)\r?\n---\r?\n(?P<TokenOutput>.*)$",Test)
  {
@@ -128,18 +153,26 @@ Loop, %A_ScriptDir%\Preprocessor\*.txt
   Errors := Array()
   Temp1 := StartTimer()
   CodePreprocess(TestTokens,ProcessedTokens,Errors)
-  Temp1 := StopTimer(Temp1)
-  If (ShowObject(Errors) != TestErrorOutput)
+  Temp1 := StopTimer(Temp1) - ControlTimer
+  If ((Output := ShowObject(Errors)) != TestErrorOutput)
+  {
    ExtraInfo := "Generated errors do not match expected errors.", TestStatus := "Fail"
+   If (Debug = 1)
+    ShowOutput(TestName,0,Output)
+  }
   Else If (ShowObject(ProcessedTokens) != TestTokenOutput)
+  {
    ExtraInfo := "Output does not match expected output.", TestStatus := "Fail"
+   If (Debug = 1)
+    ShowOutput(TestName,1,Output)
+  }
   Else
    ExtraInfo := "Executed in " . Temp1 . " milliseconds.", TestStatus := "Pass"
   ObjRemove(CodeFiles) ;clean up files list
  }
  Else
   ExtraInfo := "Invalid test.", TestStatus := "Fail"
- LV_Add("",TestIndex,"Preprocessor - " . A_LoopFileName,TestStatus,ExtraInfo), TestIndex ++
+ LV_Add("",TestIndex,TestName,TestStatus,ExtraInfo), TestIndex ++
 }
 Return
 
@@ -147,6 +180,7 @@ TestParser:
 CodeSetScript(FileName)
 Loop, %A_ScriptDir%\Parser\*.txt
 {
+ TestName := "Parser - " . A_LoopFileName
  FileRead(FileContents,A_LoopFileLongPath)
  If RegExMatch(FileContents,"sS)^(?P<Tokens>.*?)\r?\n---\r?\n(?P<ErrorOutput>.*?)\r?\n---\r?\n(?P<TreeOutput>.*)$",Test)
  {
@@ -156,17 +190,25 @@ Loop, %A_ScriptDir%\Parser\*.txt
   Errors := Array()
   Temp1 := StartTimer()
   CodeParse(TestTokens,SyntaxTree,Errors)
-  Temp1 := StopTimer(Temp1)
-  If (ShowObject(Errors) != TestErrorOutput)
+  Temp1 := StopTimer(Temp1) - ControlTimer
+  If ((Output := ShowObject(Errors)) != TestErrorOutput)
+  {
    ExtraInfo := "Generated errors do not match expected errors.", TestStatus := "Fail"
-  Else If (ShowObject(SyntaxTree) != TestTreeOutput)
+   If (Debug = 1)
+    ShowOutput(TestName,0,Output)
+  }
+  Else If ((Output := ShowObject(SyntaxTree)) != TestTreeOutput)
+  {
    ExtraInfo := "Output does not match expected output.", TestStatus := "Fail"
+   If (Debug = 1)
+    ShowOutput(TestName,1,Output)
+  }
   Else
    ExtraInfo := "Executed in " . Temp1 . " milliseconds.", TestStatus := "Pass"
  }
  Else
   ExtraInfo := "Invalid test.", TestStatus := "Fail"
- LV_Add("",TestIndex,"Parser - " . A_LoopFileName,TestStatus,ExtraInfo), TestIndex ++
+ LV_Add("",TestIndex,TestName,TestStatus,ExtraInfo), TestIndex ++
 }
 Return
 

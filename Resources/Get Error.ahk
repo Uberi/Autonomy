@@ -30,7 +30,9 @@ CodeGetError(ByRef Code,ByRef Errors)
 {
  global CodeErrorMessages, CodeFiles
 
- DisplayLength := 15 ;amount of characters to display on either side of the code
+ TextPadding := 15 ;number of characters to display on either side of the error
+ CaretChar := "^" ;character representing the caret
+ HighlightChar := "-" ;character representing the highlights
 
  ErrorReport := ""
  For ErrorIndex, CurrentError In Errors
@@ -39,7 +41,7 @@ CodeGetError(ByRef Code,ByRef Errors)
 
   ;move back one character if there is a newline at the end
   Temp1 := SubStr(Code,ErrorEnd,1)
-  If ((Temp1 <> "") && InStr("`r`n",Temp1)) ;not past the end of the input, and newline found at the end of the error
+  If (Temp1 = "`r" || Temp1 = "`n") ;newline found at the end of the error
    ErrorEnd --
 
   ;ensure there is enough padding for the highlights and caret
@@ -55,23 +57,23 @@ CodeGetError(ByRef Code,ByRef Errors)
     Position := 1
    Temp1 := SubStr(ErrorDisplay,1,Position - 1)
    Loop, %Length%
-    Temp1 .= "-"
+    Temp1 .= HighlightChar
    ErrorDisplay := Temp1 . SubStr(ErrorDisplay,Position + Length)
   }
 
   ;insert the caret to show the exact location of the error
   Caret := CurrentError.Caret
-  If (Caret <> "")
+  If (Caret != "")
   {
    Position := (Caret - ErrorStart) + 1, Pad := ""
    If (Position < 1)
    Position := 1
-   ErrorDisplay := SubStr(ErrorDisplay,1,Position - 1) . "^" . SubStr(ErrorDisplay,Position + 1)
+   ErrorDisplay := SubStr(ErrorDisplay,1,Position - 1) . CaretChar . SubStr(ErrorDisplay,Position + 1)
   }
 
-  CodeGetErrorShowBefore(Code,ErrorSection,ErrorDisplay,ErrorStart,DisplayLength)
+  CodeGetErrorShowBefore(Code,ErrorSection,ErrorDisplay,ErrorStart,TextPadding)
   ErrorSection .= SubStr(Code,ErrorStart,ErrorEnd - ErrorStart) ;show the code that is causing the error
-  CodeGetErrorShowAfter(Code,ErrorSection,ErrorEnd,DisplayLength)
+  CodeGetErrorShowAfter(Code,ErrorSection,ErrorEnd,TextPadding)
   CodeGetErrorPosition(Code,Caret,Line,Column)
   Message := CodeErrorMessages[CurrentError.Identifier] ;get the error message
   ErrorReport .= CurrentError.Level . " in """ . CodeFiles[CurrentError.File] . """ (Line " . Line . ", Column " . Column . "): " . Message . "`nSpecifically: " . ErrorSection . "`n              " . ErrorDisplay . "`n`n"
@@ -97,7 +99,7 @@ CodeGetErrorBounds(CurrentError,ByRef ErrorStart,ByRef ErrorEnd)
   }
  }
  Temp1 := CurrentError.Caret
- If (Temp1 <> "")
+ If (Temp1 != "")
  {
   Temp2 := Temp1 + 1
   If ((Temp1 < ErrorStart) || (ErrorStart = ""))
@@ -108,7 +110,7 @@ CodeGetErrorBounds(CurrentError,ByRef ErrorStart,ByRef ErrorEnd)
 }
 
 ;show some of the code in the current line, before the error, and pad the error display accordingly
-CodeGetErrorShowBefore(ByRef Code,ByRef ErrorSection,ByRef ErrorDisplay,ErrorStart,DisplayLength)
+CodeGetErrorShowBefore(ByRef Code,ByRef ErrorSection,ByRef ErrorDisplay,ErrorStart,TextPadding)
 {
  ;get the beginning of the line containing the error
  Temp2 := (ErrorStart - 1) - StrLen(Code)
@@ -116,7 +118,7 @@ CodeGetErrorShowBefore(ByRef Code,ByRef ErrorSection,ByRef ErrorDisplay,ErrorSta
  Temp2 := ((Temp1 > Temp2) ? Temp1 : Temp2) + 1
 
  ;retrieve the code and pad the error display
- Temp1 := ErrorStart - DisplayLength
+ Temp1 := ErrorStart - TextPadding
  Temp2 := (Temp1 < Temp2) ? Temp2 : Temp1 ;get start of the section to display
  Temp1 := ErrorStart - Temp2
  ErrorSection := SubStr(Code,Temp2,Temp1), Pad := ""
@@ -126,29 +128,28 @@ CodeGetErrorShowBefore(ByRef Code,ByRef ErrorSection,ByRef ErrorDisplay,ErrorSta
 }
 
 ;show some of the code in the current line, after the error
-CodeGetErrorShowAfter(ByRef Code,ByRef ErrorSection,ErrorEnd,DisplayLength)
+CodeGetErrorShowAfter(ByRef Code,ByRef ErrorSection,ErrorEnd,TextPadding)
 {
  ;get the end of the line containing the error
  Temp1 := InStr(Code,"`r",1,ErrorEnd), Temp2 := InStr(Code,"`n",1,ErrorEnd)
  If (Temp2 = 0)
   Temp2 := Temp1
- Else If (Temp1 <> 0)
+ Else If (Temp1 > 0)
   Temp2 := (Temp1 < Temp2) ? Temp1 : Temp2
 
  ;retrieve the code
- DisplayLength += ErrorEnd
- If (DisplayLength > Temp2)
-  DisplayLength := Temp2
- ErrorSection .= SubStr(Code,ErrorEnd,DisplayLength - ErrorEnd)
+ TextPadding += ErrorEnd
+ If (TextPadding > Temp2)
+  TextPadding := Temp2
+ ErrorSection .= SubStr(Code,ErrorEnd,TextPadding - ErrorEnd)
 }
 
 ;finds the line and column the error occurred on
 CodeGetErrorPosition(ByRef Code,Caret,ByRef Line,ByRef Column)
 {
- Temp1 := SubStr(Code,1,Caret - 1)
+ Temp1 := "`n" . SubStr(Code,1,Caret - 1)
  StringReplace, Temp1, Temp1, `r`n, `n, All
  StringReplace, Temp1, Temp1, `r, `n, All
  StringReplace, Temp1, Temp1, `n, `n, UseErrorLevel
- Line := ErrorLevel + 1
- Temp1 := "`n" . Temp1, Column := StrLen(SubStr(Temp1,InStr(Temp1,"`n",1,0) + 1)) + 1
+ Line := ErrorLevel, Column := StrLen(SubStr(Temp1,InStr(Temp1,"`n",1,0) + 1)) + 1
 }

@@ -83,10 +83,12 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
    CodeLexDynamicReference(Code,Position,Tokens,Errors,LexerError,Output,FileIndex)
   Else If (CurrentChar = ".") ;object access (explicit handling ensures that Var.123.456 will have the purely numerical keys interpreted as identifiers instead of numbers)
   {
-   ObjInsert(Tokens,Object("Type",CodeTokenTypes.OPERATOR,"Value",".","Position",Position,"File",FileIndex)) ;add a object access token to the token array
    Position ++, CurrentChar := SubStr(Code,Position,1) ;move to next char
    If InStr(LexerIdentifierChars,CurrentChar) ;object access operator must be followed by an identifier
+   {
+    ObjInsert(Tokens,Object("Type",CodeTokenTypes.OPERATOR,"Value",".","Position",Position - 1,"File",FileIndex)) ;add a object access token to the token array
     CodeLexIdentifier(Code,Position,Tokens,FileIndex) ;lex identifier
+   }
    Else
     ObjInsert(Errors,Object("Identifier","INVALID_OBJECT_ACCESS","Level","Error","Highlight",Object("Position",Position1,"Length",Position - Position1),"Caret",Position,"File",FileIndex)), LexerError := 1 ;add an error to the error log
   }
@@ -97,9 +99,10 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
     CodeLexSingleLineComment(Code,Position) ;skip over comment
    Else If (CurrentChar = ".") ;concatenation operator (whitespace preceded it)
    {
-    ObjInsert(Tokens,Object("Type",CodeTokenTypes.OPERATOR,"Value"," . ","Position",Position,"File",FileIndex)), Position ++ ;add a concatenation token to the token array, move past dot operator
-    CurrentChar := SubStr(Code,Position,1)
-    If !(CurrentChar = " " || CurrentChar = "`t") ;there must be whitespace on both sides of the concat operator
+    Position ++, CurrentChar := SubStr(Code,Position,1) ;move to the next character
+    If (CurrentChar = " " || CurrentChar = "`t") ;there must be whitespace on both sides of the concat operator
+     ObjInsert(Tokens,Object("Type",CodeTokenTypes.OPERATOR,"Value"," . ","Position",Position - 1,"File",FileIndex)) ;add a concatenation token to the token array
+    Else
      ObjInsert(Errors,Object("Identifier","INVALID_CONCATENATION","Level","Error","Highlight",Object("Position",Position1,"Length",Position - Position1),"Caret",Position,"File",FileIndex)), LexerError := 1 ;add an error to the error log
    }
   }
@@ -285,7 +288,7 @@ CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
 { ;returns 1 on error, 0 otherwise
  global CodeOperatorTable, CodeTokenTypes, LexerOperatorMaxLength, LexerIdentifierChars
  Temp1 := LexerOperatorMaxLength, Position1 := Position
- Loop, %LexerOperatorMaxLength% ;loop until a valid token is found or 
+ Loop, %LexerOperatorMaxLength% ;loop until a valid token is found ;wip: loop is incorrect
  {
   Output := SubStr(Code,Position,Temp1)
   IdentifierChar := InStr(LexerIdentifierChars,SubStr(Output,0)) ;last character of output is an identifier character, make sure output is not an identifier

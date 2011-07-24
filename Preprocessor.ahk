@@ -26,7 +26,7 @@ CodePreprocess(ByRef Tokens,ByRef ProcessedTokens,ByRef Errors,FileIndex = 1)
   If (Statement = "#Include") ;script inclusion, duplication ignored
    PreprocessError := CodePreprocessInclusion(Tokens[Index],Index,ProcessedTokens,Errors,FileIndex) || PreprocessError, Index ++
   Else If (Statement = "#Define") ;identifier macro or function macro definition
-   CodePreprocessDefinition(Tokens[Index],ProcessedTokens,Definitions,Errors), Index += 2 ;definition
+   CodePreprocessDefinition(Tokens[Index],ProcessedTokens,Definitions,Errors), Index += 2 ;macro definition
   Else If (Statement = "#Undefine") ;removal of existing macro
    Index += 2 ;wip: process here
   Else If (Statement = "#If") ;conditional code checking simple expressions against definitions
@@ -38,7 +38,7 @@ CodePreprocess(ByRef Tokens,ByRef ProcessedTokens,ByRef Errors,FileIndex = 1)
   Else If (Statement = "#EndIf") ;conditional code block end
    Index += 2 ;wip: process here
   Else
-   ObjInsert(ProcessedTokens,Token) ;copy the token to the output stream, move past the parameter if present, or the line end
+   ObjInsert(ProcessedTokens,Token), Index ++ ;copy the token to the output stream, move past the parameter or line end
  }
  Temp1 := ObjMaxIndex(ProcessedTokens) ;get the highest token index
  If (ProcessedTokens[Temp1].Type = CodeTokenTypes.LINE_END) ;token is a newline

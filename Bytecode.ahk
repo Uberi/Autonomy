@@ -1,2 +1,8 @@
 #NoEnv
 
+/*
+Bytecode format
+---------------
+
+;wip
+*/

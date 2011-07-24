@@ -89,7 +89,7 @@ PathSplit(InputVar)
 PathExpand(Path,CurrentDirectory = "",ByRef Attributes = "")
 { ;returns blank if there was a filesystem error, the attributes otherwise
  ListLines, Off
- If (CurrentDirectory <> "")
+ If (CurrentDirectory != "")
  {
   WorkingDirectory := A_WorkingDir
   SetWorkingDir, %CurrentDirectory%
@@ -102,7 +102,7 @@ PathExpand(Path,CurrentDirectory = "",ByRef Attributes = "")
   ExpandedPath := A_LoopFileLongPath, Attributes := A_LoopFileAttrib
   Break
  }
- If (CurrentDirectory <> "")
+ If (CurrentDirectory != "")
   SetWorkingDir, %WorkingDirectory%
  ListLines, On
  Return, ExpandedPath
@@ -139,17 +139,17 @@ PathJoin(Path1,Path2 = "",Path3 = "",Path4 = "",Path5 = "",Path6 = "")
   Path6 := SubStr(Path6,2)
 
  ;append a separator character if the path element does not end in one, and is not blank
- If (Path1 <> "" && SubStr(Path1,0) <> Separator)
+ If (Path1 != "" && SubStr(Path1,0) != Separator)
   Path1 .= Separator
- If (Path2 <> "" && SubStr(Path2,0) <> Separator)
+ If (Path2 != "" && SubStr(Path2,0) != Separator)
   Path2 .= Separator
- If (Path3 <> "" && SubStr(Path3,0) <> Separator)
+ If (Path3 != "" && SubStr(Path3,0) != Separator)
   Path3 .= Separator
- If (Path4 <> "" && SubStr(Path4,0) <> Separator)
+ If (Path4 != "" && SubStr(Path4,0) != Separator)
   Path4 .= Separator
- If (Path5 <> "" && SubStr(Path5,0) <> Separator)
+ If (Path5 != "" && SubStr(Path5,0) != Separator)
   Path5 .= Separator
- If (Path6 <> "" && SubStr(Path6,0) <> Separator)
+ If (Path6 != "" && SubStr(Path6,0) != Separator)
   Path6 .= Separator
 
  Return, SubStr(Path1 . Path2 . Path3 . Path4 . Path5 . Path6,1,0 - StrLen(Separator))

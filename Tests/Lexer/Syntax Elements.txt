@@ -67,30 +67,20 @@ Var3. Var4
 	Value: Var1
 10: 
 	File: 1
-	Position: 41
-	Type: 0
-	Value:  . 
-11: 
-	File: 1
 	Position: 42
 	Type: 9
 	Value: Var2
-12: 
+11: 
 	File: 1
 	Position: 47
 	Type: 10
 	Value: 
-13: 
+12: 
 	File: 1
 	Position: 48
 	Type: 9
 	Value: Var3
-14: 
-	File: 1
-	Position: 52
-	Type: 0
-	Value: .
-15: 
+13: 
 	File: 1
 	Position: 54
 	Type: 9

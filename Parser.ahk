@@ -43,7 +43,7 @@ CodeParse(ByRef Tokens,ByRef SyntaxTree,ByRef Errors)
 {
  global CodeOperatorTable
  SyntaxTree := Object(), Stack := Object(), TreeIndex := 0, StackIndex := 0 ;initialize variables
- Loop, % ObjMaxIndex(Tokens)
+ Loop, % ObjMaxIndex(Tokens) ;wip: loop is incorrect
  {
   CurrentToken := Tokens[A_Index], TokenType := CurrentToken.Type, TokenValue := CurrentToken.Value
 
@@ -95,7 +95,7 @@ CodeParse(ByRef Tokens,ByRef SyntaxTree,ByRef Errors)
    ObjInsert(Stack,Object("Type","OPERATOR","Value",TokenValue)), StackIndex ++ ;push the current operator onto the stack
   }
  }
- Loop, %StackIndex%
+ Loop, %StackIndex% ;wip: loop is incorrect
  {
   Temp1 := Stack[StackIndex]
   If (Temp1.Type = "SYNTAX_ELEMENT" && Temp1.Value = "(") ;mismatched parenthesis
@@ -123,7 +123,7 @@ CodeParseStackPop(ByRef SyntaxTree,ByRef TreeIndex,ByRef Stack,ByRef StackIndex)
  }
  TreeNode := Object(1,StackOperator) ;initialise the node to be inserted into the tree
  Arity := CodeOperatorTable[StackOperator.Value].Arity, NodeIndex := Arity + 1 ;get the number of arguments the current operator accepts
- Loop, %Arity% ;remove the previous parameters to add them to the operator's subtree
+ Loop, %Arity% ;remove the previous parameters to add them to the operator's subtree ;wip: loop is incorrect
   ObjInsert(TreeNode,NodeIndex,SyntaxTree[TreeIndex]), NodeIndex --, ObjRemove(SyntaxTree), TreeIndex -- ;pop operators off the stack and place them onto the output in their original order
  ObjInsert(SyntaxTree,Object("Type","NODE","Value",TreeNode)), TreeIndex ++ ;insert the subtree into the main tree
  Return, 0

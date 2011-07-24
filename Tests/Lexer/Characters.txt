@@ -54,12 +54,20 @@
 	Identifier: INVALID_CHARACTER
 	Level: Error
 9: 
+	Caret: 91
+	File: 1
+	Highlight: 
+		Length: 1
+		Position: 90
+	Identifier: INVALID_OBJECT_ACCESS
+	Level: Error
+10: 
 	Caret: 94
 	File: 1
 	Highlight: 
 	Identifier: INVALID_CHARACTER
 	Level: Error
-10: 
+11: 
 	Caret: 97
 	File: 1
 	Highlight: 
@@ -158,31 +166,26 @@
 	Value: ,
 19: 
 	File: 1
-	Position: 90
-	Type: 0
-	Value: .
-20: 
-	File: 1
-	Position: 91
-	Type: 9
-	Value: 
-21: 
-	File: 1
 	Position: 91
 	Type: 0
 	Value: /
-22: 
+20: 
 	File: 1
 	Position: 92
 	Type: 6
 	Value: {
-23: 
+21: 
 	File: 1
 	Position: 93
 	Type: 6
 	Value: }
-24: 
+22: 
 	File: 1
 	Position: 95
 	Type: 0
-	Value: <>
+	Value: <
+23: 
+	File: 1
+	Position: 96
+	Type: 0
+	Value: >

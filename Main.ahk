@@ -17,7 +17,7 @@ SetBatchLines(-1)
 TODO
 ----
 
-* Get Error.ahk seems to handle multiple highlights, but rest of the code is not 
+* Get Error.ahk seems to handle multiple highlights, but rest of the code is not making use of it
 * Make CodeFiles a parameter that is passed to the functions instead of a single global variable
 * Make syntax tree types an enumeration
 * Preprocessor macros should allow grouped enumerations, with dotted syntax
@@ -32,6 +32,7 @@ TODO
 * Lua-like _G[] mechanism to replace dynamic variables. Afterwards remove dynamic variable functionality and make % the modulo operator
 * "local" keyword works on current block, instead of current function, and can make block assume-local: If Something { local SomeVar := "Test" } ;SomeVar is freed after the If block goes out of scope
 * Function definitions are variables holding function references (implemented as function pointers, and utilising reference counting), so variables and functions are in the same namespace
+* Self hosting implementation and changing the code to conform to the syntax
 * Static tail call detection
 * Distinct Array type using contingous memory, faster than Object hash table implementation
 */
