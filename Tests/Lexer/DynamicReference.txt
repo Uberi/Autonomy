@@ -8,16 +8,18 @@ Composite%Variable%%Reference% := Composite%Function%Call()
 	Caret: 46
 	File: 1
 	Highlight: 
-		Length: 20
-		Position: 46
+		1: 
+			Length: 20
+			Position: 46
 	Identifier: UNMATCHED_PERCENT_SIGN
 	Level: Error
 2: 
 	Caret: 83
 	File: 1
 	Highlight: 
-		Length: 8
-		Position: 75
+		1: 
+			Length: 8
+			Position: 75
 	Identifier: INVALID_IDENTIFIER
 	Level: Error
 ---

@@ -26,9 +26,9 @@ Example
 */
 
 ;creates a formatted summary of errors
-CodeGetError(ByRef Code,ByRef Errors)
+CodeGetError(ByRef Code,ByRef Errors,ByRef Files)
 {
- global CodeErrorMessages, CodeFiles
+ global CodeErrorMessages
 
  TextPadding := 15 ;number of characters to display on either side of the error
  CaretChar := "^" ;character representing the caret
@@ -40,7 +40,7 @@ CodeGetError(ByRef Code,ByRef Errors)
   CodeGetErrorBounds(CurrentError,ErrorStart,ErrorEnd)
 
   ;move back one character if there is a newline at the end
-  Temp1 := SubStr(Code,ErrorEnd,1)
+  Temp1 := SubStr(Code,ErrorEnd - 1,1)
   If (Temp1 = "`r" || Temp1 = "`n") ;newline found at the end of the error
    ErrorEnd --
 
@@ -76,7 +76,7 @@ CodeGetError(ByRef Code,ByRef Errors)
   CodeGetErrorShowAfter(Code,ErrorSection,ErrorEnd,TextPadding)
   CodeGetErrorPosition(Code,Caret,Line,Column)
   Message := CodeErrorMessages[CurrentError.Identifier] ;get the error message
-  ErrorReport .= CurrentError.Level . " in """ . CodeFiles[CurrentError.File] . """ (Line " . Line . ", Column " . Column . "): " . Message . "`nSpecifically: " . ErrorSection . "`n              " . ErrorDisplay . "`n`n"
+  ErrorReport .= CurrentError.Level . " in """ . Files[CurrentError.File] . """ (Line " . Line . ", Column " . Column . "): " . Message . "`nSpecifically: " . ErrorSection . "`n              " . ErrorDisplay . "`n`n"
  }
  Return, ErrorReport
 }

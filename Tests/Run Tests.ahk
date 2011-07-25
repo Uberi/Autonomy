@@ -139,8 +139,8 @@ Loop, %A_ScriptDir%\Lexer\*.txt
 Return
 
 TestPreprocessor:
-CodeSetScript(PathJoin(A_ScriptDir,"Preprocessor","Inclusion.txt")) ;set the current script file
-CodePreprocessInit()
+CodeSetScript(PathJoin(A_ScriptDir,"Preprocessor","Inclusion.txt"),Errors,Files) ;set the current script file
+CodePreprocessInit(Files)
 Loop, %A_ScriptDir%\Preprocessor\*.txt
 {
  TestName := "Preprocessor - " . A_LoopFileName
@@ -150,9 +150,9 @@ Loop, %A_ScriptDir%\Preprocessor\*.txt
   TestTokens := ParseObject(TestTokens)
   StringReplace, TestErrorOutput, TestErrorOutput, `r,, All
   StringReplace, TestTokenOutput, TestTokenOutput, `r,, All
-  Errors := Array()
+  CodeSetScript("",Errors,Files) ;reset variables
   Temp1 := StartTimer()
-  CodePreprocess(TestTokens,ProcessedTokens,Errors)
+  CodePreprocess(TestTokens,ProcessedTokens,Errors,Files)
   Temp1 := StopTimer(Temp1) - ControlTimer
   If ((Output := ShowObject(Errors)) != TestErrorOutput)
   {
@@ -168,7 +168,6 @@ Loop, %A_ScriptDir%\Preprocessor\*.txt
   }
   Else
    ExtraInfo := "Executed in " . Temp1 . " milliseconds.", TestStatus := "Pass"
-  ObjRemove(CodeFiles) ;clean up files list
  }
  Else
   ExtraInfo := "Invalid test.", TestStatus := "Fail"

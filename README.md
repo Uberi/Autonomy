@@ -1,6 +1,6 @@
 AHK Code Tools
 ==============
-A lexer, parser, and interpreter for the AutoHotkey scripting language.
+A programming language inspired by AutoHotkey.
 
 Progress
 --------
@@ -16,6 +16,8 @@ Progress
     <tr><td>Interpreter</td>   <td><em>Pending</em></td></tr>
     <tr><td>Error Handler</td> <td><em>Working</em></td></tr>
 </table>
+
+Currently running on AutoHotkey until the implementation is self hosting.
 
 
 Goal

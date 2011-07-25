@@ -9,16 +9,18 @@ multiple lines"
 	Caret: 25
 	File: 1
 	Highlight: 
-		Length: 24
-		Position: 1
+		1: 
+			Length: 24
+			Position: 1
 	Identifier: UNMATCHED_QUOTE
 	Level: Error
 2: 
 	Caret: 125
 	File: 1
 	Highlight: 
-		Length: 23
-		Position: 102
+		1: 
+			Length: 23
+			Position: 102
 	Identifier: UNMATCHED_QUOTE
 	Level: Error
 ---

@@ -28,7 +28,7 @@ CodeLexInit()
  LexerSingleLineCommentChar := ";" ;character denoting a single line comment
  LexerIdentifierChars := "abcdefghijklmnopqrstuvwxyz_1234567890#" ;characters that make up a an identifier
  LexerStatementList := Object("#Include","","#SingleInstance","","#Warn","","#Define","","#Undefine","","#If","","#Else","","#ElseIf","","#EndIf","","While","","Loop","","For","","If","","Else","","Break","","Continue","","Return","","Gosub","","Goto","","local","","global","","static","") ;statements that can be found on the beginning of a line
- LexerStatementLiteralList := Object("#Include","","#SingleInstance","","#Warn","","#Define","","#Undefine","","#IfDefinition","","#IfNotDefinition","","#Else","","#ElseIfDefinition","","#ElseIfNotDefinition","","#EndIf","","Break","","Continue","","Gosub","","Goto","") ;statements that accept literals as parameters
+ LexerStatementLiteralList := Object("#Include","","#SingleInstance","","#Warn","","#Define","","#Undefine","","#If","","#ElseIf","","#Else","","#EndIf","","Break","","Continue","","Gosub","","Goto","") ;statements that accept literals as parameters
 
  LexerOperatorMaxLength := 1 ;one is the maximum length of the other syntax elements - commas, parentheses, square brackets, and curly brackets
  For Temp1 In CodeOperatorTable ;get the length of the longest operator
@@ -90,7 +90,7 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
     CodeLexIdentifier(Code,Position,Tokens,FileIndex) ;lex identifier
    }
    Else
-    ObjInsert(Errors,Object("Identifier","INVALID_OBJECT_ACCESS","Level","Error","Highlight",Object("Position",Position1,"Length",Position - Position1),"Caret",Position,"File",FileIndex)), LexerError := 1 ;add an error to the error log
+    ObjInsert(Errors,Object("Identifier","INVALID_OBJECT_ACCESS","Level","Error","Highlight",Array(Object("Position",Position1,"Length",Position - Position1)),"Caret",Position,"File",FileIndex)), LexerError := 1 ;add an error to the error log
   }
   Else If (CurrentChar = " " || CurrentChar = "`t") ;whitespace
   {
@@ -103,7 +103,7 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
     If (CurrentChar = " " || CurrentChar = "`t") ;there must be whitespace on both sides of the concat operator
      ObjInsert(Tokens,Object("Type",CodeTokenTypes.OPERATOR,"Value"," . ","Position",Position - 1,"File",FileIndex)) ;add a concatenation token to the token array
     Else
-     ObjInsert(Errors,Object("Identifier","INVALID_CONCATENATION","Level","Error","Highlight",Object("Position",Position1,"Length",Position - Position1),"Caret",Position,"File",FileIndex)), LexerError := 1 ;add an error to the error log
+     ObjInsert(Errors,Object("Identifier","INVALID_CONCATENATION","Level","Error","Highlight",Array(Object("Position",Position1,"Length",Position - Position1)),"Caret",Position,"File",FileIndex)), LexerError := 1 ;add an error to the error log
    }
   }
   Else If (CodeLexSyntaxElement(Code,Position,Tokens,FileIndex) = 0) ;input is a syntax element
@@ -213,7 +213,7 @@ CodeLexString(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef LexerErr
   }
   Else If (CurrentChar = "`r" || CurrentChar = "`n" || CurrentChar = "") ;past end of string, or reached a newline before the open quote has been closed
   {
-   ObjInsert(Errors,Object("Identifier","UNMATCHED_QUOTE","Level","Error","Highlight",Object("Position",Position1,"Length",Position - Position1),"Caret",Position,"File",FileIndex)), LexerError := 1 ;add an error to the error log
+   ObjInsert(Errors,Object("Identifier","UNMATCHED_QUOTE","Level","Error","Highlight",Array(Object("Position",Position1,"Length",Position - Position1)),"Caret",Position,"File",FileIndex)), LexerError := 1 ;add an error to the error log
    Return, 1
   }
   Else If (CurrentChar = """") ;closing quote mark found
@@ -267,12 +267,12 @@ CodeLexDynamicReference(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRe
    Break
   If (CurrentChar = "`r" || CurrentChar = "`n" || CurrentChar = "") ;past end of string, or found newline before percent sign was matched
   {
-   ObjInsert(Errors,Object("Identifier","UNMATCHED_PERCENT_SIGN","Level","Error","Highlight",Object("Position",Position1,"Length",Position - Position1),"Caret",Position1,"File",FileIndex)), LexerError := 1 ;add an error to the error log
+   ObjInsert(Errors,Object("Identifier","UNMATCHED_PERCENT_SIGN","Level","Error","Highlight",Array(Object("Position",Position1,"Length",Position - Position1)),"Caret",Position1,"File",FileIndex)), LexerError := 1 ;add an error to the error log
    Return, 1
   }
   If !InStr(LexerIdentifierChars,CurrentChar) ;invalid character found
   {
-   ObjInsert(Errors,Object("Identifier","INVALID_IDENTIFIER","Level","Error","Highlight",Object("Position",Position1,"Length",Position - Position1),"Caret",Position,"File",FileIndex)), LexerError := 1 ;add an error to the error log
+   ObjInsert(Errors,Object("Identifier","INVALID_IDENTIFIER","Level","Error","Highlight",Array(Object("Position",Position1,"Length",Position - Position1)),"Caret",Position,"File",FileIndex)), LexerError := 1 ;add an error to the error log
    Return, 1
   }
   Output .= CurrentChar

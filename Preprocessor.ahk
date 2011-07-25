@@ -1,14 +1,14 @@
 #NoEnv
 
-CodePreprocessInit()
+CodePreprocessInit(ByRef Files)
 {
- global CodeFiles, PreprocessorLibraryPaths, PreprocessorRecursionDepth, PreprocessorRecursionWarning
- PreprocessorLibraryPaths := Array(PathJoin(PathSplit(CodeFiles.1).Directory,"Lib"),PathJoin(A_MyDocuments,"AutoHotkey","Lib"),PathJoin(A_ScriptDir,"Lib")) ;paths that are searched for libraries
+ global PreprocessorLibraryPaths, PreprocessorRecursionDepth, PreprocessorRecursionWarning
+ PreprocessorLibraryPaths := Array(PathJoin(PathSplit(Files.1).Directory,"Lib"),PathJoin(A_MyDocuments,"AutoHotkey","Lib"),PathJoin(A_ScriptDir,"Lib")) ;paths that are searched for libraries
  PreprocessorRecursionDepth := 0
  PreprocessorRecursionWarning := 8 ;level at which to give a warning about the recursion depth
 }
 
-CodePreprocess(ByRef Tokens,ByRef ProcessedTokens,ByRef Errors,FileIndex = 1)
+CodePreprocess(ByRef Tokens,ByRef ProcessedTokens,ByRef Errors,ByRef Files,FileIndex = 1)
 { ;returns 1 on error, 0 otherwise
  global CodeTokenTypes
 
@@ -22,18 +22,17 @@ CodePreprocess(ByRef Tokens,ByRef ProcessedTokens,ByRef Errors,FileIndex = 1)
    Continue
   }
   Statement := Token.Value
-  ;wip: add all these extra directives to the lexer
   If (Statement = "#Include") ;script inclusion, duplication ignored
-   PreprocessError := CodePreprocessInclusion(Tokens[Index],Index,ProcessedTokens,Errors,FileIndex) || PreprocessError, Index ++
+   PreprocessError := CodePreprocessInclusion(Tokens[Index],Index,ProcessedTokens,Errors,Files,FileIndex) || PreprocessError, Index ++
   Else If (Statement = "#Define") ;identifier macro or function macro definition
    CodePreprocessDefinition(Tokens[Index],ProcessedTokens,Definitions,Errors), Index += 2 ;macro definition
   Else If (Statement = "#Undefine") ;removal of existing macro
    Index += 2 ;wip: process here
   Else If (Statement = "#If") ;conditional code checking simple expressions against definitions
    Index += 2 ;wip: process here
-  Else If (Statement = "#Else") ;conditional code checking alternative
-   Index += 2 ;wip: process here
   Else If (Statement = "#ElseIf") ;conditional code checking alternative simple expressions against definitions
+   Index += 2 ;wip: process here
+  Else If (Statement = "#Else") ;conditional code checking alternative
    Index += 2 ;wip: process here
   Else If (Statement = "#EndIf") ;conditional code block end
    Index += 2 ;wip: process here
@@ -46,9 +45,9 @@ CodePreprocess(ByRef Tokens,ByRef ProcessedTokens,ByRef Errors,FileIndex = 1)
  Return, PreprocessError
 }
 
-CodePreprocessInclusion(Token,ByRef TokenIndex,ByRef ProcessedTokens,ByRef Errors,FileIndex)
+CodePreprocessInclusion(Token,ByRef TokenIndex,ByRef ProcessedTokens,ByRef Errors,ByRef Files,FileIndex)
 { ;returns 1 on inclusion failure, 0 otherwise
- global CodeFiles, PreprocessorLibraryPaths, PreprocessorRecursionDepth, PreprocessorRecursionWarning
+ global PreprocessorLibraryPaths, PreprocessorRecursionDepth, PreprocessorRecursionWarning
  static CurrentIncludeDirectory := ""
  Parameter := Token.Value, Length := StrLen(Parameter) ;retrieve the next token, the parameters given to the statement
 
@@ -69,7 +68,7 @@ CodePreprocessInclusion(Token,ByRef TokenIndex,ByRef ProcessedTokens,ByRef Error
   Parameter := PathExpand(Parameter,CurrentIncludeDirectory,Attributes)
  If (Attributes = "") ;file not found
  {
-  ObjInsert(Errors,Object("Identifier","FILE_ERROR","Level","Error","Highlight",Object("Position",Token.Position,"Length",Length),"Caret","","File",FileIndex)) ;add an error to the error log
+  ObjInsert(Errors,Object("Identifier","FILE_ERROR","Level","Error","Highlight",Array(Object("Position",Token.Position,"Length",Length)),"Caret","","File",FileIndex)) ;add an error to the error log
   TokenIndex ++ ;skip past extra line end token
   Return, 1
  }
@@ -79,11 +78,11 @@ CodePreprocessInclusion(Token,ByRef TokenIndex,ByRef ProcessedTokens,ByRef Error
   TokenIndex ++ ;skip past extra line end token
   Return, 0
  }
- For Index, Temp1 In CodeFiles ;check if the file has already been included
+ For Index, Temp1 In Files ;check if the file has already been included
  {
   If (Temp1 = Parameter) ;found file already included
   {
-   ObjInsert(Errors,Object("Identifier","DUPLICATE_INCLUSION","Level","Notice","Highlight",Object("Position",Token.Position,"Length",Length),"Caret","","File",FileIndex)) ;notify that there was an inclusion duplicate
+   ObjInsert(Errors,Object("Identifier","DUPLICATE_INCLUSION","Level","Notice","Highlight",Array(Object("Position",Token.Position,"Length",Length)),"Caret","","File",FileIndex)) ;notify that there was an inclusion duplicate
    TokenIndex ++ ;skip past extra line end token
    Return, 0
   }
@@ -91,20 +90,20 @@ CodePreprocessInclusion(Token,ByRef TokenIndex,ByRef ProcessedTokens,ByRef Error
 
  If (FileRead(Code,Parameter) != 0) ;error reading file
  {
-  ObjInsert(Errors,Object("Identifier","FILE_ERROR","Level","Error","Highlight",Object("Position",Token.Position,"Length",Length),"Caret","","File",FileIndex)) ;add an error to the error log
+  ObjInsert(Errors,Object("Identifier","FILE_ERROR","Level","Error","Highlight",Array(Object("Position",Token.Position,"Length",Length)),"Caret","","File",FileIndex)) ;add an error to the error log
   TokenIndex ++ ;skip past extra line end token
   Return, 1
  }
 
  ;add file to list of included files, since it has not been included yet
- FileIndex := ObjMaxIndex(CodeFiles) + 1 ;get the index to insert the file entry at
- ObjInsert(CodeFiles,FileIndex,Parameter) ;add the current script file to the file array
+ FileIndex := ObjMaxIndex(Files) + 1 ;get the index to insert the file entry at
+ ObjInsert(Files,FileIndex,Parameter) ;add the current script file to the file array
 
  CodeLex(Code,FileTokens,Errors,FileIndex) ;lex the external file
  PreprocessorRecursionDepth ++ ;increase the recursion depth counter
  If (PreprocessorRecursionDepth = PreprocessorRecursionWarning) ;at recursion warning level, give warning
-  ObjInsert(Errors,Object("Identifier","RECURSION_WARNING","Level","Warning","Highlight",Object("Position",Token.Position,"Length",Length),"Caret","","File",FileIndex)) ;add an error to the error log
- CodePreprocess(FileTokens,FileProcessedTokens,Errors,FileIndex) ;preprocess the tokens
+  ObjInsert(Errors,Object("Identifier","RECURSION_WARNING","Level","Warning","Highlight",Array(Object("Position",Token.Position,"Length",Length)),"Caret","","File",FileIndex)) ;add an error to the error log
+ CodePreprocess(FileTokens,FileProcessedTokens,Errors,Files,FileIndex) ;preprocess the tokens
  PreprocessorRecursionDepth -- ;decrease the recursion depth counter
 
  ;copy tokens from included file into the main token stream

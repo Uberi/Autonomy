@@ -17,8 +17,9 @@
 	Caret: 7
 	File: 1
 	Highlight: 
-		Length: 1
-		Position: 6
+		1: 
+			Length: 1
+			Position: 6
 	Identifier: INVALID_IDENTIFIER
 	Level: Error
 4: 
@@ -31,8 +32,9 @@
 	Caret: 82
 	File: 1
 	Highlight: 
-		Length: 4
-		Position: 78
+		1: 
+			Length: 4
+			Position: 78
 	Identifier: UNMATCHED_QUOTE
 	Level: Error
 6: 
@@ -57,8 +59,9 @@
 	Caret: 91
 	File: 1
 	Highlight: 
-		Length: 1
-		Position: 90
+		1: 
+			Length: 1
+			Position: 90
 	Identifier: INVALID_OBJECT_ACCESS
 	Level: Error
 10: 

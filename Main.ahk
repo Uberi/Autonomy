@@ -17,14 +17,10 @@ SetBatchLines(-1)
 TODO
 ----
 
-* Get Error.ahk seems to handle multiple highlights, but rest of the code is not making use of it
-* Make CodeFiles a parameter that is passed to the functions instead of a single global variable
+* preprocessor macros with #Define Enum.Property := 0x4A
 * Make syntax tree types an enumeration
-* Preprocessor macros should allow grouped enumerations, with dotted syntax
 * Read mk:@MSITStore:C:\Program%20Files\AutoHotkey\AutoHotkey_L\AutoHotkey_L.chm::/docs/misc/Performance.htm
-* Rewrite parser to not use shunting yard algorithm anymore, it's becoming a big, hackish mess. Look into TDOP/Pratt parser instead. This will also remove the need for the operator table
-* Support a command syntax, that is translated to a function call on load (dotted notation only - no square brackets support). Detect this form by making sure the token is immediately after a block brace, separator, opening square bracket, opening parenthesis, or line end, and the token after the function is either a literal, an identifier, a separator, an operator that doesn't take a parameter on its left, a block brace, or a line end: Math.Mod, 100, 5
-* After the command syntax is implemented, remove the STATEMENT token type (as the parser can now detect statements, fixing currently broken cases like the assignment "Else := Variable"), and change it to the DIRECTIVE token type, for preprocessor directives only
+* Rewrite parser with TDOP/Pratt/Precedence Climbing parsing algorithm. Remove operator table if not needed afterwards
 
 * Script that converts AutoHotkey code to AHK Code Tools
 * Scope info should be attached to each variable
@@ -53,14 +49,14 @@ If CodeInit()
  ExitApp(1) ;fatal error
 }
 
-CodeSetScript(FileName,Errors) ;set the current script file
+CodeSetScript(FileName,Errors,Files) ;set the current script file
 
 CodeLexInit()
 CodeLex(Code,Tokens,Errors)
 ;DisplayObject(Tokens)
 
-CodePreprocessInit()
-CodePreprocess(Tokens,ProcessedTokens,Errors)
+CodePreprocessInit(Files)
+CodePreprocess(Tokens,ProcessedTokens,Errors,Files)
 DisplayObject(ProcessedTokens)
 DisplayObject(Errors)
 
@@ -68,7 +64,7 @@ CodeParse(ProcessedTokens,SyntaxTree,Errors)
 ;DisplayObject(SyntaxTree)
 
 If (ObjMaxIndex(Errors) != "")
- Display(CodeGetError(Code,Errors)) ;display error at standard output
+ Display(CodeGetError(Code,Errors,Files)) ;display error at standard output
 
 ;DisplayObject(SyntaxTree)
 ;MsgBox % CodeRecontructSyntaxTree(SyntaxTree)

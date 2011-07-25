@@ -158,24 +158,27 @@
 	Caret: 
 	File: 2
 	Highlight: 
-		Length: 14
-		Position: 18
+		1: 
+			Length: 14
+			Position: 18
 	Identifier: DUPLICATE_INCLUSION
 	Level: Notice
 2: 
 	Caret: 
 	File: 1
 	Highlight: 
-		Length: 15
-		Position: 80
+		1: 
+			Length: 15
+			Position: 80
 	Identifier: FILE_ERROR
 	Level: Error
 3: 
 	Caret: 
 	File: 1
 	Highlight: 
-		Length: 14
-		Position: 159
+		1: 
+			Length: 14
+			Position: 159
 	Identifier: DUPLICATE_INCLUSION
 	Level: Notice
 ---

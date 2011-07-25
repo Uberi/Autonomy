@@ -83,10 +83,9 @@ CodeInit(ResourcesPath = "Resources")
  Return, 0
 }
 
-CodeSetScript(Path = "",ByRef Errors = "")
+CodeSetScript(ByRef Path = "",ByRef Errors = "",ByRef Files = "")
 {
- global CodeFiles
  If (Path != "")
-  CodeFiles := Array(PathExpand(Path)) ;create an array to store the path of each script
+  Files := Array(PathExpand(Path)) ;create an array to store the path of each script
  Errors := Array()
 }
