@@ -7,3 +7,5 @@ UNMATCHED_PERCENT_SIGN	Identifier is missing ending percent sign.
 FILE_ERROR	Could not load file.
 DUPLICATE_INCLUSION	File has been referenced by inclusions multiple times.
 RECURSION_WARNING	Recursion depth at warning levels.
+UNDEFINED_MACRO	Undefined macro referenced.
+INVALID_DIRECTIVE_SYNTAX	Incorrect directive syntax.

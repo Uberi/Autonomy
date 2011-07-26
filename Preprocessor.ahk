@@ -1,13 +1,23 @@
 #NoEnv
 
-CodePreprocessInit(ByRef Files)
+;initializes resources that the preprocessor requires
+CodePreprocessInit(ByRef Files,ByRef CurrentDirectory = "")
 {
- global PreprocessorLibraryPaths, PreprocessorRecursionDepth, PreprocessorRecursionWarning
- PreprocessorLibraryPaths := Array(PathJoin(PathSplit(Files.1).Directory,"Lib"),PathJoin(A_MyDocuments,"AutoHotkey","Lib"),PathJoin(A_ScriptDir,"Lib")) ;paths that are searched for libraries
+ global PreprocessorIncludeDirectory, PreprocessorLibraryPaths, PreprocessorRecursionDepth, PreprocessorRecursionWarning
+
+ If (ObjHasKey(Files,1) = 1 && (Path := Files.1) <> "") ;file path given, set the include directory to the directory of the script
+  PreprocessorIncludeDirectory := PathSplit(Path).Directory
+ Else If (CurrentDirectory <> "") ;include directory given explicitly
+  PreprocessorIncludeDirectory := CurrentDirectory
+ Else ;no path given, set the include directory to the directory of this script
+  PreprocessorIncludeDirectory := A_ScriptDir
+
+ PreprocessorLibraryPaths := Array(PathJoin(PreprocessorIncludeDirectory,"Lib"),PathJoin(A_MyDocuments,"AutoHotkey","Lib"),PathJoin(A_ScriptDir,"Lib")) ;paths that are searched for libraries
  PreprocessorRecursionDepth := 0
  PreprocessorRecursionWarning := 8 ;level at which to give a warning about the recursion depth
 }
 
+;preprocesses a token stream containing preprocessor directives
 CodePreprocess(ByRef Tokens,ByRef ProcessedTokens,ByRef Errors,ByRef Files,FileIndex = 1)
 { ;returns 1 on error, 0 otherwise
  global CodeTokenTypes
@@ -21,20 +31,20 @@ CodePreprocess(ByRef Tokens,ByRef ProcessedTokens,ByRef Errors,ByRef Files,FileI
    ObjInsert(ProcessedTokens,Token) ;copy the token to the output stream
    Continue
   }
-  Statement := Token.Value
-  If (Statement = "#Include") ;script inclusion, duplication ignored
+  Directive := Token.Value
+  If (Directive = "#Include") ;script inclusion, duplication ignored
    PreprocessError := CodePreprocessInclusion(Tokens[Index],Index,ProcessedTokens,Errors,Files,FileIndex) || PreprocessError, Index ++
-  Else If (Statement = "#Define") ;identifier macro or function macro definition
-   CodePreprocessDefinition(Tokens[Index],ProcessedTokens,Definitions,Errors), Index += 2 ;macro definition
-  Else If (Statement = "#Undefine") ;removal of existing macro
+  Else If (Directive = "#Define") ;identifier macro or function macro definition
+   CodePreprocessDefinition(Tokens,Index,ProcessedTokens,Definitions,Errors), Index ++ ;macro definition
+  Else If (Directive = "#Undefine") ;removal of existing macro
+   PreprocessError := CodePreprocessRemoveDefinition(Tokens,Index,Definitions,Errors) || PreprocessError, Index += 2
+  Else If (Directive = "#If") ;conditional code checking simple expressions against definitions
    Index += 2 ;wip: process here
-  Else If (Statement = "#If") ;conditional code checking simple expressions against definitions
+  Else If (Directive = "#ElseIf") ;conditional code checking alternative simple expressions against definitions
    Index += 2 ;wip: process here
-  Else If (Statement = "#ElseIf") ;conditional code checking alternative simple expressions against definitions
+  Else If (Directive = "#Else") ;conditional code checking alternative
    Index += 2 ;wip: process here
-  Else If (Statement = "#Else") ;conditional code checking alternative
-   Index += 2 ;wip: process here
-  Else If (Statement = "#EndIf") ;conditional code block end
+  Else If (Directive = "#EndIf") ;conditional code block end
    Index += 2 ;wip: process here
   Else
    ObjInsert(ProcessedTokens,Token), Index ++ ;copy the token to the output stream, move past the parameter or line end
@@ -45,10 +55,11 @@ CodePreprocess(ByRef Tokens,ByRef ProcessedTokens,ByRef Errors,ByRef Files,FileI
  Return, PreprocessError
 }
 
+;preprocesses inclusion of files external to the script
 CodePreprocessInclusion(Token,ByRef TokenIndex,ByRef ProcessedTokens,ByRef Errors,ByRef Files,FileIndex)
 { ;returns 1 on inclusion failure, 0 otherwise
- global PreprocessorLibraryPaths, PreprocessorRecursionDepth, PreprocessorRecursionWarning
- static CurrentIncludeDirectory := ""
+ global PreprocessorIncludeDirectory, PreprocessorLibraryPaths, PreprocessorRecursionDepth, PreprocessorRecursionWarning
+
  Parameter := Token.Value, Length := StrLen(Parameter) ;retrieve the next token, the parameters given to the statement
 
  If (SubStr(Parameter,1,1) = "<") ;library file: #Include <LibraryName>
@@ -65,7 +76,7 @@ CodePreprocessInclusion(Token,ByRef TokenIndex,ByRef ProcessedTokens,ByRef Error
   }
  }
  Else
-  Parameter := PathExpand(Parameter,CurrentIncludeDirectory,Attributes)
+  Parameter := PathExpand(Parameter,PreprocessorIncludeDirectory,Attributes)
  If (Attributes = "") ;file not found
  {
   ObjInsert(Errors,Object("Identifier","FILE_ERROR","Level","Error","Highlight",Array(Object("Position",Token.Position,"Length",Length)),"Caret","","File",FileIndex)) ;add an error to the error log
@@ -74,7 +85,7 @@ CodePreprocessInclusion(Token,ByRef TokenIndex,ByRef ProcessedTokens,ByRef Error
  }
  If InStr(Attributes,"D") ;is a directory
  {
-  CurrentIncludeDirectory := Parameter ;set the current include directory
+  PreprocessorIncludeDirectory := Parameter ;set the current include directory
   TokenIndex ++ ;skip past extra line end token
   Return, 0
  }
@@ -113,7 +124,26 @@ CodePreprocessInclusion(Token,ByRef TokenIndex,ByRef ProcessedTokens,ByRef Error
  Return, 0
 }
 
-CodePreprocessDefinition(Token,ByRef ProcessedTokens,ByRef Definitions,ByRef Errors)
-{
+CodePreprocessDefinition(ByRef Tokens,ByRef Index,ByRef ProcessedTokens,ByRef Definitions,ByRef Errors)
+{ ;returns 1 on invalid syntax, 0 otherwise
  
+}
+
+
+CodePreprocessRemoveDefinition(ByRef Tokens,Index,ByRef Definitions,Errors)
+{ ;returns 1 on invalid syntax, 0 otherwise
+ global CodeTokenTypes
+
+ Token := Tokens[Index]
+ If !(Token.Type = CodeTokenTypes.IDENTIFIER && Tokens[Index + 1].Type = CodeTokenTypes.LINE_END) ;token is not an identifier or the token after it is not a line end
+ {
+  ObjInsert(Errors,Object("Identifier","INVALID_DIRECTIVE_SYNTAX","Level","Error","Highlight",Array(Object("Position",Token.Position,"Length",StrLen(Token.Value))),"Caret","","File",FileIndex)) ;add an error to the error log
+  Return, 1
+ }
+ CurrentDefinition := Token.Value
+ If ObjHasKey(Definitions,CurrentDefinition) ;remove the key if it exists
+  ObjRemove(Definitions,CurrentDefinition)
+ Else ;warn that the key does not exist
+  ObjInsert(Errors,Object("Identifier","UNDEFINED_MACRO","Level","Warning","Highlight",Array(Object("Position",Token.Position,"Length",StrLen(CurrentDefinition))),"Caret","","File",FileIndex)) ;add an error to the error log
+ Return, 0
 }

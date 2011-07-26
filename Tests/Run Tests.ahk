@@ -96,6 +96,7 @@ Return
 
 ShowOutput(TestName,OutputType,ByRef OutputText)
 {
+ 
  Clipboard := OutputText
  OutputType := (OutputType = 0) ? "errors" : "output"
  MsgBox, Unexpected %OutputType% in %TestName%:`n`n%OutputText%
@@ -103,7 +104,7 @@ ShowOutput(TestName,OutputType,ByRef OutputText)
 }
 
 TestLexer:
-CodeSetScript(FileName)
+CodeSetScript(FileName,Errors,Files)
 CodeLexInit()
 Loop, %A_ScriptDir%\Lexer\*.txt
 {
@@ -139,7 +140,8 @@ Loop, %A_ScriptDir%\Lexer\*.txt
 Return
 
 TestPreprocessor:
-CodeSetScript(PathJoin(A_ScriptDir,"Preprocessor","Inclusion.txt"),Errors,Files) ;set the current script file
+TestPath := PathJoin(A_ScriptDir,"Preprocessor","Inclusion.txt")
+CodeSetScript(TestPath,Errors,Files) ;set the current script file
 CodePreprocessInit(Files)
 Loop, %A_ScriptDir%\Preprocessor\*.txt
 {
@@ -150,7 +152,7 @@ Loop, %A_ScriptDir%\Preprocessor\*.txt
   TestTokens := ParseObject(TestTokens)
   StringReplace, TestErrorOutput, TestErrorOutput, `r,, All
   StringReplace, TestTokenOutput, TestTokenOutput, `r,, All
-  CodeSetScript("",Errors,Files) ;reset variables
+  CodeSetScript(TestPath,Errors,Files) ;reset variables
   Temp1 := StartTimer()
   CodePreprocess(TestTokens,ProcessedTokens,Errors,Files)
   Temp1 := StopTimer(Temp1) - ControlTimer

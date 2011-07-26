@@ -17,7 +17,7 @@ SetBatchLines(-1)
 TODO
 ----
 
-* preprocessor macros with #Define Enum.Property := 0x4A
+* preprocessor macros with #Define DEFINITION := Something
 * Support a command syntax, that is translated to a function call on load (dotted notation only - no square brackets support). Detect this form by making sure the token is immediately after a block brace, opening square bracket, opening parenthesis, or line end, and the token after the function is either a literal, an identifier, a separator, an operator that doesn't take a parameter on its left, a block brace, or a line end: Math.Mod, 100, 5
 * Make syntax tree types an enumeration
 * Read mk:@MSITStore:C:\Program%20Files\AutoHotkey\AutoHotkey_L\AutoHotkey_L.chm::/docs/misc/Performance.htm
