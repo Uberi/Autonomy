@@ -70,6 +70,8 @@ CodeGetError(ByRef Code,ByRef Errors,ByRef Files)
    Position := 1
    ErrorDisplay := SubStr(ErrorDisplay,1,Position - 1) . CaretChar . SubStr(ErrorDisplay,Position + 1)
   }
+  Else
+   Caret := ErrorStart
 
   CodeGetErrorShowBefore(Code,ErrorSection,ErrorDisplay,ErrorStart,TextPadding)
   ErrorSection .= SubStr(Code,ErrorStart,ErrorEnd - ErrorStart) ;show the code that is causing the error
@@ -145,9 +147,9 @@ CodeGetErrorShowAfter(ByRef Code,ByRef ErrorSection,ErrorEnd,TextPadding)
 }
 
 ;finds the line and column the error occurred on
-CodeGetErrorPosition(ByRef Code,Caret,ByRef Line,ByRef Column)
+CodeGetErrorPosition(ByRef Code,Position,ByRef Line,ByRef Column)
 {
- Temp1 := "`n" . SubStr(Code,1,Caret - 1)
+ Temp1 := "`n" . SubStr(Code,1,Position - 1)
  StringReplace, Temp1, Temp1, `r`n, `n, All
  StringReplace, Temp1, Temp1, `r, `n, All
  StringReplace, Temp1, Temp1, `n, `n, UseErrorLevel

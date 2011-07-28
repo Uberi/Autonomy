@@ -15,7 +15,8 @@ http://en.wikipedia.org/wiki/Compiler_optimization
 - multiply by one:                                   [Evaluates to integer 1] * Number, Number * [Evaluates to integer 1] -> Number
 - divide by one:                                     Integer / [Evaluates to 1] -> Integer
 - zero product property:                             Number * [Evaluates to 0] -> 0 ;if the multiplicand that evaluates to zero was a float, then the number type should be converted to a float as well
-- Mod(Integer1,[Power of 2: Integer2]) -> Integer1 & [Integer2 - 1]
+- bitwise modulo:                                    Mod(Integer1,[Power of 2: Integer2]) -> Integer1 & [Integer2 - 1]
+- logical transforms:                                (!Something && !SomethingElse) -> !(Something || SomethingElse) ;many other different types of logical transforms too
 ...
 */
 

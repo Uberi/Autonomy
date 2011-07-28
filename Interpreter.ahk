@@ -20,7 +20,7 @@ CodeInterpret(ByRef Bytecode,Length)
  {
   ;Instruction := NumGet(Bytecode,Index,"UChar"), Index ++ ;retrieve and move past the bytecode instruction
   Instruction := *(&Bytecode + Index), Index ++ ;retrieve and move past the bytecode instruction
-  InterpreterJumpTable[Instruction]() ;call the function reference stored for the current instruction ;wip: function reference call is AHK_L only - not available in the self hosting version
+  InterpreterJumpTable[Instruction]() ;call the function reference stored for the current instruction
  }
 }
 

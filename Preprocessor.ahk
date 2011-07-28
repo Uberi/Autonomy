@@ -1,5 +1,28 @@
 #NoEnv
 
+/*
+Preprocessor Expression Support
+-------------------------------
+
+The preprocessor supports simple expressions in the form:
+
+    #Define SOME_DEFINITION := 3
+    #Define ANOTHER_DEFINITION := 2 * (5 + SOME_DEFINITION)
+    #Define SOME_DEFINITION := "A String"
+    #If SOME_DEFINITION = "A " . "String"
+    ;code here would be processed
+    #Else
+    ;code here would not be processed
+    #EndIf
+
+However, there are a few limitations:
+
+* Only the following operators can be used: "||", "&&", "=", "==", "!=", "!==", ">", "<", ">=", "<=", " . ", "&" (binary form), "^", "|", "<<", ">>", "+", "-" (binary and unary forms), "*" (binary form), "/", "//", "!", "~", "**"
+* Only parentheses, string or number literals, and other definition identifiers are allowed in the expressions
+* Function calls are not allowed
+* The definition directive requires all definitions to use the "[Identifier] := [Expression]" form
+*/
+
 ;initializes resources that the preprocessor requires
 CodePreprocessInit(ByRef Files,ByRef CurrentDirectory = "")
 {
@@ -33,21 +56,24 @@ CodePreprocess(ByRef Tokens,ByRef ProcessedTokens,ByRef Errors,ByRef Files,FileI
   }
   Directive := Token.Value
   If (Directive = "#Include") ;script inclusion, duplication ignored
-   PreprocessError := CodePreprocessInclusion(Tokens[Index],Index,ProcessedTokens,Errors,Files,FileIndex) || PreprocessError, Index ++
+   PreprocessError := CodePreprocessInclusion(Tokens[Index],Index,ProcessedTokens,Errors,Files,FileIndex) || PreprocessError
   Else If (Directive = "#Define") ;identifier macro or function macro definition
-   CodePreprocessDefinition(Tokens,Index,ProcessedTokens,Definitions,Errors), Index ++ ;macro definition
+   CodePreprocessDefinition(Tokens,Index,ProcessedTokens,Definitions,Errors,FileIndex) ;macro definition
   Else If (Directive = "#Undefine") ;removal of existing macro
-   PreprocessError := CodePreprocessRemoveDefinition(Tokens,Index,Definitions,Errors) || PreprocessError, Index += 2
+   PreprocessError := CodePreprocessRemoveDefinition(Tokens,Index,Definitions,Errors) || PreprocessError
+  /*
   Else If (Directive = "#If") ;conditional code checking simple expressions against definitions
-   Index += 2 ;wip: process here
+   ;wip: process here
   Else If (Directive = "#ElseIf") ;conditional code checking alternative simple expressions against definitions
-   Index += 2 ;wip: process here
+   ;wip: process here
   Else If (Directive = "#Else") ;conditional code checking alternative
-   Index += 2 ;wip: process here
+   ;wip: process here
   Else If (Directive = "#EndIf") ;conditional code block end
-   Index += 2 ;wip: process here
+   ;wip: process here
+  */
   Else
-   ObjInsert(ProcessedTokens,Token), Index ++ ;copy the token to the output stream, move past the parameter or line end
+   ObjInsert(ProcessedTokens,Token) ;copy the token to the output stream, move past the parameter or line end
+  Index ++ ;move to the next token
  }
  Temp1 := ObjMaxIndex(ProcessedTokens) ;get the highest token index
  If (ProcessedTokens[Temp1].Type = CodeTokenTypes.LINE_END) ;token is a newline
@@ -55,7 +81,7 @@ CodePreprocess(ByRef Tokens,ByRef ProcessedTokens,ByRef Errors,ByRef Files,FileI
  Return, PreprocessError
 }
 
-;preprocesses inclusion of files external to the script
+;preprocesses an inclusion directive
 CodePreprocessInclusion(Token,ByRef TokenIndex,ByRef ProcessedTokens,ByRef Errors,ByRef Files,FileIndex)
 { ;returns 1 on inclusion failure, 0 otherwise
  global PreprocessorIncludeDirectory, PreprocessorLibraryPaths, PreprocessorRecursionDepth, PreprocessorRecursionWarning
@@ -79,7 +105,7 @@ CodePreprocessInclusion(Token,ByRef TokenIndex,ByRef ProcessedTokens,ByRef Error
   Parameter := PathExpand(Parameter,PreprocessorIncludeDirectory,Attributes)
  If (Attributes = "") ;file not found
  {
-  ObjInsert(Errors,Object("Identifier","FILE_ERROR","Level","Error","Highlight",Array(Object("Position",Token.Position,"Length",Length)),"Caret","","File",FileIndex)) ;add an error to the error log
+  CodeRecordError(Errors,"FILE_ERROR",3,FileIndex,"",Array(Object("Position",Token.Position,"Length",Length)))
   TokenIndex ++ ;skip past extra line end token
   Return, 1
  }
@@ -93,7 +119,7 @@ CodePreprocessInclusion(Token,ByRef TokenIndex,ByRef ProcessedTokens,ByRef Error
  {
   If (Temp1 = Parameter) ;found file already included
   {
-   ObjInsert(Errors,Object("Identifier","DUPLICATE_INCLUSION","Level","Notice","Highlight",Array(Object("Position",Token.Position,"Length",Length)),"Caret","","File",FileIndex)) ;notify that there was an inclusion duplicate
+   CodeRecordError(Errors,"DUPLICATE_INCLUSION",1,FileIndex,"",Array(Object("Position",Token.Position,"Length",Length)))
    TokenIndex ++ ;skip past extra line end token
    Return, 0
   }
@@ -101,7 +127,7 @@ CodePreprocessInclusion(Token,ByRef TokenIndex,ByRef ProcessedTokens,ByRef Error
 
  If (FileRead(Code,Parameter) != 0) ;error reading file
  {
-  ObjInsert(Errors,Object("Identifier","FILE_ERROR","Level","Error","Highlight",Array(Object("Position",Token.Position,"Length",Length)),"Caret","","File",FileIndex)) ;add an error to the error log
+  CodeRecordError(Errors,"FILE_ERROR",3,FileIndex,"",Array(Object("Position",Token.Position,"Length",Length)))
   TokenIndex ++ ;skip past extra line end token
   Return, 1
  }
@@ -113,7 +139,7 @@ CodePreprocessInclusion(Token,ByRef TokenIndex,ByRef ProcessedTokens,ByRef Error
  CodeLex(Code,FileTokens,Errors,FileIndex) ;lex the external file
  PreprocessorRecursionDepth ++ ;increase the recursion depth counter
  If (PreprocessorRecursionDepth = PreprocessorRecursionWarning) ;at recursion warning level, give warning
-  ObjInsert(Errors,Object("Identifier","RECURSION_WARNING","Level","Warning","Highlight",Array(Object("Position",Token.Position,"Length",Length)),"Caret","","File",FileIndex)) ;add an error to the error log
+  CodeRecordError(Errors,"RECURSION_WARNING",2,FileIndex,"",Array(Object("Position",Token.Position,"Length",Length)))
  CodePreprocess(FileTokens,FileProcessedTokens,Errors,Files,FileIndex) ;preprocess the tokens
  PreprocessorRecursionDepth -- ;decrease the recursion depth counter
 
@@ -124,26 +150,202 @@ CodePreprocessInclusion(Token,ByRef TokenIndex,ByRef ProcessedTokens,ByRef Error
  Return, 0
 }
 
-CodePreprocessDefinition(ByRef Tokens,ByRef Index,ByRef ProcessedTokens,ByRef Definitions,ByRef Errors)
-{ ;returns 1 on invalid syntax, 0 otherwise
- 
+;preprocesses a definition directive
+CodePreprocessDefinition(ByRef Tokens,ByRef Index,ByRef ProcessedTokens,ByRef Definitions,ByRef Errors,FileIndex)
+{ ;returns 1 on invalid definition syntax, 0 otherwise
+ global CodeTokenTypes
+ Token := Tokens[Index], NextToken := Tokens[Index + 1]
+ If (Token.Type <> CodeTokenTypes.IDENTIFIER || NextToken.Type <> CodeTokenTypes.OPERATOR || NextToken.Value <> ":=") ;ensure definition starts with an identifier assignment
+ {
+  CodeRecordError(Errors,"INVALID_DIRECTIVE_SYNTAX",3,FileIndex,"",Array(Object("Position",Token.Position,"Length",StrLen(Token.Value)),Object("Position",NextToken.Position,"Length",StrLen(NextToken.Value))))
+  TokensLength := ObjMaxIndex(Tokens)
+  While, (Index <= TokensLength && Tokens[Index].Type <> CodeTokenTypes.LINE_END) ;loop over tokens until the end of the line
+   Index ++
+  Return, 1
+ }
+ Identifier := Token.Value, Index += 2 ;retrieve the identifier name, move past the identifier and assignment operator tokens
+ If ObjHasKey(Definitions,Identifier)
+  CodeRecordError(Errors,"DUPLICATE_DEFINITION",2,FileIndex,"",Array(Object("Position",Token.Position,"Length",StrLen(Token.Value))))
+ If (CodePreprocessEvaluate(Tokens,Index,Result,Definitions,Errors,FileIndex) = 1)
+  Return, 1
+ ObjInsert(Definitions,Identifier,Result.1)
 }
 
-
+;preprocesses a definition removal directive
 CodePreprocessRemoveDefinition(ByRef Tokens,Index,ByRef Definitions,Errors)
-{ ;returns 1 on invalid syntax, 0 otherwise
+{ ;returns 1 on invalid definition removal syntax, 0 otherwise
  global CodeTokenTypes
 
  Token := Tokens[Index]
- If !(Token.Type = CodeTokenTypes.IDENTIFIER && Tokens[Index + 1].Type = CodeTokenTypes.LINE_END) ;token is not an identifier or the token after it is not a line end
+ If (Token.Type <> CodeTokenTypes.IDENTIFIER || Tokens[Index + 1].Type <> CodeTokenTypes.LINE_END) ;token is not an identifier or the token after it is not a line end
  {
-  ObjInsert(Errors,Object("Identifier","INVALID_DIRECTIVE_SYNTAX","Level","Error","Highlight",Array(Object("Position",Token.Position,"Length",StrLen(Token.Value))),"Caret","","File",FileIndex)) ;add an error to the error log
+  CodeRecordError(Errors,"INVALID_DIRECTIVE_SYNTAX",3,FileIndex,"",Array(Object("Position",Token.Position,"Length",StrLen(Token.Value))))
   Return, 1
  }
  CurrentDefinition := Token.Value
  If ObjHasKey(Definitions,CurrentDefinition) ;remove the key if it exists
   ObjRemove(Definitions,CurrentDefinition)
  Else ;warn that the key does not exist
-  ObjInsert(Errors,Object("Identifier","UNDEFINED_MACRO","Level","Warning","Highlight",Array(Object("Position",Token.Position,"Length",StrLen(CurrentDefinition))),"Caret","","File",FileIndex)) ;add an error to the error log
+  CodeRecordError(Errors,"UNDEFINED_MACRO",2,FileIndex,"",Array(Object("Position",Token.Position,"Length",StrLen(CurrentDefinition))))
  Return, 0
+}
+
+;evaluates a simple preprocessor expression ;wip: extraneous inputs are not correctly shown
+CodePreprocessEvaluate(ByRef Tokens,ByRef Index,ByRef Result,ByRef Definitions,ByRef Errors,FileIndex)
+{ ;returns 1 on evaluation error, 0 otherwise
+ global CodeTokenTypes, CodeOperatorTable
+
+ EvaluationError := 0, Result := Array(), Stack := Array(), MaxIndex := 0, TokensLength := ObjMaxIndex(Tokens), TokenPosition := Tokens[Index].Position ;initialize variables
+ While, (Index <= TokensLength && (Token := Tokens[Index]).Type <> CodeTokenTypes.LINE_END) ;loop until the token stream or line ends
+ {
+  TokenType := Token.Type, TokenValue := Token.Value
+  If (TokenType = CodeTokenTypes.LITERAL_NUMBER || TokenType = CodeTokenTypes.LITERAL_STRING) ;a literal token
+   ObjInsert(Result,Token)
+  Else If (TokenType = CodeTokenTypes.IDENTIFIER) ;an identifier token
+  {
+   If ObjHasKey(Definitions,TokenValue) ;identifier exists in definitions
+    ObjInsert(Result,Definitions[TokenValue]) ;place the token of the definition value onto the result
+   Else ;identifier was not defined
+    CodeRecordError(Errors,"UNDEFINED_MACRO",3,FileIndex,"",Array(Object("Position",Token.Position,"Length",StrLen(TokenValue)))), EvaluationError := 1
+  }
+  Else If (TokenType = CodeTokenTypes.OPERATOR) ;an operator
+  {
+   While, (MaxIndex > 0 && (StackToken := Stack[MaxIndex]).Type = CodeTokenTypes.OPERATOR) ;loop while the token at the top of the stack is an operator
+   {
+    Operator := CodeOperatorTable[TokenValue], Precedence := Operator.Precedence, StackTokenValue := StackToken.Value, StackOperator := CodeOperatorTable[StackTokenValue], StackPrecedence := StackOperator.Precedence
+    If (Operator.Associativity = "L")
+    {
+     If (Precedence > StackPrecedence) ;operator is left associative and has a higher precedence than the operator on the stack
+      Break
+    }
+    Else If (Precendence >= StackPrecedence) ;operator is right associative and has an equal or higher precedence than the operator on the stack
+     Break
+    Arity := StackOperator.Arity
+    EvaluationError := CodePreprocessEvaluateOperator(StackTokenValue,Position,Arity,Result,FileIndex) || EvaluationError
+    ObjRemove(StackToken,MaxIndex), MaxIndex -- ;pop the operator at the top of the stack
+   }
+   ObjInsert(Stack,Token), MaxIndex ++
+  }
+  Else If (TokenType = CodeTokenTypes.PARENTHESIS)
+  {
+   If (TokenValue = "(") ;token is a left parenthesis
+    ObjInsert(Stack,Token), MaxIndex ++
+   Else ;token is a right parenthesis
+   {
+    While, (MaxIndex > 0 && (StackToken := Stack[MaxIndex]).Type <> CodeTokenTypes.PARENTHESIS) ;loop until the token at the top of the stack is a left parenthesis
+     ObjInsert(Result,StackToken), ObjRemove(StackToken,MaxIndex), MaxIndex -- ;pop the operator at the top of the stack into the output
+    If (MaxIndex = 0) ;parenthesis mismatch
+      Position := Token.Position, CodeRecordError(Errors,"PARENTHESIS_MISMATCH",3,FileIndex,Position,Array(Object("Position",TokenPosition,"Length",Position - TokenPosition))), EvaluationError := 1
+    ObjRemove(Stack,MaxIndex), MaxIndex -- ;pop the parenthesis off the stack
+   }
+  }
+  PrevToken := Token, Index ++ ;store the previous token, move to the next token
+ }
+ If ObjHasKey(Tokens,Index)
+  EndPos := Tokens[Index].Position ;get the position of the last line end
+ Else
+  Token := Tokens[Index - 1], EndPos := Token.Position + StrLen(Token.Value) ;get position of the end of the token stream
+ Loop, %MaxIndex% ;wip: incorrect loop syntax
+ {
+  If ((StackToken := Stack[MaxIndex]).Type = CodeTokenTypes.PARENTHESIS)
+   Position := StackToken.Position, CodeRecordError(Errors,"PARENTHESIS_MISMATCH",3,FileIndex,Position,Array(Object("Position",Position,"Length",EndPos - Position))), EvaluationError := 1
+  Else
+   StackTokenValue := StackToken.Value, EvaluationError := CodePreprocessEvaluateOperator(StackTokenValue,StackToken.Position,CodeOperatorTable[StackTokenValue].Arity,Result,FileIndex) || EvaluationError
+  ObjRemove(Stack,MaxIndex), MaxIndex -- ;pop the operator off the stack
+ }
+ MaxIndex := ObjMaxIndex(Result) - 1
+ If (MaxIndex > 0) ;operators did not consume all the inputs
+ {
+  Highlight := Array()
+  Loop, %MaxIndex% ;wip: incorrect loop syntax
+   Token := Result[A_Index], ObjInsert(Highlight,Object("Position",Token.Position,"Length",StrLen(Token.Value)))
+  CodeRecordError(Errors,"EXTRANEOUS_INPUTS",3,FileIndex,"",Highlight)
+  Return, 1
+ }
+ Return, EvaluationError
+}
+
+;evaluates the result of a single operator applied to its parameters
+CodePreprocessEvaluateOperator(Operator,Position,Arity,ByRef Result,FileIndex)
+{ ;returns 1 on type or stack error, 0 otherwise
+ global CodeTokenTypes
+
+ MaxIndex := ObjMaxIndex(Result)
+ If (MaxIndex = 0) ;stack does not contain enough entries
+ {
+  CodeRecordError(Errors,"INVALID_OPERATOR_PARAMETERS",3,FileIndex,"",Array(Object("Position",Position,"Length",StrLen(Operator))))
+  Return, 1
+ }
+ Parameter2 := Result[MaxIndex], ObjRemove(Result,MaxIndex), MaxIndex --
+ Type2 := Parameter2.Type, Value2 := Parameter2.Value
+ If (Arity > 1)
+ {
+  If (MaxIndex = 0) ;stack does not contain enough entries
+  {
+   CodeRecordError(Errors,"INVALID_OPERATOR_PARAMETERS",3,FileIndex,"",Array(Object("Position",Position,"Length",StrLen(Operator)),Object("Position",Parameter1.Position,"Length",StrLen(Parameter1.Value))))
+   Return, 1
+  }
+  Parameter1 := Result[MaxIndex], ObjRemove(Result,MaxIndex), MaxIndex --
+  Type1 := Parameter1.Type, Value1 := Parameter1.Value
+ }
+
+ If (Operator = "||")
+  Value := Value2 || Value1, ValidTypes := 1
+ Else If (Operator = "&&")
+  Value := Value2 && Value1, ValidTypes := 1
+ Else If (Operator = "=")
+  Value := Value2 = Value1, ValidTypes := 1
+ Else If (Operator = "==")
+  Value := Value2 == Value1, ValidTypes := 1
+ Else If (Operator = "!=")
+  Value := Value2 != Value1, ValidTypes := 1
+ Else If (Operator = "!==")
+  Value := Value2 !== Value1, ValidTypes := 1
+ Else If (Operator = ">")
+  Value := Value2 > Value1, ValidTypes := 1
+ Else If (Operator = "<")
+  Value := Value2 < Value1, ValidTypes := 1
+ Else If (Operator = ">=")
+  Value := Value2 >= Value1, ValidTypes := 1
+ Else If (Operator = "<=")
+  Value := Value2 <= Value1, ValidTypes := 1
+ Else If (Operator = " . ")
+  Value := Value2 . Value1, ValidTypes := 1
+ Else If (Operator = "&")
+  ValidTypes := Type2 = CodeTokenTypes.LITERAL_NUMBER && Type1 = CodeTokenTypes.LITERAL_NUMBER, ValidTypes ? (Value := Value2 & Value1)
+ Else If (Operator = "^")
+  ValidTypes := Type2 = CodeTokenTypes.LITERAL_NUMBER && Type1 = CodeTokenTypes.LITERAL_NUMBER, ValidTypes ? (Value := Value2 ^ Value1)
+ Else If (Operator = "|")
+  ValidTypes := Type2 = CodeTokenTypes.LITERAL_NUMBER && Type1 = CodeTokenTypes.LITERAL_NUMBER, ValidTypes ? (Value := Value2 | Value1)
+ Else If (Operator = "<<")
+  ValidTypes := Type2 = CodeTokenTypes.LITERAL_NUMBER && Type1 = CodeTokenTypes.LITERAL_NUMBER, ValidTypes ? (Value := Value2 << Value1)
+ Else If (Operator = ">>")
+  ValidTypes := Type2 = CodeTokenTypes.LITERAL_NUMBER && Type1 = CodeTokenTypes.LITERAL_NUMBER, ValidTypes ? (Value := Value2 >> Value1)
+ Else If (Operator = "+")
+  ValidTypes := Type2 = CodeTokenTypes.LITERAL_NUMBER && Type1 = CodeTokenTypes.LITERAL_NUMBER, ValidTypes ? (Value := Value2 + Value1)
+ Else If (Operator = "-")
+  ValidTypes := Type2 = CodeTokenTypes.LITERAL_NUMBER && Type1 = CodeTokenTypes.LITERAL_NUMBER, ValidTypes ? (Value := Value2 - Value1)
+ Else If (Operator = "*")
+  ValidTypes := Type2 = CodeTokenTypes.LITERAL_NUMBER && Type1 = CodeTokenTypes.LITERAL_NUMBER, ValidTypes ? (Value := Value2 * Value1)
+ Else If (Operator = "/")
+  ValidTypes := Type2 = CodeTokenTypes.LITERAL_NUMBER && Type1 = CodeTokenTypes.LITERAL_NUMBER, ValidTypes ? (Value := Value2 / Value1)
+ Else If (Operator = "//")
+  ValidTypes := Type2 = CodeTokenTypes.LITERAL_NUMBER && Type1 = CodeTokenTypes.LITERAL_NUMBER, ValidTypes ? (Value := Value2 // Value1)
+ Else If (Operator = "!")
+  Value := !Value2, ValidTypes := 1
+ Else If (Operator = "\-") ;unary minus
+  ValidTypes := Type2 = CodeTokenTypes.LITERAL_NUMBER, ValidTypes ? (Value := -Value2)
+ Else If (Operator = "~")
+  ValidTypes := Type2 = CodeTokenTypes.LITERAL_NUMBER, ValidTypes ? (Value := ~Value2)
+ Else If (Operator = "**")
+  ValidTypes := Type2 = CodeTokenTypes.LITERAL_NUMBER && Type1 = CodeTokenTypes.LITERAL_NUMBER, ValidTypes ? (Value := Value2 ** Value1)
+
+ If ValidTypes
+  ObjInsert(Result,Object("Type",CodeTokenTypes.LITERAL_NUMBER,"Value",Value)) ;wip: give actual types
+ Else If (Arity > 1)
+  CodeRecordError(Errors,"INVALID_OPERATOR_PARAMETERS",3,FileIndex,"",Array(Object("Position",Parameter2.Position,"Length",StrLen(Parameter2.Value)),Object("Position",Position,"Length",StrLen(Operator)),Object("Position",Parameter1.Position,"Length",StrLen(Parameter1.Value))))
+ Else
+  CodeRecordError(Errors,"INVALID_OPERATOR_PARAMETERS",3,FileIndex,"",Array(Object("Position",Position,"Length",StrLen(Operator)),Object("Position",Parameter1.Position,"Length",StrLen(Parameter1.Value))))
+
+ Return, !ValidTypes
 }

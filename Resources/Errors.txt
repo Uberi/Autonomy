@@ -9,3 +9,7 @@ DUPLICATE_INCLUSION	File has been referenced by inclusions multiple times.
 RECURSION_WARNING	Recursion depth at warning levels.
 UNDEFINED_MACRO	Undefined macro referenced.
 INVALID_DIRECTIVE_SYNTAX	Incorrect directive syntax.
+PARENTHESIS_MISMATCH	Unmatched parenthesis.
+INVALID_OPERATOR_PARAMETERS	Invalid parameters given to operator.
+EXTRANEOUS_INPUTS	Expression contains extraneous inputs.
+DUPLICATE_DEFINITION	Duplicate definition.
