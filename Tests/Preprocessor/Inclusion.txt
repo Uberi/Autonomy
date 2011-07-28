@@ -155,7 +155,7 @@
 	Value: TestScript.ahk
 ---
 1: 
-	Caret: 
+	Caret: 0
 	File: 2
 	Highlight: 
 		1: 
@@ -164,7 +164,7 @@
 	Identifier: DUPLICATE_INCLUSION
 	Level: Notice
 2: 
-	Caret: 
+	Caret: 0
 	File: 1
 	Highlight: 
 		1: 
@@ -173,7 +173,7 @@
 	Identifier: FILE_ERROR
 	Level: Error
 3: 
-	Caret: 
+	Caret: 0
 	File: 1
 	Highlight: 
 		1: 

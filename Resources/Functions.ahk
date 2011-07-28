@@ -1,5 +1,15 @@
 #NoEnv
 
+String(Contents)
+{
+ Return, Contents . ""
+}
+
+Number(Contents)
+{
+ Return, Contents + 0
+}
+
 ShowObject(ShowObject,Padding = "")
 {
  ListLines, Off

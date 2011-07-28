@@ -27,8 +27,8 @@ CodeLexInit()
  LexerEscapeChar := "``" ;character denoting an escape sequence
  LexerSingleLineCommentChar := ";" ;character denoting a single line comment
  LexerIdentifierChars := "abcdefghijklmnopqrstuvwxyz_1234567890#" ;characters that make up a an identifier
- LexerStatementList := Object("#Include","","#SingleInstance","","#Warn","","#Define","","#Undefine","","#If","","#Else","","#ElseIf","","#EndIf","","While","","Loop","","For","","If","","Else","","Break","","Continue","","Return","","Gosub","","Goto","","local","","global","","static","") ;statements that can be found on the beginning of a line
- LexerStatementLiteralList := Object("#Include","","#SingleInstance","","#Warn","","Break","","Continue","","Gosub","","Goto","") ;statements that accept literals as parameters
+ LexerStatementList := Object("#Include","","#SingleInstance","","#Define","","#Undefine","","#If","","#Else","","#ElseIf","","#EndIf","","While","","Loop","","For","","If","","Else","","Break","","Continue","","Return","","Gosub","","Goto","","local","","global","","static","") ;statements that can be found on the beginning of a line
+ LexerStatementLiteralList := Object("#Include","","#SingleInstance","","Break","","Continue","","Gosub","","Goto","") ;statements that accept literals as parameters
 
  LexerOperatorMaxLength := 1 ;one is the maximum length of the other syntax elements - commas, parentheses, square brackets, and curly brackets
  For Temp1 In CodeOperatorTable ;get the length of the longest operator

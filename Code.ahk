@@ -62,7 +62,7 @@ Error Levels
 [Wikipedia]: http://en.wikipedia.org/wiki/Extended_Backus-Naur_Form
 */
 
-;initializes resources that will be required by the code tools
+;initializes resources that will be required by other modules
 CodeInit(ResourcesPath = "Resources")
 { ;returns 1 on failure, 0 otherwise
  global CodeOperatorTable, CodeErrorMessages, CodeTokenTypes
@@ -88,6 +88,7 @@ CodeInit(ResourcesPath = "Resources")
  Return, 0
 }
 
+;initializes or resets resources that are needed by other modules each time they work on a different input
 CodeSetScript(ByRef Path = "",ByRef Errors = "",ByRef Files = "")
 {
  If (Path != "")
@@ -95,9 +96,26 @@ CodeSetScript(ByRef Path = "",ByRef Errors = "",ByRef Files = "")
  Errors := Array()
 }
 
-CodeRecordError(ByRef Errors,Identifier,Level,File,Caret = "",Highlight = "")
+;records an error containing information about the nature, severity, and location of the issue
+CodeRecordError(ByRef Errors,Identifier,Level,File,Caret = 0,Highlight = "")
 {
  ErrorLevels := Array("Notice","Warning","Error")
  ErrorRecord := Object("Identifier",Identifier,"Level",ErrorLevels[Level],"Highlight",Highlight,"Caret",Caret,"File",File)
  ObjInsert(Errors,ErrorRecord) ;add an error to the error log
+}
+
+;an alternative, convenient way to record errors by passing tokens to the function instead of positions and lengths
+CodeRecordErrorTokens(ByRef Errors,Identifier,Level,Caret = 0,Highlight = "")
+{
+ If (Highlight != "")
+ {
+  File := Highlight.1.File, ProcessedHighlight := Array()
+  For Index, Token In Highlight
+   ObjInsert(ProcessedHighlight,Object("Position",Token.Position,"Length",StrLen(Token.Value)))
+ }
+ If IsObject(Caret)
+  File := Caret.File, Position := Caret.Position
+ Else
+  Position := Caret
+ CodeRecordError(Errors,Identifier,Level,File,Position,ProcessedHighlight)
 }

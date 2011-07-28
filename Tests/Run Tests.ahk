@@ -8,8 +8,10 @@
 #Include ..\Preprocessor.ahk
 #Include ..\Parser.ahk
 
-#Warn All
-SetBatchLines, -1
+;#Warn All
+;#Warn LocalSameAsGlobal, Off
+
+SetBatchLines(-1)
 Process, Priority,, RealTime
 
 /*
@@ -57,7 +59,7 @@ Lexer unit test:
         Value: 
 */
 
-Debug := 0 ;whether or not to copy and display unexpected output
+Debug := 1 ;whether or not to copy and display unexpected output
 
 Gui, Font, s12 Bold, Arial
 Gui, Add, Text, x0 y0 h20 vTitle Center, Unit Test Results:
@@ -76,7 +78,7 @@ If CodeInit("..\Resources")
  ExitApp
 }
 
-FileName := A_ScriptDir . "\Run Tests.ahk" ;set the file name of the current file
+FileName := PathJoin(A_ScriptDir,"Run Tests.ahk") ;set the file name of the current file
 
 ;take a quick control benchmark
 ControlTimer := StartTimer()
