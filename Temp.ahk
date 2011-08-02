@@ -43,7 +43,6 @@ CodeEvaluate(ByRef Tokens,ByRef Index,ByRef Errors,RightBindingPower = 0)
 {
  global Functions
 
- ;TokensLength := ObjMaxIndex(Tokens), CurrentToken := Tokens[Index], Index ++ ;retrieve the maximum index of the token stream, retrieve the current token, move to the next token
  TokensLength := ObjMaxIndex(Tokens) ;retrieve the maximum index of the token stream
  If (Index > TokensLength)
   Return, "ERROR: Missing token" ;wip: better error handling

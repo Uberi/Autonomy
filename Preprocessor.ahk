@@ -26,18 +26,16 @@ However, there are a few limitations:
 ;initializes resources that the preprocessor requires
 CodePreprocessInit(ByRef Files,ByRef CurrentDirectory = "")
 {
- global CodePreprocessorIncludeDirectory, CodePreprocessorLibraryPaths, CodePreprocessorRecursionDepth, CodePreprocessorRecursionWarning
+ global CodePreprocessorIncludeDirectory, CodePreprocessorLibraryPaths
 
- If (ObjHasKey(Files,1) = 1 && (Path := Files.1) <> "") ;file path given, set the include directory to the directory of the script
+ If (ObjHasKey(Files,1) && (Path := Files.1) != "") ;file path given, set the include directory to the directory of the script
   CodePreprocessorIncludeDirectory := PathSplit(Path).Directory
- Else If (CurrentDirectory <> "") ;include directory given explicitly
+ Else If (CurrentDirectory != "") ;include directory given explicitly
   CodePreprocessorIncludeDirectory := CurrentDirectory
  Else ;no path given, set the include directory to the directory of this script
   CodePreprocessorIncludeDirectory := A_ScriptDir
 
  CodePreprocessorLibraryPaths := Array(PathJoin(CodePreprocessorIncludeDirectory,"Lib"),PathJoin(A_MyDocuments,"AutoHotkey","Lib"),PathJoin(A_ScriptDir,"Lib")) ;paths that are searched for libraries
- CodePreprocessorRecursionDepth := 0
- CodePreprocessorRecursionWarning := 8 ;level at which to give a warning about the recursion depth
 }
 
 ;preprocesses a token stream containing preprocessor directives
@@ -84,7 +82,7 @@ CodePreprocess(ByRef Tokens,ByRef ProcessedTokens,ByRef Errors,ByRef Files,FileI
 ;preprocesses an inclusion directive
 CodePreprocessInclusion(Token,ByRef TokenIndex,ByRef ProcessedTokens,ByRef Errors,ByRef Files,FileIndex)
 { ;returns 1 on inclusion failure, 0 otherwise
- global CodePreprocessorIncludeDirectory, CodePreprocessorLibraryPaths, CodePreprocessorRecursionDepth, CodePreprocessorRecursionWarning
+ global CodePreprocessorIncludeDirectory, CodePreprocessorLibraryPaths
 
  Parameter := Token.Value ;retrieve the next token, the parameters given to the statement
 
@@ -137,11 +135,7 @@ CodePreprocessInclusion(Token,ByRef TokenIndex,ByRef ProcessedTokens,ByRef Error
  ObjInsert(Files,FileIndex,Parameter) ;add the current script file to the file array
 
  CodeLex(Code,FileTokens,Errors,FileIndex) ;lex the external file
- CodePreprocessorRecursionDepth ++ ;increase the recursion depth counter
- If (CodePreprocessorRecursionDepth = CodePreprocessorRecursionWarning) ;at recursion warning level, give warning
-  CodeRecordErrorTokens(Errors,"RECURSION_WARNING",2,0,Array(Token))
  CodePreprocess(FileTokens,FileProcessedTokens,Errors,Files,FileIndex) ;preprocess the tokens
- CodePreprocessorRecursionDepth -- ;decrease the recursion depth counter
 
  ;copy tokens from included file into the main token stream
  For Index, Token In FileProcessedTokens
@@ -155,11 +149,11 @@ CodePreprocessDefinition(ByRef Tokens,ByRef Index,ByRef ProcessedTokens,ByRef De
 { ;returns 1 on invalid definition syntax, 0 otherwise
  global CodeTokenTypes
  Token := Tokens[Index], NextToken := Tokens[Index + 1]
- If (Token.Type <> CodeTokenTypes.IDENTIFIER || NextToken.Type <> CodeTokenTypes.OPERATOR || NextToken.Value <> ":=") ;ensure definition starts with an identifier assignment
+ If (Token.Type != CodeTokenTypes.IDENTIFIER || NextToken.Type != CodeTokenTypes.OPERATOR || NextToken.Value != ":=") ;ensure definition starts with an identifier assignment
  {
   CodeRecordErrorTokens(Errors,"INVALID_DIRECTIVE_SYNTAX",3,0,Array(Token,NextToken))
   TokensLength := ObjMaxIndex(Tokens)
-  While, (Index <= TokensLength && Tokens[Index].Type <> CodeTokenTypes.LINE_END) ;loop over tokens until the end of the line
+  While, (Index <= TokensLength && Tokens[Index].Type != CodeTokenTypes.LINE_END) ;loop over tokens until the end of the line
    Index ++
   Return, 1
  }
@@ -169,7 +163,7 @@ CodePreprocessDefinition(ByRef Tokens,ByRef Index,ByRef ProcessedTokens,ByRef De
  If (CodePreprocessEvaluate(Tokens,Index,Result,Definitions,Errors,FileIndex) = 1)
   Return, 1
  ObjInsert(Definitions,Identifier,Result.1)
- MsgBox % ShowObject(Definitions)
+ MsgBox % ShowObject(Definitions) ;wip: debug
 }
 
 ;preprocesses a definition removal directive
@@ -178,7 +172,7 @@ CodePreprocessRemoveDefinition(ByRef Tokens,Index,ByRef Definitions,Errors)
  global CodeTokenTypes
 
  Token := Tokens[Index]
- If (Token.Type <> CodeTokenTypes.IDENTIFIER || Tokens[Index + 1].Type <> CodeTokenTypes.LINE_END) ;token is not an identifier or the token after it is not a line end
+ If (Token.Type != CodeTokenTypes.IDENTIFIER || Tokens[Index + 1].Type != CodeTokenTypes.LINE_END) ;token is not an identifier or the token after it is not a line end
  {
   CodeRecordErrorTokens(Errors,"INVALID_DIRECTIVE_SYNTAX",3,0,Array(Token))
   Return, 1
@@ -197,7 +191,7 @@ CodePreprocessEvaluate(ByRef Tokens,ByRef Index,ByRef Result,ByRef Definitions,B
  global CodeTokenTypes, CodeOperatorTable
 
  EvaluationError := 0, Result := Array(), Stack := Array(), MaxIndex := 0, TokensLength := ObjMaxIndex(Tokens), StartPosition := Tokens[Index].Position ;initialize variables
- While, (Index <= TokensLength && (Token := Tokens[Index]).Type <> CodeTokenTypes.LINE_END) ;loop until the token stream or line ends
+ While, (Index <= TokensLength && (Token := Tokens[Index]).Type != CodeTokenTypes.LINE_END) ;loop until the token stream or line ends
  {
   TokenType := Token.Type, TokenValue := Token.Value
   If (TokenType = CodeTokenTypes.LITERAL_NUMBER || TokenType = CodeTokenTypes.LITERAL_STRING) ;a literal token
@@ -233,7 +227,7 @@ CodePreprocessEvaluate(ByRef Tokens,ByRef Index,ByRef Result,ByRef Definitions,B
     ObjInsert(Stack,Token), MaxIndex ++
    Else ;token is a right parenthesis
    {
-    While, (MaxIndex > 0 && (StackToken := Stack[MaxIndex]).Type <> CodeTokenTypes.PARENTHESIS) ;loop until the token at the top of the stack is a left parenthesis
+    While, (MaxIndex > 0 && (StackToken := Stack[MaxIndex]).Type != CodeTokenTypes.PARENTHESIS) ;loop until the token at the top of the stack is a left parenthesis
      ObjInsert(Result,StackToken), ObjRemove(StackToken,MaxIndex), MaxIndex -- ;pop the operator at the top of the stack into the output
     If (MaxIndex = 0) ;parenthesis mismatch
      Position := Token.Position, CodeRecordError(Errors,"PARENTHESIS_MISMATCH",3,FileIndex,Position,Array(Object("Position",StartPosition,"Length",Position - StartPosition))), EvaluationError := 1

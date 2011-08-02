@@ -8,8 +8,8 @@
 #Include ..\Preprocessor.ahk
 #Include ..\Parser.ahk
 
-;#Warn All
-;#Warn LocalSameAsGlobal, Off
+#Warn All
+#Warn LocalSameAsGlobal, Off
 
 SetBatchLines(-1)
 Process, Priority,, RealTime
@@ -59,7 +59,7 @@ Lexer unit test:
         Value: 
 */
 
-Debug := 1 ;whether or not to copy and display unexpected output
+Debug := 0 ;whether or not to copy and display unexpected output
 
 Gui, Font, s12 Bold, Arial
 Gui, Add, Text, x0 y0 h20 vTitle Center, Unit Test Results:

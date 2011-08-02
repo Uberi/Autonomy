@@ -35,7 +35,7 @@ CodeLexInit()
   Temp2 := StrLen(Temp1), (Temp2 > CodeLexerOperatorMaxLength) ? (CodeLexerOperatorMaxLength := Temp2) : ""
 }
 
-;lexes AHK code, including all syntax
+;lexes plain source code, including all syntax
 CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
 { ;returns 1 on error, 0 otherwise
  global CodeTokenTypes, CodeLexerSingleLineCommentChar, CodeLexerIdentifierChars
@@ -106,11 +106,11 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
      CodeRecordError(Errors,"INVALID_CONCATENATION",3,FileIndex,Position,Array(Object("Position",Position1,"Length",Position - Position1))), LexerError := 1
    }
   }
-  Else If (CodeLexSyntaxElement(Code,Position,Tokens,FileIndex) = 0) ;input is a syntax element
+  Else If !CodeLexSyntaxElement(Code,Position,Tokens,FileIndex) ;input is a syntax element
   {
    
   }
-  Else If (InStr("1234567890",CurrentChar) && CodeLexNumber(Code,Position,Output) = 0) ;a number, not an identifier
+  Else If (InStr("1234567890",CurrentChar) && !CodeLexNumber(Code,Position,Output)) ;a number, not an identifier
    ObjInsert(Tokens,Object("Type",CodeTokenTypes.LITERAL_NUMBER,"Value",Output,"Position",Position1,"File",FileIndex)) ;add the number literal to the token array
   Else If InStr(CodeLexerIdentifierChars,CurrentChar) ;an identifier
    CodeLexIdentifier(Code,Position,Tokens,FileIndex)
@@ -136,7 +136,7 @@ CodeLexStatement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
  Loop
  {
   CurrentChar := SubStr(Code,Position,1)
-  If ((CurrentChar = "") || !InStr(CodeLexerIdentifierChars,CurrentChar))
+  If (CurrentChar = "" || !InStr(CodeLexerIdentifierChars,CurrentChar))
    Break
   Statement .= CurrentChar, Position ++
  }
@@ -291,8 +291,7 @@ CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
  Loop, %CodeLexerOperatorMaxLength% ;loop until a valid token is found ;wip: loop is incorrect
  {
   Output := SubStr(Code,Position,Temp1)
-  IdentifierChar := InStr(CodeLexerIdentifierChars,SubStr(Output,0)) ;last character of output is an identifier character, make sure output is not an identifier
-  If (ObjHasKey(CodeOperatorTable,Output) && (!IdentifierChar || (IdentifierChar && !InStr(CodeLexerIdentifierChars,SubStr(Code,Position + Temp1,1))))) ;found operator
+  If (ObjHasKey(CodeOperatorTable,Output) && !(InStr(CodeLexerIdentifierChars,SubStr(Output,0)) && (CurrentChar := SubStr(Code,Position + Temp1,1)) != "" && InStr(CodeLexerIdentifierChars,CurrentChar))) ;found operator, and if the last charcter is an identifier character, the character after it is not, ensuring the input is an operator instead of an identifier
    TokenType := CodeTokenTypes.OPERATOR
   Else If (Output = ",") ;found separator
    TokenType := CodeTokenTypes.SEPARATOR
@@ -330,7 +329,7 @@ CodeLexNumber(ByRef Code,ByRef Position,ByRef Output)
    Output .= CurrentChar
   Else If (CurrentChar = ".") ;is a decimal point
   {
-   If (DecimalUsed = 1) ;input already had a decimal point, so is probably an identifier
+   If DecimalUsed ;input already had a decimal point, so is probably an identifier
    {
     Position := Position1 ;return the position back to the start of this section, to try to process it again as an identifier
     Return, 1

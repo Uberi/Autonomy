@@ -38,7 +38,7 @@ Example
                 Value: 8
 */
 
-;parses AHK token stream
+;parses a token stream
 CodeParse(ByRef Tokens,ByRef SyntaxTree,ByRef Errors)
 {
  global CodeOperatorTable

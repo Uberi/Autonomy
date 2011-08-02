@@ -1,9 +1,8 @@
 #NoEnv
 
-;#Include Functions.ahk
-
 /*
 Error Array Format
+------------------
 
 [Index]:          the index of the error            [Object]
     Level:        the type of the error             [String: "Error", "Warning", or "Notice"]
@@ -65,9 +64,9 @@ CodeGetError(ByRef Code,ByRef Errors,ByRef Files)
   Caret := CurrentError.Caret
   If (Caret != "")
   {
-   Position := (Caret - ErrorStart) + 1, Pad := ""
+   Position := (Caret - ErrorStart) + 1
    If (Position < 1)
-   Position := 1
+    Position := 1
    ErrorDisplay := SubStr(ErrorDisplay,1,Position - 1) . CaretChar . SubStr(ErrorDisplay,Position + 1)
   }
   Else
@@ -77,7 +76,13 @@ CodeGetError(ByRef Code,ByRef Errors,ByRef Files)
   ErrorSection .= SubStr(Code,ErrorStart,ErrorEnd - ErrorStart) ;show the code that is causing the error
   CodeGetErrorShowAfter(Code,ErrorSection,ErrorEnd,TextPadding)
   CodeGetErrorPosition(Code,Caret,Line,Column)
-  Message := CodeErrorMessages[CurrentError.Identifier] ;get the error message
+
+  Temp1 := CurrentError.Identifier
+  If ObjHasKey(CodeErrorMessages,Temp1)
+   Message := CodeErrorMessages[Temp1] ;get the error message
+  Else
+   Message := "Unknown error."
+
   ErrorReport .= CurrentError.Level . " in """ . Files[CurrentError.File] . """ (Line " . Line . ", Column " . Column . "): " . Message . "`nSpecifically: " . ErrorSection . "`n              " . ErrorDisplay . "`n`n"
  }
  Return, ErrorReport
