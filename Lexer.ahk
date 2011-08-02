@@ -45,34 +45,9 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
   CurrentChar := SubStr(Code,Position,1)
   If (CurrentChar = "") ;past the end of the string
    Break
-  CurrentTwoChar := SubStr(Code,Position,2), Position1 := Position
+  CurrentTwoChar := SubStr(Code,Position,2)
   If (CurrentChar = "`r" || CurrentChar = "`n" || A_Index = 1) ;beginning of a line
-  {
-   While, ((CurrentChar := SubStr(Code,Position,1)) = "`r" || CurrentChar = "`n" || CurrentChar = " " || CurrentChar = "`t") ;move past any whitespace
-    Position ++
-   If (SubStr(Code,Position,1) = CodeLexerSingleLineCommentChar) ;single line comment
-   {
-    CodeLexSingleLineComment(Code,Position) ;skip over comment
-    If (A_Index = 1) ;on the first iteration, skip insertion of a line end token
-    {
-     While, ((CurrentChar := SubStr(Code,Position,1)) = "`r" || CurrentChar = "`n" || CurrentChar = " " || CurrentChar = "`t") ;move past any whitespace
-      Position ++
-    }
-    CodeLexStatement(Code,Position,Tokens,FileIndex) ;check for statements
-   }
-   Else ;input is a multiline comment or normal line
-   {
-    If (SubStr(Code,Position,2) = "/*") ;begin multiline comment
-    {
-     CodeLexMultilineComment(Code,Position) ;skip over the comment block
-     While, ((CurrentChar := SubStr(Code,Position,1)) = "`r" || CurrentChar = "`n") ;move past any whitespace, to ensure there are no duplicate lines
-      Position ++
-    }
-    If (A_Index > 1) ;skip insertion of line end token on first iteration
-     ObjInsert(Tokens,Object("Type",CodeTokenTypes.LINE_END,"Value","","Position",Position - 1,"File",FileIndex)) ;add the statement end to the token array
-    CodeLexStatement(Code,Position,Tokens,FileIndex) ;check for statements
-   }
-  }
+   CodeLexLine(Code,Position,Tokens,A_Index,FileIndex)
   Else If (CurrentChar = """") ;begin literal string
    LexerError := CodeLexString(Code,Position,Tokens,Errors,Output,FileIndex) || LexerError
   Else If (CurrentTwoChar = "/*") ;begin multiline comment
@@ -83,7 +58,7 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
    LexerError := CodeLexDynamicReference(Code,Position,Tokens,Errors,Output,FileIndex) || LexerError
   Else If (CurrentChar = ".") ;object access (explicit handling ensures that Var.123.456 will have the purely numerical keys interpreted as identifiers instead of numbers)
   {
-   Position ++, CurrentChar := SubStr(Code,Position,1) ;move to next char
+   Position1 := Position, Position ++, CurrentChar := SubStr(Code,Position,1) ;move to next char
    If InStr(CodeLexerIdentifierChars,CurrentChar) ;object access operator must be followed by an identifier
    {
     ObjInsert(Tokens,Object("Type",CodeTokenTypes.OPERATOR,"Value",".","Position",Position - 1,"File",FileIndex)) ;add a object access token to the token array
@@ -94,10 +69,10 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
   }
   Else If (CurrentChar = " " || CurrentChar = "`t") ;whitespace
   {
-   Position ++, CurrentChar := SubStr(Code,Position,1) ;skip over whitespace, retrieve character from updated position
-   If (CurrentChar = ";") ;single line comment
+   Position1 := Position, Position ++, CurrentChar := SubStr(Code,Position,1) ;skip over whitespace, retrieve character from updated position
+   If (CurrentChar = CodeLexerSingleLineCommentChar) ;single line comment
     CodeLexSingleLineComment(Code,Position) ;skip over comment
-   Else If (CurrentChar = ".") ;concatenation operator (whitespace preceded it)
+   Else If (CurrentChar = ".") ;concatenation operator (dot preceded by whitespace)
    {
     Position ++, CurrentChar := SubStr(Code,Position,1) ;move to the next character
     If (CurrentChar = " " || CurrentChar = "`t") ;there must be whitespace on both sides of the concat operator
@@ -110,8 +85,10 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
   {
    
   }
-  Else If (InStr("1234567890",CurrentChar) && !CodeLexNumber(Code,Position,Output)) ;a number, not an identifier
-   ObjInsert(Tokens,Object("Type",CodeTokenTypes.LITERAL_NUMBER,"Value",Output,"Position",Position1,"File",FileIndex)) ;add the number literal to the token array
+  Else If (InStr("1234567890",CurrentChar) && !CodeLexNumber(Code,Position,Tokens,FileIndex)) ;a number, not an identifier
+  {
+   
+  }
   Else If InStr(CodeLexerIdentifierChars,CurrentChar) ;an identifier
    CodeLexIdentifier(Code,Position,Tokens,FileIndex)
   Else ;invalid character
@@ -124,6 +101,39 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
  If (Tokens[Temp1].Type = CodeTokenTypes.LINE_END) ;token is a newline
   ObjRemove(Tokens,Temp1,"") ;remove the last token
  Return, LexerError
+}
+
+CodeLexLine(ByRef Code,ByRef Position,ByRef Tokens,Index,ByRef FileIndex)
+{
+ global CodeTokenTypes, CodeLexerSingleLineCommentChar
+ Position1 := Position
+ ;Loop
+ {
+  While, ((CurrentChar := SubStr(Code,Position,1)) = "`r" || CurrentChar = "`n" || CurrentChar = " " || CurrentChar = "`t") ;move past any whitespace
+   Position ++
+  If (SubStr(Code,Position,1) = CodeLexerSingleLineCommentChar) ;single line comment
+  {
+   CodeLexSingleLineComment(Code,Position) ;skip over comment
+   If (Index = 1) ;on the first iteration, skip insertion of a line end token
+   {
+    While, ((CurrentChar := SubStr(Code,Position,1)) = "`r" || CurrentChar = "`n" || CurrentChar = " " || CurrentChar = "`t") ;move past any whitespace
+     Position ++
+   }
+   CodeLexStatement(Code,Position,Tokens,FileIndex) ;check for statements
+  }
+  Else ;input is a multiline comment or normal line
+  {
+   If (SubStr(Code,Position,2) = "/*") ;begin multiline comment
+   {
+    CodeLexMultilineComment(Code,Position) ;skip over the comment block
+    While, ((CurrentChar := SubStr(Code,Position,1)) = "`r" || CurrentChar = "`n" || CurrentChar = " " || CurrentChar = "`t") ;move past any whitespace, to ensure there are no duplicate lines
+     Position ++
+   }
+   If (Index > 1) ;skip insertion of line end token on first iteration
+    ObjInsert(Tokens,Object("Type",CodeTokenTypes.LINE_END,"Value","","Position",Position1,"File",FileIndex)) ;add the statement end to the token array
+   CodeLexStatement(Code,Position,Tokens,FileIndex) ;check for statements
+  }
+ }
 }
 
 ;lexes a statement to find labels, control structures, and directives
@@ -314,9 +324,9 @@ CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
 }
 
 ;lexes a number, and if it is not a valid number, notify that it may be an identifier
-CodeLexNumber(ByRef Code,ByRef Position,ByRef Output)
+CodeLexNumber(ByRef Code,ByRef Position,ByRef Tokens,FileIndex)
 { ;returns 1 if the input could not be lexed as a number, 0 otherwise
- global CodeLexerIdentifierChars
+ global CodeTokenTypes, CodeLexerIdentifierChars
  Output := "", Position1 := Position, NumberChars := "1234567890", DecimalUsed := 0
  If (SubStr(Code,Position,2) = "0x") ;hexidecimal number
   DecimalUsed := 1, Position += 2, Output .= "0x", NumberChars .= "abcdefABCDEF" ;prevent the usage of decimals in hex numbers, skip over the identifying characters, append them to the number, and expand the valid number characters set
@@ -324,12 +334,12 @@ CodeLexNumber(ByRef Code,ByRef Position,ByRef Output)
  {
   CurrentChar := SubStr(Code,Position,1)
   If (CurrentChar = "") ;past end of string
-   Return, 0
+   Break
   If InStr(NumberChars,CurrentChar) ;is a valid number character
    Output .= CurrentChar
   Else If (CurrentChar = ".") ;is a decimal point
   {
-   If DecimalUsed ;input already had a decimal point, so is probably an identifier
+   If DecimalUsed ;input already had a decimal point, so is an identifier
    {
     Position := Position1 ;return the position back to the start of this section, to try to process it again as an identifier
     Return, 1
@@ -342,9 +352,11 @@ CodeLexNumber(ByRef Code,ByRef Position,ByRef Output)
    Return, 1
   }
   Else ;end of number
-   Return, 0
+   Break
   Position ++
  }
+ ObjInsert(Tokens,Object("Type",CodeTokenTypes.LITERAL_NUMBER,"Value",Output,"Position",Position1,"File",FileIndex)) ;add the number literal to the token array
+ Return, 0
 }
 
 ;lexes an identifier

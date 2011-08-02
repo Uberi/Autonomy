@@ -21,6 +21,7 @@ TODO
 Short term tasks:
 
 * Lexer does not properly handle multiple comments on a new line (may duplicate LINE_END tokens)
+* An "#Error" directive that gives a compilation error
 * Unit tests for error handler
 * Error identifier enumeration
 * Make syntax tree types an enumeration
@@ -32,7 +33,7 @@ Long term tasks:
 
 * Function definitions are variables holding function references (implemented as function pointers, and utilising reference counting), so variables and functions are in the same namespace
 * Add constant defining capability that complements macros by obeying scope - used like this (needs value substitution optimisation if value is an object and there is no []-type access): constant Something := 10
-* Support a command syntax, that is translated to a function call on load (dotted notation only - no square brackets support). Detect this form by making sure the token is immediately after a separator, opening parenthesis, opening square bracket, block brace, or line end, and the token after the function is either a literal, an identifier, a separator, an operator that doesn't take a parameter on its left, a block brace, or a line end: Math.Mod, 100, 5
+* Support a command syntax, that is translated to a function call on load (dotted notation only - no square brackets support). Detect this form by making sure the token is immediately after an opening parenthesis, opening square bracket, block brace, or line end, and the token after the function is either a literal, an identifier, a separator, an operator that doesn't take a parameter on its left, a block brace, or a line end: Math.Mod, 100, 5
 * After the command syntax is implemented, remove the STATEMENT token type (as the parser can now detect statements, fixing currently broken cases like the assignment "Else := Variable"), and change it to the DIRECTIVE token type, for preprocessor directives only
 * Static tail call detection
 * Make implementation self hosting and change the code to conform to the changed syntax

@@ -98,7 +98,6 @@ Return
 
 ShowOutput(TestName,OutputType,ByRef OutputText)
 {
- 
  Clipboard := OutputText
  OutputType := (OutputType = 0) ? "errors" : "output"
  MsgBox, Unexpected %OutputType% in %TestName%:`n`n%OutputText%
@@ -164,7 +163,7 @@ Loop, %A_ScriptDir%\Preprocessor\*.txt
    If (Debug = 1)
     ShowOutput(TestName,0,Output)
   }
-  Else If (ShowObject(ProcessedTokens) != TestTokenOutput)
+  Else If ((Output := ShowObject(ProcessedTokens)) != TestTokenOutput)
   {
    ExtraInfo := "Output does not match expected output.", TestStatus := "Fail"
    If (Debug = 1)

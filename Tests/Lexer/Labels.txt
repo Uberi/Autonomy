@@ -34,7 +34,7 @@ Return
 	Value: Value
 6: 
 	File: 1
-	Position: 31
+	Position: 30
 	Type: 10
 	Value: 
 7: 
@@ -49,7 +49,7 @@ Return
 	Value: SomeOtherLabel
 9: 
 	File: 1
-	Position: 55
+	Position: 52
 	Type: 10
 	Value: 
 10: 

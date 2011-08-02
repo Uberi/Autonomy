@@ -49,7 +49,7 @@ Composite%Variable%%Reference% := Composite%Function%Call()
 	Value: SomeVariable
 5: 
 	File: 1
-	Position: 28
+	Position: 27
 	Type: 10
 	Value: 
 6: 
@@ -64,7 +64,7 @@ Composite%Variable%%Reference% := Composite%Function%Call()
 	Value: :=
 8: 
 	File: 1
-	Position: 67
+	Position: 66
 	Type: 10
 	Value: 
 9: 
@@ -84,7 +84,7 @@ Composite%Variable%%Reference% := Composite%Function%Call()
 	Value: Char
 12: 
 	File: 1
-	Position: 89
+	Position: 88
 	Type: 10
 	Value: 
 13: 
@@ -109,7 +109,7 @@ Composite%Variable%%Reference% := Composite%Function%Call()
 	Value: )
 17: 
 	File: 1
-	Position: 103
+	Position: 102
 	Type: 10
 	Value: 
 18: 

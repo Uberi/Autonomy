@@ -34,7 +34,7 @@ Variable /= Value
 	Value: )
 4: 
 	File: 1
-	Position: 61
+	Position: 35
 	Type: 10
 	Value: 
 5: 
@@ -54,7 +54,7 @@ Variable /= Value
 	Value: Value
 8: 
 	File: 1
-	Position: 98
+	Position: 97
 	Type: 10
 	Value: 
 9: 
@@ -74,7 +74,7 @@ Variable /= Value
 	Value: Value
 12: 
 	File: 1
-	Position: 139
+	Position: 138
 	Type: 10
 	Value: 
 13: 
@@ -94,7 +94,7 @@ Variable /= Value
 	Value: )
 16: 
 	File: 1
-	Position: 222
+	Position: 154
 	Type: 10
 	Value: 
 17: 
@@ -114,7 +114,7 @@ Variable /= Value
 	Value: Value
 20: 
 	File: 1
-	Position: 241
+	Position: 240
 	Type: 10
 	Value: 
 21: 
@@ -134,7 +134,7 @@ Variable /= Value
 	Value: Value
 24: 
 	File: 1
-	Position: 266
+	Position: 265
 	Type: 10
 	Value: 
 25: 
@@ -154,7 +154,7 @@ Variable /= Value
 	Value: Value
 28: 
 	File: 1
-	Position: 291
+	Position: 284
 	Type: 10
 	Value: 
 29: 

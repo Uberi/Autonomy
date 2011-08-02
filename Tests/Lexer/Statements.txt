@@ -27,7 +27,7 @@ While, (100 - A_Index)
 	Value: Something
 4: 
 	File: 1
-	Position: 26
+	Position: 25
 	Type: 10
 	Value: 
 5: 
@@ -42,7 +42,7 @@ While, (100 - A_Index)
 	Value: InvalidLine
 7: 
 	File: 1
-	Position: 47
+	Position: 42
 	Type: 10
 	Value: 
 8: 
@@ -67,7 +67,7 @@ While, (100 - A_Index)
 	Value: Object
 12: 
 	File: 1
-	Position: 66
+	Position: 65
 	Type: 10
 	Value: 
 13: 
@@ -102,7 +102,7 @@ While, (100 - A_Index)
 	Value: OtherObject
 19: 
 	File: 1
-	Position: 99
+	Position: 96
 	Type: 10
 	Value: 
 20: 
@@ -117,7 +117,7 @@ While, (100 - A_Index)
 	Value: Something.ahk
 22: 
 	File: 1
-	Position: 129
+	Position: 126
 	Type: 10
 	Value: 
 23: 
@@ -152,7 +152,7 @@ While, (100 - A_Index)
 	Value: )
 29: 
 	File: 1
-	Position: 155
+	Position: 152
 	Type: 10
 	Value: 
 30: 

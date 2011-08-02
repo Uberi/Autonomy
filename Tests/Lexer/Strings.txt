@@ -30,7 +30,7 @@ multiple lines"
 ---
 1: 
 	File: 1
-	Position: 26
+	Position: 25
 	Type: 10
 	Value: 
 2: 
@@ -50,12 +50,12 @@ multiple lines"
 	Value: `"This string `n contains `" escaped `t characters `"
 5: 
 	File: 1
-	Position: 101
+	Position: 100
 	Type: 10
 	Value: 
 6: 
 	File: 1
-	Position: 126
+	Position: 125
 	Type: 10
 	Value: 
 7: 

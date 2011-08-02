@@ -30,7 +30,7 @@ Variable.Property[Result].Value.123.ABC.456.789.Something
 	Value: )
 6: 
 	File: 1
-	Position: 22
+	Position: 21
 	Type: 10
 	Value: 
 7: 
