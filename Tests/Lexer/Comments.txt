@@ -8,6 +8,7 @@ FunctionCall()
 another multiline comment
 that has multiple lines...
   */
+    ;a single line comment again
 Variable *= Value
 Variable -= /*
 */Value
@@ -74,7 +75,7 @@ Variable /= Value
 	Value: Value
 12: 
 	File: 1
-	Position: 138
+	Position: 116
 	Type: 10
 	Value: 
 13: 
@@ -99,76 +100,76 @@ Variable /= Value
 	Value: 
 17: 
 	File: 1
-	Position: 223
+	Position: 257
 	Type: 9
 	Value: Variable
 18: 
 	File: 1
-	Position: 232
+	Position: 266
 	Type: 0
 	Value: *=
 19: 
 	File: 1
-	Position: 235
+	Position: 269
 	Type: 9
 	Value: Value
 20: 
 	File: 1
-	Position: 240
+	Position: 274
 	Type: 10
 	Value: 
 21: 
 	File: 1
-	Position: 242
+	Position: 276
 	Type: 9
 	Value: Variable
 22: 
 	File: 1
-	Position: 251
+	Position: 285
 	Type: 0
 	Value: -=
 23: 
 	File: 1
-	Position: 260
+	Position: 294
 	Type: 9
 	Value: Value
 24: 
 	File: 1
-	Position: 265
+	Position: 299
 	Type: 10
 	Value: 
 25: 
 	File: 1
-	Position: 267
+	Position: 301
 	Type: 9
 	Value: Variable
 26: 
 	File: 1
-	Position: 276
+	Position: 310
 	Type: 0
 	Value: /=
 27: 
 	File: 1
-	Position: 279
+	Position: 313
 	Type: 9
 	Value: Value
 28: 
 	File: 1
-	Position: 284
+	Position: 318
 	Type: 10
 	Value: 
 29: 
 	File: 1
-	Position: 292
+	Position: 326
 	Type: 9
 	Value: Variable
 30: 
 	File: 1
-	Position: 301
+	Position: 335
 	Type: 0
 	Value: <<=
 31: 
 	File: 1
-	Position: 305
+	Position: 339
 	Type: 9
 	Value: Value

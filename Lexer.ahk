@@ -46,8 +46,18 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
   If (CurrentChar = "") ;past the end of the string
    Break
   CurrentTwoChar := SubStr(Code,Position,2)
-  If (CurrentChar = "`r" || CurrentChar = "`n" || A_Index = 1) ;beginning of a line
-   CodeLexLine(Code,Position,Tokens,A_Index,FileIndex)
+  If (A_Index = 1) ;first iteration
+  {
+   CodeLexLine(Code,Position,Tokens,FileIndex) ;move past whitespace and comment lines
+   CodeLexStatement(Code,Position,Tokens,FileIndex) ;check for statements
+  }
+  Else If (CurrentChar = "`r" || CurrentChar = "`n") ;beginning of a line
+  {
+   Position1 := Position, Position ++ ;store the position, move past the newline character
+   CodeLexLine(Code,Position,Tokens,FileIndex) ;move past whitespace and comment lines
+   ObjInsert(Tokens,Object("Type",CodeTokenTypes.LINE_END,"Value","","Position",Position1,"File",FileIndex)) ;add the statement end to the token array
+   CodeLexStatement(Code,Position,Tokens,FileIndex) ;check for statements
+  }
   Else If (CurrentChar = """") ;begin literal string
    LexerError := CodeLexString(Code,Position,Tokens,Errors,Output,FileIndex) || LexerError
   Else If (CurrentTwoChar = "/*") ;begin multiline comment
@@ -103,36 +113,24 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
  Return, LexerError
 }
 
-CodeLexLine(ByRef Code,ByRef Position,ByRef Tokens,Index,ByRef FileIndex)
+;moves past lines with comments or whitespace
+CodeLexLine(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
 {
  global CodeTokenTypes, CodeLexerSingleLineCommentChar
- Position1 := Position
- ;Loop
+ Loop
  {
-  While, ((CurrentChar := SubStr(Code,Position,1)) = "`r" || CurrentChar = "`n" || CurrentChar = " " || CurrentChar = "`t") ;move past any whitespace
+  If ((CurrentChar := SubStr(Code,Position,1)) = "`r" || CurrentChar = "`n" || CurrentChar = " " || CurrentChar = "`t") ;whitespace character
+  {
    Position ++
-  If (SubStr(Code,Position,1) = CodeLexerSingleLineCommentChar) ;single line comment
-  {
+   While, ((CurrentChar := SubStr(Code,Position,1)) = "`r" || CurrentChar = "`n" || CurrentChar = " " || CurrentChar = "`t") ;move past whitespace characters
+    Position ++
+  }
+  Else If (SubStr(Code,Position,1) = CodeLexerSingleLineCommentChar) ;single line comment
    CodeLexSingleLineComment(Code,Position) ;skip over comment
-   If (Index = 1) ;on the first iteration, skip insertion of a line end token
-   {
-    While, ((CurrentChar := SubStr(Code,Position,1)) = "`r" || CurrentChar = "`n" || CurrentChar = " " || CurrentChar = "`t") ;move past any whitespace
-     Position ++
-   }
-   CodeLexStatement(Code,Position,Tokens,FileIndex) ;check for statements
-  }
-  Else ;input is a multiline comment or normal line
-  {
-   If (SubStr(Code,Position,2) = "/*") ;begin multiline comment
-   {
-    CodeLexMultilineComment(Code,Position) ;skip over the comment block
-    While, ((CurrentChar := SubStr(Code,Position,1)) = "`r" || CurrentChar = "`n" || CurrentChar = " " || CurrentChar = "`t") ;move past any whitespace, to ensure there are no duplicate lines
-     Position ++
-   }
-   If (Index > 1) ;skip insertion of line end token on first iteration
-    ObjInsert(Tokens,Object("Type",CodeTokenTypes.LINE_END,"Value","","Position",Position1,"File",FileIndex)) ;add the statement end to the token array
-   CodeLexStatement(Code,Position,Tokens,FileIndex) ;check for statements
-  }
+  Else If (SubStr(Code,Position,2) = "/*") ;multiline comment
+   CodeLexMultilineComment(Code,Position) ;skip over the comment block
+  Else ;normal line
+   Break
  }
 }
 

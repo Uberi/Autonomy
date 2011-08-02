@@ -20,7 +20,7 @@ TODO
 
 Short term tasks:
 
-* Lexer does not properly handle multiple comments on a new line (may duplicate LINE_END tokens)
+* Use error levels instead of identifiers
 * An "#Error" directive that gives a compilation error
 * Unit tests for error handler
 * Error identifier enumeration

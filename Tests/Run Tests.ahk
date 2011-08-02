@@ -8,9 +8,6 @@
 #Include ..\Preprocessor.ahk
 #Include ..\Parser.ahk
 
-#Warn All
-#Warn LocalSameAsGlobal, Off
-
 SetBatchLines(-1)
 Process, Priority,, RealTime
 
@@ -57,6 +54,11 @@ Lexer unit test:
         Position: 23
         Type: 10
         Value: 
+*/
+
+/*
+#Warn All
+#Warn LocalSameAsGlobal, Off
 */
 
 Debug := 0 ;whether or not to copy and display unexpected output
