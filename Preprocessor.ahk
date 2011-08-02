@@ -1,8 +1,8 @@
 #NoEnv
 
 /*
-Preprocessor Expression Support
--------------------------------
+Preprocessor Expressions
+------------------------
 
 The preprocessor supports simple expressions in the form:
 
@@ -26,18 +26,18 @@ However, there are a few limitations:
 ;initializes resources that the preprocessor requires
 CodePreprocessInit(ByRef Files,ByRef CurrentDirectory = "")
 {
- global PreprocessorIncludeDirectory, PreprocessorLibraryPaths, PreprocessorRecursionDepth, PreprocessorRecursionWarning
+ global CodePreprocessorIncludeDirectory, CodePreprocessorLibraryPaths, CodePreprocessorRecursionDepth, CodePreprocessorRecursionWarning
 
  If (ObjHasKey(Files,1) = 1 && (Path := Files.1) <> "") ;file path given, set the include directory to the directory of the script
-  PreprocessorIncludeDirectory := PathSplit(Path).Directory
+  CodePreprocessorIncludeDirectory := PathSplit(Path).Directory
  Else If (CurrentDirectory <> "") ;include directory given explicitly
-  PreprocessorIncludeDirectory := CurrentDirectory
+  CodePreprocessorIncludeDirectory := CurrentDirectory
  Else ;no path given, set the include directory to the directory of this script
-  PreprocessorIncludeDirectory := A_ScriptDir
+  CodePreprocessorIncludeDirectory := A_ScriptDir
 
- PreprocessorLibraryPaths := Array(PathJoin(PreprocessorIncludeDirectory,"Lib"),PathJoin(A_MyDocuments,"AutoHotkey","Lib"),PathJoin(A_ScriptDir,"Lib")) ;paths that are searched for libraries
- PreprocessorRecursionDepth := 0
- PreprocessorRecursionWarning := 8 ;level at which to give a warning about the recursion depth
+ CodePreprocessorLibraryPaths := Array(PathJoin(CodePreprocessorIncludeDirectory,"Lib"),PathJoin(A_MyDocuments,"AutoHotkey","Lib"),PathJoin(A_ScriptDir,"Lib")) ;paths that are searched for libraries
+ CodePreprocessorRecursionDepth := 0
+ CodePreprocessorRecursionWarning := 8 ;level at which to give a warning about the recursion depth
 }
 
 ;preprocesses a token stream containing preprocessor directives
@@ -84,14 +84,14 @@ CodePreprocess(ByRef Tokens,ByRef ProcessedTokens,ByRef Errors,ByRef Files,FileI
 ;preprocesses an inclusion directive
 CodePreprocessInclusion(Token,ByRef TokenIndex,ByRef ProcessedTokens,ByRef Errors,ByRef Files,FileIndex)
 { ;returns 1 on inclusion failure, 0 otherwise
- global PreprocessorIncludeDirectory, PreprocessorLibraryPaths, PreprocessorRecursionDepth, PreprocessorRecursionWarning
+ global CodePreprocessorIncludeDirectory, CodePreprocessorLibraryPaths, CodePreprocessorRecursionDepth, CodePreprocessorRecursionWarning
 
  Parameter := Token.Value ;retrieve the next token, the parameters given to the statement
 
  If (SubStr(Parameter,1,1) = "<") ;library file: #Include <LibraryName>
  {
   Parameter := SubStr(Parameter,2,-1) ;remove surrounding angle brackets
-  For Index, Path In PreprocessorLibraryPaths ;loop through each folder looking for the file
+  For Index, Path In CodePreprocessorLibraryPaths ;loop through each folder looking for the file
   {
    Temp1 := PathExpand(Parameter,Path,Attributes)
    If (Attributes != "") ;found script file
@@ -102,7 +102,7 @@ CodePreprocessInclusion(Token,ByRef TokenIndex,ByRef ProcessedTokens,ByRef Error
   }
  }
  Else
-  Parameter := PathExpand(Parameter,PreprocessorIncludeDirectory,Attributes)
+  Parameter := PathExpand(Parameter,CodePreprocessorIncludeDirectory,Attributes)
  If (Attributes = "") ;file not found
  {
   CodeRecordErrorTokens(Errors,"FILE_ERROR",3,0,Array(Token))
@@ -111,7 +111,7 @@ CodePreprocessInclusion(Token,ByRef TokenIndex,ByRef ProcessedTokens,ByRef Error
  }
  If InStr(Attributes,"D") ;is a directory
  {
-  PreprocessorIncludeDirectory := Parameter ;set the current include directory
+  CodePreprocessorIncludeDirectory := Parameter ;set the current include directory
   TokenIndex ++ ;skip past extra line end token
   Return, 0
  }
@@ -137,11 +137,11 @@ CodePreprocessInclusion(Token,ByRef TokenIndex,ByRef ProcessedTokens,ByRef Error
  ObjInsert(Files,FileIndex,Parameter) ;add the current script file to the file array
 
  CodeLex(Code,FileTokens,Errors,FileIndex) ;lex the external file
- PreprocessorRecursionDepth ++ ;increase the recursion depth counter
- If (PreprocessorRecursionDepth = PreprocessorRecursionWarning) ;at recursion warning level, give warning
+ CodePreprocessorRecursionDepth ++ ;increase the recursion depth counter
+ If (CodePreprocessorRecursionDepth = CodePreprocessorRecursionWarning) ;at recursion warning level, give warning
   CodeRecordErrorTokens(Errors,"RECURSION_WARNING",2,0,Array(Token))
  CodePreprocess(FileTokens,FileProcessedTokens,Errors,Files,FileIndex) ;preprocess the tokens
- PreprocessorRecursionDepth -- ;decrease the recursion depth counter
+ CodePreprocessorRecursionDepth -- ;decrease the recursion depth counter
 
  ;copy tokens from included file into the main token stream
  For Index, Token In FileProcessedTokens
@@ -191,7 +191,7 @@ CodePreprocessRemoveDefinition(ByRef Tokens,Index,ByRef Definitions,Errors)
  Return, 0
 }
 
-;evaluates a simple preprocessor expression ;wip: extraneous inputs are not correctly shown, unary minus not working yet (need to use prevtoken variable)
+;evaluates a simple preprocessor expression ;wip: unary minus not working yet (need to use prevtoken variable)
 CodePreprocessEvaluate(ByRef Tokens,ByRef Index,ByRef Result,ByRef Definitions,ByRef Errors,FileIndex)
 { ;returns 1 on evaluation error, 0 otherwise
  global CodeTokenTypes, CodeOperatorTable

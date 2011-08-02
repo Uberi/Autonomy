@@ -18,13 +18,12 @@ SetBatchLines(-1)
 TODO
 ----
 
-* Operator enumeration and identifiers by adding Identifier field to operator table
+* Remove CodePreprocessorRecursionDepth global
+* Lexer does not properly handle multiple comments (may duplicate LINE_END tokens)
 * Caret length field
 * Unit tests for error handler
-* Possibly use expressions for inclusions
 * Error identifier enumeration
-* Prefix globals with "Code"
-* Support a command syntax, that is translated to a function call on load (dotted notation only - no square brackets support). Detect this form by making sure the token is immediately after a block brace, opening square bracket, opening parenthesis, or line end, and the token after the function is either a literal, an identifier, a separator, an operator that doesn't take a parameter on its left, a block brace, or a line end: Math.Mod, 100, 5
+* Support a command syntax, that is translated to a function call on load (dotted notation only - no square brackets support). Detect this form by making sure the token is immediately after a separator, opening parenthesis, opening square bracket, block brace, or line end, and the token after the function is either a literal, an identifier, a separator, an operator that doesn't take a parameter on its left, a block brace, or a line end: Math.Mod, 100, 5
 * Make syntax tree types an enumeration
 * Read mk:@MSITStore:C:\Program%20Files\AutoHotkey\AutoHotkey_L\AutoHotkey_L.chm::/docs/misc/Performance.htm
 * Rewrite parser with TDOP/Pratt/Precedence Climbing parsing algorithm. Remove operator table if not needed afterwards
@@ -52,7 +51,7 @@ Var := Something
 Return, 1 + 1
 )
 
-Code := "-2"
+;Code := "3 + 2 * 1"
 
 If CodeInit()
 {
@@ -64,7 +63,7 @@ CodeSetScript(FileName,Errors,Files) ;set the current script file
 
 CodeLexInit()
 CodeLex(Code,Tokens,Errors)
-;DisplayObject(Tokens)
+DisplayObject(Tokens)
 ExitApp()
 
 CodePreprocessInit(Files)

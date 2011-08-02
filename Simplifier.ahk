@@ -6,8 +6,9 @@ Possible Simplifications
 
 http://en.wikipedia.org/wiki/Category:Compiler_optimizations
 http://en.wikipedia.org/wiki/Compiler_optimization
+http://en.wikipedia.org/wiki/Constant_folding
 
-- substitute constant expressions with their values: (3 + 4) * Sin(5) -> [Value of (3 + 4) * Sin(5)]
+- constant folding:                                  (3 + 4) * Sin(5) -> [Value of (3 + 4) * Sin(5)]
 - common subexpression elimination:                  http://en.wikipedia.org/wiki/Common_subexpression_elimination
 - integer bit shift left equivelance:                Integer1 * [Power of 2: Integer2] -> Integer1 << [Log2(Integer2)]
 - integer bit shift right equivelance:               Integer1 // [Power of 2: Integer2] -> Integer1 >> [Log2(Integer2)]

@@ -3,24 +3,24 @@
 ;initializes resources that the interpreter requires
 CodeInterpretInit()
 {
- global InterpreterJumpTable, InterpreterNamespace
- Index := 0, InterpreterJumpTable := Array()
+ global CodeInterpreterJumpTable, CodeInterpreterNamespace
+ Index := 0, CodeInterpreterJumpTable := Array()
  Loop, 255
-  ObjInsert(InterpreterJumpTable,Index,Func("CodeInterpretInstruction" . Index)), Index ++ ;store a function reference for each instruction
+  ObjInsert(CodeInterpreterJumpTable,Index,Func("CodeInterpretInstruction" . Index)), Index ++ ;store a function reference for each instruction
 
- InterpreterNamespace := Object() ;namespace to store variables in
+ CodeInterpreterNamespace := Object() ;namespace to store variables in
 }
 
 ;interprets bytecode given as input
 CodeInterpret(ByRef Bytecode,Length)
 {
- global InterpreterJumpTable
+ global CodeInterpreterJumpTable
  Index := 0
  While, (Index < Length)
  {
   ;Instruction := NumGet(Bytecode,Index,"UChar"), Index ++ ;retrieve and move past the bytecode instruction
   Instruction := *(&Bytecode + Index), Index ++ ;retrieve and move past the bytecode instruction
-  InterpreterJumpTable[Instruction]() ;call the function reference stored for the current instruction
+  CodeInterpreterJumpTable[Instruction]() ;call the function reference stored for the current instruction
  }
 }
 
