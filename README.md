@@ -63,7 +63,7 @@ Formats error records into a human readable form. Can display line and column in
 
 ### Resources/Functions.ahk
 
-Utility functions bridging compatibility differences between AutoHotkey and Autonomy. Required for development until the compiler is fully self hosting, will be removed afterwards.
+Utility functions bridging compatibility differences between AutoHotkey and Autonomy. Required for development until the compiler is fully self hosting, will most likely be removed afterwards.
 
 ### Resources/Reconstruct.ahk
 

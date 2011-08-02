@@ -5,7 +5,9 @@ Var := %Invalid Char
 Composite%Variable%%Reference% := Composite%Function%Call()
 ---
 1: 
-	Caret: 46
+	Caret: 
+		Length: 1
+		Position: 66
 	File: 1
 	Highlight: 
 		1: 
@@ -14,7 +16,9 @@ Composite%Variable%%Reference% := Composite%Function%Call()
 	Identifier: UNMATCHED_PERCENT_SIGN
 	Level: Error
 2: 
-	Caret: 83
+	Caret: 
+		Length: 1
+		Position: 83
 	File: 1
 	Highlight: 
 		1: 

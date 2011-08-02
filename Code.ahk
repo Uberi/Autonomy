@@ -97,25 +97,27 @@ CodeSetScript(ByRef Path = "",ByRef Errors = "",ByRef Files = "")
 }
 
 ;records an error containing information about the nature, severity, and location of the issue
-CodeRecordError(ByRef Errors,Identifier,Level,File,Caret = 0,Highlight = "")
-{
+CodeRecordError(ByRef Errors,Identifier,Level,File,Caret = 0,CaretLength = 1,Highlight = 0)
+{ ;wip: process caret length
  ErrorLevels := Array("Notice","Warning","Error")
- ErrorRecord := Object("Identifier",Identifier,"Level",ErrorLevels[Level],"Highlight",Highlight,"Caret",Caret,"File",File)
+ ErrorRecord := Object("Identifier",Identifier,"Level",ErrorLevels[Level],"Highlight",Highlight,"Caret",Object("Position",Caret,"Length",CaretLength),"File",File)
  ObjInsert(Errors,ErrorRecord) ;add an error to the error log
 }
 
 ;an alternative, convenient way to record errors by passing tokens to the function instead of positions and lengths
-CodeRecordErrorTokens(ByRef Errors,Identifier,Level,Caret = 0,Highlight = "")
+CodeRecordErrorTokens(ByRef Errors,Identifier,Level,Caret = 0,Highlight = 0)
 {
- If (Highlight != "")
+ If (Highlight != 0)
  {
   File := Highlight.1.File, ProcessedHighlight := Array()
   For Index, Token In Highlight
    ObjInsert(ProcessedHighlight,Object("Position",Token.Position,"Length",StrLen(Token.Value)))
  }
- If IsObject(Caret)
-  File := Caret.File, Position := Caret.Position
  Else
-  Position := Caret
- CodeRecordError(Errors,Identifier,Level,File,Position,ProcessedHighlight)
+  ProcessedHighlight := 0
+ If IsObject(Caret)
+  File := Caret.File, Position := Caret.Position, Length := StrLen(Caret.Value)
+ Else
+  Position := 0, Length := 1
+ CodeRecordError(Errors,Identifier,Level,File,Position,Length,ProcessedHighlight)
 }

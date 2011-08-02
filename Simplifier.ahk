@@ -23,6 +23,7 @@ Simplifications:
 * bitwise modulo:                                    Mod(Integer1,[Power of 2: Integer2]) -> Integer1 & [Integer2 - 1]
 * logical transforms:                                (!Something && !SomethingElse) -> !(Something || SomethingElse) ;many other different types of logical transforms too
 * type specialization:                               If [Something that evaluates to a boolean: Expression] -> If Expression = True ;avoids needing to check both boolean truthiness and for string truthiness
+* case sensitivity:                                  If [String: String1] = [String without alphabetic characters: String2] -> If String [Case sensitive compare] ;avoid case insensitivity routines that may be more complex or slow
 */
 
 ;simplifies a syntax tree given as input

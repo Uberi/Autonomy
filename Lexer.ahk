@@ -5,7 +5,7 @@ Token Stream Format
 -------------------
 
 * _[Index]_:    the index of the token                         _[Object]_
-    * Type:     the type of the token                          _[Integer]_
+    * Type:     the enumerated type of the token               _[Integer]_
     * Value:    the value of the token                         _[String]_
     * Position: position of token within the file              _[Integer]_
     * File:     the file index the current token is located in _[Integer]_
@@ -14,7 +14,7 @@ Example Token Stream
 --------------------
 
     2:
-        Type: IDENTIFIER
+        Type: 9
         Value: SomeVariable
         Position: 15
         File: 3
@@ -90,7 +90,7 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
     CodeLexIdentifier(Code,Position,Tokens,FileIndex) ;lex identifier
    }
    Else
-    CodeRecordError(Errors,"INVALID_OBJECT_ACCESS",3,FileIndex,Position,Array(Object("Position",Position1,"Length",Position - Position1))), LexerError := 1
+    CodeRecordError(Errors,"INVALID_OBJECT_ACCESS",3,FileIndex,Position1,1,Array(Object("Position",Position,"Length",1))), LexerError := 1
   }
   Else If (CurrentChar = " " || CurrentChar = "`t") ;whitespace
   {
@@ -103,7 +103,7 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
     If (CurrentChar = " " || CurrentChar = "`t") ;there must be whitespace on both sides of the concat operator
      ObjInsert(Tokens,Object("Type",CodeTokenTypes.OPERATOR,"Value"," . ","Position",Position - 1,"File",FileIndex)) ;add a concatenation token to the token array
     Else
-     CodeRecordError(Errors,"INVALID_CONCATENATION",3,FileIndex,Position,Array(Object("Position",Position1,"Length",Position - Position1))), LexerError := 1
+     CodeRecordError(Errors,"INVALID_CONCATENATION",3,FileIndex,Position - 1,1,Array(Object("Position",Position1,"Length",1),Object("Position",Position,"Length",1))), LexerError := 1
    }
   }
   Else If !CodeLexSyntaxElement(Code,Position,Tokens,FileIndex) ;input is a syntax element
@@ -213,7 +213,7 @@ CodeLexString(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef Output,B
   }
   Else If (CurrentChar = "`r" || CurrentChar = "`n" || CurrentChar = "") ;past end of string, or reached a newline before the open quote has been closed
   {
-   CodeRecordError(Errors,"UNMATCHED_QUOTE",3,FileIndex,Position,Array(Object("Position",Position1,"Length",Position - Position1)))
+   CodeRecordError(Errors,"UNMATCHED_QUOTE",3,FileIndex,Position,1,Array(Object("Position",Position1,"Length",Position - Position1)))
    Return, 1
   }
   Else If (CurrentChar = """") ;closing quote mark found
@@ -267,12 +267,12 @@ CodeLexDynamicReference(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRe
    Break
   If (CurrentChar = "`r" || CurrentChar = "`n" || CurrentChar = "") ;past end of string, or found newline before percent sign was matched
   {
-   CodeRecordError(Errors,"UNMATCHED_PERCENT_SIGN",3,FileIndex,Position1,Array(Object("Position",Position1,"Length",Position - Position1)))
+   CodeRecordError(Errors,"UNMATCHED_PERCENT_SIGN",3,FileIndex,Position,1,Array(Object("Position",Position1,"Length",Position - Position1)))
    Return, 1
   }
   If !InStr(CodeLexerIdentifierChars,CurrentChar) ;invalid character found
   {
-   CodeRecordError(Errors,"INVALID_IDENTIFIER",3,FileIndex,Position,Array(Object("Position",Position1,"Length",Position - Position1)))
+   CodeRecordError(Errors,"INVALID_IDENTIFIER",3,FileIndex,Position,1,Array(Object("Position",Position1,"Length",Position - Position1)))
    Return, 1
   }
   Output .= CurrentChar

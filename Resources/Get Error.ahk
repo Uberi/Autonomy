@@ -4,13 +4,15 @@
 Error Array Format
 ------------------
 
-[Index]:          the index of the error            [Object]
-    Level:        the type of the error             [String: "Error", "Warning", or "Notice"]
-    Identifier:   the name of the error             [Identifier]
-    Caret:        exact location of error           [Number or Blank]
-    Highlight:    the optional area to highlight    [Object or Blank]
-        Length:   length of the highlighted section [Number]
-        Position: position of hightlighted section  [Number]
+[Index]:          index of the error                [Object]
+    Level:        severity of the error             [String: "Error", "Warning", or "Notice"]
+    Identifier:   name of the error                 [Identifier]
+    Caret:        exact location of error           [Object or Number: 0]
+        Position: position to place the caret       [Integer]
+        Length:   length of the caret               [Integer]
+    Highlight:    the optional area to highlight    [Object or Number: 0]
+        Position: position of hightlighted section  [Integer]
+        Length:   length of the highlighted section [Integer]
 
 Example
 -------
@@ -18,10 +20,12 @@ Example
     4:
         Level: Error
         Identifier: INVALID_SYNTAX
-        Caret: 17
+        Caret:
+            Position: 17
+            Length: 2
         Highlight:
-            Length: 3
             Position: 13
+            Length: 3
 */
 
 ;creates a formatted summary of errors
@@ -49,34 +53,42 @@ CodeGetError(ByRef Code,ByRef Errors,ByRef Files)
    ErrorDisplay .= " "
 
   ;iterate over the error highlights to highlight the incorrect code
-  For Index, Highlight In CurrentError.Highlight
+  CurrentHighlight := CurrentError.Highlight
+  If IsObject(CurrentHighlight)
   {
-   Position := (Highlight.Position - ErrorStart) + 1, Length := Highlight.Length
-   If (Position < 1)
-    Position := 1
-   Temp1 := SubStr(ErrorDisplay,1,Position - 1)
-   Loop, %Length%
-    Temp1 .= HighlightChar
-   ErrorDisplay := Temp1 . SubStr(ErrorDisplay,Position + Length)
+   For Index, Highlight In CurrentHighlight
+   {
+    Position := (Highlight.Position - ErrorStart) + 1, Length := Highlight.Length
+    If (Position < 1)
+     Position := 1
+    Temp1 := SubStr(ErrorDisplay,1,Position - 1)
+    Loop, %Length%
+     Temp1 .= HighlightChar
+    ErrorDisplay := Temp1 . SubStr(ErrorDisplay,Position + Length)
+   }
   }
 
   ;insert the caret to show the exact location of the error
   Caret := CurrentError.Caret
-  If (Caret != "")
+  If IsObject(Caret)
   {
-   Position := (Caret - ErrorStart) + 1
+   CaretPosition := Caret.Position, Length := Caret.Length
+   Position := (CaretPosition - ErrorStart) + 1
    If (Position < 1)
     Position := 1
-   ErrorDisplay := SubStr(ErrorDisplay,1,Position - 1) . CaretChar . SubStr(ErrorDisplay,Position + 1)
+   Temp1 := SubStr(ErrorDisplay,1,Position - 1)
+   Loop, %Length%
+    Temp1 .= CaretChar
+   ErrorDisplay :=  Temp1 . SubStr(ErrorDisplay,Position + Length)
   }
   Else
-   Caret := ErrorStart
+   CaretPosition := ErrorStart
 
   CodeGetErrorShowBefore(Code,ErrorSection,ErrorDisplay,ErrorStart,TextPadding)
   ErrorSection .= SubStr(Code,ErrorStart,ErrorEnd - ErrorStart) ;show the code that is causing the error
   CodeGetErrorShowAfter(Code,ErrorSection,ErrorEnd,TextPadding)
   CodeGetErrorPosition(Code,Caret,Line,Column)
-
+  CodeGetErrorPosition(Code,CaretPosition,Line,Column)
   Temp1 := CurrentError.Identifier
   If ObjHasKey(CodeErrorMessages,Temp1)
    Message := CodeErrorMessages[Temp1] ;get the error message
@@ -91,7 +103,7 @@ CodeGetError(ByRef Code,ByRef Errors,ByRef Files)
 ;retrieves the boundaries of the error
 CodeGetErrorBounds(CurrentError,ByRef ErrorStart,ByRef ErrorEnd)
 {
- ErrorStart := "", ErrorEnd := ""
+ ErrorStart := 0, ErrorEnd := 0
  For Index, Highlight In CurrentError.Highlight
  {
   Temp1 := Highlight.Position, Temp2 := Temp1 + Highlight.Length
@@ -105,13 +117,13 @@ CodeGetErrorBounds(CurrentError,ByRef ErrorStart,ByRef ErrorEnd)
     ErrorEnd := Temp2
   }
  }
- Temp1 := CurrentError.Caret
- If (Temp1 != "")
+ Caret := CurrentError.Caret
+ If IsObject(Caret)
  {
-  Temp2 := Temp1 + 1
-  If ((Temp1 < ErrorStart) || (ErrorStart = ""))
+  Temp1 := Caret.Position, Temp2 := Temp1 + Caret.Length
+  If (Temp1 < ErrorStart || ErrorStart = 0)
    ErrorStart := Temp1
-  If ((Temp2 > ErrorEnd) || (ErrorEnd = ""))
+  If (Temp2 > ErrorEnd || ErrorEnd = 0)
    ErrorEnd := Temp2
  }
 }

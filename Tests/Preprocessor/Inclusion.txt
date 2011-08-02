@@ -155,30 +155,27 @@
 	Value: TestScript.ahk
 ---
 1: 
-	Caret: 0
+	Caret: 
+		Length: 14
+		Position: 18
 	File: 2
-	Highlight: 
-		1: 
-			Length: 14
-			Position: 18
+	Highlight: 0
 	Identifier: DUPLICATE_INCLUSION
 	Level: Notice
 2: 
-	Caret: 0
+	Caret: 
+		Length: 15
+		Position: 80
 	File: 1
-	Highlight: 
-		1: 
-			Length: 15
-			Position: 80
+	Highlight: 0
 	Identifier: FILE_ERROR
 	Level: Error
 3: 
-	Caret: 0
+	Caret: 
+		Length: 14
+		Position: 159
 	File: 1
-	Highlight: 
-		1: 
-			Length: 14
-			Position: 159
+	Highlight: 0
 	Identifier: DUPLICATE_INCLUSION
 	Level: Notice
 ---

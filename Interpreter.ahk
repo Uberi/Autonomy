@@ -1,5 +1,7 @@
 #NoEnv
 
+;wip: see if dynamic labels can be faster
+
 ;initializes resources that the interpreter requires
 CodeInterpretInit()
 {

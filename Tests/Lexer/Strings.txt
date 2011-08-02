@@ -6,7 +6,9 @@ multiple lines"
 
 ---
 1: 
-	Caret: 25
+	Caret: 
+		Length: 1
+		Position: 25
 	File: 1
 	Highlight: 
 		1: 
@@ -15,7 +17,9 @@ multiple lines"
 	Identifier: UNMATCHED_QUOTE
 	Level: Error
 2: 
-	Caret: 125
+	Caret: 
+		Length: 1
+		Position: 125
 	File: 1
 	Highlight: 
 		1: 
