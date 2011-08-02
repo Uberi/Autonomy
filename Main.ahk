@@ -20,8 +20,7 @@ TODO
 
 Short term tasks:
 
-* Use error levels instead of identifiers
-* An "#Error" directive that gives a compilation error
+* An "#Error" directive that gives a compilation error on hitting one (works with conditional compilation)
 * Unit tests for error handler
 * Error identifier enumeration
 * Make syntax tree types an enumeration

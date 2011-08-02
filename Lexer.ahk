@@ -27,8 +27,8 @@ CodeLexInit()
  CodeLexerEscapeChar := "``" ;character denoting an escape sequence
  CodeLexerSingleLineCommentChar := ";" ;character denoting a single line comment
  CodeLexerIdentifierChars := "abcdefghijklmnopqrstuvwxyz_1234567890#" ;characters that make up a an identifier
- CodeLexerStatementList := Object("#Include","","#SingleInstance","","#Define","","#Undefine","","#If","","#Else","","#ElseIf","","#EndIf","","While","","Loop","","For","","If","","Else","","Break","","Continue","","Return","","Gosub","","Goto","","local","","global","","static","") ;statements that can be found on the beginning of a line
- CodeLexerStatementLiteralList := Object("#Include","","#SingleInstance","","Break","","Continue","","Gosub","","Goto","") ;statements that accept literals as parameters
+ CodeLexerStatementList := Object("#Include","","#Define","","#Undefine","","#If","","#Else","","#ElseIf","","#EndIf","","While","","Loop","","For","","If","","Else","","Break","","Continue","","Return","","Gosub","","Goto","","local","","global","","static","") ;statements that can be found on the beginning of a line
+ CodeLexerStatementLiteralList := Object("#Include","","Break","","Continue","","Gosub","","Goto","") ;statements that accept literals as parameters
 
  CodeLexerOperatorMaxLength := 1 ;one is the maximum length of the other syntax elements - commas, parentheses, square brackets, and curly brackets
  For Temp1 In CodeOperatorTable ;get the length of the longest operator
