@@ -1,34 +1,6 @@
 #NoEnv
 
 /*
-Basic AHK Grammar (EBNF as defined by [Wikipedia])
------------------
-
-    (* basic nonterminals *)
-    Whitespace  = " " | "\t"
-
-    (* fundemental types *)
-    Digit       = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' ;
-    DigitNumber = Digit , { Digit } ;
-    HexDigit    = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | Digit ;
-    Integer     = [ '+' | '-' ] , ( DigitNumber | ( '0x' , HexDigit , { HexDigit } ) ) ;
-    Decimal     = [ '+' | '-' ] , ( ( Digit , { Digit } , '.' , { Digit } ) | ( '.' , Digit , { Digit } ) ) ;
-    String      = '"' , { '""' | ? any character ? } , '"' ;
-    AlNum       = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L' | 'M' | 'N' | 'O' | 'P' | 'Q' | 'R' | 'S' | 'T' | 'U' | 'V' | 'W' | 'X' | 'Y' | 'Z' | Digit | '_' ;
-    Identifier  = AlNum , { AlNum } ;
-    Operand     = Integer | Decimal | String | Identifier
-
-    (* operators *)
-    Prefix      = "!" | "~" | "&" | "*" | "++" | "--" ;
-    Infix       = "||" | "&&" | "==" | "=" | "!=" | ">" | "<" | ">=" | "<=" | ( Whitespace , "." , Whitespace ) | "&" | "^" | "|" | "<<" | ">>" | "+" | "-" | "*" | "/" | "//" | "." | ":=" | "+=" | "-=" | "*=" | "/=" | "//=" | ".=" | "|=" | "&=" | "^=" | "<<=" | ">>=" | "**" ;
-    Postfix     = "++" | "--"
-    Dynamic     = [ Identifier ] , "%" , Identifier , "%" , [ Identifier ] , { "%" , Identifier , "%" , [ Identifier ] } ;
-
-    (* expression components *)
-    Padding     = [ { Whitespace } ]
-    Operation   = ( Prefix , Padding , Operand ) | ( Operand , Padding , Infix , Padding , Operand ) | ( Operand , Padding , Postfix ) ;
-    Expression  = Padding , Operation , Padding , { Operation , Padding }
-
 Operator Table Format
 ---------------------
 
@@ -70,13 +42,58 @@ Token Stream Types Enumeration
 * IDENTIFIER:     9
 * LINE_END:       10
 
+Syntax Tree Format
+------------------
+
+* _[Index]_:         the index of the tree node                                       _[Object]_
+    * 1:             the operation to perform                                         _[String]_
+    * _[1 + Index]_: the parameter or parameters of the operation                     _[Object]_
+        * Type:      the type of the parameter (Object, String, Float, Integer, etc.) _[Identifier]_
+        * Value:     the value of the parameter                                       _[String]_
+
+Example
+-------
+
+(2 * 3) + 8 -> (+ (* 2 3) 8)
+
+    1:
+        Type: NODE ;type information
+        Value: ;node value
+            1:
+                Type: OPERATOR
+                Value: +
+            2:
+                Type: NODE
+                Value: ;subnode
+                    1:
+                        Type: OPERATOR
+                        Value: *
+                    2:
+                        Type: LITERAL_NUMBER
+                        Value: 2
+                    3:
+                        Type: LITERAL_NUMBER
+                        Value: 3
+            3:
+                Type: LITERAL_NUMBER
+                Value: 8
+
+Syntax Tree Types Enumeration
+-----------------------------
+
+* NODE:           0
+* BLOCK:          1
+* OPERATION:      2
+* LITERAL_NUMBER: 3
+* LITERAL_STRING: 4
+
 [Wikipedia]: http://en.wikipedia.org/wiki/Extended_Backus-Naur_Form
 */
 
 ;initializes resources that will be required by other modules
 CodeInit(ResourcesPath = "Resources")
 { ;returns 1 on failure, 0 otherwise
- global CodeOperatorTable, CodeErrorMessages, CodeTokenTypes
+ global CodeOperatorTable, CodeErrorMessages, CodeTokenTypes, CodeTreeTypes
  If FileRead(Temp1,PathJoin(ResourcesPath,"OperatorTable.txt")) ;error reading file
   Return, 1
 
@@ -93,8 +110,11 @@ CodeInit(ResourcesPath = "Resources")
  Loop, Parse, Temp1, `n, `r
   Line := StringSplit(A_LoopField,"`t"), ObjInsert(CodeErrorMessages,Line.1,Line.2)
 
- ;set up token type enumeration
+ ;set up token stream type enumeration
  CodeTokenTypes := Object("OPERATOR",0,"LITERAL_NUMBER",1,"LITERAL_STRING",2,"SEPARATOR",3,"PARENTHESIS",4,"OBJECT_BRACE",5,"BLOCK_BRACE",6,"LABEL",7,"STATEMENT",8,"IDENTIFIER",9,"LINE_END",10)
+
+ ;set up syntax tree type enumeration
+ CodeTreeTypes := Object("NODE",0,"BLOCK",1,"OPERATION",2,"LITERAL_NUMBER",3,"LITERAL_STRING",4)
 
  Return, 0
 }
@@ -109,7 +129,7 @@ CodeSetScript(ByRef Path = "",ByRef Errors = "",ByRef Files = "")
 
 ;records an error containing information about the nature, severity, and location of the issue
 CodeRecordError(ByRef Errors,Identifier,Level,File,Caret = 0,CaretLength = 1,Highlight = 0)
-{ ;wip: process caret length
+{
  ErrorRecord := Object("Identifier",Identifier,"Level",Level,"Highlight",Highlight,"Caret",Object("Position",Caret,"Length",CaretLength),"File",File)
  ObjInsert(Errors,ErrorRecord) ;add an error to the error log
 }

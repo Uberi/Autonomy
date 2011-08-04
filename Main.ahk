@@ -76,7 +76,7 @@ DisplayObject(Errors)
 
 CodeParseInit()
 CodeParse(ProcessedTokens,SyntaxTree,Errors)
-;DisplayObject(SyntaxTree)
+DisplayObject(SyntaxTree)
 
 If (ObjMaxIndex(Errors) != "")
  Display(CodeGetError(Code,Errors,Files)) ;display error at standard output

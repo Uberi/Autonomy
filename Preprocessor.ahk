@@ -58,7 +58,7 @@ CodePreprocess(ByRef Tokens,ByRef ProcessedTokens,ByRef Errors,ByRef Files,FileI
   If (Directive = "#Include") ;script inclusion, duplication ignored
    PreprocessError := CodePreprocessInclusion(Tokens[Index],Index,ProcessedTokens,Errors,Files,FileIndex) || PreprocessError
   Else If (Directive = "#Define") ;identifier macro or function macro definition
-   CodePreprocessDefinition(Tokens,Index,ProcessedTokens,Definitions,Errors,FileIndex) ;macro definition
+   PreprocessError := CodePreprocessDefinition(Tokens,Index,ProcessedTokens,Definitions,Errors,FileIndex) || PreprocessError ;macro definition
   Else If (Directive = "#Undefine") ;removal of existing macro
    PreprocessError := CodePreprocessRemoveDefinition(Tokens,Index,Definitions,Errors) || PreprocessError
   /*

@@ -1,56 +1,8 @@
 #NoEnv
 
+;wip: remove Operators global
+
 /*
-Syntax Tree Format
-------------------
-
-* _[Index]_:         the index of the tree node                                       _[Object]_
-    * 1:             the operation to perform                                         _[String]_
-    * _[1 + Index]_: the parameter or parameters of the operation                     _[Object]_
-        * Type:      the type of the parameter (Object, String, Float, Integer, etc.) _[Identifier]_
-        * Value:     the value of the parameter                                       _[String]_
-
-Example
--------
-
-(2 * 3) + 8 -> (+ (* 2 3) 8)
-
-    1:
-        Type: NODE ;type information
-        Value: ;node value
-            1:
-                Type: OPERATOR
-                Value: +
-            2:
-                Type: NODE
-                Value: ;subnode
-                    1:
-                        Type: OPERATOR
-                        Value: *
-                    2:
-                        Type: LITERAL_NUMBER
-                        Value: 2
-                    3:
-                        Type: LITERAL_NUMBER
-                        Value: 3
-            3:
-                Type: LITERAL_NUMBER
-                Value: 8
-
-Syntax Tree Types Enumeration
------------------------------
-
-* NODE:           0
-* BLOCK:          1
-* OPERATION:      2
-* LITERAL_NUMBER: 3
-* LITERAL_STRING: 4
-*/
-
-;wip: prefix globals
-;wip: treat parentheses like an operator for the left binding power
-
-;/*
 #Include Resources\Functions.ahk
 #Include Code.ahk
 #Include Lexer.ahk
@@ -71,13 +23,13 @@ CodeLex(Code,Tokens,Errors)
 
 CodeParseInit()
 
-MsgBox % CodeParse(Tokens,SyntaxTree,Errors)
-MsgBox % ShowObject(SyntaxTree)
+MsgBox % CodeParse(Tokens,SyntaxTree,Errors) . "`n`n" . ShowObject(SyntaxTree)
+ExitApp()
 */
 
 CodeParseInit()
 {
- global CodeTokenTypes, Functions, Operators
+ global CodeTokenTypes, Operators
 
  Operators := Object("+"
    ,Object("LeftBindingPower",10
@@ -97,19 +49,22 @@ CodeParse(ByRef Tokens,ByRef SyntaxTree,ByRef Errors)
 { ;returns 1 on parsing error, 0 otherwise
  ParserError := 0, Index := 1 ;initialize variables
  SyntaxTree := CodeParseExpression(Tokens,Errors,ParserError,Index)
+ If (Index <= ObjMaxIndex(Tokens)) ;did not reach the end of the token stream
+ {
+  ParserError := 1
+  ;wip: better error handling
+ }
  Return, ParserError
 }
 
 ;parses an expression
 CodeParseExpression(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,RightBindingPower = 0)
 {
- global Functions
-
  TokensLength := ObjMaxIndex(Tokens) ;retrieve the maximum index of the token stream
  If (Index > TokensLength)
   Return, "ERROR: Missing token." ;wip: better error handling
  CurrentToken := Tokens[Index], Index ++ ;retrieve the current token, move to the next token
- LeftSide := CodeParseDispatchNullDenotation(Tokens,Errors,Index,CurrentToken) ;handle the null denotation - the token does not require tokens to its left
+ LeftSide := CodeParseDispatchNullDenotation(Tokens,Errors,ParserError,Index,CurrentToken) ;handle the null denotation - the token does not require tokens to its left
  If (Index > TokensLength) ;ensure the index does not go out of bounds
   Return, LeftSide
  NextToken := Tokens[Index] ;retrieve the next token
@@ -126,7 +81,7 @@ CodeParseExpression(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Righ
 
 ;dispatches the retrieval of the left binding power of a given token
 CodeParseDispatchLeftBindingPower(Token)
-{
+{ ;returns the left binding power of the given token
  global CodeTokenTypes, Operators
  TokenType := Token.Type
  If (TokenType = CodeTokenTypes.OPERATOR) ;operator token
@@ -138,16 +93,16 @@ CodeParseDispatchLeftBindingPower(Token)
 }
 
 ;dispatches the invocation of the null denotation handler of a given token
-CodeParseDispatchNullDenotation(ByRef Tokens,ByRef Errors,ByRef Index,Token)
+CodeParseDispatchNullDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token)
 {
  global CodeTokenTypes, Operators
  TokenType := Token.Type
  If (TokenType = CodeTokenTypes.OPERATOR)
-  Return, Operators[Token.Value].NullDenotation(Tokens,Errors,Index)
+  Return, Operators[Token.Value].NullDenotation(Tokens,Errors,ParserError,Index)
  If (TokenType = CodeTokenTypes.LITERAL_NUMBER || TokenType = CodeTokenTypes.LITERAL_STRING)
   Return, Token
  If (TokenType = CodeTokenTypes.PARENTHESIS)
-  Return, DispatchParenthesisNullDenotation(Tokens,Errors,Index,Token)
+  Return, DispatchParenthesisNullDenotation(Tokens,Errors,ParserError,Index,Token)
 }
 
 ;dispatches the invocation of the left denotation handler of a given token
@@ -163,7 +118,7 @@ CodeParseDispatchLeftDenotation(ByRef Tokens,ByRef Errors,ByRef Index,Token,Left
   Return, DispatchParenthesisLeftDenotation(Tokens,Errors,Index,Token,LeftSide)
 }
 
-DispatchParenthesisNullDenotation(ByRef Tokens,ByRef Errors,ByRef Index,Token)
+DispatchParenthesisNullDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token)
 {
  global CodeTokenTypes
  If (Token.Value = "(") ;left parenthesis
@@ -176,6 +131,7 @@ DispatchParenthesisNullDenotation(ByRef Tokens,ByRef Errors,ByRef Index,Token)
    Return, Result
   }
  }
+ ParserError := 1
  Return, "ERROR: Unmatched parenthesis" ;wip: better error handling
 }
 
@@ -201,7 +157,7 @@ OperatorAdd(This,ByRef Tokens,ByRef Errors,ByRef Index,LeftSide)
  Return, Object("Type","ADD","Value",Array(LeftSide,CodeParseExpression(Tokens,Errors,ParserError,Index,10)))
 }
 
-OperatorUnarySubtract(This,ByRef Tokens,ByRef Errors,ByRef Index)
+OperatorUnarySubtract(This,ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index)
 {
  global CodeTokenTypes
  Return, Object("Type","NEGATIVE","Value",Array(CodeParseExpression(Tokens,Errors,ParserError,Index,100)))
@@ -213,7 +169,7 @@ OperatorSubtract(This,ByRef Tokens,ByRef Errors,ByRef Index,LeftSide)
  Return, Object("Type","SUBTRACT","Value",Array(LeftSide,CodeParseExpression(Tokens,Errors,ParserError,Index,10)))
 }
 
-OperatorDereference(This,ByRef Tokens,ByRef Errors,ByRef Index)
+OperatorDereference(This,ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index)
 {
  global CodeTokenTypes
  Return, Object("Type","DEREFERENCE","Value",Array(CodeParseExpression(Tokens,Errors,ParserError,Index,100)))
