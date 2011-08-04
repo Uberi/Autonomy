@@ -16,7 +16,7 @@ Var3. Var4
 			Length: 1
 			Position: 42
 	Identifier: INVALID_CONCATENATION
-	Level: Error
+	Level: 3
 2: 
 	Caret: 
 		Length: 1
@@ -27,7 +27,7 @@ Var3. Var4
 			Length: 1
 			Position: 53
 	Identifier: INVALID_OBJECT_ACCESS
-	Level: Error
+	Level: 3
 ---
 1: 
 	File: 1

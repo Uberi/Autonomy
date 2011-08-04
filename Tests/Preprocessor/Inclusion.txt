@@ -161,7 +161,7 @@
 	File: 2
 	Highlight: 0
 	Identifier: DUPLICATE_INCLUSION
-	Level: Notice
+	Level: 1
 2: 
 	Caret: 
 		Length: 15
@@ -169,7 +169,7 @@
 	File: 1
 	Highlight: 0
 	Identifier: FILE_ERROR
-	Level: Error
+	Level: 3
 3: 
 	Caret: 
 		Length: 14
@@ -177,7 +177,7 @@
 	File: 1
 	Highlight: 0
 	Identifier: DUPLICATE_INCLUSION
-	Level: Notice
+	Level: 1
 ---
 1: 
 	File: 1

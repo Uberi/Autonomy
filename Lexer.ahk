@@ -3,12 +3,9 @@
 ;initializes resources that the lexer requires
 CodeLexInit()
 {
- global CodeOperatorTable, CodeLexerEscapeChar, CodeLexerSingleLineCommentChar, CodeLexerIdentifierChars, CodeLexerStatementList, CodeLexerStatementLiteralList, CodeLexerOperatorMaxLength
- CodeLexerEscapeChar := "``" ;character denoting an escape sequence
- CodeLexerSingleLineCommentChar := ";" ;character denoting a single line comment
- CodeLexerIdentifierChars := "abcdefghijklmnopqrstuvwxyz_1234567890#" ;characters that make up a an identifier
- CodeLexerStatementList := Object("#Include","","#Define","","#Undefine","","#If","","#Else","","#ElseIf","","#EndIf","","#Error","","While","","Loop","","For","","If","","Else","","Break","","Continue","","Return","","Gosub","","Goto","","local","","global","","static","") ;statements that can be found on the beginning of a line
- CodeLexerStatementLiteralList := Object("#Include","","Break","","Continue","","Gosub","","Goto","") ;statements that accept literals as parameters
+ global CodeOperatorTable, CodeLexerConstants, CodeLexerStatementList, CodeLexerStatementLiteralList, CodeLexerOperatorMaxLength
+ CodeLexerConstants := Object("ESCAPE","``","SINGLE_LINE_COMMENT",";","MULTILINE_COMMENT_BEGIN","/*","MULTILINE_COMMENT_END","*/","IDENTIFIER","abcdefghijklmnopqrstuvwxyz_1234567890#")
+ CodeLexerStatementList := Object("#Include",1,"#Define",0,"#Undefine",0,"#If",0,"#Else",1,"#ElseIf",0,"#EndIf",1,"#Error",0,"While",0,"Loop",0,"For",0,"If",0,"Else",0,"Break",1,"Continue",1,"Return",0,"Gosub",1,"Goto",1,"local",0,"global",0,"static",0) ;a list of statements and whether they accept literal parameters
 
  CodeLexerOperatorMaxLength := 1 ;one is the maximum length of the other syntax elements - commas, parentheses, square brackets, and curly brackets
  For Temp1 In CodeOperatorTable ;get the length of the longest operator
@@ -18,7 +15,7 @@ CodeLexInit()
 ;lexes plain source code, including all syntax
 CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
 { ;returns 1 on error, 0 otherwise
- global CodeTokenTypes, CodeLexerSingleLineCommentChar, CodeLexerIdentifierChars
+ global CodeTokenTypes, CodeLexerConstants
  Tokens := Array(), Position := 1, LexerError := 0 ;initialize variables
  Loop
  {
@@ -39,17 +36,17 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
    CodeLexStatement(Code,Position,Tokens,FileIndex) ;check for statements
   }
   Else If (CurrentChar = """") ;begin literal string
-   LexerError := CodeLexString(Code,Position,Tokens,Errors,Output,FileIndex) || LexerError
-  Else If (CurrentTwoChar = "/*") ;begin multiline comment
+   LexerError := CodeLexString(Code,Position,Tokens,Errors,FileIndex) || LexerError
+  Else If (CurrentTwoChar = CodeLexerConstants.MULTILINE_COMMENT_BEGIN) ;begin multiline comment
    CodeLexMultilineComment(Code,Position) ;skip over the comment block
-  Else If (CurrentTwoChar = "*/") ;end multiline comment
-   Position += 2 ;can be skipped over
+  Else If (CurrentTwoChar = CodeLexerConstants.MULTILINE_COMMENT_END) ;end multiline comment
+   Position += StrLen(CodeLexerConstants.MULTILINE_COMMENT_END) ;move past multiline comment end
   Else If (CurrentChar = "%") ;dynamic variable reference or dynamic function call
-   LexerError := CodeLexDynamicReference(Code,Position,Tokens,Errors,Output,FileIndex) || LexerError
+   LexerError := CodeLexDynamicReference(Code,Position,Tokens,Errors,FileIndex) || LexerError
   Else If (CurrentChar = ".") ;object access (explicit handling ensures that Var.123.456 will have the purely numerical keys interpreted as identifiers instead of numbers)
   {
    Position1 := Position, Position ++, CurrentChar := SubStr(Code,Position,1) ;move to next char
-   If InStr(CodeLexerIdentifierChars,CurrentChar) ;object access operator must be followed by an identifier
+   If InStr(CodeLexerConstants.IDENTIFIER,CurrentChar) ;object access operator must be followed by an identifier
    {
     ObjInsert(Tokens,Object("Type",CodeTokenTypes.OPERATOR,"Value",".","Position",Position - 1,"File",FileIndex)) ;add a object access token to the token array
     CodeLexIdentifier(Code,Position,Tokens,FileIndex) ;lex identifier
@@ -58,19 +55,7 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
     CodeRecordError(Errors,"INVALID_OBJECT_ACCESS",3,FileIndex,Position1,1,Array(Object("Position",Position,"Length",1))), LexerError := 1
   }
   Else If (CurrentChar = " " || CurrentChar = "`t") ;whitespace
-  {
-   Position1 := Position, Position ++, CurrentChar := SubStr(Code,Position,1) ;skip over whitespace, retrieve character from updated position
-   If (CurrentChar = CodeLexerSingleLineCommentChar) ;single line comment
-    CodeLexSingleLineComment(Code,Position) ;skip over comment
-   Else If (CurrentChar = ".") ;concatenation operator (dot surrounded by whitespace)
-   {
-    Position ++, CurrentChar := SubStr(Code,Position,1) ;move to the next character
-    If (CurrentChar = " " || CurrentChar = "`t") ;there must be whitespace on both sides of the concatenation operator
-     ObjInsert(Tokens,Object("Type",CodeTokenTypes.OPERATOR,"Value"," . ","Position",Position - 1,"File",FileIndex)) ;add a concatenation token to the token array
-    Else
-     CodeRecordError(Errors,"INVALID_CONCATENATION",3,FileIndex,Position - 1,1,Array(Object("Position",Position1,"Length",1),Object("Position",Position,"Length",1))), LexerError := 1
-   }
-  }
+   LexerError := CodeLexWhitespace(Code,Position,Tokens,Errors,FileIndex) || LexerError
   Else If !CodeLexSyntaxElement(Code,Position,Tokens,FileIndex) ;input is a syntax element
   {
    
@@ -79,12 +64,12 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
   {
    
   }
-  Else If InStr(CodeLexerIdentifierChars,CurrentChar) ;an identifier
+  Else If InStr(CodeLexerConstants.IDENTIFIER,CurrentChar) ;an identifier
    CodeLexIdentifier(Code,Position,Tokens,FileIndex)
   Else ;invalid character
   {
    CodeRecordError(Errors,"INVALID_CHARACTER",3,FileIndex,Position), LexerError := 1
-   Position ++
+   Position ++ ;move past the character
   }
  }
  Temp1 := ObjMaxIndex(Tokens) ;get the highest token index
@@ -93,10 +78,10 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
  Return, LexerError
 }
 
-;moves past lines with comments or whitespace
+;lexes lines with comments or whitespace
 CodeLexLine(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
 {
- global CodeTokenTypes, CodeLexerSingleLineCommentChar
+ global CodeTokenTypes, CodeLexerConstants
  Loop
  {
   If ((CurrentChar := SubStr(Code,Position,1)) = "`r" || CurrentChar = "`n" || CurrentChar = " " || CurrentChar = "`t") ;whitespace character
@@ -105,10 +90,12 @@ CodeLexLine(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
    While, ((CurrentChar := SubStr(Code,Position,1)) = "`r" || CurrentChar = "`n" || CurrentChar = " " || CurrentChar = "`t") ;move past whitespace characters
     Position ++
   }
-  Else If (SubStr(Code,Position,1) = CodeLexerSingleLineCommentChar) ;single line comment
+  Else If (CurrentChar = CodeLexerConstants.SINGLE_LINE_COMMENT) ;single line comment
    CodeLexSingleLineComment(Code,Position) ;skip over comment
-  Else If (SubStr(Code,Position,2) = "/*") ;multiline comment
+  Else If ((CurrentChar := SubStr(Code,Position,2)) = CodeLexerConstants.MULTILINE_COMMENT_BEGIN) ;multiline comment begin
    CodeLexMultilineComment(Code,Position) ;skip over the comment block
+  Else If (CurrentChar = CodeLexerConstants.MULTILINE_COMMENT_END) ;multiline comment end
+   Position += StrLen(CodeLexerConstants.MULTILINE_COMMENT_END) ;move past multiline comment end
   Else ;normal line
    Break
  }
@@ -117,14 +104,14 @@ CodeLexLine(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
 ;lexes a statement to find labels, control structures, and directives
 CodeLexStatement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
 { ;returns 1 if the line cannot be lexed as a statement, 0 otherwise
- global CodeTokenTypes, CodeLexerIdentifierChars, CodeLexerStatementList, CodeLexerStatementLiteralList
+ global CodeTokenTypes, CodeLexerConstants, CodeLexerStatementList
 
  ;store the candidate statement
  Position1 := Position, Statement := ""
  Loop
  {
   CurrentChar := SubStr(Code,Position,1)
-  If (CurrentChar = "" || !InStr(CodeLexerIdentifierChars,CurrentChar))
+  If (CurrentChar = "" || !InStr(CodeLexerConstants.IDENTIFIER,CurrentChar))
    Break
   Statement .= CurrentChar, Position ++
  }
@@ -158,7 +145,8 @@ CodeLexStatement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
    Position ++
  }
 
- If ObjHasKey(CodeLexerStatementLiteralList,Statement) ;the current statement accepts the parameters literally
+ 
+ If CodeLexerStatementList[Statement] ;the current statement accepts literal parameters
  {
   ;extract statement parameters
   Parameters := "", Position1 := Position
@@ -176,15 +164,36 @@ CodeLexStatement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
  Return, 0
 }
 
+;lexes whitespace and any constructs that occur after whitespace
+CodeLexWhitespace(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef FileIndex)
+{ ;returns 1 if the input was invalid, 0 otherwise
+ global CodeTokenTypes, CodeLexerConstants
+ Position1 := Position, Position ++, CurrentChar := SubStr(Code,Position,1) ;skip over whitespace, retrieve character from updated position
+ If (CurrentChar = CodeLexerConstants.SINGLE_LINE_COMMENT) ;single line comment
+  CodeLexSingleLineComment(Code,Position) ;skip over comment
+ Else If (CurrentChar = ".") ;concatenation operator (dot surrounded by whitespace)
+ {
+  Position ++, CurrentChar := SubStr(Code,Position,1) ;move to the next character
+  If (CurrentChar = " " || CurrentChar = "`t") ;there must be whitespace on both sides of the concatenation operator
+   ObjInsert(Tokens,Object("Type",CodeTokenTypes.OPERATOR,"Value"," . ","Position",Position - 1,"File",FileIndex)) ;add a concatenation token to the token array
+  Else
+  {
+   CodeRecordError(Errors,"INVALID_CONCATENATION",3,FileIndex,Position - 1,1,Array(Object("Position",Position1,"Length",1),Object("Position",Position,"Length",1)))
+   Return, 1
+  }
+ }
+ Return, 0
+}
+
 ;lexes a quoted string, handling escaped characters
-CodeLexString(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef Output,ByRef FileIndex)
+CodeLexString(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef FileIndex)
 { ;returns 1 if the quotation mark was unmatched, 0 otherwise
- global CodeTokenTypes, CodeLexerEscapeChar
+ global CodeTokenTypes, CodeLexerConstants
  Position1 := Position, Output := "", Position ++ ;move to after the opening quotation mark
  Loop
  {
   CurrentChar := SubStr(Code,Position,1)
-  If (CurrentChar = CodeLexerEscapeChar) ;next character is escaped
+  If (CurrentChar = CodeLexerConstants.ESCAPE) ;next character is escaped
   {
    Position ++, NextChar := SubStr(Code,Position,1) ;get the next character
    ;handle the escaping of the end of a line
@@ -192,12 +201,12 @@ CodeLexString(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef Output,B
    {
     If (SubStr(Code,Position + 1,1) = "`n")
      Position ++ ;move to the next character
-    Output .= CodeLexerEscapeChar . "n", Position ++ ;always concatenate with the newline character
+    Output .= CodeLexerConstants.ESCAPE . "n", Position ++ ;always concatenate with the newline character
     Continue
    }
    If (NextChar = "`n")
     NextChar := "n" ;change the escape sequence character to "n"
-   Output .= CodeLexerEscapeChar . NextChar, Position ++ ;append the escape sequence to the output, and move past it
+   Output .= CodeLexerConstants.ESCAPE . NextChar, Position ++ ;append the escape sequence to the output, and move past it
   }
   Else If (CurrentChar = "`r" || CurrentChar = "`n" || CurrentChar = "") ;past end of string, or reached a newline before the open quote has been closed
   {
@@ -225,28 +234,28 @@ CodeLexSingleLineComment(ByRef Code,ByRef Position)
 ;lexes a multiline comment, including any nested comments it may contain
 CodeLexMultilineComment(ByRef Code,ByRef Position)
 {
- global CodeLexerEscapeChar
- CommentLevel := 1
+ global CodeLexerConstants
+ CommentLevel := 1, Position += StrLen(CodeLexerConstants.MULTILINE_COMMENT_BEGIN) ;set the current comment level, move past the multiline comment beginning sequence
  While, (CommentLevel > 0) ;loop until the comment has ended
  {
-  Position ++
   CurrentChar := SubStr(Code,Position,1), CurrentTwoChar := SubStr(Code,Position,2)
   If (CurrentChar = "") ;past the end of the string
    Return
-  If (CurrentChar = CodeLexerEscapeChar) ;an escaped character in the comment
+  If (CurrentChar = CodeLexerConstants.ESCAPE) ;an escaped character in the comment
    Position += 2 ;skip over the entire esape sequence (allows escaping of comment chars: /* Some `/* Comment */)
-  Else If (CurrentTwoChar = "/*") ;found a nested comment
+  Else If (CurrentTwoChar = CodeLexerConstants.MULTILINE_COMMENT_BEGIN) ;found a nested comment
    CommentLevel ++
-  Else If (CurrentTwoChar = "*/") ;found a closing comment
+  Else If (CurrentTwoChar = CodeLexerConstants.MULTILINE_COMMENT_END) ;found a closing comment
    CommentLevel --
+  Position ++
  }
- Position += 2 ;skip over the closing comment
+ Position += StrLen(CodeLexerConstants.MULTILINE_COMMENT_END) - 1 ;skip over the closing comment
 }
 
 ;lexes dynamic variable and function references
-CodeLexDynamicReference(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef Output,ByRef FileIndex)
+CodeLexDynamicReference(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef FileIndex)
 { ;returns 1 on an invalid dynamic reference, 0 otherwise
- global CodeTokenTypes, CodeLexerIdentifierChars
+ global CodeTokenTypes, CodeLexerConstants
  Output := "", Position1 := Position
  Loop
  {
@@ -258,7 +267,7 @@ CodeLexDynamicReference(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRe
    CodeRecordError(Errors,"UNMATCHED_PERCENT_SIGN",3,FileIndex,Position,1,Array(Object("Position",Position1,"Length",Position - Position1)))
    Return, 1
   }
-  If !InStr(CodeLexerIdentifierChars,CurrentChar) ;invalid character found
+  If !InStr(CodeLexerConstants.IDENTIFIER,CurrentChar) ;invalid character found
   {
    CodeRecordError(Errors,"INVALID_IDENTIFIER",3,FileIndex,Position,1,Array(Object("Position",Position1,"Length",Position - Position1)))
    Return, 1
@@ -274,12 +283,12 @@ CodeLexDynamicReference(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRe
 ;lexes operators and syntax elements
 CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
 { ;returns 1 if no syntax element was found, 0 otherwise
- global CodeTokenTypes, CodeOperatorTable, CodeLexerOperatorMaxLength, CodeLexerIdentifierChars
+ global CodeTokenTypes, CodeOperatorTable, CodeLexerConstants, CodeLexerOperatorMaxLength
  Temp1 := CodeLexerOperatorMaxLength, Position1 := Position
- Loop, %CodeLexerOperatorMaxLength% ;loop until a valid token is found ;wip: loop is incorrect
+ Loop, %CodeLexerOperatorMaxLength% ;loop until a valid token is found
  {
   Output := SubStr(Code,Position,Temp1)
-  If (ObjHasKey(CodeOperatorTable,Output) && !(InStr(CodeLexerIdentifierChars,SubStr(Output,0)) && (CurrentChar := SubStr(Code,Position + Temp1,1)) != "" && InStr(CodeLexerIdentifierChars,CurrentChar))) ;found operator, and if the last charcter is an identifier character, the character after it is not, ensuring the input is an operator instead of an identifier
+  If (ObjHasKey(CodeOperatorTable,Output) && !(InStr(CodeLexerConstants.IDENTIFIER,SubStr(Output,0)) && (CurrentChar := SubStr(Code,Position + Temp1,1)) != "" && InStr(CodeLexerConstants.IDENTIFIER,CurrentChar))) ;found operator, and if the last charcter is an identifier character, the character after it is not, ensuring the input is an operator instead of an identifier
    TokenType := CodeTokenTypes.OPERATOR
   Else If (Output = ",") ;found separator
    TokenType := CodeTokenTypes.SEPARATOR
@@ -304,7 +313,7 @@ CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
 ;lexes a number, and if it is not a valid number, notify that it may be an identifier
 CodeLexNumber(ByRef Code,ByRef Position,ByRef Tokens,FileIndex)
 { ;returns 1 if the input could not be lexed as a number, 0 otherwise
- global CodeTokenTypes, CodeLexerIdentifierChars
+ global CodeTokenTypes, CodeLexerConstants
  Output := "", Position1 := Position, NumberChars := "1234567890", DecimalUsed := 0
  If (SubStr(Code,Position,2) = "0x") ;hexidecimal number
   DecimalUsed := 1, Position += 2, Output .= "0x", NumberChars .= "abcdefABCDEF" ;prevent the usage of decimals in hex numbers, skip over the identifying characters, append them to the number, and expand the valid number characters set
@@ -324,7 +333,7 @@ CodeLexNumber(ByRef Code,ByRef Position,ByRef Tokens,FileIndex)
    }
    Output .= CurrentChar, DecimalUsed := 1 ;set a flag to show that a decimal point has been used
   }
-  Else If InStr(CodeLexerIdentifierChars,CurrentChar) ;notify if the code is a valid identifier char if it cannot be processed as a number
+  Else If InStr(CodeLexerConstants.IDENTIFIER,CurrentChar) ;notify if the code is a valid identifier char if it cannot be processed as a number
   {
    Position := Position1 ;return the position back to the start of this section, to try to parse it again as an identifier
    Return, 1
@@ -340,12 +349,12 @@ CodeLexNumber(ByRef Code,ByRef Position,ByRef Tokens,FileIndex)
 ;lexes an identifier
 CodeLexIdentifier(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
 {
- global CodeTokenTypes, CodeLexerIdentifierChars
+ global CodeTokenTypes, CodeLexerConstants
  Output := SubStr(Code,Position,1), Position1 := Position, Position ++
  Loop
  {
   CurrentChar := SubStr(Code,Position,1)
-  If (CurrentChar = "" || !InStr(CodeLexerIdentifierChars,CurrentChar)) ;past end of string, or found a character that was not part of the identifier
+  If (CurrentChar = "" || !InStr(CodeLexerConstants.IDENTIFIER,CurrentChar)) ;past end of string, or found a character that was not part of the identifier
    Break
   Output .= CurrentChar, Position ++
  }

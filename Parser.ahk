@@ -13,7 +13,7 @@ Syntax Tree Format
 Example
 -------
 
-(2 * 3) + 8
+(2 * 3) + 8 -> (+ (* 2 3) 8)
 
     1:
         Type: NODE ;type information
@@ -36,6 +36,15 @@ Example
             3:
                 Type: LITERAL_NUMBER
                 Value: 8
+
+Syntax Tree Types Enumeration
+-----------------------------
+
+* NODE:           0
+* BLOCK:          1
+* OPERATION:      2
+* LITERAL_NUMBER: 3
+* LITERAL_STRING: 4
 */
 
 ;parses a token stream

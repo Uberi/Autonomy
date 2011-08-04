@@ -8,7 +8,7 @@
 	File: 1
 	Highlight: 0
 	Identifier: INVALID_CHARACTER
-	Level: Error
+	Level: 3
 2: 
 	Caret: 
 		Length: 1
@@ -16,7 +16,7 @@
 	File: 1
 	Highlight: 0
 	Identifier: INVALID_CHARACTER
-	Level: Error
+	Level: 3
 3: 
 	Caret: 
 		Length: 1
@@ -27,7 +27,7 @@
 			Length: 1
 			Position: 6
 	Identifier: INVALID_IDENTIFIER
-	Level: Error
+	Level: 3
 4: 
 	Caret: 
 		Length: 1
@@ -35,7 +35,7 @@
 	File: 1
 	Highlight: 0
 	Identifier: INVALID_CHARACTER
-	Level: Error
+	Level: 3
 5: 
 	Caret: 
 		Length: 1
@@ -46,7 +46,7 @@
 			Length: 4
 			Position: 78
 	Identifier: UNMATCHED_QUOTE
-	Level: Error
+	Level: 3
 6: 
 	Caret: 
 		Length: 1
@@ -54,7 +54,7 @@
 	File: 1
 	Highlight: 0
 	Identifier: INVALID_CHARACTER
-	Level: Error
+	Level: 3
 7: 
 	Caret: 
 		Length: 1
@@ -62,7 +62,7 @@
 	File: 1
 	Highlight: 0
 	Identifier: INVALID_CHARACTER
-	Level: Error
+	Level: 3
 8: 
 	Caret: 
 		Length: 1
@@ -70,7 +70,7 @@
 	File: 1
 	Highlight: 0
 	Identifier: INVALID_CHARACTER
-	Level: Error
+	Level: 3
 9: 
 	Caret: 
 		Length: 1
@@ -81,7 +81,7 @@
 			Length: 1
 			Position: 91
 	Identifier: INVALID_OBJECT_ACCESS
-	Level: Error
+	Level: 3
 10: 
 	Caret: 
 		Length: 1
@@ -89,7 +89,7 @@
 	File: 1
 	Highlight: 0
 	Identifier: INVALID_CHARACTER
-	Level: Error
+	Level: 3
 11: 
 	Caret: 
 		Length: 1
@@ -97,7 +97,7 @@
 	File: 1
 	Highlight: 0
 	Identifier: INVALID_CHARACTER
-	Level: Error
+	Level: 3
 ---
 1: 
 	File: 1

@@ -55,8 +55,8 @@ Example Token Stream
         Position: 15
         File: 3
 
-Token Types Enumeration
------------
+Token Stream Types Enumeration
+------------------------------
 
 * OPERATOR:       0
 * LITERAL_NUMBER: 1

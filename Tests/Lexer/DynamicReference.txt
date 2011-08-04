@@ -14,7 +14,7 @@ Composite%Variable%%Reference% := Composite%Function%Call()
 			Length: 20
 			Position: 46
 	Identifier: UNMATCHED_PERCENT_SIGN
-	Level: Error
+	Level: 3
 2: 
 	Caret: 
 		Length: 1
@@ -25,7 +25,7 @@ Composite%Variable%%Reference% := Composite%Function%Call()
 			Length: 8
 			Position: 75
 	Identifier: INVALID_IDENTIFIER
-	Level: Error
+	Level: 3
 ---
 1: 
 	File: 1
