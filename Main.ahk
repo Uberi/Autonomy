@@ -54,7 +54,7 @@ Var := Something
 Return, 1 + 1
 )
 
-;Code := "3 + 2 * 1"
+Code := "4-(2+4)*-5"
 
 If CodeInit()
 {
@@ -74,6 +74,7 @@ DisplayObject(ProcessedTokens)
 ;MsgBox % Clipboard := CodeGetError(Code,Errors,Files)
 DisplayObject(Errors)
 
+CodeParseInit()
 CodeParse(ProcessedTokens,SyntaxTree,Errors)
 ;DisplayObject(SyntaxTree)
 

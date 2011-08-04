@@ -10,7 +10,7 @@ Progress
 
     <tr><td>Lexer</td>         <td><em>Working</em></td></tr>
     <tr><td>Preprocessor</td>  <td><em>Almost working</em></td></tr>
-    <tr><td>Parser</td>        <td><em>Temporarily broken (soon undergoing rewrite)</em></td></tr>
+    <tr><td>Parser</td>        <td><em>In Progress</em></td></tr>
     <tr><td>Simplifier</td>    <td><em>Pending</em></td></tr>
     <tr><td>Bytecode</td>      <td><em>Pending</em></td></tr>
     <tr><td>Interpreter</td>   <td><em>Pending</em></td></tr>
