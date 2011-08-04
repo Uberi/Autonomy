@@ -1,25 +1,5 @@
 #NoEnv
 
-/*
-Token Stream Format
--------------------
-
-* _[Index]_:    the index of the token                         _[Object]_
-    * Type:     the enumerated type of the token               _[Integer]_
-    * Value:    the value of the token                         _[String]_
-    * Position: position of token within the file              _[Integer]_
-    * File:     the file index the current token is located in _[Integer]_
-
-Example Token Stream
---------------------
-
-    2:
-        Type: 9
-        Value: SomeVariable
-        Position: 15
-        File: 3
-*/
-
 ;initializes resources that the lexer requires
 CodeLexInit()
 {
@@ -27,7 +7,7 @@ CodeLexInit()
  CodeLexerEscapeChar := "``" ;character denoting an escape sequence
  CodeLexerSingleLineCommentChar := ";" ;character denoting a single line comment
  CodeLexerIdentifierChars := "abcdefghijklmnopqrstuvwxyz_1234567890#" ;characters that make up a an identifier
- CodeLexerStatementList := Object("#Include","","#Define","","#Undefine","","#If","","#Else","","#ElseIf","","#EndIf","","While","","Loop","","For","","If","","Else","","Break","","Continue","","Return","","Gosub","","Goto","","local","","global","","static","") ;statements that can be found on the beginning of a line
+ CodeLexerStatementList := Object("#Include","","#Define","","#Undefine","","#If","","#Else","","#ElseIf","","#EndIf","","#Error","","While","","Loop","","For","","If","","Else","","Break","","Continue","","Return","","Gosub","","Goto","","local","","global","","static","") ;statements that can be found on the beginning of a line
  CodeLexerStatementLiteralList := Object("#Include","","Break","","Continue","","Gosub","","Goto","") ;statements that accept literals as parameters
 
  CodeLexerOperatorMaxLength := 1 ;one is the maximum length of the other syntax elements - commas, parentheses, square brackets, and curly brackets
@@ -82,10 +62,10 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
    Position1 := Position, Position ++, CurrentChar := SubStr(Code,Position,1) ;skip over whitespace, retrieve character from updated position
    If (CurrentChar = CodeLexerSingleLineCommentChar) ;single line comment
     CodeLexSingleLineComment(Code,Position) ;skip over comment
-   Else If (CurrentChar = ".") ;concatenation operator (dot preceded by whitespace)
+   Else If (CurrentChar = ".") ;concatenation operator (dot surrounded by whitespace)
    {
     Position ++, CurrentChar := SubStr(Code,Position,1) ;move to the next character
-    If (CurrentChar = " " || CurrentChar = "`t") ;there must be whitespace on both sides of the concat operator
+    If (CurrentChar = " " || CurrentChar = "`t") ;there must be whitespace on both sides of the concatenation operator
      ObjInsert(Tokens,Object("Type",CodeTokenTypes.OPERATOR,"Value"," . ","Position",Position - 1,"File",FileIndex)) ;add a concatenation token to the token array
     Else
      CodeRecordError(Errors,"INVALID_CONCATENATION",3,FileIndex,Position - 1,1,Array(Object("Position",Position1,"Length",1),Object("Position",Position,"Length",1))), LexerError := 1
@@ -95,7 +75,7 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
   {
    
   }
-  Else If (InStr("1234567890",CurrentChar) && !CodeLexNumber(Code,Position,Tokens,FileIndex)) ;a number, not an identifier
+  Else If (InStr("1234567890",CurrentChar) && !CodeLexNumber(Code,Position,Tokens,FileIndex)) ;begins with a numerical digit and is not an identifier
   {
    
   }
@@ -108,7 +88,7 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
   }
  }
  Temp1 := ObjMaxIndex(Tokens) ;get the highest token index
- If (Tokens[Temp1].Type = CodeTokenTypes.LINE_END) ;token is a newline
+ If (Tokens[Temp1].Type = CodeTokenTypes.LINE_END) ;last token is a newline
   ObjRemove(Tokens,Temp1,"") ;remove the last token
  Return, LexerError
 }
@@ -185,7 +165,7 @@ CodeLexStatement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
   While, ((CurrentChar := SubStr(Code,Position,1)) != "`r" && CurrentChar != "`n" && CurrentChar != "") ;move to the end of the line
    Position ++, Parameters .= CurrentChar
 
-  ;trim trailing whitespace from paramters
+  ;trim trailing whitespace from parameters
   Length := Position - Position1
   While, ((CurrentChar := SubStr(Parameters,Length,1)) = " " || CurrentChar = "`t")
    Length --
@@ -294,7 +274,7 @@ CodeLexDynamicReference(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRe
 ;lexes operators and syntax elements
 CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
 { ;returns 1 if no syntax element was found, 0 otherwise
- global CodeOperatorTable, CodeTokenTypes, CodeLexerOperatorMaxLength, CodeLexerIdentifierChars
+ global CodeTokenTypes, CodeOperatorTable, CodeLexerOperatorMaxLength, CodeLexerIdentifierChars
  Temp1 := CodeLexerOperatorMaxLength, Position1 := Position
  Loop, %CodeLexerOperatorMaxLength% ;loop until a valid token is found ;wip: loop is incorrect
  {

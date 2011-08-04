@@ -10,9 +10,11 @@ The preprocessor supports simple expressions in the form:
     #Define ANOTHER_DEFINITION := 2 * (5 + SOME_DEFINITION)
     #Define SOME_DEFINITION := "A String"
     #If SOME_DEFINITION = "A " . "String"
-    ;code here would be processed
+    ;...
+    #ElseIf SOME_DEFINITION = "Something else"
+    ;...
     #Else
-    ;code here would not be processed
+    #Error 1, "Unsupported platform."
     #EndIf
 
 However, there are a few limitations:
@@ -67,6 +69,8 @@ CodePreprocess(ByRef Tokens,ByRef ProcessedTokens,ByRef Errors,ByRef Files,FileI
   Else If (Directive = "#Else") ;conditional code checking alternative
    ;wip: process here
   Else If (Directive = "#EndIf") ;conditional code block end
+   ;wip: process here
+  Else If (Directive = "#Error") ;compilation error raising
    ;wip: process here
   */
   Else
@@ -151,7 +155,7 @@ CodePreprocessDefinition(ByRef Tokens,ByRef Index,ByRef ProcessedTokens,ByRef De
  Token := Tokens[Index], NextToken := Tokens[Index + 1]
  If (Token.Type = CodeTokenTypes.IDENTIFIER) ;token is an identifier
  {
-  If (NextToken.Type = CodeTokenTypes.OPERATOR && NextToken.Value = ":=") ;identifier is followed by literal assignment
+  If (NextToken.Type = CodeTokenTypes.OPERATOR && NextToken.Value = ":=") ;identifier is followed by literal assignment ;wip: remove literal ":=" for an identifier
   {
    Identifier := Token.Value, Index += 2 ;retrieve the identifier name, move past the identifier and assignment operator tokens
    If ObjHasKey(Definitions,Identifier)
@@ -192,7 +196,7 @@ CodePreprocessRemoveDefinition(ByRef Tokens,Index,ByRef Definitions,Errors)
  Return, 0
 }
 
-;evaluates a simple preprocessor expression ;wip: unary minus not working yet (need to use prevtoken variable)
+;evaluates a simple preprocessor expression ;wip: replace with TDOP evaluator
 CodePreprocessEvaluate(ByRef Tokens,ByRef Index,ByRef Result,ByRef Definitions,ByRef Errors,FileIndex)
 { ;returns 1 on evaluation error, 0 otherwise
  global CodeTokenTypes, CodeOperatorTable
@@ -351,48 +355,4 @@ CodePreprocessEvaluateOperator(OperatorToken,Arity,ByRef Result,ByRef Errors)
   CodeRecordErrorTokens(Errors,"INVALID_OPERATOR_PARAMETERS",3,OperatorToken,Array(Parameter1))
 
  Return, !ValidTypes
-}
-
-/* ;wip: TDOP parser doesn't handle infix yet
-CodeExpressionEval(ByRef Tokens,ByRef Errors)
-{
- global CodeTokenTypes, FunctionList
- FunctionList := Object(CodeTokenTypes.OPERATOR,Object("Null",Func("DispatchOperatorNull"),"Left",Func("DispatchOperatorLeft"),"BindingPower",),CodeTokenTypes.LITERAL_NUMBER,Object("Null",Func("DispatchLiteralNull")))
-
- Index := 1
- Return, Expression(Tokens,Index)
-}
-
-Expression(ByRef Tokens,ByRef Index,RightBindingPower = 0)
-{
- global FunctionList
- t := Tokens[Index], Index ++, Token := Tokens[Index]
- LeftSide := FunctionList[t.Type].Null(Tokens,Index,t)
- While, RightBindingPower < Token.LeftBindingPower
- Return, LeftSide
-}
-
-DispatchOperatorLeft(This,ByRef Tokens,ByRef Index,Token,LeftSide)
-{
- global CodeTokenTypes
- TokenValue := Token.Value
- If (TokenValue = "+")
-  Return, Object("Type",CodeTokenTypes.LITERAL_NUMBER,"Value",Expression(Tokens,Index,10))
-}
-
-DispatchOperatorNull(This,ByRef Tokens,ByRef Index,Token)
-{
- global CodeTokenTypes
- TokenValue := Token.Value
- If (TokenValue = "-")
- {
-  Return, Object("Type",CodeTokenTypes.LITERAL_NUMBER,"Value",-(Expression(Tokens,Index,100).Value))
- }
- Else
-  MsgBox % TokenValue
-}
-
-DispatchLiteralNull(This,ByRef Tokens,ByRef Index,Token)
-{
- Return, Token
 }

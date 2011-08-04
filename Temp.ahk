@@ -6,7 +6,7 @@
 
 ;wip: prefix globals
 
-Code := "3-2+4*-5"
+Code := "3-(2+4)*-5"
 
 If CodeInit()
 {
@@ -32,7 +32,8 @@ CodeEvaluateInit()
 
  Functions := Object(CodeTokenTypes.OPERATOR,Object("LeftBindingPower",Func("DispatchOperatorLeftBindingPower"),"NullDenotation",Func("DispatchOperatorNullDenotation"),"LeftDenotation",Func("DispatchOperatorLeftDenotation"))
   ,CodeTokenTypes.LITERAL_NUMBER,Object("LeftBindingPower",Func("DispatchLiteralLeftBindingPower"),"NullDenotation",Func("DispatchLiteralNullDenotation"))
-  ,CodeTokenTypes.LITERAL_STRING,Object("LeftBindingPower",Func("DispatchLiteralLeftBindingPower"),"NullDenotation",Func("DispatchLiteralNullDenotation")))
+  ,CodeTokenTypes.LITERAL_STRING,Object("LeftBindingPower",Func("DispatchLiteralLeftBindingPower"),"NullDenotation",Func("DispatchLiteralNullDenotation"))
+  ,CodeTokenTypes.PARENTHESIS,Object("LeftBindingPower",Func("DispatchParenthesisLeftBindingPower"),"NullDenotation",Func("DispatchParenthesisNullDenotation"),"LeftDenotation",Func("DispatchParenthesisLeftDenotation")))
 
  Operators := Object("+",Object("LeftBindingPower",10,"LeftDenotation",Func("OperatorAdd"))
   ,"-",Object("LeftBindingPower",10,"NullDenotation",Func("OperatorUnarySubtract"),"LeftDenotation",Func("OperatorSubtract"))
@@ -62,16 +63,6 @@ CodeEvaluate(ByRef Tokens,ByRef Index,ByRef Errors,RightBindingPower = 0)
  Return, LeftSide
 }
 
-DispatchLiteralLeftBindingPower(This,Token)
-{
- Return, 0
-}
-
-DispatchLiteralNullDenotation(This,ByRef Tokens,ByRef Index,ByRef Errors,Token)
-{
- Return, Token
-}
-
 DispatchOperatorLeftBindingPower(This,Token)
 {
  global Operators
@@ -88,6 +79,44 @@ DispatchOperatorLeftDenotation(This,ByRef Tokens,ByRef Index,ByRef Errors,Token,
 {
  global Operators
  Return, Operators[Token.Value].LeftDenotation(Tokens,Index,Errors,LeftSide)
+}
+
+DispatchLiteralLeftBindingPower(This,Token)
+{
+ Return, 0
+}
+
+DispatchLiteralNullDenotation(This,ByRef Tokens,ByRef Index,ByRef Errors,Token)
+{
+ Return, Token
+}
+
+DispatchParenthesisLeftBindingPower(This,Token)
+{
+ If (Token.Value = "(") ;left parenthesis
+  Return, 100
+ Return, 0 ;right parenthesis
+}
+
+DispatchParenthesisNullDenotation(This,ByRef Tokens,ByRef Index,ByRef Errors,Token)
+{
+ global CodeTokenTypes
+ If (Token.Value = "(") ;left parenthesis
+ {
+  Result := CodeEvaluate(Tokens,Index,Errors)
+  CurrentToken := Tokens[Index]
+  If (CurrentToken.Type = CodeTokenTypes.PARENTHESIS && CurrentToken.Value = ")") ;match a right parenthesis
+  {
+   Index ++
+   Return, Result
+  }
+ }
+ Return, "ERROR: Unmatched parenthesis" ;wip: better error handling
+}
+
+DispatchParenthesisLeftDenotation(This,ByRef Tokens,ByRef Index,ByRef Errors,Token,LeftSide)
+{
+ MsgBox
 }
 
 OperatorAdd(This,ByRef Tokens,ByRef Index,ByRef Errors,LeftSide)

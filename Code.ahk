@@ -37,6 +37,24 @@ Operator Table Format
     * Associativity: the associativity of the operator        _[String: "L" or "R"]_
     * Arity:         the number of operands the operator uses _[Integer]_
 
+Token Stream Format
+-------------------
+
+* _[Index]_:    the index of the token                         _[Object]_
+    * Type:     the enumerated type of the token               _[Integer]_
+    * Value:    the value of the token                         _[String]_
+    * Position: position of token within the file              _[Integer]_
+    * File:     the file index the current token is located in _[Integer]_
+
+Example Token Stream
+--------------------
+
+    2:
+        Type: 9
+        Value: SomeVariable
+        Position: 15
+        File: 3
+
 Token Types Enumeration
 -----------
 
@@ -59,7 +77,7 @@ Token Types Enumeration
 CodeInit(ResourcesPath = "Resources")
 { ;returns 1 on failure, 0 otherwise
  global CodeOperatorTable, CodeErrorMessages, CodeTokenTypes
- If (FileRead(Temp1,PathJoin(ResourcesPath,"OperatorTable.txt")) != 0) ;error reading file
+ If FileRead(Temp1,PathJoin(ResourcesPath,"OperatorTable.txt")) ;error reading file
   Return, 1
 
  ;parse operators table file into object
@@ -67,7 +85,7 @@ CodeInit(ResourcesPath = "Resources")
  Loop, Parse, Temp1, `n, `r
   Line := StringSplit(A_LoopField,"`t"), ObjInsert(CodeOperatorTable,Line.1,Object("Precedence",Line.2,"Associativity",Line.3,"Arity",Line.4))
 
- If (FileRead(Temp1,PathJoin(ResourcesPath,"Errors.txt")) != 0) ;error reading file
+ If FileRead(Temp1,PathJoin(ResourcesPath,"Errors.txt")) ;error reading file
   Return, 1
 
  ;parse error message file into object, and enumerate error identifiers
