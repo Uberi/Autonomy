@@ -127,40 +127,50 @@ While, (100 - A_Index)
 	Value: While
 24: 
 	File: 1
+	Position: 135
+	Type: 3
+	Value: ,
+25: 
+	File: 1
 	Position: 137
 	Type: 4
 	Value: (
-25: 
+26: 
 	File: 1
 	Position: 138
 	Type: 1
 	Value: 100
-26: 
+27: 
 	File: 1
 	Position: 142
 	Type: 0
 	Value: -
-27: 
+28: 
 	File: 1
 	Position: 144
 	Type: 9
 	Value: A_Index
-28: 
+29: 
 	File: 1
 	Position: 151
 	Type: 4
 	Value: )
-29: 
+30: 
 	File: 1
 	Position: 152
 	Type: 10
 	Value: 
-30: 
+31: 
 	File: 1
 	Position: 156
 	Type: 8
 	Value: Return
-31: 
+32: 
+	File: 1
+	Position: 162
+	Type: 3
+	Value: ,
+33: 
 	File: 1
 	Position: 164
 	Type: 1

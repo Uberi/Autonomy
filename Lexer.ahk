@@ -4,7 +4,7 @@
 CodeLexInit()
 {
  global CodeOperatorTable, CodeLexerConstants, CodeLexerStatementList, CodeLexerStatementLiteralList, CodeLexerOperatorMaxLength
- CodeLexerConstants := Object("ESCAPE","``","SINGLE_LINE_COMMENT",";","MULTILINE_COMMENT_BEGIN","/*","MULTILINE_COMMENT_END","*/","IDENTIFIER","abcdefghijklmnopqrstuvwxyz_1234567890#")
+ CodeLexerConstants := Object("ESCAPE","``","SINGLE_LINE_COMMENT",";","MULTILINE_COMMENT_BEGIN","/*","MULTILINE_COMMENT_END","*/","SEPARATOR",",","LABEL",":","IDENTIFIER","abcdefghijklmnopqrstuvwxyz_1234567890#")
  CodeLexerStatementList := Object("#Include",1,"#Define",0,"#Undefine",0,"#If",0,"#Else",1,"#ElseIf",0,"#EndIf",1,"#Error",0,"While",0,"Loop",0,"For",0,"If",0,"Else",0,"Break",1,"Continue",1,"Return",0,"Gosub",1,"Goto",1,"local",0,"global",0,"static",0) ;a list of statements and whether they accept literal parameters
 
  CodeLexerOperatorMaxLength := 1 ;one is the maximum length of the other syntax elements - commas, parentheses, square brackets, and curly brackets
@@ -117,7 +117,7 @@ CodeLexStatement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
  }
 
  ;detect labels
- If ((CurrentChar = ":") && ((CurrentChar := SubStr(Code,Position + 1,1)) = "`r" || CurrentChar = "`n" || CurrentChar = " " || CurrentChar = "`t" || CurrentChar = "")) ;is a label
+ If (CurrentChar = CodeLexerConstants.LABEL && ((CurrentChar := SubStr(Code,Position + 1,1)) = "`r" || CurrentChar = "`n" || CurrentChar = " " || CurrentChar = "`t" || CurrentChar = "")) ;is a label
  {
   Position += 2 ;move past the colon and the whitespace character after the colon
   While, ((CurrentChar := SubStr(Code,Position,1)) = " " || CurrentChar = "`t") ;move past whitespace
@@ -127,7 +127,7 @@ CodeLexStatement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
  }
 
  ;determine whether the line should be processed as an expression instead of a statement
- If !(((CurrentChar := SubStr(Code,Position,1)) = "`r" || CurrentChar = "`n" || CurrentChar = "," || CurrentChar = " " || CurrentChar = "`t" || CurrentChar = "") && ObjHasKey(CodeLexerStatementList,Statement)) ;not a statement, so must be expression
+ If !(((CurrentChar := SubStr(Code,Position,1)) = CodeLexerConstants.SEPARATOR || CurrentChar = "`r" || CurrentChar = "`n" || CurrentChar = " " || CurrentChar = "`t" || CurrentChar = "") && ObjHasKey(CodeLexerStatementList,Statement)) ;not a statement, so must be expression
  {
   Position := Position1 ;move the position back to the beginning of the line, to allow it to be processed again as an expression
   Return, 1
@@ -135,19 +135,20 @@ CodeLexStatement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
 
  ObjInsert(Tokens,Object("Type",CodeTokenTypes.STATEMENT,"Value",Statement,"Position",Position1,"File",FileIndex)) ;add the statement to the token array
 
- ;skip past whitespace, and up to one comma
+ ;skip past whitespace
  While, ((CurrentChar := SubStr(Code,Position,1)) = " " || CurrentChar = "`t")
   Position ++
- If (CurrentChar = ",") ;comma found
- {
-  Position ++ ;move past the comma
-  While, ((CurrentChar := SubStr(Code,Position,1)) = " " || CurrentChar = "`t") ;skip over any remaining whitespace
-   Position ++
- }
 
- 
  If CodeLexerStatementList[Statement] ;the current statement accepts literal parameters
  {
+  ;move past a separator character if present
+  If (CurrentChar = CodeLexerConstants.SEPARATOR) ;separator found
+  {
+   Position ++ ;move past the separator
+   While, ((CurrentChar := SubStr(Code,Position,1)) = " " || CurrentChar = "`t") ;skip over any remaining whitespace
+    Position ++
+  }
+
   ;extract statement parameters
   Parameters := "", Position1 := Position
   While, ((CurrentChar := SubStr(Code,Position,1)) != "`r" && CurrentChar != "`n" && CurrentChar != "") ;move to the end of the line
@@ -290,7 +291,7 @@ CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
   Output := SubStr(Code,Position,Temp1)
   If (ObjHasKey(CodeOperatorTable,Output) && !(InStr(CodeLexerConstants.IDENTIFIER,SubStr(Output,0)) && (CurrentChar := SubStr(Code,Position + Temp1,1)) != "" && InStr(CodeLexerConstants.IDENTIFIER,CurrentChar))) ;found operator, and if the last charcter is an identifier character, the character after it is not, ensuring the input is an operator instead of an identifier
    TokenType := CodeTokenTypes.OPERATOR
-  Else If (Output = ",") ;found separator
+  Else If (Output = CodeLexerConstants.SEPARATOR) ;found separator
    TokenType := CodeTokenTypes.SEPARATOR
   Else If (Output = "(" || Output = ")") ;found parenthesis
    TokenType := CodeTokenTypes.PARENTHESIS

@@ -24,6 +24,7 @@ Simplifications:
 * logical transforms:                                (!Something && !SomethingElse) -> !(Something || SomethingElse) ;many other different types of logical transforms too
 * type specialization:                               If [Something that evaluates to a boolean: Expression] -> If Expression = True ;avoids needing to check both boolean truthiness and for string truthiness
 * case sensitivity:                                  If [String: String1] = [String without alphabetic characters: String2] -> If String [Case sensitive compare] ;avoid case insensitivity routines that may be more complex or slow
+* static single assignment                           http://en.wikipedia.org/wiki/Static_single_assignment_form
 */
 
 ;simplifies a syntax tree given as input

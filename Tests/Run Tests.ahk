@@ -71,7 +71,7 @@ Gui, Font, s10
 Gui, Add, Button, x2 w150 h30 vCopyReport gCopyReport Default, Copy To Clipboard
 Gui, Add, Button, w150 h30 vSaveReport gSaveReport, Save To File
 GuiControl, Focus, Button1
-Gui, +Resize
+Gui, +Resize +MinSize320x200
 Gosub, GuiSize
 
 If CodeInit("..\Resources")
