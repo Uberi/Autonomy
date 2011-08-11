@@ -106,7 +106,7 @@ CodeLexStatement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
 { ;returns 1 if the line cannot be lexed as a statement, 0 otherwise
  global CodeTokenTypes, CodeLexerConstants, CodeLexerStatementList
 
- ;store the candidate statement
+ ;retrieve the candidate statement
  Position1 := Position, Statement := ""
  Loop
  {
@@ -135,12 +135,11 @@ CodeLexStatement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
 
  ObjInsert(Tokens,Object("Type",CodeTokenTypes.STATEMENT,"Value",Statement,"Position",Position1,"File",FileIndex)) ;add the statement to the token array
 
- While, ((CurrentChar := SubStr(Code,Position,1)) = " " || CurrentChar = "`t")
-  Position ++
-
  If CodeLexerStatementList[Statement] ;the current statement accepts literal parameters
  {
-  ;move past a separator character if present
+  ;move past whitespace and a separator character if present
+  While, ((CurrentChar := SubStr(Code,Position,1)) = " " || CurrentChar = "`t") ;skip over whitespace
+   Position ++
   If (CurrentChar = CodeLexerConstants.SEPARATOR) ;separator found
   {
    Position ++ ;move past the separator
