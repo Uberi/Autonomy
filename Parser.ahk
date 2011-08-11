@@ -7,7 +7,9 @@
 #Include Code.ahk
 #Include Lexer.ahk
 
-Code := "4-(2+4)*-5"
+SetBatchLines(-1)
+
+Code := "4-(2+4)*-(((5)))"
 
 If CodeInit()
 {
@@ -22,8 +24,11 @@ CodeLexInit()
 CodeLex(Code,Tokens,Errors)
 
 CodeParseInit()
+TimerBefore := 0, DllCall("QueryPerformanceCounter","Int64*",TimerBefore) ;wip: debug
+Result := CodeParse(Tokens,SyntaxTree,Errors)
+TimerAfter := 0, DllCall("QueryPerformanceCounter","Int64*",TimerAfter), TickFrequency := 0, DllCall("QueryPerformanceFrequency","Int64*",TickFrequency), TimerAfter := (TimerAfter - TimerBefore) / (TickFrequency / 1000) ;wip: debug
 
-MsgBox % CodeParse(Tokens,SyntaxTree,Errors) . "`n`n" . ShowObject(SyntaxTree)
+MsgBox % TimerAfter . " ms`n`n" . Result . "`n`n" . ShowObject(SyntaxTree)
 ExitApp()
 */
 
@@ -62,7 +67,10 @@ CodeParseExpression(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Righ
 {
  TokensLength := ObjMaxIndex(Tokens) ;retrieve the maximum index of the token stream
  If (Index > TokensLength)
+ {
+  ParserError := 1
   Return, "ERROR: Missing token." ;wip: better error handling
+ }
  CurrentToken := Tokens[Index], Index ++ ;retrieve the current token, move to the next token
  LeftSide := CodeParseDispatchNullDenotation(Tokens,Errors,ParserError,Index,CurrentToken) ;handle the null denotation - the token does not require tokens to its left
  If (Index > TokensLength) ;ensure the index does not go out of bounds
@@ -113,7 +121,10 @@ CodeParseDispatchLeftDenotation(ByRef Tokens,ByRef Errors,ByRef Index,Token,Left
  If (TokenType = CodeTokenTypes.OPERATOR)
   Return, Operators[Token.Value].LeftDenotation(Tokens,Errors,Index,LeftSide)
  If (TokenType = CodeTokenTypes.LITERAL_NUMBER || TokenType = CodeTokenTypes.LITERAL_STRING)
+ {
+  ParserError := 1
   Return, "ERROR: Missing operator" ;wip: better error handling
+ }
  If (TokenType = CodeTokenTypes.PARENTHESIS)
   Return, DispatchParenthesisLeftDenotation(Tokens,Errors,Index,Token,LeftSide)
 }
@@ -148,6 +159,7 @@ DispatchParenthesisLeftDenotation(ByRef Tokens,ByRef Errors,ByRef Index,Token,Le
    Return, Object("Type",LeftSide.Value,"Value",Result)
   }
  }
+ ParserError := 1
  Return, "ERROR: Unmatched parenthesis" ;wip: better error handling
 }
 

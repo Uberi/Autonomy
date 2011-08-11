@@ -86,6 +86,8 @@ Syntax Tree Types Enumeration
 * OPERATION:      2
 * LITERAL_NUMBER: 3
 * LITERAL_STRING: 4
+* IDENTIFIER:     5
+* LABEL:          6
 
 [Wikipedia]: http://en.wikipedia.org/wiki/Extended_Backus-Naur_Form
 */

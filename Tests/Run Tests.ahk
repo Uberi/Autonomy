@@ -1,7 +1,6 @@
 #NoEnv
 
 #Include ..\Resources\Functions.ahk
-#Include ..\Resources\Get Error.ahk ;wip: debug
 
 #Include ..\Code.ahk
 #Include ..\Lexer.ahk
@@ -124,13 +123,13 @@ Loop, %A_ScriptDir%\Lexer\*.txt
   If ((Output := ShowObject(Errors)) != TestErrorOutput)
   {
    ExtraInfo := "Generated errors do not match expected errors.", TestStatus := "Fail"
-   If (Debug = 1)
+   If Debug
     ShowOutput(TestName,0,Output)
   }
   Else If ((Output := ShowObject(Tokens)) != TestTokenOutput)
   {
    ExtraInfo := "Output does not match expected output.", TestStatus := "Fail"
-   If (Debug = 1)
+   If Debug
     ShowOutput(TestName,1,Output)
   }
   Else
@@ -162,13 +161,13 @@ Loop, %A_ScriptDir%\Preprocessor\*.txt
   If ((Output := ShowObject(Errors)) != TestErrorOutput)
   {
    ExtraInfo := "Generated errors do not match expected errors.", TestStatus := "Fail"
-   If (Debug = 1)
+   If Debug
     ShowOutput(TestName,0,Output)
   }
   Else If ((Output := ShowObject(ProcessedTokens)) != TestTokenOutput)
   {
    ExtraInfo := "Output does not match expected output.", TestStatus := "Fail"
-   If (Debug = 1)
+   If Debug
     ShowOutput(TestName,1,Output)
   }
   Else
@@ -198,13 +197,13 @@ Loop, %A_ScriptDir%\Parser\*.txt
   If ((Output := ShowObject(Errors)) != TestErrorOutput)
   {
    ExtraInfo := "Generated errors do not match expected errors.", TestStatus := "Fail"
-   If (Debug = 1)
+   If Debug
     ShowOutput(TestName,0,Output)
   }
   Else If ((Output := ShowObject(SyntaxTree)) != TestTreeOutput)
   {
    ExtraInfo := "Output does not match expected output.", TestStatus := "Fail"
-   If (Debug = 1)
+   If Debug
     ShowOutput(TestName,1,Output)
   }
   Else

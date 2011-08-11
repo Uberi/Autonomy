@@ -5,7 +5,7 @@ CodeLexInit()
 {
  global CodeOperatorTable, CodeLexerConstants, CodeLexerStatementList, CodeLexerStatementLiteralList, CodeLexerOperatorMaxLength
  CodeLexerConstants := Object("ESCAPE","``","SINGLE_LINE_COMMENT",";","MULTILINE_COMMENT_BEGIN","/*","MULTILINE_COMMENT_END","*/","SEPARATOR",",","LABEL",":","IDENTIFIER","abcdefghijklmnopqrstuvwxyz_1234567890#")
- CodeLexerStatementList := Object("#Include",1,"#Define",0,"#Undefine",0,"#If",0,"#Else",1,"#ElseIf",0,"#EndIf",1,"#Error",0,"While",0,"Loop",0,"For",0,"If",0,"Else",0,"Break",1,"Continue",1,"Return",0,"Gosub",1,"Goto",1,"local",0,"global",0,"static",0) ;a list of statements and whether they accept literal parameters
+ CodeLexerStatementList := Object("#Include",1,"#Define",0,"#Undefine",0,"#If",0,"#Else",1,"#ElseIf",0,"#EndIf",1,"#Error",0,"While",0,"Loop",0,"For",0,"If",0,"Else",0,"Break",0,"Continue",0,"Return",0,"Gosub",0,"Goto",0,"local",0,"global",0,"static",0) ;a list of statements and whether they accept literal parameters
 
  CodeLexerOperatorMaxLength := 1 ;one is the maximum length of the other syntax elements - commas, parentheses, square brackets, and curly brackets
  For Temp1 In CodeOperatorTable ;get the length of the longest operator
@@ -135,7 +135,6 @@ CodeLexStatement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
 
  ObjInsert(Tokens,Object("Type",CodeTokenTypes.STATEMENT,"Value",Statement,"Position",Position1,"File",FileIndex)) ;add the statement to the token array
 
- ;skip past whitespace
  While, ((CurrentChar := SubStr(Code,Position,1)) = " " || CurrentChar = "`t")
   Position ++
 
@@ -150,9 +149,28 @@ CodeLexStatement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
   }
 
   ;extract statement parameters
-  Parameters := "", Position1 := Position
+  Position1 := Position, CurrentChar := SubStr(Code,Position - 1,1) ;store the position, get the previous character to check if it was whitespace
+  If ((CurrentChar = " " || CurrentChar = "`t") && SubStr(Code,Position,1) = CodeLexerConstants.SINGLE_LINE_COMMENT) ;check if the parameter is a comment
+  {
+   CodeLexSingleLineComment(Code,Position) ;skip over comment
+   ObjInsert(Tokens,Object("Type",CodeTokenTypes.LITERAL_STRING,"Value","","Position",Position1,"File",FileIndex)) ;add the blank statement parameters to the token array
+   Return, 0
+  }
+
+  Parameters := ""
   While, ((CurrentChar := SubStr(Code,Position,1)) != "`r" && CurrentChar != "`n" && CurrentChar != "") ;move to the end of the line
-   Position ++, Parameters .= CurrentChar
+  {
+   CurrentTwoChar := SubStr(Code,Position,2)
+   Position ++
+   If (CurrentTwoChar = CodeLexerConstants.MULTILINE_COMMENT_BEGIN) ;begin multiline comment
+    CodeLexMultilineComment(Code,Position) ;skip over the comment block
+   Else If (CurrentTwoChar = CodeLexerConstants.MULTILINE_COMMENT_END) ;end multiline comment
+    Position += StrLen(CodeLexerConstants.MULTILINE_COMMENT_END) ;move past multiline comment end
+   Else If ((CurrentChar = " " || CurrentChar = "`t") && SubStr(Code,Position,1) = CodeLexerConstants.SINGLE_LINE_COMMENT) ;single line comment
+    CodeLexSingleLineComment(Code,Position) ;skip over comment
+   Else ;append the text to the parameter
+    Parameters .= CurrentChar
+  }
 
   ;trim trailing whitespace from parameters
   Length := Position - Position1
@@ -228,7 +246,7 @@ CodeLexString(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef FileInde
 CodeLexSingleLineComment(ByRef Code,ByRef Position)
 {
  Position ++ ;skip over semicolon
- While, ((CurrentChar := SubStr(Code,Position,1)) != "`r" && CurrentChar != "`n" && CurrentChar != "") ;loop until a newline is found
+ While, ((CurrentChar := SubStr(Code,Position,1)) != "`r" && CurrentChar != "`n" && CurrentChar != "") ;loop until a newline is found or the end of the file is reached
   Position ++
 }
 
