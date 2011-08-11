@@ -44,25 +44,30 @@ Return
 	Value: GoTo
 8: 
 	File: 1
-	Position: 38
-	Type: 2
-	Value: SomeOtherLabel
+	Position: 36
+	Type: 3
+	Value: ,
 9: 
+	File: 1
+	Position: 38
+	Type: 9
+	Value: SomeOtherLabel
+10: 
 	File: 1
 	Position: 52
 	Type: 10
 	Value: 
-10: 
+11: 
 	File: 1
 	Position: 56
 	Type: 7
 	Value: SomeOtherLabel
-11: 
+12: 
 	File: 1
 	Position: 72
 	Type: 10
 	Value: 
-12: 
+13: 
 	File: 1
 	Position: 73
 	Type: 8
