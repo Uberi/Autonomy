@@ -4,19 +4,19 @@
 Operator Table Format
 ---------------------
 
-* _[Symbol]_:        the symbol representing the operator     _[Object]_
-    * Precedence:    the operator's precendence               _[Integer]_
-    * Associativity: the associativity of the operator        _[String: "L" or "R"]_
-    * Arity:         the number of operands the operator uses _[Integer]_
+* _[Symbol]_:        symbol representing the operator        _[Object]_
+    * Precedence:    operator's precendence                  _[Integer]_
+    * Associativity: associativity of the operator           _[String: "L" or "R"]_
+    * Arity:         number of operands the operator accepts _[Integer]_
 
 Token Stream Format
 -------------------
 
-* _[Index]_:    the index of the token                         _[Object]_
-    * Type:     the enumerated type of the token               _[Integer]_
-    * Value:    the value of the token                         _[String]_
-    * Position: position of token within the file              _[Integer]_
-    * File:     the file index the current token is located in _[Integer]_
+* _[Index]_:    index of the token                         _[Object]_
+    * Type:     enumerated type of the token               _[Integer]_
+    * Value:    value of the token                         _[String]_
+    * Position: position of token within the file          _[Integer]_
+    * File:     file index the current token is located in _[Integer]_
 
 Example Token Stream
 --------------------
@@ -31,52 +31,51 @@ Token Stream Types Enumeration
 ------------------------------
 
 * OPERATOR:       0
-* LITERAL_NUMBER: 1
-* LITERAL_STRING: 2
-* SEPARATOR:      3
-* PARENTHESIS:    4
-* OBJECT_BRACE:   5
-* BLOCK_BRACE:    6
-* LABEL:          7
-* STATEMENT:      8
-* IDENTIFIER:     9
-* LINE_END:       10
+* INTEGER:        1
+* DECIMAL:        2
+* STRING:         3
+* IDENTIFIER:     4
+* SEPARATOR:      5
+* GROUP_BEGIN:    6
+* GROUP_END:      7
+* OBJECT_BEGIN:   8
+* OBJECT_END:     9
+* BLOCK_BEGIN:    10
+* BLOCK_END:      11
+* STATEMENT:      12
+* LABEL:          13
+* LINE_END:       14
 
 Syntax Tree Format
 ------------------
 
-* _[Index]_:         the index of the tree node                                       _[Object]_
-    * 1:             the operation to perform                                         _[String]_
-    * _[1 + Index]_: the parameter or parameters of the operation                     _[Object]_
-        * Type:      the type of the parameter (Object, String, Float, Integer, etc.) _[Identifier]_
-        * Value:     the value of the parameter                                       _[String]_
+* _[Index]_:         index of the tree node                                       _[Object]_
+    * 1:             operation to perform                                         _[String]_
+    * _[1 + Index]_: parameter or parameters of the operation                     _[Object]_
+        * Type:      type of the parameter (Object, String, Float, Integer, etc.) _[Integer]_
+        * Value:     value of the parameter                                       _[Object or String]_
 
 Example
 -------
 
-(2 * 3) + 8 -> (+ (* 2 3) 8)
+(2 * 3.1) + 8 -> (+ (* 2 3) 8)
 
-    1:
-        Type: NODE ;type information
-        Value: ;node value
-            1:
-                Type: OPERATOR
-                Value: +
-            2:
-                Type: NODE
-                Value: ;subnode
-                    1:
-                        Type: OPERATOR
-                        Value: *
-                    2:
-                        Type: LITERAL_NUMBER
-                        Value: 2
-                    3:
-                        Type: LITERAL_NUMBER
-                        Value: 3
-            3:
-                Type: LITERAL_NUMBER
-                Value: 8
+    Type: 0
+    Value:
+        1: +
+        2:
+            Type: 0
+            Value: ;subnode
+                1: *
+                2:
+                    Type: 3
+                    Value: 2
+                3:
+                    Type: 4
+                    Value: 3.1
+        3:
+            Type: NUMBER
+            Value: 8
 
 Syntax Tree Types Enumeration
 -----------------------------
@@ -84,10 +83,11 @@ Syntax Tree Types Enumeration
 * NODE:           0
 * BLOCK:          1
 * OPERATION:      2
-* LITERAL_NUMBER: 3
-* LITERAL_STRING: 4
-* IDENTIFIER:     5
-* LABEL:          6
+* INTEGER:        3
+* DECIMAL:        4
+* STRING:         5
+* IDENTIFIER:     6
+* LABEL:          7
 
 [Wikipedia]: http://en.wikipedia.org/wiki/Extended_Backus-Naur_Form
 */
@@ -113,10 +113,10 @@ CodeInit(ResourcesPath = "Resources")
   Line := StringSplit(A_LoopField,"`t"), ObjInsert(CodeErrorMessages,Line.1,Line.2)
 
  ;set up token stream type enumeration
- CodeTokenTypes := Object("OPERATOR",0,"LITERAL_NUMBER",1,"LITERAL_STRING",2,"SEPARATOR",3,"PARENTHESIS",4,"OBJECT_BRACE",5,"BLOCK_BRACE",6,"LABEL",7,"STATEMENT",8,"IDENTIFIER",9,"LINE_END",10)
+ CodeTokenTypes := Object("OPERATOR",0,"INTEGER",1,"DECIMAL",2,"STRING",3,"IDENTIFIER",4,"SEPARATOR",5,"GROUP_BEGIN",6,"GROUP_END",7,"OBJECT_BEGIN",8,"OBJECT_END",9,"BLOCK_BEGIN",10,"BLOCK_END",11,"STATEMENT",12,"LABEL",13,"LINE_END",14)
 
  ;set up syntax tree type enumeration
- CodeTreeTypes := Object("NODE",0,"BLOCK",1,"OPERATION",2,"LITERAL_NUMBER",3,"LITERAL_STRING",4)
+ CodeTreeTypes := Object("NODE",0,"BLOCK",1,"OPERATION",2,"NUMBER",3,"STRING",4,"IDENTIFIER",5,"LABEL",6)
 
  Return, 0
 }

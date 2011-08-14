@@ -31,12 +31,12 @@ multiple lines"
 1: 
 	File: 1
 	Position: 25
-	Type: 10
+	Type: 14
 	Value: 
 2: 
 	File: 1
 	Position: 27
-	Type: 2
+	Type: 3
 	Value: Hello, World!
 3: 
 	File: 1
@@ -46,20 +46,20 @@ multiple lines"
 4: 
 	File: 1
 	Position: 45
-	Type: 2
+	Type: 3
 	Value: `"This string `n contains `" escaped `t characters `"
 5: 
 	File: 1
 	Position: 100
-	Type: 10
+	Type: 14
 	Value: 
 6: 
 	File: 1
 	Position: 125
-	Type: 10
+	Type: 14
 	Value: 
 7: 
 	File: 1
 	Position: 127
-	Type: 2
+	Type: 3
 	Value: This string spans`nmultiple lines

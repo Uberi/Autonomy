@@ -13,128 +13,128 @@ While, (100 - A_Index)
 1: 
 	File: 1
 	Position: 1
-	Type: 9
+	Type: 4
 	Value: NotAStatement
 2: 
 	File: 1
 	Position: 14
-	Type: 3
-	Value: ,
+	Type: 5
+	Value: 
 3: 
 	File: 1
 	Position: 16
-	Type: 9
+	Type: 4
 	Value: Something
 4: 
 	File: 1
 	Position: 25
-	Type: 10
+	Type: 14
 	Value: 
 5: 
 	File: 1
 	Position: 27
-	Type: 8
+	Type: 12
 	Value: For
 6: 
 	File: 1
 	Position: 31
-	Type: 9
+	Type: 4
 	Value: InvalidLine
 7: 
 	File: 1
 	Position: 42
-	Type: 10
+	Type: 14
 	Value: 
 8: 
 	File: 1
 	Position: 48
-	Type: 8
+	Type: 12
 	Value: For
 9: 
 	File: 1
 	Position: 52
-	Type: 9
+	Type: 4
 	Value: Var
 10: 
 	File: 1
 	Position: 56
-	Type: 9
+	Type: 4
 	Value: In
 11: 
 	File: 1
 	Position: 59
-	Type: 9
+	Type: 4
 	Value: Object
 12: 
 	File: 1
 	Position: 65
-	Type: 10
+	Type: 14
 	Value: 
 13: 
 	File: 1
 	Position: 67
-	Type: 8
+	Type: 12
 	Value: For
 14: 
 	File: 1
 	Position: 71
-	Type: 9
+	Type: 4
 	Value: Key
 15: 
 	File: 1
 	Position: 74
-	Type: 3
-	Value: ,
+	Type: 5
+	Value: 
 16: 
 	File: 1
 	Position: 76
-	Type: 9
+	Type: 4
 	Value: Value
 17: 
 	File: 1
 	Position: 82
-	Type: 9
+	Type: 4
 	Value: In
 18: 
 	File: 1
 	Position: 85
-	Type: 9
+	Type: 4
 	Value: OtherObject
 19: 
 	File: 1
 	Position: 96
-	Type: 10
+	Type: 14
 	Value: 
 20: 
 	File: 1
 	Position: 100
-	Type: 8
+	Type: 12
 	Value: #Include
 21: 
 	File: 1
 	Position: 110
-	Type: 2
+	Type: 3
 	Value: Something.ahk
 22: 
 	File: 1
 	Position: 126
-	Type: 10
+	Type: 14
 	Value: 
 23: 
 	File: 1
 	Position: 130
-	Type: 8
+	Type: 12
 	Value: While
 24: 
 	File: 1
 	Position: 135
-	Type: 3
-	Value: ,
+	Type: 5
+	Value: 
 25: 
 	File: 1
 	Position: 137
-	Type: 4
-	Value: (
+	Type: 6
+	Value: 
 26: 
 	File: 1
 	Position: 138
@@ -148,28 +148,28 @@ While, (100 - A_Index)
 28: 
 	File: 1
 	Position: 144
-	Type: 9
+	Type: 4
 	Value: A_Index
 29: 
 	File: 1
 	Position: 151
-	Type: 4
-	Value: )
+	Type: 7
+	Value: 
 30: 
 	File: 1
 	Position: 152
-	Type: 10
+	Type: 14
 	Value: 
 31: 
 	File: 1
 	Position: 156
-	Type: 8
+	Type: 12
 	Value: Return
 32: 
 	File: 1
 	Position: 162
-	Type: 3
-	Value: ,
+	Type: 5
+	Value: 
 33: 
 	File: 1
 	Position: 164

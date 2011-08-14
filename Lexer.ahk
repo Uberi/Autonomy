@@ -152,7 +152,7 @@ CodeLexStatement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
   If ((CurrentChar = " " || CurrentChar = "`t") && SubStr(Code,Position,1) = CodeLexerConstants.SINGLE_LINE_COMMENT) ;check if the parameter is a comment
   {
    CodeLexSingleLineComment(Code,Position) ;skip over comment
-   ObjInsert(Tokens,Object("Type",CodeTokenTypes.LITERAL_STRING,"Value","","Position",Position1,"File",FileIndex)) ;add the blank statement parameters to the token array
+   ObjInsert(Tokens,Object("Type",CodeTokenTypes.STRING,"Value","","Position",Position1,"File",FileIndex)) ;add the blank statement parameters to the token array
    Return, 0
   }
 
@@ -177,7 +177,7 @@ CodeLexStatement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
    Length --
   Parameters := SubStr(Parameters,1,Length)
 
-  ObjInsert(Tokens,Object("Type",CodeTokenTypes.LITERAL_STRING,"Value",Parameters,"Position",Position1,"File",FileIndex)) ;add the statement parameters to the token array
+  ObjInsert(Tokens,Object("Type",CodeTokenTypes.STRING,"Value",Parameters,"Position",Position1,"File",FileIndex)) ;add the statement parameters to the token array
  }
  Return, 0
 }
@@ -237,7 +237,7 @@ CodeLexString(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef FileInde
    Output .= CurrentChar, Position ++ ;append the character to the output
  }
  Position ++ ;move to after the closing quotation mark
- ObjInsert(Tokens,Object("Type",CodeTokenTypes.LITERAL_STRING,"Value",Output,"Position",Position1,"File",FileIndex)) ;add the string literal to the token array
+ ObjInsert(Tokens,Object("Type",CodeTokenTypes.STRING,"Value",Output,"Position",Position1,"File",FileIndex)) ;add the string literal to the token array
  Return, 0
 }
 
@@ -305,24 +305,30 @@ CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
  Temp1 := CodeLexerOperatorMaxLength, Position1 := Position
  Loop, %CodeLexerOperatorMaxLength% ;loop until a valid token is found
  {
-  Output := SubStr(Code,Position,Temp1)
+  Output := SubStr(Code,Position,Temp1), Value := ""
   If (ObjHasKey(CodeOperatorTable,Output) && !(InStr(CodeLexerConstants.IDENTIFIER,SubStr(Output,0)) && (CurrentChar := SubStr(Code,Position + Temp1,1)) != "" && InStr(CodeLexerConstants.IDENTIFIER,CurrentChar))) ;found operator, and if the last charcter is an identifier character, the character after it is not, ensuring the input is an operator instead of an identifier
-   TokenType := CodeTokenTypes.OPERATOR
+   TokenType := CodeTokenTypes.OPERATOR, Value := Output
   Else If (Output = CodeLexerConstants.SEPARATOR) ;found separator
    TokenType := CodeTokenTypes.SEPARATOR
-  Else If (Output = "(" || Output = ")") ;found parenthesis
-   TokenType := CodeTokenTypes.PARENTHESIS
-  Else If (Output = "[" || Output = "]") ;found object braces
-   TokenType := CodeTokenTypes.OBJECT_BRACE
-  Else If (Output = "{" || Output = "}") ;found block braces
-   TokenType := CodeTokenTypes.BLOCK_BRACE
+  Else If (Output = "(") ;opening parenthesis
+   TokenType := CodeTokenTypes.GROUP_BEGIN
+  Else If (Output = ")") ;closing parenthesis
+   TokenType := CodeTokenTypes.GROUP_END
+  Else If (Output = "[") ;opening square bracket
+   TokenType := CodeTokenTypes.OBJECT_BEGIN
+  Else If (Output = "]") ;closing square bracket
+   TokenType := CodeTokenTypes.OBJECT_END
+  Else If (Output = "{") ;opening curly bracket
+   TokenType := CodeTokenTypes.BLOCK_BEGIN
+  Else If (Output = "}") ;closing curly bracket
+   TokenType := CodeTokenTypes.BLOCK_END
   Else
   {
    Temp1 -- ;reduce the length of the input to be checked
    Continue
   }
   Position += StrLen(Output) ;move past the syntax element, making sure the position is not past the end of the file
-  ObjInsert(Tokens,Object("Type",TokenType,"Value",Output,"Position",Position1,"File",FileIndex)) ;add the found syntax element to the token array
+  ObjInsert(Tokens,Object("Type",TokenType,"Value",Value,"Position",Position1,"File",FileIndex)) ;add the found syntax element to the token array
   Return, 0
  }
  Return, 1 ;not a syntax element
@@ -332,7 +338,7 @@ CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
 CodeLexNumber(ByRef Code,ByRef Position,ByRef Tokens,FileIndex)
 { ;returns 1 if the input could not be lexed as a number, 0 otherwise
  global CodeTokenTypes, CodeLexerConstants
- Output := "", Position1 := Position, NumberChars := "1234567890", DecimalUsed := 0
+ Output := "", Position1 := Position, NumberChars := "1234567890", DecimalUsed := 0, TokenType := CodeTokenTypes.INTEGER
  If (SubStr(Code,Position,2) = "0x") ;hexidecimal number
   DecimalUsed := 1, Position += 2, Output .= "0x", NumberChars .= "abcdefABCDEF" ;prevent the usage of decimals in hex numbers, skip over the identifying characters, append them to the number, and expand the valid number characters set
  Loop
@@ -349,7 +355,7 @@ CodeLexNumber(ByRef Code,ByRef Position,ByRef Tokens,FileIndex)
     Position := Position1 ;return the position back to the start of this section, to try to process it again as an identifier
     Return, 1
    }
-   Output .= CurrentChar, DecimalUsed := 1 ;set a flag to show that a decimal point has been used
+   Output .= CurrentChar, DecimalUsed := 1, TokenType := CodeTokenTypes.DECIMAL ;set a flag to show that a decimal point has been used, change the token type to the decimal type
   }
   Else If InStr(CodeLexerConstants.IDENTIFIER,CurrentChar) ;notify if the code is a valid identifier char if it cannot be processed as a number
   {
@@ -360,7 +366,7 @@ CodeLexNumber(ByRef Code,ByRef Position,ByRef Tokens,FileIndex)
    Break
   Position ++
  }
- ObjInsert(Tokens,Object("Type",CodeTokenTypes.LITERAL_NUMBER,"Value",Output,"Position",Position1,"File",FileIndex)) ;add the number literal to the token array
+ ObjInsert(Tokens,Object("Type",TokenType,"Value",Output,"Position",Position1,"File",FileIndex)) ;add the number literal to the token array
  Return, 0
 }
 

@@ -34,7 +34,7 @@ ExitApp()
 
 CodeParseInit()
 {
- global CodeTokenTypes, Operators
+ global Operators
 
  Operators := Object("+"
    ,Object("LeftBindingPower",10
@@ -94,10 +94,12 @@ CodeParseDispatchLeftBindingPower(Token)
  TokenType := Token.Type
  If (TokenType = CodeTokenTypes.OPERATOR) ;operator token
   Return, Operators[Token.Value].LeftBindingPower
- If (TokenType = CodeTokenTypes.LITERAL_NUMBER || TokenType = CodeTokenTypes.LITERAL_STRING) ;literal token
+ If (TokenType = CodeTokenTypes.INTEGER || TokenType = CodeTokenTypes.DECIMAL || TokenType = CodeTokenTypes.STRING) ;literal token
   Return, 0
- If (TokenType = CodeTokenTypes.PARENTHESIS) ;parenthesis token
-  Return, (Token.Value = "(") ? 100 : 0
+ If (TokenType = CodeTokenTypes.GROUP_BEGIN) ;parenthesis token
+  Return, 100
+ If (TokenType = CodeTokenTypes.GROUP_END)
+  Return, 0
 }
 
 ;dispatches the invocation of the null denotation handler of a given token
@@ -107,10 +109,15 @@ CodeParseDispatchNullDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRe
  TokenType := Token.Type
  If (TokenType = CodeTokenTypes.OPERATOR)
   Return, Operators[Token.Value].NullDenotation(Tokens,Errors,ParserError,Index)
- If (TokenType = CodeTokenTypes.LITERAL_NUMBER || TokenType = CodeTokenTypes.LITERAL_STRING)
+ If (TokenType = CodeTokenTypes.INTEGER || TokenType = CodeTokenTypes.DECIMAL || TokenType = CodeTokenTypes.STRING)
   Return, Token
- If (TokenType = CodeTokenTypes.PARENTHESIS)
-  Return, DispatchParenthesisNullDenotation(Tokens,Errors,ParserError,Index,Token)
+ If (TokenType = CodeTokenTypes.GROUP_BEGIN)
+  Return, GroupNullDenotation(Tokens,Errors,ParserError,Index,Token)
+ If (TokenType = CodeTokenTypes.GROUP_END)
+ {
+  ParserError := 1
+  Return, "ERROR: Unmatched parenthesis" ;wip: better error handling
+ }
 }
 
 ;dispatches the invocation of the left denotation handler of a given token
@@ -120,44 +127,43 @@ CodeParseDispatchLeftDenotation(ByRef Tokens,ByRef Errors,ByRef Index,Token,Left
  TokenType := Token.Type
  If (TokenType = CodeTokenTypes.OPERATOR)
   Return, Operators[Token.Value].LeftDenotation(Tokens,Errors,Index,LeftSide)
- If (TokenType = CodeTokenTypes.LITERAL_NUMBER || TokenType = CodeTokenTypes.LITERAL_STRING)
+ If (TokenType = CodeTokenTypes.INTEGER || TokenType = CodeTokenTypes.DECIMAL || TokenType = CodeTokenTypes.STRING)
  {
   ParserError := 1
   Return, "ERROR: Missing operator" ;wip: better error handling
  }
- If (TokenType = CodeTokenTypes.PARENTHESIS)
-  Return, DispatchParenthesisLeftDenotation(Tokens,Errors,Index,Token,LeftSide)
+ If (TokenType = CodeTokenTypes.GROUP_BEGIN)
+  Return, GroupLeftDenotation(Tokens,Errors,Index,Token,LeftSide)
+ If (TokenType = CodeTokenTypes.GROUP_END)
+ {
+  ParserError := 1
+  Return, "ERROR: Unmatched parenthesis" ;wip: better error handling
+ }
 }
 
-DispatchParenthesisNullDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token)
+GroupNullDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token)
 {
  global CodeTokenTypes
- If (Token.Value = "(") ;left parenthesis
+ Result := CodeParseExpression(Tokens,Errors,ParserError,Index,0)
+ CurrentToken := Tokens[Index]
+ If (CurrentToken.Type = CodeTokenTypes.GROUP_END) ;match a right parenthesis
  {
-  Result := CodeParseExpression(Tokens,Errors,ParserError,Index,0)
-  CurrentToken := Tokens[Index]
-  If (CurrentToken.Type = CodeTokenTypes.PARENTHESIS && CurrentToken.Value = ")") ;match a right parenthesis
-  {
-   Index ++
-   Return, Result
-  }
+  Index ++
+  Return, Result
  }
  ParserError := 1
  Return, "ERROR: Unmatched parenthesis" ;wip: better error handling
 }
 
-DispatchParenthesisLeftDenotation(ByRef Tokens,ByRef Errors,ByRef Index,Token,LeftSide)
+GroupLeftDenotation(ByRef Tokens,ByRef Errors,ByRef Index,Token,LeftSide)
 {
  global CodeTokenTypes
- If (Token.Value = "(") ;left parenthesis
+ Result := CodeParseExpression(Tokens,SyntaxTree,Errors,ParserError,Index)
+ CurrentToken := Tokens[Index]
+ If (CurrentToken.Type = CodeTokenTypes.GROUP_END) ;match a right parenthesis
  {
-  Result := CodeParseExpression(Tokens,SyntaxTree,Errors,ParserError,Index)
-  CurrentToken := Tokens[Index]
-  If (CurrentToken.Type = CodeTokenTypes.PARENTHESIS && CurrentToken.Value = ")") ;match a right parenthesis
-  {
-   Index ++
-   Return, Object("Type",LeftSide.Value,"Value",Result)
-  }
+  Index ++
+  Return, Object("Type",LeftSide.Value,"Value",Result)
  }
  ParserError := 1
  Return, "ERROR: Unmatched parenthesis" ;wip: better error handling

@@ -20,6 +20,7 @@ TODO
 
 Short term tasks:
 
+* Duplicate LINE_END tokens can be present if there was an error that spanned an entire line. see Strings.txt unit test for example. see if this can be avoided
 * Escaping the end of a line with a backtick may result in an incorrect length for the token. need to add a length field for each token
 * Hex escapes: "`xNN", where NN is a sequence of hex digits
 * Unit tests for error handler
@@ -40,7 +41,7 @@ Long term tasks:
 * Make implementation self hosting and change the code to conform to the changed syntax
 * Scope and info should be attached to each variable
 * Incremental parser and lexer for IDE use, have object mapping line numbers to token indexes, have parser save state at intervals, lex changed lines only, restore parser state to the saved state right before the token index of the changed token, keep parsing to the end of the file
-* Lua-like _global[] and _local[] (_G[] in Lua) mechanism to replace dynamic variables. Afterwards remove dynamic variable functionality and make % the modulo or format string operator
+* Lua-like _global[] and _local[] (_G[] in Lua) mechanism to replace dynamic variables. Afterwards remove dynamic variable functionality and make % the modulo or format string operator, and add the in place %= operator as well
 * "local" keyword works on current block, instead of current function, and can make block assume-local: If Something { local SomeVar := "Test" } ;SomeVar is freed after the If block goes out of scope
 * Distinct Array type using contingous memory, faster than Object hash table implementation
 * Library format in bytecode similar to object files in C; allows libraries to avoid recompilation each time by using a bytecode based linker

@@ -241,16 +241,17 @@ GenerateReport(TestReport)
 Gui, Destroy
 Clipboard := TestReport
 MsgBox, 64, Copied, Report has been copied to the clipboard.
-ExitApp
+Return
 
 SaveReport:
 Gui, Hide
 GenerateReport(TestReport)
 FileSelectFile, FileName, S18, Report.txt, Please Select A Path To Save The Report To:, *.txt
-FileDelete, %FileName%
+If FileExist(FileName)
+ FileDelete, %FileName%
 FileAppend, %TestReport%, %FileName%
 MsgBox, 64, Saved, Report has been saved to the following file:`n`n"%FileName%"
-ExitApp
+Return
 
 GenerateReport(ByRef TestReport)
 {

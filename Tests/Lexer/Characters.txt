@@ -112,7 +112,7 @@
 3: 
 	File: 1
 	Position: 4
-	Type: 9
+	Type: 4
 	Value: #
 4: 
 	File: 1
@@ -132,17 +132,17 @@
 7: 
 	File: 1
 	Position: 10
-	Type: 4
-	Value: (
+	Type: 6
+	Value: 
 8: 
 	File: 1
 	Position: 11
-	Type: 4
-	Value: )
+	Type: 7
+	Value: 
 9: 
 	File: 1
 	Position: 12
-	Type: 9
+	Type: 4
 	Value: _
 10: 
 	File: 1
@@ -162,33 +162,33 @@
 13: 
 	File: 1
 	Position: 28
-	Type: 9
+	Type: 4
 	Value: ABCDEFGHIJKLMNOPQRSTUVWXYZ
 14: 
 	File: 1
 	Position: 55
-	Type: 9
+	Type: 4
 	Value: abcdefghijklmnopqrstuvw
 15: 
 	File: 1
 	Position: 82
-	Type: 10
+	Type: 14
 	Value: 
 16: 
 	File: 1
 	Position: 84
-	Type: 5
-	Value: [
+	Type: 8
+	Value: 
 17: 
 	File: 1
 	Position: 85
-	Type: 5
-	Value: ]
+	Type: 9
+	Value: 
 18: 
 	File: 1
 	Position: 89
-	Type: 3
-	Value: ,
+	Type: 5
+	Value: 
 19: 
 	File: 1
 	Position: 91
@@ -197,13 +197,13 @@
 20: 
 	File: 1
 	Position: 92
-	Type: 6
-	Value: {
+	Type: 10
+	Value: 
 21: 
 	File: 1
 	Position: 93
-	Type: 6
-	Value: }
+	Type: 11
+	Value: 
 22: 
 	File: 1
 	Position: 95

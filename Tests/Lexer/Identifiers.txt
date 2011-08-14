@@ -6,7 +6,7 @@ Variable.Property[Result].Value.123.ABC.456.789.Something
 1: 
 	File: 1
 	Position: 1
-	Type: 9
+	Type: 4
 	Value: Result
 2: 
 	File: 1
@@ -16,27 +16,27 @@ Variable.Property[Result].Value.123.ABC.456.789.Something
 3: 
 	File: 1
 	Position: 11
-	Type: 9
+	Type: 4
 	Value: Function
 4: 
 	File: 1
 	Position: 19
-	Type: 4
-	Value: (
+	Type: 6
+	Value: 
 5: 
 	File: 1
 	Position: 20
-	Type: 4
-	Value: )
+	Type: 7
+	Value: 
 6: 
 	File: 1
 	Position: 21
-	Type: 10
+	Type: 14
 	Value: 
 7: 
 	File: 1
 	Position: 23
-	Type: 9
+	Type: 4
 	Value: Variable
 8: 
 	File: 1
@@ -46,23 +46,23 @@ Variable.Property[Result].Value.123.ABC.456.789.Something
 9: 
 	File: 1
 	Position: 32
-	Type: 9
+	Type: 4
 	Value: Property
 10: 
 	File: 1
 	Position: 40
-	Type: 5
-	Value: [
+	Type: 8
+	Value: 
 11: 
 	File: 1
 	Position: 41
-	Type: 9
+	Type: 4
 	Value: Result
 12: 
 	File: 1
 	Position: 47
-	Type: 5
-	Value: ]
+	Type: 9
+	Value: 
 13: 
 	File: 1
 	Position: 48
@@ -71,7 +71,7 @@ Variable.Property[Result].Value.123.ABC.456.789.Something
 14: 
 	File: 1
 	Position: 49
-	Type: 9
+	Type: 4
 	Value: Value
 15: 
 	File: 1
@@ -81,7 +81,7 @@ Variable.Property[Result].Value.123.ABC.456.789.Something
 16: 
 	File: 1
 	Position: 55
-	Type: 9
+	Type: 4
 	Value: 123
 17: 
 	File: 1
@@ -91,7 +91,7 @@ Variable.Property[Result].Value.123.ABC.456.789.Something
 18: 
 	File: 1
 	Position: 59
-	Type: 9
+	Type: 4
 	Value: ABC
 19: 
 	File: 1
@@ -101,7 +101,7 @@ Variable.Property[Result].Value.123.ABC.456.789.Something
 20: 
 	File: 1
 	Position: 63
-	Type: 9
+	Type: 4
 	Value: 456
 21: 
 	File: 1
@@ -111,7 +111,7 @@ Variable.Property[Result].Value.123.ABC.456.789.Something
 22: 
 	File: 1
 	Position: 67
-	Type: 9
+	Type: 4
 	Value: 789
 23: 
 	File: 1
@@ -121,5 +121,5 @@ Variable.Property[Result].Value.123.ABC.456.789.Something
 24: 
 	File: 1
 	Position: 71
-	Type: 9
+	Type: 4
 	Value: Something

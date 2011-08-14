@@ -30,7 +30,7 @@ Composite%Variable%%Reference% := Composite%Function%Call()
 1: 
 	File: 1
 	Position: 1
-	Type: 9
+	Type: 4
 	Value: Variable
 2: 
 	File: 1
@@ -45,17 +45,17 @@ Composite%Variable%%Reference% := Composite%Function%Call()
 4: 
 	File: 1
 	Position: 14
-	Type: 9
+	Type: 4
 	Value: SomeVariable
 5: 
 	File: 1
 	Position: 27
-	Type: 10
+	Type: 14
 	Value: 
 6: 
 	File: 1
 	Position: 29
-	Type: 9
+	Type: 4
 	Value: OtherVariable
 7: 
 	File: 1
@@ -65,12 +65,12 @@ Composite%Variable%%Reference% := Composite%Function%Call()
 8: 
 	File: 1
 	Position: 66
-	Type: 10
+	Type: 14
 	Value: 
 9: 
 	File: 1
 	Position: 68
-	Type: 9
+	Type: 4
 	Value: Var
 10: 
 	File: 1
@@ -80,12 +80,12 @@ Composite%Variable%%Reference% := Composite%Function%Call()
 11: 
 	File: 1
 	Position: 84
-	Type: 9
+	Type: 4
 	Value: Char
 12: 
 	File: 1
 	Position: 88
-	Type: 10
+	Type: 14
 	Value: 
 13: 
 	File: 1
@@ -95,27 +95,27 @@ Composite%Variable%%Reference% := Composite%Function%Call()
 14: 
 	File: 1
 	Position: 91
-	Type: 9
+	Type: 4
 	Value: SomeFunc
 15: 
 	File: 1
 	Position: 100
-	Type: 4
-	Value: (
+	Type: 6
+	Value: 
 16: 
 	File: 1
 	Position: 101
-	Type: 4
-	Value: )
+	Type: 7
+	Value: 
 17: 
 	File: 1
 	Position: 102
-	Type: 10
+	Type: 14
 	Value: 
 18: 
 	File: 1
 	Position: 104
-	Type: 9
+	Type: 4
 	Value: Composite
 19: 
 	File: 1
@@ -125,7 +125,7 @@ Composite%Variable%%Reference% := Composite%Function%Call()
 20: 
 	File: 1
 	Position: 114
-	Type: 9
+	Type: 4
 	Value: Variable
 21: 
 	File: 1
@@ -135,7 +135,7 @@ Composite%Variable%%Reference% := Composite%Function%Call()
 22: 
 	File: 1
 	Position: 124
-	Type: 9
+	Type: 4
 	Value: Reference
 23: 
 	File: 1
@@ -145,7 +145,7 @@ Composite%Variable%%Reference% := Composite%Function%Call()
 24: 
 	File: 1
 	Position: 138
-	Type: 9
+	Type: 4
 	Value: Composite
 25: 
 	File: 1
@@ -155,20 +155,20 @@ Composite%Variable%%Reference% := Composite%Function%Call()
 26: 
 	File: 1
 	Position: 148
-	Type: 9
+	Type: 4
 	Value: Function
 27: 
 	File: 1
 	Position: 157
-	Type: 9
+	Type: 4
 	Value: Call
 28: 
 	File: 1
 	Position: 161
-	Type: 4
-	Value: (
+	Type: 6
+	Value: 
 29: 
 	File: 1
 	Position: 162
-	Type: 4
-	Value: )
+	Type: 7
+	Value: 

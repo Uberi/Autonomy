@@ -55,7 +55,7 @@ CodePreprocess(ByRef Tokens,ByRef ProcessedTokens,ByRef Errors,ByRef Files,FileI
    Continue
   }
   Directive := Token.Value
-  If (Directive = "#Include") ;script inclusion, duplication ignored
+  If (Directive = "#Include") ;script inclusion
    PreprocessError := CodePreprocessInclusion(Tokens[Index],Index,ProcessedTokens,Errors,Files,FileIndex) || PreprocessError
   Else If (Directive = "#Define") ;identifier macro or function macro definition
    PreprocessError := CodePreprocessDefinition(Tokens,Index,ProcessedTokens,Definitions,Errors,FileIndex) || PreprocessError ;macro definition
@@ -205,7 +205,7 @@ CodePreprocessEvaluate(ByRef Tokens,ByRef Index,ByRef Result,ByRef Definitions,B
  While, (Index <= TokensLength && (Token := Tokens[Index]).Type != CodeTokenTypes.LINE_END) ;loop until the token stream or line ends
  {
   TokenType := Token.Type, TokenValue := Token.Value
-  If (TokenType = CodeTokenTypes.LITERAL_NUMBER || TokenType = CodeTokenTypes.LITERAL_STRING) ;a literal token
+  If (TokenType = CodeTokenTypes.INTEGER || TokenType = CodeTokenTypes.DECIMAL || TokenType = CodeTokenTypes.STRING) ;a literal token
    ObjInsert(Result,Token)
   Else If (TokenType = CodeTokenTypes.IDENTIFIER) ;an identifier token
   {
@@ -232,18 +232,15 @@ CodePreprocessEvaluate(ByRef Tokens,ByRef Index,ByRef Result,ByRef Definitions,B
    }
    ObjInsert(Stack,Token), MaxIndex ++
   }
-  Else If (TokenType = CodeTokenTypes.PARENTHESIS)
+  Else If (TokenType = CodeTokenTypes.GROUP_BEGIN) ;token is a left parenthesis
+   ObjInsert(Stack,Token), MaxIndex ++
+  Else (TokenType = CodeTokenTypes.GROUP_END) ;token is a right parenthesis
   {
-   If (TokenValue = "(") ;token is a left parenthesis
-    ObjInsert(Stack,Token), MaxIndex ++
-   Else ;token is a right parenthesis
-   {
-    While, (MaxIndex > 0 && (StackToken := Stack[MaxIndex]).Type != CodeTokenTypes.PARENTHESIS) ;loop until the token at the top of the stack is a left parenthesis
-     ObjInsert(Result,StackToken), ObjRemove(StackToken,MaxIndex), MaxIndex -- ;pop the operator at the top of the stack into the output
-    If (MaxIndex = 0) ;parenthesis mismatch
-     Position := Token.Position, CodeRecordError(Errors,"PARENTHESIS_MISMATCH",3,FileIndex,Position,1,Array(Object("Position",StartPosition,"Length",Position - StartPosition))), EvaluationError := 1
-    ObjRemove(Stack,MaxIndex), MaxIndex -- ;pop the parenthesis off the stack
-   }
+   While, (MaxIndex > 0 && (StackToken := Stack[MaxIndex]).Type != CodeTokenTypes.GROUP_BEGIN) ;loop until the token at the top of the stack is a left parenthesis
+    ObjInsert(Result,StackToken), ObjRemove(StackToken,MaxIndex), MaxIndex -- ;pop the operator at the top of the stack into the output
+   If (MaxIndex = 0) ;parenthesis mismatch
+    Position := Token.Position, CodeRecordError(Errors,"PARENTHESIS_MISMATCH",3,FileIndex,Position,1,Array(Object("Position",StartPosition,"Length",Position - StartPosition))), EvaluationError := 1
+   ObjRemove(Stack,MaxIndex), MaxIndex -- ;pop the parenthesis off the stack
   }
   PrevToken := Token, Index ++ ;store the previous token, move to the next token
  }
@@ -253,7 +250,7 @@ CodePreprocessEvaluate(ByRef Tokens,ByRef Index,ByRef Result,ByRef Definitions,B
   Token := Tokens[Index - 1], EndPos := Token.Position + StrLen(Token.Value) ;get position of the end of the token stream
  Loop, %MaxIndex% ;wip: incorrect loop syntax
  {
-  If ((StackToken := Stack[MaxIndex]).Type = CodeTokenTypes.PARENTHESIS)
+  If ((StackToken := Stack[MaxIndex]).Type = CodeTokenTypes.GROUP_BEGIN)
    Position := StackToken.Position, CodeRecordError(Errors,"PARENTHESIS_MISMATCH",3,FileIndex,Position,1,Array(Object("Position",Position,"Length",EndPos - Position))), EvaluationError := 1
   Else
    EvaluationError := CodePreprocessEvaluateOperator(StackToken,CodeOperatorTable[StackToken.Value].Arity,Result,Errors) || EvaluationError
@@ -319,36 +316,36 @@ CodePreprocessEvaluateOperator(OperatorToken,Arity,ByRef Result,ByRef Errors)
  Else If (Operator = " . ")
   Value := Value2 . Value1, ValidTypes := 1
  Else If (Operator = "&")
-  ValidTypes := Type2 = CodeTokenTypes.LITERAL_NUMBER && Type1 = CodeTokenTypes.LITERAL_NUMBER, ValidTypes ? (Value := Value2 & Value1)
+  ValidTypes := (Type2 = CodeTokenTypes.INTEGER || Type2 = CodeTokenTypes.DECIMAL) && (Type1 = CodeTokenTypes.INTEGER || Type1 = CodeTokenTypes.DECIMAL), ValidTypes ? (Value := Value2 & Value1)
  Else If (Operator = "^")
-  ValidTypes := Type2 = CodeTokenTypes.LITERAL_NUMBER && Type1 = CodeTokenTypes.LITERAL_NUMBER, ValidTypes ? (Value := Value2 ^ Value1)
+  ValidTypes := (Type2 = CodeTokenTypes.INTEGER || Type2 = CodeTokenTypes.DECIMAL) && (Type1 = CodeTokenTypes.INTEGER || Type1 = CodeTokenTypes.DECIMAL), ValidTypes ? (Value := Value2 ^ Value1)
  Else If (Operator = "|")
-  ValidTypes := Type2 = CodeTokenTypes.LITERAL_NUMBER && Type1 = CodeTokenTypes.LITERAL_NUMBER, ValidTypes ? (Value := Value2 | Value1)
+  ValidTypes := (Type2 = CodeTokenTypes.INTEGER || Type2 = CodeTokenTypes.DECIMAL) && (Type1 = CodeTokenTypes.INTEGER || Type1 = CodeTokenTypes.DECIMAL), ValidTypes ? (Value := Value2 | Value1)
  Else If (Operator = "<<")
-  ValidTypes := Type2 = CodeTokenTypes.LITERAL_NUMBER && Type1 = CodeTokenTypes.LITERAL_NUMBER, ValidTypes ? (Value := Value2 << Value1)
+  ValidTypes := (Type2 = CodeTokenTypes.INTEGER || Type2 = CodeTokenTypes.DECIMAL) && (Type1 = CodeTokenTypes.INTEGER || Type1 = CodeTokenTypes.DECIMAL), ValidTypes ? (Value := Value2 << Value1)
  Else If (Operator = ">>")
-  ValidTypes := Type2 = CodeTokenTypes.LITERAL_NUMBER && Type1 = CodeTokenTypes.LITERAL_NUMBER, ValidTypes ? (Value := Value2 >> Value1)
+  ValidTypes := (Type2 = CodeTokenTypes.INTEGER || Type2 = CodeTokenTypes.DECIMAL) && (Type1 = CodeTokenTypes.INTEGER || Type1 = CodeTokenTypes.DECIMAL), ValidTypes ? (Value := Value2 >> Value1)
  Else If (Operator = "+")
-  ValidTypes := Type2 = CodeTokenTypes.LITERAL_NUMBER && Type1 = CodeTokenTypes.LITERAL_NUMBER, ValidTypes ? (Value := Value2 + Value1)
+  ValidTypes := (Type2 = CodeTokenTypes.INTEGER || Type2 = CodeTokenTypes.DECIMAL) && (Type1 = CodeTokenTypes.INTEGER || Type1 = CodeTokenTypes.DECIMAL), ValidTypes ? (Value := Value2 + Value1)
  Else If (Operator = "-")
-  ValidTypes := Type2 = CodeTokenTypes.LITERAL_NUMBER && Type1 = CodeTokenTypes.LITERAL_NUMBER, ValidTypes ? (Value := Value2 - Value1)
+  ValidTypes := (Type2 = CodeTokenTypes.INTEGER || Type2 = CodeTokenTypes.DECIMAL) && (Type1 = CodeTokenTypes.INTEGER || Type1 = CodeTokenTypes.DECIMAL), ValidTypes ? (Value := Value2 - Value1)
  Else If (Operator = "*")
-  ValidTypes := Type2 = CodeTokenTypes.LITERAL_NUMBER && Type1 = CodeTokenTypes.LITERAL_NUMBER, ValidTypes ? (Value := Value2 * Value1)
+  ValidTypes := (Type2 = CodeTokenTypes.INTEGER || Type2 = CodeTokenTypes.DECIMAL) && (Type1 = CodeTokenTypes.INTEGER || Type1 = CodeTokenTypes.DECIMAL), ValidTypes ? (Value := Value2 * Value1)
  Else If (Operator = "/")
-  ValidTypes := Type2 = CodeTokenTypes.LITERAL_NUMBER && Type1 = CodeTokenTypes.LITERAL_NUMBER, ValidTypes ? (Value := Value2 / Value1)
+  ValidTypes := (Type2 = CodeTokenTypes.INTEGER || Type2 = CodeTokenTypes.DECIMAL) && (Type1 = CodeTokenTypes.INTEGER || Type1 = CodeTokenTypes.DECIMAL), ValidTypes ? (Value := Value2 / Value1)
  Else If (Operator = "//")
-  ValidTypes := Type2 = CodeTokenTypes.LITERAL_NUMBER && Type1 = CodeTokenTypes.LITERAL_NUMBER, ValidTypes ? (Value := Value2 // Value1)
+  ValidTypes := (Type2 = CodeTokenTypes.INTEGER || Type2 = CodeTokenTypes.DECIMAL) && (Type1 = CodeTokenTypes.INTEGER || Type1 = CodeTokenTypes.DECIMAL), ValidTypes ? (Value := Value2 // Value1)
  Else If (Operator = "!")
   Value := !Value2, ValidTypes := 1
  Else If (Operator = "\-") ;unary minus
-  ValidTypes := Type2 = CodeTokenTypes.LITERAL_NUMBER, ValidTypes ? (Value := -Value2)
+  ValidTypes := (Type2 = CodeTokenTypes.INTEGER || Type2 = CodeTokenTypes.DECIMAL), ValidTypes ? (Value := -Value2)
  Else If (Operator = "~")
-  ValidTypes := Type2 = CodeTokenTypes.LITERAL_NUMBER, ValidTypes ? (Value := ~Value2)
+  ValidTypes := (Type2 = CodeTokenTypes.INTEGER || Type2 = CodeTokenTypes.DECIMAL), ValidTypes ? (Value := ~Value2)
  Else If (Operator = "**")
-  ValidTypes := Type2 = CodeTokenTypes.LITERAL_NUMBER && Type1 = CodeTokenTypes.LITERAL_NUMBER, ValidTypes ? (Value := Value2 ** Value1)
+  ValidTypes := (Type2 = CodeTokenTypes.INTEGER || Type2 = CodeTokenTypes.DECIMAL) && (Type1 = CodeTokenTypes.INTEGER || Type1 = CodeTokenTypes.DECIMAL), ValidTypes ? (Value := Value2 ** Value1)
 
  If ValidTypes
-  ObjInsert(Result,Object("Type",CodeTokenTypes.LITERAL_NUMBER,"Value",Value)) ;wip: give actual types
+  ObjInsert(Result,Object("Type",CodeTokenTypes.DECIMAL,"Value",Value)) ;wip: give actual types
  Else If (Arity > 1)
   CodeRecordErrorTokens(Errors,"INVALID_OPERATOR_PARAMETERS",3,OperatorToken,Array(Parameter2,Parameter1))
  Else
