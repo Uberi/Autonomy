@@ -5,7 +5,6 @@
 #Include Lexer.ahk
 
 ;wip: prefix globals
-;wip: treat parentheses like an operator
 
 Code := "4(2+4)*-5"
 

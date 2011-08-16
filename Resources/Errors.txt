@@ -5,7 +5,7 @@ INVALID_OBJECT_ACCESS	Invalid identifier given for object access.
 INVALID_CONCATENATION	Concatenation operator must have whitespace on both sides.
 UNMATCHED_PERCENT_SIGN	Identifier is missing ending percent sign.
 FILE_ERROR	Could not load file.
-DUPLICATE_INCLUSION	File has been referenced by inclusions multiple times.
+DUPLICATE_INCLUSION	File has already been referenced by an inclusion directive.
 UNDEFINED_MACRO	Undefined macro referenced.
 INVALID_DIRECTIVE_SYNTAX	Incorrect directive syntax.
 PARENTHESIS_MISMATCH	Unmatched parenthesis.

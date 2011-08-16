@@ -5,7 +5,7 @@ Operator Table Format
 ---------------------
 
 * _[Symbol]_:        symbol representing the operator        _[Object]_
-    * Precedence:    operator's precendence                  _[Integer]_
+    * Precedence:    operator's precedence                   _[Integer]_
     * Associativity: associativity of the operator           _[String: "L" or "R"]_
     * Arity:         number of operands the operator accepts _[Integer]_
 

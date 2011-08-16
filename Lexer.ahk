@@ -223,7 +223,7 @@ CodeLexMultilineComment(ByRef Code,ByRef Position)
   If (CurrentChar = "") ;past the end of the string
    Return
   If (CurrentChar = CodeLexerConstants.ESCAPE) ;an escaped character in the comment
-   Position += 2 ;skip over the entire esape sequence (allows escaping of comment chars: /* Some `/* Comment */)
+   Position += 2 ;skip over the entire escape sequence (allows escaping of comment chars: /* Some `/* Comment */)
   Else If (CurrentTwoChar = CodeLexerConstants.MULTILINE_COMMENT_BEGIN) ;found a nested comment
    CommentLevel ++
   Else If (CurrentTwoChar = CodeLexerConstants.MULTILINE_COMMENT_END) ;found a closing comment
@@ -265,7 +265,7 @@ CodeLexDynamicReference(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRe
 CodeLexPeriodOperator(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,FileIndex)
 { ;returns 1 on invalid operator usage, 0 otherwise
  global CodeTokenTypes, CodeLexerConstants
- Position1 := Position, Position ++, NextChar := SubStr(Code,Position,1) ;store the surroudning characters
+ Position1 := Position, Position ++, NextChar := SubStr(Code,Position,1) ;store the surrounding characters
  If (NextChar = " " || NextChar = "`t") ;concatenation operator
  {
   If ((PreviousChar := SubStr(Code,Position - 2,1)) = " " || PreviousChar = "`t" || PreviousChar = "`r" || PreviousChar = "`n") ;concatenation operator must have whitespace precede it
@@ -297,7 +297,7 @@ CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
  Loop, %CodeLexerOperatorMaxLength% ;loop until a valid token is found
  {
   Output := SubStr(Code,Position,Temp1), Value := ""
-  If (ObjHasKey(CodeOperatorTable,Output) && !(InStr(CodeLexerConstants.IDENTIFIER,SubStr(Output,0)) && (CurrentChar := SubStr(Code,Position + Temp1,1)) != "" && InStr(CodeLexerConstants.IDENTIFIER,CurrentChar))) ;found operator, and if the last charcter is an identifier character, the character after it is not, ensuring the input is an operator instead of an identifier
+  If (ObjHasKey(CodeOperatorTable,Output) && !(InStr(CodeLexerConstants.IDENTIFIER,SubStr(Output,0)) && (CurrentChar := SubStr(Code,Position + Temp1,1)) != "" && InStr(CodeLexerConstants.IDENTIFIER,CurrentChar))) ;found operator, and if the last character is an identifier character, the character after it is not, ensuring the input is an operator instead of an identifier
    TokenType := CodeTokenTypes.OPERATOR, Value := Output
   Else If (Output = CodeLexerConstants.SEPARATOR) ;found separator
    TokenType := CodeTokenTypes.SEPARATOR
@@ -330,8 +330,8 @@ CodeLexNumber(ByRef Code,ByRef Position,ByRef Tokens,FileIndex)
 { ;returns 1 if the input could not be lexed as a number, 0 otherwise
  global CodeTokenTypes, CodeLexerConstants
  Output := "", Position1 := Position, NumberChars := "1234567890", DecimalUsed := 0, TokenType := CodeTokenTypes.INTEGER
- If (SubStr(Code,Position,2) = "0x") ;hexidecimal number
-  DecimalUsed := 1, Position += 2, Output .= "0x", NumberChars .= "abcdefABCDEF" ;prevent the usage of decimals in hex numbers, skip over the identifying characters, append them to the number, and expand the valid number characters set
+ If (SubStr(Code,Position,2) = "0x") ;hexadecimal number
+  DecimalUsed := 1, Position += 2, Output .= "0x", NumberChars .= "abcdefABCDEF" ;prevent the usage of decimals in hexadecimal numbers, skip over the identifying characters, append them to the number, and expand the valid number characters set
  Loop
  {
   CurrentChar := SubStr(Code,Position,1)

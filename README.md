@@ -17,7 +17,7 @@ Progress
     <tr><td>Error Handler</td> <td><em>Working</em></td></tr>
 </table>
 
-Currently running on AutoHotkey until the implementation is self hosting.
+Currently running on top of AutoHotkey until the implementation is self hosting.
 
 
 Goal

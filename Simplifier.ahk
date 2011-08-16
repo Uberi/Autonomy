@@ -14,8 +14,8 @@ Simplifications:
 
 * constant folding:                                  (3 + 4) * Sin(5) -> [Value of (3 + 4) * Sin(5)]
 * common subexpression elimination:                  http://en.wikipedia.org/wiki/Common_subexpression_elimination
-* integer bit shift left equivelance:                Integer1 * [Power of 2: Integer2] -> Integer1 << [Log2(Integer2)]
-* integer bit shift right equivelance:               Integer1 // [Power of 2: Integer2] -> Integer1 >> [Log2(Integer2)]
+* integer bit shift left equivalance:                Integer1 * [Power of 2: Integer2] -> Integer1 << [Log2(Integer2)]
+* integer bit shift right equivalance:               Integer1 // [Power of 2: Integer2] -> Integer1 >> [Log2(Integer2)]
 * floor divide:                                      Floor(Number1 / Number2) -> Number1 // Number2
 * multiply by one:                                   [Evaluates to integer 1] * Number, Number * [Evaluates to integer 1] -> Number
 * divide by one:                                     Integer / [Evaluates to 1] -> Integer

@@ -34,7 +34,7 @@ Short term tasks:
 Long term tasks:
 
 * Support a command syntax, that is translated to a function call on load (dotted notation only - no square brackets support). Detect this form in the parser by making sure the token is immediately after an opening parenthesis, opening square bracket, block brace, or line end, and the token after the function is either a literal, an identifier, a separator, an operator that doesn't take a parameter on its left, a block brace, or a line end: Math.Mod, 100, 5
-* When processing different types, precoerce the type to the common-denominator type at compile time. for example, if a variable was originally detected to be in a Short range, but was then added to a Long, declare the variable as a long instead of a short
+* When processing different types, preconvert the smaller type to the common-denominator type at compile time. for example, if a variable was originally detected to be in a Short range, but was then added to a Long, declare the variable as a long instead of a short
 * Flag for Obj.HasKey(Key,Flag) and For-In loops, where the flag determines whether or not to check the object's base for the property if the property was not found in the object itself
 * Primitive type methods through augmentation: "".base.Trim := Trim ... "  test  ".Trim()
 * Namespaces and the ability to define custom ones
@@ -48,7 +48,7 @@ Long term tasks:
 * Incremental parser and lexer for IDE use, have object mapping line numbers to token indexes, have parser save state at intervals, lex changed lines only, restore parser state to the saved state right before the token index of the changed token, keep parsing to the end of the file
 * Lua-like _global[] and _local[] (_G[] in Lua) mechanism to replace dynamic variables. Afterwards remove dynamic variable functionality and make % the modulo or format string operator, and add the in place %= operator as well
 * "local" keyword works on current block, instead of current function, and can make block assume-local: If Something { local SomeVar := "Test" } ;SomeVar is freed after the If block goes out of scope
-* Distinct Array type using contingous memory, faster than Object hash table implementation
+* Distinct Array type using contiguous memory, faster than Object hash table implementation
 */
 
 FileName := A_ScriptFullPath ;set the file name of the current file

@@ -11,7 +11,7 @@ Error Array Format
         Position: position to place the caret       [Integer]
         Length:   length of the caret               [Integer]
     Highlight:    the optional area to highlight    [Object or Number: 0]
-        Position: position of hightlighted section  [Integer]
+        Position: position of highlighted section   [Integer]
         Length:   length of the highlighted section [Integer]
 
 Example
@@ -30,9 +30,9 @@ Example
 Error Levels
 ------------
 
-* Level 1: Notice: Information about unusual peices of code. Integrity of output will most likely not be affected.
+* Level 1: Notice: Information about unusual sections of code. Integrity of output will most likely not be affected.
 * Level 2: Warning: Possible error in code. Integrity of output may be affected
-* Level 3: Error: Invalid code detected. Integrity of output cannot be guarunteed.
+* Level 3: Error: Invalid code detected. Integrity of output cannot be guaranteed.
 */
 
 ;creates a formatted summary of errors
