@@ -141,27 +141,18 @@ CodeLexStatement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
   }
 
   ;extract statement parameters
-  Position1 := Position, CurrentChar := SubStr(Code,Position - 1,1) ;store the position, get the previous character to check if it was whitespace
-  If ((CurrentChar = " " || CurrentChar = "`t") && SubStr(Code,Position,1) = CodeLexerConstants.SINGLE_LINE_COMMENT) ;check if the parameter is a comment
-  {
-   CodeLexSingleLineComment(Code,Position) ;skip over comment
-   ObjInsert(Tokens,Object("Type",CodeTokenTypes.STRING,"Value","","Position",Position1,"File",FileIndex)) ;add the blank statement parameters to the token array
-   Return, 0
-  }
-
-  Parameters := ""
+  Position1 := Position, Parameters := "" ;store the position and prepare to store the parameters
   While, ((CurrentChar := SubStr(Code,Position,1)) != "`r" && CurrentChar != "`n" && CurrentChar != "") ;move to the end of the line
   {
    CurrentTwoChar := SubStr(Code,Position,2)
-   Position ++
    If (CurrentTwoChar = CodeLexerConstants.MULTILINE_COMMENT_BEGIN) ;begin multiline comment
     CodeLexMultilineComment(Code,Position) ;skip over the comment block
    Else If (CurrentTwoChar = CodeLexerConstants.MULTILINE_COMMENT_END) ;end multiline comment
     Position += StrLen(CodeLexerConstants.MULTILINE_COMMENT_END) ;move past multiline comment end
-   Else If ((CurrentChar = " " || CurrentChar = "`t") && SubStr(Code,Position,1) = CodeLexerConstants.SINGLE_LINE_COMMENT) ;single line comment
+   Else If (CurrentChar = CodeLexerConstants.SINGLE_LINE_COMMENT) ;single line comment
     CodeLexSingleLineComment(Code,Position) ;skip over comment
    Else ;append the text to the parameter
-    Parameters .= CurrentChar
+    Position ++, Parameters .= CurrentChar
   }
 
   ;trim trailing whitespace from parameters
@@ -171,34 +162,6 @@ CodeLexStatement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
   Parameters := SubStr(Parameters,1,Length)
 
   ObjInsert(Tokens,Object("Type",CodeTokenTypes.STRING,"Value",Parameters,"Position",Position1,"File",FileIndex)) ;add the statement parameters to the token array
- }
- Return, 0
-}
-
-;lexes a period operator, which can be either a concatenation operator or an object access operator depending on the surrounding whitespace
-CodeLexPeriodOperator(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,FileIndex)
-{ ;returns 1 on invalid operator usage, 0 otherwise
- global CodeTokenTypes, CodeLexerConstants
- Position1 := Position, Position ++, NextChar := SubStr(Code,Position,1) ;store the surroudning characters
- If (NextChar = " " || NextChar = "`t") ;concatenation operator
- {
-  If ((PreviousChar := SubStr(Code,Position - 2,1)) = " " || PreviousChar = "`t" || PreviousChar = "`r" || PreviousChar = "`n") ;concatenation operator must have whitespace precede it
-   ObjInsert(Tokens,Object("Type",CodeTokenTypes.OPERATOR,"Value"," . ","Position",Position - 1,"File",FileIndex)) ;add a concatenation token to the token array
-  Else
-  {
-   CodeRecordError(Errors,"INVALID_CONCATENATION",3,FileIndex,Position - 1,1,Array(Object("Position",Position1,"Length",1),Object("Position",Position,"Length",1)))
-   Return, 1
-  }
- }
- Else If InStr(CodeLexerConstants.IDENTIFIER,NextChar) ;object access (lexer handling ensures that Var.123.456 will have the purely numerical keys interpreted as identifiers instead of numbers)
- {
-  ObjInsert(Tokens,Object("Type",CodeTokenTypes.OPERATOR,"Value",".","Position",Position - 1,"File",FileIndex)) ;add an object access token to the token array
-  CodeLexIdentifier(Code,Position,Tokens,FileIndex) ;lex identifier
- }
- Else ;object access was not followed by an identifier
- {
-  CodeRecordError(Errors,"INVALID_OBJECT_ACCESS",3,FileIndex,Position1,1,Array(Object("Position",Position,"Length",1)))
-  Return, 1
  }
  Return, 0
 }
@@ -295,6 +258,34 @@ CodeLexDynamicReference(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRe
  Position ++ ;move past matching percent sign
  ObjInsert(Tokens,Object("Type",CodeTokenTypes.OPERATOR,"Value","%","Position",Position1,"File",FileIndex)) ;add the dereference operator to the token array
  ObjInsert(Tokens,Object("Type",CodeTokenTypes.IDENTIFIER,"Value",Output,"Position",Position1 + 1,"File",FileIndex)) ;add the identifier to the token array
+ Return, 0
+}
+
+;lexes a period operator, which can be either a concatenation operator or an object access operator depending on the surrounding whitespace
+CodeLexPeriodOperator(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,FileIndex)
+{ ;returns 1 on invalid operator usage, 0 otherwise
+ global CodeTokenTypes, CodeLexerConstants
+ Position1 := Position, Position ++, NextChar := SubStr(Code,Position,1) ;store the surroudning characters
+ If (NextChar = " " || NextChar = "`t") ;concatenation operator
+ {
+  If ((PreviousChar := SubStr(Code,Position - 2,1)) = " " || PreviousChar = "`t" || PreviousChar = "`r" || PreviousChar = "`n") ;concatenation operator must have whitespace precede it
+   ObjInsert(Tokens,Object("Type",CodeTokenTypes.OPERATOR,"Value"," . ","Position",Position - 1,"File",FileIndex)) ;add a concatenation token to the token array
+  Else
+  {
+   CodeRecordError(Errors,"INVALID_CONCATENATION",3,FileIndex,Position - 1,1,Array(Object("Position",Position1,"Length",1),Object("Position",Position,"Length",1)))
+   Return, 1
+  }
+ }
+ Else If InStr(CodeLexerConstants.IDENTIFIER,NextChar) ;object access (lexer handling ensures that Var.123.456 will have the purely numerical keys interpreted as identifiers instead of numbers)
+ {
+  ObjInsert(Tokens,Object("Type",CodeTokenTypes.OPERATOR,"Value",".","Position",Position - 1,"File",FileIndex)) ;add an object access token to the token array
+  CodeLexIdentifier(Code,Position,Tokens,FileIndex) ;lex identifier
+ }
+ Else ;object access was not followed by an identifier
+ {
+  CodeRecordError(Errors,"INVALID_OBJECT_ACCESS",3,FileIndex,Position1,1,Array(Object("Position",Position,"Length",1)))
+  Return, 1
+ }
  Return, 0
 }
 

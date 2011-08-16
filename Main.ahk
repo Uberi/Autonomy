@@ -55,7 +55,6 @@ FileName := A_ScriptFullPath ;set the file name of the current file
 
 Code = 
 (
-~
 #Define SOME_DEFINITION := 1 + 2 * 3
 Var := Something
 #Define ANOTHER_DEFINITION := SOME_DEFINITION + 1
