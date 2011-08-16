@@ -1,5 +1,5 @@
 ~!@#$%^&*()_+`1234567890-=	ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvw"xyz
-[]\;',./{}:<>?
+[]\',./{}:<>?;abc
 ---
 1: 
 	Caret: 
@@ -66,34 +66,26 @@
 8: 
 	Caret: 
 		Length: 1
-		Position: 88
-	File: 1
-	Highlight: 0
-	Identifier: INVALID_CHARACTER
-	Level: 3
-9: 
-	Caret: 
-		Length: 1
-		Position: 90
+		Position: 89
 	File: 1
 	Highlight: 
 		1: 
 			Length: 1
-			Position: 91
+			Position: 90
 	Identifier: INVALID_OBJECT_ACCESS
 	Level: 3
-10: 
+9: 
 	Caret: 
 		Length: 1
-		Position: 94
+		Position: 93
 	File: 1
 	Highlight: 0
 	Identifier: INVALID_CHARACTER
 	Level: 3
-11: 
+10: 
 	Caret: 
 		Length: 1
-		Position: 97
+		Position: 96
 	File: 1
 	Highlight: 0
 	Identifier: INVALID_CHARACTER
@@ -186,31 +178,31 @@
 	Value: 
 18: 
 	File: 1
-	Position: 89
+	Position: 88
 	Type: 5
 	Value: 
 19: 
 	File: 1
-	Position: 91
+	Position: 90
 	Type: 0
 	Value: /
 20: 
 	File: 1
-	Position: 92
+	Position: 91
 	Type: 10
 	Value: 
 21: 
 	File: 1
-	Position: 93
+	Position: 92
 	Type: 11
 	Value: 
 22: 
 	File: 1
-	Position: 95
+	Position: 94
 	Type: 0
 	Value: <
 23: 
 	File: 1
-	Position: 96
+	Position: 95
 	Type: 0
 	Value: >

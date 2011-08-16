@@ -5,7 +5,7 @@
 ;initializes resources that the interpreter requires
 CodeInterpretInit()
 {
- global CodeInterpreterJumpTable, CodeInterpreterNamespace
+ global CodeInterpreterJumpTable
  Index := 0, CodeInterpreterJumpTable := Array()
  Loop, 255
   ObjInsert(CodeInterpreterJumpTable,Index,Func("CodeInterpretInstruction" . Index)), Index ++ ;store a function reference for each instruction

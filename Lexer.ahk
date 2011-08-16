@@ -17,45 +17,38 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
 { ;returns 1 on error, 0 otherwise
  global CodeTokenTypes, CodeLexerConstants
  Tokens := Array(), Position := 1, LexerError := 0 ;initialize variables
+ CurrentChar := SubStr(Code,Position,1)
+ If (CurrentChar = "") ;past the end of the string
+  Return, 0
+ CodeLexLine(Code,Position,Tokens) ;move past whitespace and comment lines
+ CodeLexStatement(Code,Position,Tokens,FileIndex) ;check for statements
  Loop
  {
   CurrentChar := SubStr(Code,Position,1)
   If (CurrentChar = "") ;past the end of the string
    Break
   CurrentTwoChar := SubStr(Code,Position,2)
-  If (A_Index = 1) ;first iteration
-  {
-   CodeLexLine(Code,Position,Tokens,FileIndex) ;move past whitespace and comment lines
-   CodeLexStatement(Code,Position,Tokens,FileIndex) ;check for statements
-  }
-  Else If (CurrentChar = "`r" || CurrentChar = "`n") ;beginning of a line
+  If (CurrentChar = "`r" || CurrentChar = "`n") ;beginning of a line
   {
    Position1 := Position, Position ++ ;store the position, move past the newline character
-   CodeLexLine(Code,Position,Tokens,FileIndex) ;move past whitespace and comment lines
+   CodeLexLine(Code,Position,Tokens) ;move past whitespace and comment lines
    ObjInsert(Tokens,Object("Type",CodeTokenTypes.LINE_END,"Value","","Position",Position1,"File",FileIndex)) ;add the statement end to the token array
    CodeLexStatement(Code,Position,Tokens,FileIndex) ;check for statements
   }
   Else If (CurrentChar = """") ;begin literal string
    LexerError := CodeLexString(Code,Position,Tokens,Errors,FileIndex) || LexerError
+  Else If (CurrentChar = CodeLexerConstants.SINGLE_LINE_COMMENT) ;single line comment
+   CodeLexSingleLineComment(Code,Position)
   Else If (CurrentTwoChar = CodeLexerConstants.MULTILINE_COMMENT_BEGIN) ;begin multiline comment
    CodeLexMultilineComment(Code,Position) ;skip over the comment block
   Else If (CurrentTwoChar = CodeLexerConstants.MULTILINE_COMMENT_END) ;end multiline comment
    Position += StrLen(CodeLexerConstants.MULTILINE_COMMENT_END) ;move past multiline comment end
   Else If (CurrentChar = "%") ;dynamic variable reference or dynamic function call
    LexerError := CodeLexDynamicReference(Code,Position,Tokens,Errors,FileIndex) || LexerError
-  Else If (CurrentChar = ".") ;object access (explicit handling ensures that Var.123.456 will have the purely numerical keys interpreted as identifiers instead of numbers)
-  {
-   Position1 := Position, Position ++, CurrentChar := SubStr(Code,Position,1) ;move to next char
-   If InStr(CodeLexerConstants.IDENTIFIER,CurrentChar) ;object access operator must be followed by an identifier
-   {
-    ObjInsert(Tokens,Object("Type",CodeTokenTypes.OPERATOR,"Value",".","Position",Position - 1,"File",FileIndex)) ;add a object access token to the token array
-    CodeLexIdentifier(Code,Position,Tokens,FileIndex) ;lex identifier
-   }
-   Else
-    CodeRecordError(Errors,"INVALID_OBJECT_ACCESS",3,FileIndex,Position1,1,Array(Object("Position",Position,"Length",1))), LexerError := 1
-  }
+  Else If (CurrentChar = ".") ;concatenation operator or object access
+   LexerError := CodeLexPeriodOperator(Code,Position,Tokens,Errors,FileIndex) || LexerError
   Else If (CurrentChar = " " || CurrentChar = "`t") ;whitespace
-   LexerError := CodeLexWhitespace(Code,Position,Tokens,Errors,FileIndex) || LexerError
+   Position ++ ;skip to the next character
   Else If !CodeLexSyntaxElement(Code,Position,Tokens,FileIndex) ;input is a syntax element
   {
    
@@ -79,7 +72,7 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
 }
 
 ;lexes lines with comments or whitespace
-CodeLexLine(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
+CodeLexLine(ByRef Code,ByRef Position,ByRef Tokens)
 {
  global CodeTokenTypes, CodeLexerConstants
  Loop
@@ -182,23 +175,30 @@ CodeLexStatement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
  Return, 0
 }
 
-;lexes whitespace and any constructs that occur after whitespace
-CodeLexWhitespace(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef FileIndex)
-{ ;returns 1 if the input was invalid, 0 otherwise
+;lexes a period operator, which can be either a concatenation operator or an object access operator depending on the surrounding whitespace
+CodeLexPeriodOperator(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,FileIndex)
+{ ;returns 1 on invalid operator usage, 0 otherwise
  global CodeTokenTypes, CodeLexerConstants
- Position1 := Position, Position ++, CurrentChar := SubStr(Code,Position,1) ;skip over whitespace, retrieve character from updated position
- If (CurrentChar = CodeLexerConstants.SINGLE_LINE_COMMENT) ;single line comment
-  CodeLexSingleLineComment(Code,Position) ;skip over comment
- Else If (CurrentChar = ".") ;concatenation operator (dot surrounded by whitespace)
+ Position1 := Position, Position ++, NextChar := SubStr(Code,Position,1) ;store the surroudning characters
+ If (NextChar = " " || NextChar = "`t") ;concatenation operator
  {
-  Position ++, CurrentChar := SubStr(Code,Position,1) ;move to the next character
-  If (CurrentChar = " " || CurrentChar = "`t") ;there must be whitespace on both sides of the concatenation operator
+  If ((PreviousChar := SubStr(Code,Position - 2,1)) = " " || PreviousChar = "`t" || PreviousChar = "`r" || PreviousChar = "`n") ;concatenation operator must have whitespace precede it
    ObjInsert(Tokens,Object("Type",CodeTokenTypes.OPERATOR,"Value"," . ","Position",Position - 1,"File",FileIndex)) ;add a concatenation token to the token array
   Else
   {
    CodeRecordError(Errors,"INVALID_CONCATENATION",3,FileIndex,Position - 1,1,Array(Object("Position",Position1,"Length",1),Object("Position",Position,"Length",1)))
    Return, 1
   }
+ }
+ Else If InStr(CodeLexerConstants.IDENTIFIER,NextChar) ;object access (lexer handling ensures that Var.123.456 will have the purely numerical keys interpreted as identifiers instead of numbers)
+ {
+  ObjInsert(Tokens,Object("Type",CodeTokenTypes.OPERATOR,"Value",".","Position",Position - 1,"File",FileIndex)) ;add an object access token to the token array
+  CodeLexIdentifier(Code,Position,Tokens,FileIndex) ;lex identifier
+ }
+ Else ;object access was not followed by an identifier
+ {
+  CodeRecordError(Errors,"INVALID_OBJECT_ACCESS",3,FileIndex,Position1,1,Array(Object("Position",Position,"Length",1)))
+  Return, 1
  }
  Return, 0
 }
@@ -244,7 +244,7 @@ CodeLexString(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef FileInde
 ;lexes a single line comment
 CodeLexSingleLineComment(ByRef Code,ByRef Position)
 {
- Position ++ ;skip over semicolon
+ Position ++ ;skip over the comment character
  While, ((CurrentChar := SubStr(Code,Position,1)) != "`r" && CurrentChar != "`n" && CurrentChar != "") ;loop until a newline is found or the end of the file is reached
   Position ++
 }

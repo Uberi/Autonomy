@@ -6,27 +6,16 @@ Var3. Var4
 1: 
 	Caret: 
 		Length: 1
-		Position: 41
-	File: 1
-	Highlight: 
-		1: 
-			Length: 1
-			Position: 40
-		2: 
-			Length: 1
-			Position: 42
-	Identifier: INVALID_CONCATENATION
-	Level: 3
-2: 
-	Caret: 
-		Length: 1
 		Position: 52
 	File: 1
 	Highlight: 
 		1: 
 			Length: 1
+			Position: 52
+		2: 
+			Length: 1
 			Position: 53
-	Identifier: INVALID_OBJECT_ACCESS
+	Identifier: INVALID_CONCATENATION
 	Level: 3
 ---
 1: 
@@ -76,20 +65,25 @@ Var3. Var4
 	Value: Var1
 10: 
 	File: 1
+	Position: 41
+	Type: 0
+	Value: .
+11: 
+	File: 1
 	Position: 42
 	Type: 4
 	Value: Var2
-11: 
+12: 
 	File: 1
 	Position: 46
 	Type: 14
 	Value: 
-12: 
+13: 
 	File: 1
 	Position: 48
 	Type: 4
 	Value: Var3
-13: 
+14: 
 	File: 1
 	Position: 54
 	Type: 4
