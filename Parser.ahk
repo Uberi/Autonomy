@@ -20,8 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 ;wip: remove Operators global
+;wip: check for recursion depth terminating the expression by checking to make sure the token is the last one before returning, otherwise skip over close paren and keep parsing
 
-/*
+;/*
 #Include Resources\Functions.ahk
 #Include Code.ahk
 #Include Lexer.ahk
@@ -191,29 +192,29 @@ GroupLeftDenotation(ByRef Tokens,ByRef Errors,ByRef Index,Token,LeftSide)
 OperatorAdd(This,ByRef Tokens,ByRef Errors,ByRef Index,LeftSide)
 {
  global CodeTokenTypes
- Return, Object("Type","ADD","Value",Array(LeftSide,CodeParseExpression(Tokens,Errors,ParserError,Index,10)))
+ Return, Object("Type","NODE","Value",Array("ADD",LeftSide,CodeParseExpression(Tokens,Errors,ParserError,Index,10)))
 }
 
 OperatorUnarySubtract(This,ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index)
 {
  global CodeTokenTypes
- Return, Object("Type","NEGATIVE","Value",Array(CodeParseExpression(Tokens,Errors,ParserError,Index,100)))
+ Return, Object("Type","NODE","Value",Array("NEGATIVE",CodeParseExpression(Tokens,Errors,ParserError,Index,100)))
 }
 
 OperatorSubtract(This,ByRef Tokens,ByRef Errors,ByRef Index,LeftSide)
 {
  global CodeTokenTypes
- Return, Object("Type","SUBTRACT","Value",Array(LeftSide,CodeParseExpression(Tokens,Errors,ParserError,Index,10)))
+ Return, Object("Type","NODE","Value",Array("SUBTRACT",LeftSide,CodeParseExpression(Tokens,Errors,ParserError,Index,10)))
 }
 
 OperatorDereference(This,ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index)
 {
  global CodeTokenTypes
- Return, Object("Type","DEREFERENCE","Value",Array(CodeParseExpression(Tokens,Errors,ParserError,Index,100)))
+ Return, Object("Type","NODE","Value",Array("DEREFERENCE",CodeParseExpression(Tokens,Errors,ParserError,Index,100)))
 }
 
 OperatorMultiply(This,ByRef Tokens,ByRef Errors,ByRef Index,LeftSide)
 {
  global CodeTokenTypes
- Return, Object("Type","MULTIPLY","Value",Array(LeftSide,CodeParseExpression(Tokens,Errors,ParserError,Index,20)))
+ Return, Object("Type","NODE","Value",Array("MULTIPLY",LeftSide,CodeParseExpression(Tokens,Errors,ParserError,Index,20)))
 }
