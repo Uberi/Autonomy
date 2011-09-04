@@ -41,19 +41,19 @@ Short term tasks:
 
 * Duplicate LINE_END tokens can be present if there was an error that spanned an entire line. see Strings.txt unit test for example. see if this can be avoided
 * Escaping the end of a line with a backtick may result in an incorrect length for the token. need to add a length field for each token
+* Syntax tree operator enumeration
 * Hex and unicode escapes: "`c(NN)" or `c(NNNN) or `c(NNNNNNNN), where N is a hex digit representing a unicode offset
 * Unit tests for error handler
 * Error identifier enumeration
 * Read mk:@MSITStore:C:\Program%20Files\AutoHotkey\AutoHotkey_L\AutoHotkey_L.chm::/docs/misc/Performance.htm
-* Warn if Return, Break, Continue, Goto are not the last statements in a block
-* Remove operator table if not needed after parser is done
 
 Long term tasks:
 
 * Support a command syntax, that is translated to a function call on load (dotted notation only - no square brackets support). Detect this form in the parser by making sure the token is immediately after an opening parenthesis, opening square bracket, block brace, or line end, and the token after the function is either a literal, an identifier, a separator, an operator that doesn't take a parameter on its left, a block brace, or a line end: Math.Mod, 100, 5
+* Warn if Return, Break, Continue, Goto are not the last statements in a block
 * AST support for lambdas as operations, probably with generated names as the operation
 * After the command syntax is implemented, the STATEMENT token type should be used only for literal statements, as the parser can now detect statements, fixing currently broken cases like the assignment "Else := Variable"
-* Flag for Obj.HasKey(Key,Flag) and For-In loops, where the flag determines whether or not to check the object's base for the property if the property was not found in the object itself
+* Base object should not be enumerable or findable by ObjHasKey()
 * Primitive type methods through augmentation: "".base.Trim := Trim ... "  test  ".Trim()
 * Namespaces and the ability to define custom ones
 * Script that converts AutoHotkey code to Autonomy

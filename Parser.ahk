@@ -19,17 +19,17 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-;wip: remove Operators global
 ;wip: check for recursion depth terminating the expression by checking to make sure the token is the last one before returning, otherwise skip over close paren and keep parsing
+;wip: type verification (possibly implement in type analyser module). need to add type information to operator table
 
-;/*
+/*
 #Include Resources\Functions.ahk
 #Include Code.ahk
 #Include Lexer.ahk
 
 SetBatchLines(-1)
 
-Code := "4-(2+4)*-(((5)))"
+Code := "4 - (2 + 4) * -5"
 
 If CodeInit()
 {
@@ -52,21 +52,10 @@ MsgBox % TimerAfter . " ms`n`n" . Result . "`n`n" . ShowObject(SyntaxTree)
 ExitApp()
 */
 
+;initializes resources that the parser requires
 CodeParseInit()
 {
- global Operators
-
- Operators := Object("+"
-   ,Object("LeftBindingPower",10
-   ,"LeftDenotation",Func("OperatorAdd"))
-  ,"-"
-   ,Object("LeftBindingPower",10
-   ,"NullDenotation",Func("OperatorUnarySubtract")
-   ,"LeftDenotation",Func("OperatorSubtract"))
-  ,"*"
-   ,Object("LeftBindingPower",20
-   ,"NullDenotation",Func("OperatorDereference")
-   ,"LeftDenotation",Func("OperatorMultiply")))
+ 
 }
 
 ;parses a token stream
@@ -99,7 +88,7 @@ CodeParseExpression(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Righ
  While, (RightBindingPower < CodeParseDispatchLeftBindingPower(NextToken)) ;loop while the current right binding power is less than that of the left binding power of the next token
  {
   CurrentToken := NextToken, Index ++ ;store the token and move to the next one
-  LeftSide := CodeParseDispatchLeftDenotation(Tokens,Errors,Index,CurrentToken,LeftSide) ;handle the left denotation - the token requires tokens to its left
+  LeftSide := CodeParseDispatchLeftDenotation(Tokens,Errors,ParserError,Index,CurrentToken,LeftSide) ;handle the left denotation - the token requires tokens to its left
   If (Index > TokensLength) ;ensure the index does not go out of bounds
    Break
   NextToken := Tokens[Index] ;retrieve the next token
@@ -110,14 +99,14 @@ CodeParseExpression(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Righ
 ;dispatches the retrieval of the left binding power of a given token
 CodeParseDispatchLeftBindingPower(Token)
 { ;returns the left binding power of the given token
- global CodeTokenTypes, Operators
+ global CodeTokenTypes
  TokenType := Token.Type
  If (TokenType = CodeTokenTypes.OPERATOR) ;operator token
-  Return, Operators[Token.Value].LeftBindingPower
+  Return, CodeParseOperatorLeftBindingPower(Token)
  If (TokenType = CodeTokenTypes.INTEGER || TokenType = CodeTokenTypes.DECIMAL || TokenType = CodeTokenTypes.STRING) ;literal token
   Return, 0
  If (TokenType = CodeTokenTypes.GROUP_BEGIN) ;parenthesis token
-  Return, 100
+  Return, ~0
  If (TokenType = CodeTokenTypes.GROUP_END)
   Return, 0
 }
@@ -125,14 +114,14 @@ CodeParseDispatchLeftBindingPower(Token)
 ;dispatches the invocation of the null denotation handler of a given token
 CodeParseDispatchNullDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token)
 {
- global CodeTokenTypes, Operators
+ global CodeTokenTypes
  TokenType := Token.Type
  If (TokenType = CodeTokenTypes.OPERATOR)
-  Return, Operators[Token.Value].NullDenotation(Tokens,Errors,ParserError,Index)
+  Return, CodeParseOperatorNullDenotation(Tokens,Errors,ParserError,Index,Token)
  If (TokenType = CodeTokenTypes.INTEGER || TokenType = CodeTokenTypes.DECIMAL || TokenType = CodeTokenTypes.STRING)
   Return, Token
  If (TokenType = CodeTokenTypes.GROUP_BEGIN)
-  Return, GroupNullDenotation(Tokens,Errors,ParserError,Index,Token)
+  Return, CodeParseGroupNullDenotation(Tokens,Errors,ParserError,Index,Token)
  If (TokenType = CodeTokenTypes.GROUP_END)
  {
   ParserError := 1
@@ -141,19 +130,19 @@ CodeParseDispatchNullDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRe
 }
 
 ;dispatches the invocation of the left denotation handler of a given token
-CodeParseDispatchLeftDenotation(ByRef Tokens,ByRef Errors,ByRef Index,Token,LeftSide)
+CodeParseDispatchLeftDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token,LeftSide)
 {
- global CodeTokenTypes, Operators
+ global CodeTokenTypes
  TokenType := Token.Type
  If (TokenType = CodeTokenTypes.OPERATOR)
-  Return, Operators[Token.Value].LeftDenotation(Tokens,Errors,Index,LeftSide)
+  Return, CodeParseOperatorLeftDenotation(Tokens,Errors,ParserError,Index,Token,LeftSide)
  If (TokenType = CodeTokenTypes.INTEGER || TokenType = CodeTokenTypes.DECIMAL || TokenType = CodeTokenTypes.STRING)
  {
   ParserError := 1
   Return, "ERROR: Missing operator" ;wip: better error handling
  }
  If (TokenType = CodeTokenTypes.GROUP_BEGIN)
-  Return, GroupLeftDenotation(Tokens,Errors,Index,Token,LeftSide)
+  Return, CodeParseGroupLeftDenotation(Tokens,ParserError,Errors,Index,Token,LeftSide)
  If (TokenType = CodeTokenTypes.GROUP_END)
  {
   ParserError := 1
@@ -161,60 +150,71 @@ CodeParseDispatchLeftDenotation(ByRef Tokens,ByRef Errors,ByRef Index,Token,Left
  }
 }
 
-GroupNullDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token)
+CodeParseOperatorLeftBindingPower(Token)
+{
+ global CodeOperatorTable
+ If ObjHasKey(CodeOperatorTable.LeftDenotation,Token.Value)
+  Return, CodeOperatorTable.LeftDenotation[Token.Value].LeftBindingPower
+ Return, CodeOperatorTable.NullDenotation[Token.Value].LeftBindingPower
+}
+
+CodeParseOperatorNullDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token)
+{
+ global CodeOperatorTable
+ Operator := CodeOperatorTable.NullDenotation[Token.Value]
+ Return, Object("Type"
+   ,"NODE"
+  ,"Value"
+   ,Array(Operator.Identifier
+   ,CodeParseExpression(Tokens,Errors,ParserError,Index,Operator.RightBindingPower)))
+}
+
+CodeParseOperatorLeftDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token,LeftSide)
+{
+ global CodeOperatorTable
+ Operator := CodeOperatorTable.LeftDenotation[Token.Value]
+ Return, Object("Type"
+   ,"NODE"
+  ,"Value"
+   ,Array(Operator.Identifier
+   ,LeftSide
+   ,CodeParseExpression(Tokens,Errors,ParserError,Index,Operator.RightBindingPower)))
+}
+
+CodeParseGroupNullDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token)
 {
  global CodeTokenTypes
  Result := CodeParseExpression(Tokens,Errors,ParserError,Index,0)
  CurrentToken := Tokens[Index]
  If (CurrentToken.Type = CodeTokenTypes.GROUP_END) ;match a right parenthesis
  {
-  Index ++
+  Index ++ ;move past the right parenthesis
   Return, Result
  }
  ParserError := 1
  Return, "ERROR: Unmatched parenthesis" ;wip: better error handling
 }
 
-GroupLeftDenotation(ByRef Tokens,ByRef Errors,ByRef Index,Token,LeftSide)
+CodeParseGroupLeftDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token,LeftSide)
 {
  global CodeTokenTypes
  Result := CodeParseExpression(Tokens,SyntaxTree,Errors,ParserError,Index)
  CurrentToken := Tokens[Index]
  If (CurrentToken.Type = CodeTokenTypes.GROUP_END) ;match a right parenthesis
  {
-  Index ++
+  Index ++ ;move past the right parenthesis
   Return, Object("Type",LeftSide.Value,"Value",Result)
  }
  ParserError := 1
  Return, "ERROR: Unmatched parenthesis" ;wip: better error handling
 }
 
-OperatorAdd(This,ByRef Tokens,ByRef Errors,ByRef Index,LeftSide)
-{
- global CodeTokenTypes
- Return, Object("Type","NODE","Value",Array("ADD",LeftSide,CodeParseExpression(Tokens,Errors,ParserError,Index,10)))
-}
-
 OperatorUnarySubtract(This,ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index)
 {
- global CodeTokenTypes
- Return, Object("Type","NODE","Value",Array("NEGATIVE",CodeParseExpression(Tokens,Errors,ParserError,Index,100)))
-}
-
-OperatorSubtract(This,ByRef Tokens,ByRef Errors,ByRef Index,LeftSide)
-{
- global CodeTokenTypes
- Return, Object("Type","NODE","Value",Array("SUBTRACT",LeftSide,CodeParseExpression(Tokens,Errors,ParserError,Index,10)))
+ Return, Object("Type","NODE","Value",Array("NEGATIVE",CodeParseExpression(Tokens,Errors,ParserError,Index,140)))
 }
 
 OperatorDereference(This,ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index)
 {
- global CodeTokenTypes
- Return, Object("Type","NODE","Value",Array("DEREFERENCE",CodeParseExpression(Tokens,Errors,ParserError,Index,100)))
-}
-
-OperatorMultiply(This,ByRef Tokens,ByRef Errors,ByRef Index,LeftSide)
-{
- global CodeTokenTypes
- Return, Object("Type","NODE","Value",Array("MULTIPLY",LeftSide,CodeParseExpression(Tokens,Errors,ParserError,Index,20)))
+ Return, Object("Type","NODE","Value",Array("DEREFERENCE",CodeParseExpression(Tokens,Errors,ParserError,Index,140)))
 }

@@ -44,6 +44,8 @@ Simplifications:
 * type specialization:                               If [Something that evaluates to a boolean: Expression] -> If Expression = True ;avoids needing to check both boolean truthiness and for string truthiness
 * case sensitivity:                                  If [String: String1] = [String without alphabetic characters: String2] -> If String [Case sensitive compare] ;avoid case insensitivity routines that may be more complex or slow
 * static single assignment                           http://en.wikipedia.org/wiki/Static_single_assignment_form
+* strength reduction:                                http://en.wikipedia.org/wiki/Strength_reduction
+* partial redundancy elimination:                    http://en.wikipedia.org/wiki/Partial_redundancy_elimination
 */
 
 ;simplifies a syntax tree given as input

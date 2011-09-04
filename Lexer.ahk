@@ -27,7 +27,9 @@ CodeLexInit()
  CodeLexerStatementList := Object("#Include",1,"#Define",0,"#Undefine",0,"#If",0,"#Else",1,"#ElseIf",0,"#EndIf",1,"#Error",0,"While",0,"Loop",0,"For",0,"If",0,"Else",0,"Break",0,"Continue",0,"Return",0,"Gosub",0,"Goto",0,"local",0,"global",0,"static",0) ;a list of statements and whether they accept literal parameters
 
  CodeLexerOperatorMaxLength := 1 ;one is the maximum length of the other syntax elements - commas, parentheses, square brackets, and curly brackets
- For Temp1 In CodeOperatorTable ;get the length of the longest operator
+ For Temp1 In CodeOperatorTable.NullDenotation ;get the length of the longest null denotation operator
+  Temp2 := StrLen(Temp1), (Temp2 > CodeLexerOperatorMaxLength) ? (CodeLexerOperatorMaxLength := Temp2) : ""
+ For Temp1 In CodeOperatorTable.LeftDenotation ;get the length of the longest left denotation operator
   Temp2 := StrLen(Temp1), (Temp2 > CodeLexerOperatorMaxLength) ? (CodeLexerOperatorMaxLength := Temp2) : ""
 }
 
@@ -316,7 +318,7 @@ CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
  Loop, %CodeLexerOperatorMaxLength% ;loop until a valid token is found
  {
   Output := SubStr(Code,Position,Temp1), Value := ""
-  If (ObjHasKey(CodeOperatorTable,Output) && !(InStr(CodeLexerConstants.IDENTIFIER,SubStr(Output,0)) && (CurrentChar := SubStr(Code,Position + Temp1,1)) != "" && InStr(CodeLexerConstants.IDENTIFIER,CurrentChar))) ;found operator, and if the last character is an identifier character, the character after it is not, ensuring the input is an operator instead of an identifier
+  If ((ObjHasKey(CodeOperatorTable.NullDenotation,Output) || ObjHasKey(CodeOperatorTable.LeftDenotation,Output)) && !(InStr(CodeLexerConstants.IDENTIFIER,SubStr(Output,0)) && (CurrentChar := SubStr(Code,Position + Temp1,1)) != "" && InStr(CodeLexerConstants.IDENTIFIER,CurrentChar))) ;found operator, and if the last character is an identifier character, the character after it is not, ensuring the input is an operator instead of an identifier
    TokenType := CodeTokenTypes.OPERATOR, Value := Output
   Else If (Output = CodeLexerConstants.SEPARATOR) ;found separator
    TokenType := CodeTokenTypes.SEPARATOR

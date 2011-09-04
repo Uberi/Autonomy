@@ -119,9 +119,12 @@ CodeInit(ResourcesPath = "Resources")
   Return, 1
 
  ;parse operators table file into object
- CodeOperatorTable := Object()
+ CodeOperatorTable := Object("NullDenotation",Object(),"LeftDenotation",Object())
  Loop, Parse, Temp1, `n, `r
-  Line := StringSplit(A_LoopField,"`t"), ObjInsert(CodeOperatorTable,Line.1,Object("Precedence",Line.2,"Associativity",Line.3,"Arity",Line.4))
+ {
+  Line := StringSplit(A_LoopField,"`t")
+  CodeOperatorTable[(Line.2 = 0) ? "NullDenotation" : "LeftDenotation"][Line.1] := Object("LeftBindingPower",Line.2,"RightBindingPower",Line.3,"Identifier",Line.4)
+ }
 
  If FileRead(Temp1,PathJoin(ResourcesPath,"Errors.txt")) ;error reading file
   Return, 1
