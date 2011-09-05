@@ -29,7 +29,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 SetBatchLines(-1)
 
-Code := "4 - (2 + 4) * -5"
+;Code := "4 - (2 + 4) * -5"
+Code := "2 ** 3 ** 4"
 
 If CodeInit()
 {
