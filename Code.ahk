@@ -69,9 +69,11 @@ Syntax Tree Format
 ------------------
 
 * _[Index]_:         index of the tree node                                       _[Object]_
-    * 1:             operation to perform                                         _[String]_
+    * 1:             operation to perform                                         _[Object]_
+        * Type:      type of the parameter                                        _[Integer]_
+        * Value:     value of the parameter                                       _[Object or String]_
     * _[1 + Index]_: parameter or parameters of the operation                     _[Object]_
-        * Type:      type of the parameter (Object, String, Float, Integer, etc.) _[Integer]_
+        * Type:      type of the parameter                                        _[Integer]_
         * Value:     value of the parameter                                       _[Object or String]_
 
 Example
@@ -81,11 +83,15 @@ Example
 
     Type: 0
     Value:
-        1: +
+        1:
+            Type: 2
+            Value: +
         2:
             Type: 0
             Value: ;subnode
-                1: *
+                1: 
+                    Type: 2
+                    Value: *
                 2:
                     Type: 3
                     Value: 2

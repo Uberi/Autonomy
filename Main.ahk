@@ -41,8 +41,9 @@ Short term tasks:
 
 * Duplicate LINE_END tokens can be present if there was an error that spanned an entire line. see Strings.txt unit test for example. see if this can be avoided
 * Escaping the end of a line with a backtick may result in an incorrect length for the token. need to add a length field for each token
+* Preprocessor macros and a UNIQUE_SYMBOL macro defined by default that allows unnamed functions
 * Syntax tree operator enumeration
-* Hex and unicode escapes: "`c(NN)" or `c(NNNN) or `c(NNNNNNNN), where N is a hex digit representing a unicode offset
+* Hex and unicode escapes: "`c[NN]" or `c[NNNN] or `c[NNNNNNNN], where N is a hex digit representing an ANSI or unicode offset
 * Unit tests for error handler
 * Error identifier enumeration
 * Read mk:@MSITStore:C:\Program%20Files\AutoHotkey\AutoHotkey_L\AutoHotkey_L.chm::/docs/misc/Performance.htm

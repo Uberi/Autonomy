@@ -30,7 +30,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 SetBatchLines(-1)
 
 ;Code := "4 - (2 + 4) * -5"
-Code := "2 ** 3 ** 4"
+;Code := "2 ** 3 ** 4"
+Code := "Object.Method(5 + 1)"
 
 If CodeInit()
 {
@@ -104,10 +105,10 @@ CodeParseDispatchLeftBindingPower(Token)
  TokenType := Token.Type
  If (TokenType = CodeTokenTypes.OPERATOR) ;operator token
   Return, CodeParseOperatorLeftBindingPower(Token)
- If (TokenType = CodeTokenTypes.INTEGER || TokenType = CodeTokenTypes.DECIMAL || TokenType = CodeTokenTypes.STRING) ;literal token
+ If (TokenType = CodeTokenTypes.INTEGER || TokenType = CodeTokenTypes.DECIMAL || TokenType = CodeTokenTypes.STRING || TokenType = CodeTokenTypes.IDENTIFIER) ;literal token
   Return, 0
  If (TokenType = CodeTokenTypes.GROUP_BEGIN) ;parenthesis token
-  Return, ~0
+  Return, 165 ;above most operators but below dynamic reference and object access ;wip: put this in the operator table somehow?
  If (TokenType = CodeTokenTypes.GROUP_END)
   Return, 0
 }
@@ -119,7 +120,7 @@ CodeParseDispatchNullDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRe
  TokenType := Token.Type
  If (TokenType = CodeTokenTypes.OPERATOR)
   Return, CodeParseOperatorNullDenotation(Tokens,Errors,ParserError,Index,Token)
- If (TokenType = CodeTokenTypes.INTEGER || TokenType = CodeTokenTypes.DECIMAL || TokenType = CodeTokenTypes.STRING)
+ If (TokenType = CodeTokenTypes.INTEGER || TokenType = CodeTokenTypes.DECIMAL || TokenType = CodeTokenTypes.STRING || TokenType = CodeTokenTypes.IDENTIFIER)
   Return, Token
  If (TokenType = CodeTokenTypes.GROUP_BEGIN)
   Return, CodeParseGroupNullDenotation(Tokens,Errors,ParserError,Index,Token)
@@ -137,7 +138,7 @@ CodeParseDispatchLeftDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRe
  TokenType := Token.Type
  If (TokenType = CodeTokenTypes.OPERATOR)
   Return, CodeParseOperatorLeftDenotation(Tokens,Errors,ParserError,Index,Token,LeftSide)
- If (TokenType = CodeTokenTypes.INTEGER || TokenType = CodeTokenTypes.DECIMAL || TokenType = CodeTokenTypes.STRING)
+ If (TokenType = CodeTokenTypes.INTEGER || TokenType = CodeTokenTypes.DECIMAL || TokenType = CodeTokenTypes.STRING || TokenType = CodeTokenTypes.IDENTIFIER) ;wip: identifiers should allow for the command syntax
  {
   ParserError := 1
   Return, "ERROR: Missing operator" ;wip: better error handling
@@ -166,7 +167,10 @@ CodeParseOperatorNullDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRe
  Return, Object("Type"
    ,"NODE"
   ,"Value"
-   ,Array(Operator.Identifier
+   ,Array(Object("Type"
+     ,"OPERATOR"
+    ,"Value"
+     ,Operator.Identifier)
    ,CodeParseExpression(Tokens,Errors,ParserError,Index,Operator.RightBindingPower)))
 }
 
@@ -177,7 +181,10 @@ CodeParseOperatorLeftDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRe
  Return, Object("Type"
    ,"NODE"
   ,"Value"
-   ,Array(Operator.Identifier
+   ,Array(Object("Type"
+     ,"OPERATOR"
+    ,"Value"
+     ,Operator.Identifier)
    ,LeftSide
    ,CodeParseExpression(Tokens,Errors,ParserError,Index,Operator.RightBindingPower)))
 }
@@ -185,7 +192,7 @@ CodeParseOperatorLeftDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRe
 CodeParseGroupNullDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token)
 {
  global CodeTokenTypes
- Result := CodeParseExpression(Tokens,Errors,ParserError,Index,0)
+ Result := CodeParseExpression(Tokens,Errors,ParserError,Index)
  CurrentToken := Tokens[Index]
  If (CurrentToken.Type = CodeTokenTypes.GROUP_END) ;match a right parenthesis
  {
@@ -199,12 +206,12 @@ CodeParseGroupNullDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef I
 CodeParseGroupLeftDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token,LeftSide)
 {
  global CodeTokenTypes
- Result := CodeParseExpression(Tokens,SyntaxTree,Errors,ParserError,Index)
+ Result := CodeParseExpression(Tokens,Errors,ParserError,Index)
  CurrentToken := Tokens[Index]
  If (CurrentToken.Type = CodeTokenTypes.GROUP_END) ;match a right parenthesis
  {
   Index ++ ;move past the right parenthesis
-  Return, Object("Type",LeftSide.Value,"Value",Result)
+  Return, Object("Type",LeftSide,"Value",Result) ;prepend an underscore to avoid confusion over syntax tree types and identifiers
  }
  ParserError := 1
  Return, "ERROR: Unmatched parenthesis" ;wip: better error handling
