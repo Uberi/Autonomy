@@ -164,29 +164,19 @@ CodeParseOperatorNullDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRe
 {
  global CodeOperatorTable
  Operator := CodeOperatorTable.NullDenotation[Token.Value]
- Return, Object("Type"
-   ,"NODE"
-  ,"Value"
-   ,Array(Object("Type"
-     ,"OPERATOR"
-    ,"Value"
-     ,Operator.Identifier)
-   ,CodeParseExpression(Tokens,Errors,ParserError,Index,Operator.RightBindingPower)))
+ Return, Array("OPERATION"
+  ,Array("IDENTIFIER",Operator.Identifier)
+  ,CodeParseExpression(Tokens,Errors,ParserError,Index,Operator.RightBindingPower))
 }
 
 CodeParseOperatorLeftDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token,LeftSide)
 {
  global CodeOperatorTable
  Operator := CodeOperatorTable.LeftDenotation[Token.Value]
- Return, Object("Type"
-   ,"NODE"
-  ,"Value"
-   ,Array(Object("Type"
-     ,"OPERATOR"
-    ,"Value"
-     ,Operator.Identifier)
-   ,LeftSide
-   ,CodeParseExpression(Tokens,Errors,ParserError,Index,Operator.RightBindingPower)))
+ Return, Array("OPERATION"
+  ,Array("IDENTIFIER",Operator.Identifier)
+  ,LeftSide
+  ,CodeParseExpression(Tokens,Errors,ParserError,Index,Operator.RightBindingPower))
 }
 
 CodeParseGroupNullDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token)
@@ -211,18 +201,8 @@ CodeParseGroupLeftDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef I
  If (CurrentToken.Type = CodeTokenTypes.GROUP_END) ;match a right parenthesis
  {
   Index ++ ;move past the right parenthesis
-  Return, Object("Type",LeftSide,"Value",Result) ;prepend an underscore to avoid confusion over syntax tree types and identifiers
+  Return, Array("OPERATION",LeftSide,Result)
  }
  ParserError := 1
  Return, "ERROR: Unmatched parenthesis" ;wip: better error handling
-}
-
-OperatorUnarySubtract(This,ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index)
-{
- Return, Object("Type","NODE","Value",Array("NEGATIVE",CodeParseExpression(Tokens,Errors,ParserError,Index,140)))
-}
-
-OperatorDereference(This,ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index)
-{
- Return, Object("Type","NODE","Value",Array("DEREFERENCE",CodeParseExpression(Tokens,Errors,ParserError,Index,140)))
 }

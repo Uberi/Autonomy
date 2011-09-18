@@ -68,39 +68,37 @@ Token Stream Types Enumeration
 Syntax Tree Format
 ------------------
 
-* _[Index]_:         index of the tree node                                       _[Object]_
-    * 1:             operation to perform                                         _[Object]_
-        * Type:      type of the parameter                                        _[Integer]_
-        * Value:     value of the parameter                                       _[Object or String]_
-    * _[1 + Index]_: parameter or parameters of the operation                     _[Object]_
-        * Type:      type of the parameter                                        _[Integer]_
-        * Value:     value of the parameter                                       _[Object or String]_
+* _[Index]_:            index of the tree node                                       _[Object]_
+    * 1:                type of the tree node                                        _[Integer]_
+    * 2:                the operation to perform, if applicable                      _[Object]_
+        * _[Subtree]_:  a subtree resulting in an operation identifer                _[Object]_
+    * _[2 + Index]_:    parameter or parameters of the operation                     _[Object]_
+        * 1:            type of the parameter                                        _[Integer]_
+        * 2:            value of the parameter                                       _[Object or String]_
 
 Example
 -------
 
 (2 * 3.1) + 8 -> (+ (* 2 3) 8)
 
-    Type: 0
-    Value:
-        1:
-            Type: 2
-            Value: +
-        2:
-            Type: 0
-            Value: ;subnode
-                1: 
-                    Type: 2
-                    Value: *
-                2:
-                    Type: 3
-                    Value: 2
-                3:
-                    Type: 4
-                    Value: 3.1
+    1: 2
+    2:
+        1: 6
+        2: +
+    3:
+        1: 2
+        2: 
+            1: 6
+            2: *
         3:
-            Type: NUMBER
-            Value: 8
+            1: 3
+            2: 2
+        4:
+            1: 4
+            2: 3.1
+    4:
+        1: 3
+        2: 8
 
 Syntax Tree Types Enumeration
 -----------------------------
