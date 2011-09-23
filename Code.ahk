@@ -103,14 +103,13 @@ Example
 Syntax Tree Types Enumeration
 -----------------------------
 
-* NODE:           0
-* BLOCK:          1
-* OPERATION:      2
-* INTEGER:        3
-* DECIMAL:        4
-* STRING:         5
-* IDENTIFIER:     6
-* LABEL:          7
+* BLOCK:          0
+* OPERATION:      1
+* INTEGER:        2
+* DECIMAL:        3
+* STRING:         4
+* IDENTIFIER:     5
+* LABEL:          6
 
 [Wikipedia]: http://en.wikipedia.org/wiki/Extended_Backus-Naur_Form
 */
@@ -142,7 +141,7 @@ CodeInit(ResourcesPath = "Resources")
  CodeTokenTypes := Object("OPERATOR",0,"INTEGER",1,"DECIMAL",2,"STRING",3,"IDENTIFIER",4,"SEPARATOR",5,"GROUP_BEGIN",6,"GROUP_END",7,"OBJECT_BEGIN",8,"OBJECT_END",9,"BLOCK_BEGIN",10,"BLOCK_END",11,"STATEMENT",12,"LABEL",13,"LINE_END",14)
 
  ;set up syntax tree type enumeration
- CodeTreeTypes := Object("NODE",0,"BLOCK",1,"OPERATION",2,"NUMBER",3,"STRING",4,"IDENTIFIER",5,"LABEL",6)
+ CodeTreeTypes := Object("BLOCK",0,"OPERATION",1,"INTEGER",2,"DECIMAL",3,"STRING",4,"IDENTIFIER",5,"LABEL",6)
 
  Return, 0
 }
