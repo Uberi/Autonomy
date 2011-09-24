@@ -23,10 +23,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Operator Table Format
 ---------------------
 
-* _[Symbol]_:        symbol representing the operator        _[Object]_
-    * Precedence:    operator's precedence                   _[Integer]_
-    * Associativity: associativity of the operator           _[String: "L" or "R"]_
-    * Arity:         number of operands the operator accepts _[Integer]_
+* _[Symbol]_:            symbol representing the operator _[Object]_
+    * LeftBindingPower:  left token binding power         _[Integer]_
+    * RightBindingPower: right token binding power        _[String: "L" or "R"]_
+    * Identifier:        identifier of the operator       _[Integer]_
 
 Token Stream Format
 -------------------
@@ -45,25 +45,6 @@ Example Token Stream
         Value: SomeVariable
         Position: 15
         File: 3
-
-Token Stream Types Enumeration
-------------------------------
-
-* OPERATOR:       0
-* INTEGER:        1
-* DECIMAL:        2
-* STRING:         3
-* IDENTIFIER:     4
-* SEPARATOR:      5
-* GROUP_BEGIN:    6
-* GROUP_END:      7
-* OBJECT_BEGIN:   8
-* OBJECT_END:     9
-* BLOCK_BEGIN:    10
-* BLOCK_END:      11
-* STATEMENT:      12
-* LABEL:          13
-* LINE_END:       14
 
 Syntax Tree Format
 ------------------
@@ -100,17 +81,6 @@ Example
         1: 3
         2: 8
 
-Syntax Tree Types Enumeration
------------------------------
-
-* BLOCK:          0
-* OPERATION:      1
-* INTEGER:        2
-* DECIMAL:        3
-* STRING:         4
-* IDENTIFIER:     5
-* LABEL:          6
-
 [Wikipedia]: http://en.wikipedia.org/wiki/Extended_Backus-Naur_Form
 */
 
@@ -138,10 +108,30 @@ CodeInit(ResourcesPath = "Resources")
   Line := StringSplit(A_LoopField,"`t"), ObjInsert(CodeErrorMessages,Line.1,Line.2)
 
  ;set up token stream type enumeration
- CodeTokenTypes := Object("OPERATOR",0,"INTEGER",1,"DECIMAL",2,"STRING",3,"IDENTIFIER",4,"SEPARATOR",5,"GROUP_BEGIN",6,"GROUP_END",7,"OBJECT_BEGIN",8,"OBJECT_END",9,"BLOCK_BEGIN",10,"BLOCK_END",11,"STATEMENT",12,"LABEL",13,"LINE_END",14)
+ CodeTokenTypes := Object("OPERATOR",0
+  ,"INTEGER",1
+  ,"DECIMAL",2
+  ,"STRING",3
+  ,"IDENTIFIER",4
+  ,"SEPARATOR",5
+  ,"GROUP_BEGIN",6
+  ,"GROUP_END",7
+  ,"OBJECT_BEGIN",8
+  ,"OBJECT_END",9
+  ,"BLOCK_BEGIN",10
+  ,"BLOCK_END",11
+  ,"STATEMENT",12
+  ,"LABEL",13
+  ,"LINE_END",14)
 
  ;set up syntax tree type enumeration
- CodeTreeTypes := Object("BLOCK",0,"OPERATION",1,"INTEGER",2,"DECIMAL",3,"STRING",4,"IDENTIFIER",5,"LABEL",6)
+ CodeTreeTypes := Object("OPERATION",0
+  ,"INTEGER",1
+  ,"DECIMAL",2
+  ,"STRING",3
+  ,"IDENTIFIER",4
+  ,"BLOCK",5
+  ,"LABEL",6)
 
  Return, 0
 }

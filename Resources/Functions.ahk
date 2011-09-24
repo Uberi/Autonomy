@@ -19,6 +19,23 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+SearchObject(InputObject,SearchValue)
+{
+ For Key, Value In InputObject
+ {
+  If (Value = SearchValue)
+   Return, Key
+ }
+}
+
+Pad(Length,Character = " ")
+{
+ Result := ""
+ Loop, %Length%
+  Result .= Character
+ Return, Result
+}
+
 ShowObject(ShowObject,Padding = "")
 {
  ListLines, Off

@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 #Include Resources\Functions.ahk
+#Include Resources\Reconstruct.ahk
 #Include Code.ahk
 #Include Lexer.ahk
 
@@ -49,8 +50,7 @@ CodeParseInit()
 TimerBefore := 0, DllCall("QueryPerformanceCounter","Int64*",TimerBefore) ;wip: debug
 Result := CodeParse(Tokens,SyntaxTree,Errors)
 TimerAfter := 0, DllCall("QueryPerformanceCounter","Int64*",TimerAfter), TickFrequency := 0, DllCall("QueryPerformanceFrequency","Int64*",TickFrequency), TimerAfter := (TimerAfter - TimerBefore) / (TickFrequency / 1000) ;wip: debug
-
-MsgBox % TimerAfter . " ms`n`n" . Result . "`n`n" . ShowObject(SyntaxTree)
+MsgBox % TimerAfter . " ms`n`n" . Result . "`n`n" . CodeReconstructShowSyntaxTree(SyntaxTree)
 ExitApp()
 */
 
@@ -121,7 +121,10 @@ CodeParseDispatchNullDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRe
  If (TokenType = CodeTokenTypes.OPERATOR)
   Return, CodeParseOperatorNullDenotation(Tokens,Errors,ParserError,Index,Token)
  If (TokenType = CodeTokenTypes.INTEGER || TokenType = CodeTokenTypes.DECIMAL || TokenType = CodeTokenTypes.STRING || TokenType = CodeTokenTypes.IDENTIFIER)
-  Return, Token
+  Return, Object(1,Token.Type
+   ,2,Token.Value
+   ,3,Token.Position
+   ,4,Token.File) ;Return, Token
  If (TokenType = CodeTokenTypes.GROUP_BEGIN)
   Return, CodeParseGroupNullDenotation(Tokens,Errors,ParserError,Index,Token)
  If (TokenType = CodeTokenTypes.GROUP_END)
@@ -162,19 +165,19 @@ CodeParseOperatorLeftBindingPower(Token)
 
 CodeParseOperatorNullDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token)
 {
- global CodeOperatorTable
+ global CodeTreeTypes, CodeOperatorTable
  Operator := CodeOperatorTable.NullDenotation[Token.Value]
- Return, Array("OPERATION"
-  ,Array("IDENTIFIER",Operator.Identifier)
+ Return, Array(CodeTreeTypes.OPERATION
+  ,Array(CodeTreeTypes.IDENTIFIER,Operator.Identifier)
   ,CodeParseExpression(Tokens,Errors,ParserError,Index,Operator.RightBindingPower))
 }
 
 CodeParseOperatorLeftDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token,LeftSide)
 {
- global CodeOperatorTable
+ global CodeTreeTypes, CodeOperatorTable
  Operator := CodeOperatorTable.LeftDenotation[Token.Value]
- Return, Array("OPERATION"
-  ,Array("IDENTIFIER",Operator.Identifier)
+ Return, Array(CodeTreeTypes.OPERATION
+  ,Array(CodeTreeTypes.IDENTIFIER,Operator.Identifier)
   ,LeftSide
   ,CodeParseExpression(Tokens,Errors,ParserError,Index,Operator.RightBindingPower))
 }
@@ -195,13 +198,13 @@ CodeParseGroupNullDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef I
 
 CodeParseGroupLeftDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token,LeftSide)
 {
- global CodeTokenTypes
+ global CodeTreeTypes, CodeTokenTypes
  Result := CodeParseExpression(Tokens,Errors,ParserError,Index)
  CurrentToken := Tokens[Index]
  If (CurrentToken.Type = CodeTokenTypes.GROUP_END) ;match a right parenthesis
  {
   Index ++ ;move past the right parenthesis
-  Return, Array("OPERATION",LeftSide,Result)
+  Return, Array(CodeTreeTypes.OPERATION,LeftSide,Result)
  }
  ParserError := 1
  Return, "ERROR: Unmatched parenthesis" ;wip: better error handling

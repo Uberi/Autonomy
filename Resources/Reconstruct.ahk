@@ -19,6 +19,46 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+CodeReconstructShowSyntaxTree(SyntaxTree,Padding = "",Operation = 1)
+{
+ global CodeTreeTypes
+ NodeType := SyntaxTree.1
+ If (NodeType = CodeTreeTypes.OPERATION)
+ {
+  Result := (Operation ? "" : ("`n" . Padding)) . "(", Index := 2
+  Loop, % ObjMaxIndex(SyntaxTree) - 1
+   Result .= CodeReconstructShowSyntaxTree(SyntaxTree[Index],Padding . "`t",Index = 2) . " ", Index ++
+  Return, SubStr(Result,1,-1) . ")"
+ }
+ Else If (NodeType = CodeTreeTypes.STRING)
+  Return, """" . SyntaxTree.2 . """"
+ Else If (NodeType = CodeTreeTypes.BLOCK)
+  Return, "{" . CodeReconstructShowSyntaxTree(SyntaxTree.2) . "}"
+ Else
+  Return, SyntaxTree.2
+}
+
+CodeReconstructShowTokens(TokenStream)
+{
+ global CodeTokenTypes
+ MaxFileLength := 0, MaxIdentifierLength := 0, MaxPositionLength := 0
+ ;find the maximum lengths of each field
+ For Index, Token In TokenStream
+ {
+  Temp1 := StrLen(Token.File), (Temp1 > MaxFileLength) ? (MaxFileLength := Temp1)
+  Temp1 := StrLen(SearchObject(CodeTokenTypes,Token.Type)), (Temp1 > MaxIdentifierLength) ? (MaxIdentifierLength := Temp1)
+  Temp1 := StrLen(Token.Position), (Temp1 > MaxPositionLength) ? (MaxPositionLength := Temp1)
+ }
+ ;build up the result string
+ Result := ""
+ For Index, Token In TokenStream
+ {
+  TypeIdentifier := SearchObject(CodeTokenTypes,Token.Type)
+  Result .= "File " . Token.File . ": " . Pad(MaxFileLength - StrLen(Token.File)) . TypeIdentifier . Pad(MaxIdentifierLength - StrLen(TypeIdentifier)) . " (" . Token.Position . "): " . Pad(MaxPositionLength - StrLen(Token.Position)) . Token.Value . "`n"
+ }
+ Return, Result
+}
+
 CodeReconstructTokens(Tokens)
 {
  global CodeTokenTypes

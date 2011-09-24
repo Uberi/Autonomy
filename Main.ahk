@@ -40,10 +40,11 @@ TODO
 Short term tasks:
 
 * Duplicate LINE_END tokens can be present if there was an error that spanned an entire line. see Strings.txt unit test for example. see if this can be avoided
+* Remove all label functionality and Gosub and Goto, add Statements.txt unit test with literal statements
 * Escaping the end of a line with a backtick may result in an incorrect length for the token. need to add a length field for each token
 * Preprocessor macros and a UNIQUE_SYMBOL macro defined by default that allows unnamed functions
 * Syntax tree operator enumeration
-* Hex and unicode escapes: "`c[NN]" or `c[NNNN] or `c[NNNNNNNN], where N is a hex digit representing an ANSI or unicode offset
+* Hex and unicode escapes: "`cNN" or "`c[NN]" or `c[NNNN] or `c[NNNNNNNN], where N is a hex digit representing an ANSI or unicode offset
 * Unit tests for error handler
 * Error identifier enumeration
 * Read mk:@MSITStore:C:\Program%20Files\AutoHotkey\AutoHotkey_L\AutoHotkey_L.chm::/docs/misc/Performance.htm
@@ -90,7 +91,8 @@ CodeSetScript(FileName,Errors,Files) ;set the current script file
 
 CodeLexInit()
 CodeLex(Code,Tokens,Errors)
-DisplayObject(Tokens)
+;DisplayObject(Tokens)
+MsgBox % Clipboard := CodeReconstructShowTokens(Tokens)
 
 CodePreprocessInit(Files)
 CodePreprocess(Tokens,ProcessedTokens,Errors,Files)
