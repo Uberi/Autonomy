@@ -91,118 +91,26 @@
 	Identifier: INVALID_CHARACTER
 	Level: 3
 ---
-1: 
-	File: 1
-	Position: 1
-	Type: 0
-	Value: ~
-2: 
-	File: 1
-	Position: 2
-	Type: 0
-	Value: !
-3: 
-	File: 1
-	Position: 4
-	Type: 4
-	Value: #
-4: 
-	File: 1
-	Position: 7
-	Type: 0
-	Value: ^
-5: 
-	File: 1
-	Position: 8
-	Type: 0
-	Value: &
-6: 
-	File: 1
-	Position: 9
-	Type: 0
-	Value: *
-7: 
-	File: 1
-	Position: 10
-	Type: 6
-	Value: 
-8: 
-	File: 1
-	Position: 11
-	Type: 7
-	Value: 
-9: 
-	File: 1
-	Position: 12
-	Type: 4
-	Value: _
-10: 
-	File: 1
-	Position: 13
-	Type: 0
-	Value: +
-11: 
-	File: 1
-	Position: 15
-	Type: 1
-	Value: 1234567890
-12: 
-	File: 1
-	Position: 25
-	Type: 0
-	Value: -=
-13: 
-	File: 1
-	Position: 28
-	Type: 4
-	Value: ABCDEFGHIJKLMNOPQRSTUVWXYZ
-14: 
-	File: 1
-	Position: 55
-	Type: 4
-	Value: abcdefghijklmnopqrstuvw
-15: 
-	File: 1
-	Position: 82
-	Type: 14
-	Value: 
-16: 
-	File: 1
-	Position: 84
-	Type: 8
-	Value: 
-17: 
-	File: 1
-	Position: 85
-	Type: 9
-	Value: 
-18: 
-	File: 1
-	Position: 88
-	Type: 5
-	Value: 
-19: 
-	File: 1
-	Position: 90
-	Type: 0
-	Value: /
-20: 
-	File: 1
-	Position: 91
-	Type: 10
-	Value: 
-21: 
-	File: 1
-	Position: 92
-	Type: 11
-	Value: 
-22: 
-	File: 1
-	Position: 94
-	Type: 0
-	Value: <
-23: 
-	File: 1
-	Position: 95
-	Type: 0
-	Value: >
+File 1: OPERATOR     (1):  '~'
+File 1: OPERATOR     (2):  '!'
+File 1: IDENTIFIER   (4):  '#'
+File 1: OPERATOR     (7):  '^'
+File 1: OPERATOR     (8):  '&'
+File 1: OPERATOR     (9):  '*'
+File 1: GROUP_BEGIN  (10): ''
+File 1: GROUP_END    (11): ''
+File 1: IDENTIFIER   (12): '_'
+File 1: OPERATOR     (13): '+'
+File 1: INTEGER      (15): '1234567890'
+File 1: OPERATOR     (25): '-='
+File 1: IDENTIFIER   (28): 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+File 1: IDENTIFIER   (55): 'abcdefghijklmnopqrstuvw'
+File 1: LINE_END     (82): ''
+File 1: OBJECT_BEGIN (84): ''
+File 1: OBJECT_END   (85): ''
+File 1: SEPARATOR    (88): ''
+File 1: OPERATOR     (90): '/'
+File 1: BLOCK_BEGIN  (91): ''
+File 1: BLOCK_END    (92): ''
+File 1: OPERATOR     (94): '<'
+File 1: OPERATOR     (95): '>'

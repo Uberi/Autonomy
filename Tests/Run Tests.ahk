@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #Include ..\Resources\Functions.ahk
+#Include ..\Resources\Reconstruct.ahk
 
 #Include ..\Code.ahk
 #Include ..\Lexer.ahk
@@ -145,7 +146,7 @@ Loop, %A_ScriptDir%\Lexer\*.txt
    If Debug
     ShowOutput(TestName,0,Output)
   }
-  Else If ((Output := ShowObject(Tokens)) != TestTokenOutput)
+  Else If ((Output := CodeReconstructShowTokens(Tokens)) != TestTokenOutput)
   {
    ExtraInfo := "Output does not match expected output.", TestStatus := "Fail"
    If Debug
@@ -170,7 +171,7 @@ Loop, %A_ScriptDir%\Preprocessor\*.txt
  FileRead(FileContents,A_LoopFileLongPath)
  If RegExMatch(FileContents,"sS)^(?P<Tokens>.*?)\r?\n---\r?\n(?P<ErrorOutput>.*?)\r?\n---\r?\n(?P<TokenOutput>.*)$",Test)
  {
-  TestTokens := ParseObject(TestTokens)
+  TestTokens := ParseTokenDescription(TestTokens)
   StringReplace, TestErrorOutput, TestErrorOutput, `r,, All
   StringReplace, TestTokenOutput, TestTokenOutput, `r,, All
   CodeSetScript(TestPath,Errors,Files) ;reset variables
@@ -183,7 +184,7 @@ Loop, %A_ScriptDir%\Preprocessor\*.txt
    If Debug
     ShowOutput(TestName,0,Output)
   }
-  Else If ((Output := ShowObject(ProcessedTokens)) != TestTokenOutput)
+  Else If ((Output := CodeReconstructShowTokens(ProcessedTokens)) != TestTokenOutput)
   {
    ExtraInfo := "Output does not match expected output.", TestStatus := "Fail"
    If Debug
@@ -206,7 +207,7 @@ Loop, %A_ScriptDir%\Parser\*.txt
  FileRead(FileContents,A_LoopFileLongPath)
  If RegExMatch(FileContents,"sS)^(?P<Tokens>.*?)\r?\n---\r?\n(?P<ErrorOutput>.*?)\r?\n---\r?\n(?P<TreeOutput>.*)$",Test)
  {
-  TestTokens := ParseObject(TestTokens)
+  TestTokens := ParseTokenDescription(TestTokens)
   StringReplace, TestErrorOutput, TestErrorOutput, `r,, All
   StringReplace, TestTokenOutput, TestTokenOutput, `r,, All
   Errors := Array()
@@ -219,7 +220,7 @@ Loop, %A_ScriptDir%\Parser\*.txt
    If Debug
     ShowOutput(TestName,0,Output)
   }
-  Else If ((Output := ShowObject(SyntaxTree)) != TestTreeOutput)
+  Else If ((Output := CodeReconstructShowTokens(SyntaxTree)) != TestTreeOutput)
   {
    ExtraInfo := "Output does not match expected output.", TestStatus := "Fail"
    If Debug
@@ -302,39 +303,16 @@ StopTimer(ByRef TimerBefore)
  Return, (TimerAfter - TimerBefore) / (TickFrequency / 1000)
 }
 
-ParseObject(ObjectDescription)
+ParseTokenDescription(TokenDescription)
 {
- ListLines, Off
- PreviousIndentLevel := 1, PreviousKey := "", Result := Object(), ObjectPath := Object(), TempObject := Result ;initialize values
- Loop, Parse, ObjectDescription, `n, `r ;loop over each line of the object description
+ global CodeTokenTypes
+ StringReplace, TokenDescription, TokenDescription, %A_Tab%, %A_Space%, All
+ StringReplace, TokenDescription, TokenDescription, `r,, All
+ TokenDescription := Trim(TokenDescription,"`n"), Result := Array()
+ Loop, Parse, TokenDescription, `n, %A_Space%
  {
-  IndentLevel := 1
-  While, (SubStr(A_LoopField,A_Index,1) = "`t")
-   IndentLevel ++
-  MaxIndex := ObjMaxIndex(ObjectPath)
-  Temp1 := InStr(A_LoopField,":",0,IndentLevel)
-  If !Temp1 ;not a key-value pair, treat as a continuation of the value of the previous pair
-  {
-   TempObject[PreviousKey] .= "`n" . A_LoopField
-   Continue
-  }
-  Key := SubStr(A_LoopField,IndentLevel,Temp1 - IndentLevel), Value := SubStr(A_LoopField,Temp1 + 2)
-  If (IndentLevel = PreviousIndentLevel) ;sibling object
-   TempObject[Key] := Value
-  Else If (IndentLevel > PreviousIndentLevel) ;nested object
-   TempObject[PreviousKey] := Object(Key,Value), TempObject := TempObject[PreviousKey], ObjInsert(ObjectPath,PreviousKey) ;
-  Else ;(IndentLevel < PreviousIndentLevel) ;parent object
-  {
-   Temp1 := PreviousIndentLevel - IndentLevel, ObjRemove(ObjectPath,MaxIndex - Temp1,MaxIndex), MaxIndex -= Temp1 ;update object path
-
-   ;get parent object
-   TempObject := Result
-   Loop, %MaxIndex%
-    TempObject := TempObject[ObjectPath[A_Index]]
-   TempObject[Key] := Value
-  }
-  PreviousIndentLevel := IndentLevel, PreviousKey := Key
+  RegExMatch(A_LoopField,"iS)^File *(\d+) *: *(\w+) *\( *(\d+) *\) *: *'(.*)'$",Field)
+  ObjInsert(Result,Object("File",Field1,"Type",CodeTokenTypes[Field2],"Position",Field3,"Value",Field4))
  }
- ListLines, On
  Return, Result
 }

@@ -18,73 +18,17 @@ Var3. Var4
 	Identifier: INVALID_CONCATENATION
 	Level: 3
 ---
-1: 
-	File: 1
-	Position: 1
-	Type: 4
-	Value: Var
-2: 
-	File: 1
-	Position: 5
-	Type: 0
-	Value:  . 
-3: 
-	File: 1
-	Position: 7
-	Type: 3
-	Value: Something
-4: 
-	File: 1
-	Position: 18
-	Type: 14
-	Value: 
-5: 
-	File: 1
-	Position: 20
-	Type: 4
-	Value: Variable
-6: 
-	File: 1
-	Position: 28
-	Type: 0
-	Value: .
-7: 
-	File: 1
-	Position: 29
-	Type: 4
-	Value: Value
-8: 
-	File: 1
-	Position: 34
-	Type: 14
-	Value: 
-9: 
-	File: 1
-	Position: 36
-	Type: 4
-	Value: Var1
-10: 
-	File: 1
-	Position: 41
-	Type: 0
-	Value: .
-11: 
-	File: 1
-	Position: 42
-	Type: 4
-	Value: Var2
-12: 
-	File: 1
-	Position: 46
-	Type: 14
-	Value: 
-13: 
-	File: 1
-	Position: 48
-	Type: 4
-	Value: Var3
-14: 
-	File: 1
-	Position: 54
-	Type: 4
-	Value: Var4
+File 1: IDENTIFIER (1):  'Var'
+File 1: OPERATOR   (5):  ' . '
+File 1: STRING     (7):  'Something'
+File 1: LINE_END   (18): ''
+File 1: IDENTIFIER (20): 'Variable'
+File 1: OPERATOR   (28): '.'
+File 1: IDENTIFIER (29): 'Value'
+File 1: LINE_END   (34): ''
+File 1: IDENTIFIER (36): 'Var1'
+File 1: OPERATOR   (41): '.'
+File 1: IDENTIFIER (42): 'Var2'
+File 1: LINE_END   (46): ''
+File 1: IDENTIFIER (48): 'Var3'
+File 1: IDENTIFIER (54): 'Var4'

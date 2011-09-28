@@ -28,38 +28,10 @@ multiple lines"
 	Identifier: UNMATCHED_QUOTE
 	Level: 3
 ---
-1: 
-	File: 1
-	Position: 25
-	Type: 14
-	Value: 
-2: 
-	File: 1
-	Position: 27
-	Type: 3
-	Value: Hello, World!
-3: 
-	File: 1
-	Position: 43
-	Type: 0
-	Value:  . 
-4: 
-	File: 1
-	Position: 45
-	Type: 3
-	Value: `"This string `n contains `" escaped `t characters `"
-5: 
-	File: 1
-	Position: 100
-	Type: 14
-	Value: 
-6: 
-	File: 1
-	Position: 125
-	Type: 14
-	Value: 
-7: 
-	File: 1
-	Position: 127
-	Type: 3
-	Value: This string spans`nmultiple lines
+File 1: LINE_END (25):  ''
+File 1: STRING   (27):  'Hello, World!'
+File 1: OPERATOR (43):  ' . '
+File 1: STRING   (45):  '`"This string `n contains `" escaped `t characters `"'
+File 1: LINE_END (100): ''
+File 1: LINE_END (125): ''
+File 1: STRING   (127): 'This string spans`nmultiple lines'
