@@ -54,9 +54,9 @@ CodeReconstructShowTokens(TokenStream)
  For Index, Token In TokenStream
  {
   TypeIdentifier := SearchObject(CodeTokenTypes,Token.Type)
-  Result .= "File " . Token.File . ": " . Pad(MaxFileLength - StrLen(Token.File)) . TypeIdentifier . Pad(MaxIdentifierLength - StrLen(TypeIdentifier)) . " (" . Token.Position . "): " . Pad(MaxPositionLength - StrLen(Token.Position)) . Token.Value . "`n"
+  Result .= "File " . Token.File . ": " . Pad(MaxFileLength - StrLen(Token.File)) . TypeIdentifier . Pad(MaxIdentifierLength - StrLen(TypeIdentifier)) . " (" . Token.Position . "): " . Pad(MaxPositionLength - StrLen(Token.Position)) . "'" . Token.Value . "'`n"
  }
- Return, Result
+ Return, SubStr(Result,1,-1)
 }
 
 CodeReconstructTokens(Tokens)
