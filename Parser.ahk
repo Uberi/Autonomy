@@ -32,8 +32,9 @@ SetBatchLines(-1)
 
 ;Code := "4 - (2 + 4) * -5"
 ;Code := "2 ** 3 ** 4"
-;Code := "Object.Method(5 + 1)"
-Code := "Length := StrLen(Data) << !!A_IsUnicode"
+;Code := "Object.Method(5 + 1,2 * 3)"
+;Code := "Length := StrLen(Data) << !!A_IsUnicode"
+Code := "Description := RegExReplace(SubStr(Page,1,InStr(Page,""<br"") - 1),""S)^[ \t]+|[ \t]+$"")"
 
 If CodeInit()
 {
@@ -200,12 +201,19 @@ CodeParseGroupNullDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef I
 CodeParseGroupLeftDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token,LeftSide)
 {
  global CodeTreeTypes, CodeTokenTypes
- Result := CodeParseExpression(Tokens,Errors,ParserError,Index)
+ Result := Array()
+ Loop ;loop through one argument at a time
+ {
+  ObjInsert(Result,CodeParseExpression(Tokens,Errors,ParserError,Index)) ;parse the argument
+  If (Tokens[Index].Type != CodeTokenTypes.SEPARATOR) ;break the loop if there is no argument separator present
+   Break
+  Index ++ ;move past the separator token
+ }
  CurrentToken := Tokens[Index]
  If (CurrentToken.Type = CodeTokenTypes.GROUP_END) ;match a right parenthesis
  {
   Index ++ ;move past the right parenthesis
-  Return, Array(CodeTreeTypes.OPERATION,LeftSide,Result)
+  Return, Array(CodeTreeTypes.OPERATION,LeftSide,Result*) ;wip: uses postfix * operator
  }
  ParserError := 1
  Return, "ERROR: Unmatched parenthesis" ;wip: better error handling
