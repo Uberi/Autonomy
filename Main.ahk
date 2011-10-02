@@ -40,20 +40,18 @@ TODO
 Short term tasks:
 
 * Duplicate LINE_END tokens can be present if there was an error that spanned an entire line. see Strings.txt unit test for example. see if this can be avoided
-* Remove all label functionality and Gosub and Goto, add Statements.txt unit test with literal statements
+* Change AST format to only have the OPERATION type, which has a set of Constructors such as String and Block and Number to represent string, block, and number literals
 * Escaping the end of a line with a backtick may result in an incorrect length for the token. need to add a length field for each token
 * Preprocessor macros and a UNIQUE_SYMBOL macro defined by default that allows unnamed functions
-* Syntax tree operator enumeration
-* Hex and unicode escapes: "`cNN" or "`c[NN]" or `c[NNNN] or `c[NNNNNNNN], where N is a hex digit representing an ANSI or unicode offset
+* Hex and unicode escapes: "`cNN" or "`c[NN]" or `c[NNNN] or `c[NNNNNNNN], where N is a hex digit representing a unicode offset
 * Unit tests for error handler
 * Error identifier enumeration
-* Read mk:@MSITStore:C:\Program%20Files\AutoHotkey\AutoHotkey_L\AutoHotkey_L.chm::/docs/misc/Performance.htm
 
 Long term tasks:
 
 * Support a command syntax, that is translated to a function call on load (dotted notation only - no square brackets support). Detect this form in the parser by making sure the token is immediately after an opening parenthesis, opening square bracket, block brace, or line end, and the token after the function is either a literal, an identifier, a separator, an operator that doesn't take a parameter on its left, a block brace, or a line end: Math.Mod, 100, 5
 * Warn if Return, Break, Continue, Goto are not the last statements in a block
-* AST support for lambdas as operations, probably with generated names as the operation
+* macro { some compile-time related code } syntax and compile time defined type system
 * After the command syntax is implemented, the STATEMENT token type should be used only for literal statements, as the parser can now detect statements, fixing currently broken cases like the assignment "Else := Variable"
 * Base object should not be enumerable or findable by ObjHasKey()
 * Primitive type methods through augmentation: "".base.Trim := Trim ... "  test  ".Trim()

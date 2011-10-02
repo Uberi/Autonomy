@@ -32,7 +32,8 @@ SetBatchLines(-1)
 
 ;Code := "4 - (2 + 4) * -5"
 ;Code := "2 ** 3 ** 4"
-Code := "Object.Method(5 + 1)"
+;Code := "Object.Method(5 + 1)"
+Code := "Length := StrLen(Data) << !!A_IsUnicode"
 
 If CodeInit()
 {

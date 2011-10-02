@@ -58,21 +58,8 @@ Lexer unit test:
         Identifier: UNMATCHED_QUOTE
         Level: Error
     ---
-    1: 
-        File: 1
-        Position: 1
-        Type: 9
-        Value: MsgBox
-    2: 
-        File: 1
-        Position: 7
-        Type: 4
-        Value: (
-    3: 
-        File: 1
-        Position: 23
-        Type: 10
-        Value: 
+    File 1: IDENTIFIER  (1):  'MsgBox'
+    File 1: GROUP_BEGIN (7):  ''
 */
 
 /*
@@ -220,7 +207,7 @@ Loop, %A_ScriptDir%\Parser\*.txt
    If Debug
     ShowOutput(TestName,0,Output)
   }
-  Else If ((Output := CodeReconstructShowTokens(SyntaxTree)) != TestTreeOutput)
+  Else If ((Output := CodeReconstructShowSyntaxTree(SyntaxTree)) != TestTreeOutput)
   {
    ExtraInfo := "Output does not match expected output.", TestStatus := "Fail"
    If Debug

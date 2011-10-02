@@ -121,8 +121,7 @@ CodeInit(ResourcesPath = "Resources")
   ,"BLOCK_BEGIN",10
   ,"BLOCK_END",11
   ,"STATEMENT",12
-  ,"LABEL",13
-  ,"LINE_END",14)
+  ,"LINE_END",13)
 
  ;set up syntax tree type enumeration
  CodeTreeTypes := Object("OPERATION",0
@@ -130,8 +129,7 @@ CodeInit(ResourcesPath = "Resources")
   ,"DECIMAL",2
   ,"STRING",3
   ,"IDENTIFIER",4
-  ,"BLOCK",5
-  ,"LABEL",6)
+  ,"BLOCK",5)
 
  Return, 0
 }

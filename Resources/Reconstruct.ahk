@@ -84,9 +84,7 @@ CodeReconstructTokens(Tokens)
    Code .= "}"
   Else If (TokenType = CodeTokenTypes.STATEMENT) ;add delimiter in a statement
    Code .= TokenValue . " "
-  Else If (TokenType = CodeTokenTypes.LABEL) ;add colon to end of label name
-   Code .= TokenValue . ":"
-  Else If (TokenType = CodeTokenTypes.LINE_END) ;add colon to end of label name
+  Else If (TokenType = CodeTokenTypes.LINE_END) ;add a new line
    Code .= "`r`n"
   Else ;can be appended to code directly
    Code .= TokenValue
@@ -108,8 +106,6 @@ CodeRecontructSyntaxTree(SyntaxTree) ;wip
    Code .= """" . NodeValue . """"
   Else If (NodeType = CodeTokenTypes.STATEMENT)
    Code .= NodeValue . " "
-  Else If (NodeType = CodeTokenTypes.LABEL)
-   Code .= NodeValue . ":"
   Else
    Code .= NodeValue
   Code .= ","

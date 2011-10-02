@@ -7,6 +7,7 @@ For Key, Value In OtherObject
 
 While, (100 - A_Index)
   Return, 50
+Return
 ---
 
 ---
@@ -43,3 +44,5 @@ File 1: LINE_END    (152): ''
 File 1: STATEMENT   (156): 'Return'
 File 1: SEPARATOR   (162): ''
 File 1: INTEGER     (164): '50'
+File 1: LINE_END    (166): ''
+File 1: STATEMENT   (168): 'Return'

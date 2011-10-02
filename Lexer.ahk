@@ -23,8 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 CodeLexInit()
 {
  global CodeOperatorTable, CodeLexerConstants, CodeLexerStatementList, CodeLexerStatementLiteralList, CodeLexerOperatorMaxLength
- CodeLexerConstants := Object("ESCAPE","``","SINGLE_LINE_COMMENT",";","MULTILINE_COMMENT_BEGIN","/*","MULTILINE_COMMENT_END","*/","SEPARATOR",",","LABEL",":","IDENTIFIER","abcdefghijklmnopqrstuvwxyz_1234567890#")
- CodeLexerStatementList := Object("#Include",1,"#Define",0,"#Undefine",0,"#If",0,"#Else",1,"#ElseIf",0,"#EndIf",1,"#Error",0,"While",0,"Loop",0,"For",0,"If",0,"Else",0,"Break",0,"Continue",0,"Return",0,"Gosub",0,"Goto",0,"local",0,"global",0,"static",0) ;a list of statements and whether they accept literal parameters
+ CodeLexerConstants := Object("ESCAPE","``","SINGLE_LINE_COMMENT",";","MULTILINE_COMMENT_BEGIN","/*","MULTILINE_COMMENT_END","*/","SEPARATOR",",","IDENTIFIER","abcdefghijklmnopqrstuvwxyz_1234567890#")
+ CodeLexerStatementList := Object("#Include",1,"#Define",0,"#Undefine",0,"#If",0,"#Else",1,"#ElseIf",0,"#EndIf",1,"#Error",0,"While",0,"Loop",0,"For",0,"If",0,"Else",0,"Break",0,"Continue",0,"Return",0,"local",0,"global",0,"static",0) ;a list of statements and whether they accept literal parameters
 
  CodeLexerOperatorMaxLength := 1 ;one is the maximum length of the other syntax elements - commas, parentheses, square brackets, and curly brackets
  For Temp1 In CodeOperatorTable.NullDenotation ;get the length of the longest null denotation operator
@@ -115,7 +115,7 @@ CodeLexLine(ByRef Code,ByRef Position,ByRef Tokens)
  }
 }
 
-;lexes a statement to find labels, control structures, and directives
+;lexes a statement to find control structures and directives
 CodeLexStatement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
 { ;returns 1 if the line cannot be lexed as a statement, 0 otherwise
  global CodeTokenTypes, CodeLexerConstants, CodeLexerStatementList
@@ -128,16 +128,6 @@ CodeLexStatement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
   If (CurrentChar = "" || !InStr(CodeLexerConstants.IDENTIFIER,CurrentChar))
    Break
   Statement .= CurrentChar, Position ++
- }
-
- ;detect labels
- If (CurrentChar = CodeLexerConstants.LABEL && ((CurrentChar := SubStr(Code,Position + 1,1)) = "`r" || CurrentChar = "`n" || CurrentChar = " " || CurrentChar = "`t" || CurrentChar = "")) ;is a label
- {
-  Position += 2 ;move past the colon and the whitespace character after the colon
-  While, ((CurrentChar := SubStr(Code,Position,1)) = " " || CurrentChar = "`t") ;move past whitespace
-   Position ++
-  ObjInsert(Tokens,Object("Type",CodeTokenTypes.LABEL,"Value",Statement,"Position",Position1,"File",FileIndex)) ;add the label to the token array
-  Return, 0
  }
 
  ;determine whether the line should be processed as an expression instead of a statement
