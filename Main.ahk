@@ -40,7 +40,6 @@ TODO
 Short term tasks:
 
 * Duplicate LINE_END tokens can be present if there was an error that spanned an entire line. see Strings.txt unit test for example. see if this can be avoided
-* Change AST format to only have the OPERATION type, which has a set of Constructors such as String and Block and Number to represent string, block, and number literals
 * Escaping the end of a line with a backtick may result in an incorrect length for the token. need to add a length field for each token
 * Preprocessor macros and a UNIQUE_SYMBOL macro defined by default that allows unnamed functions
 * Hex and unicode escapes: "`cNN" or "`c[NN]" or `c[NNNN] or `c[NNNNNNNN], where N is a hex digit representing a unicode offset
@@ -49,12 +48,12 @@ Short term tasks:
 
 Long term tasks:
 
-* Support a command syntax, that is translated to a function call on load (dotted notation only - no square brackets support). Detect this form in the parser by making sure the token is immediately after an opening parenthesis, opening square bracket, block brace, or line end, and the token after the function is either a literal, an identifier, a separator, an operator that doesn't take a parameter on its left, a block brace, or a line end: Math.Mod, 100, 5
+* Support a command syntax, that is translated to a function call on load (dotted notation only - no square brackets support). Detect this form in the parser by making sure the token is immediately after an opening parenthesis, opening square bracket, block brace, or line end, and the token after the function is either a literal, an identifier, a separator, an operator that doesn't take a parameter on its left, a block brace, or a line end: Math.Mod, 100, 5. Also allow this for function definitions and anywhere parens can be used
 * Warn if Return, Break, Continue, Goto are not the last statements in a block
 * macro { some compile-time related code } syntax and compile time defined type system
 * After the command syntax is implemented, the STATEMENT token type should be used only for literal statements, as the parser can now detect statements, fixing currently broken cases like the assignment "Else := Variable"
 * Base object should not be enumerable or findable by ObjHasKey()
-* Primitive type methods through augmentation: "".base.Trim := Trim ... "  test  ".Trim()
+* Primitive type methods through augmentation: String.Trim := Trim OR "".base.Trim := Trim ... "  test  ".Trim()
 * Namespaces and the ability to define custom ones
 * Script that converts AutoHotkey code to Autonomy
 * Function definitions are variables holding function references (implemented as function pointers, and utilising reference counting), so variables and functions are in the same namespace

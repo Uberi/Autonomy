@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;wip: check for recursion depth terminating the expression by checking to make sure the token is the last one before returning, otherwise skip over close paren and keep parsing
 ;wip: type verification (possibly implement in type analyser module). need to add type information to operator table
 
-/*
+;/*
 #Include Resources\Functions.ahk
 #Include Resources\Reconstruct.ahk
 #Include Code.ahk
@@ -34,7 +34,8 @@ SetBatchLines(-1)
 ;Code := "2 ** 3 ** 4"
 ;Code := "Object.Method(5 + 1,2 * 3)"
 ;Code := "Length := StrLen(Data) << !!A_IsUnicode"
-Code := "Description := RegExReplace(SubStr(Page,1,InStr(Page,""<br"") - 1),""S)^[ \t]+|[ \t]+$"")"
+;Code := "Description := RegExReplace(SubStr(Page,1,InStr(Page,""<br"") - 1),""S)^[ \t]+|[ \t]+$"")"
+Code := "v := 1, (w := 2, (x := 3), y := 4), z := 5"
 
 If CodeInit()
 {
@@ -65,8 +66,22 @@ CodeParseInit()
 ;parses a token stream
 CodeParse(ByRef Tokens,ByRef SyntaxTree,ByRef Errors)
 { ;returns 1 on parsing error, 0 otherwise
+ global CodeTokenTypes, CodeTreeTypes
  ParserError := 0, Index := 1 ;initialize variables
- SyntaxTree := CodeParseExpression(Tokens,Errors,ParserError,Index)
+
+ SyntaxTree := Array(CodeTreeTypes.OPERATION,Array(CodeTreeTypes.IDENTIFIER,"EVALUATE")) ;wip: hardcoded string
+ Loop ;loop through one subexpression at a time
+ {
+  ObjInsert(SyntaxTree,CodeParseExpression(Tokens,Errors,ParserError,Index))
+  If (Tokens[Index].Type != CodeTokenTypes.SEPARATOR)
+  {
+   If (ObjMaxIndex(SyntaxTree) = 3) ;there was only one expression
+    SyntaxTree := SyntaxTree.3 ;remove the evaluate operation and directly return the result
+   Break ;stop parsing subexpressions
+  }
+  Index ++ ;move past separator token
+ }
+
  If (Index <= ObjMaxIndex(Tokens)) ;did not reach the end of the token stream
  {
   ParserError := 1
@@ -109,6 +124,8 @@ CodeParseDispatchLeftBindingPower(Token)
   Return, CodeParseOperatorLeftBindingPower(Token)
  If (TokenType = CodeTokenTypes.INTEGER || TokenType = CodeTokenTypes.DECIMAL || TokenType = CodeTokenTypes.STRING || TokenType = CodeTokenTypes.IDENTIFIER) ;literal token
   Return, 0
+ If (TokenType = CodeTokenTypes.SEPARATOR) ;separator token
+  Return, 0
  If (TokenType = CodeTokenTypes.GROUP_BEGIN) ;parenthesis token
   Return, 165 ;above most operators but below dynamic reference and object access ;wip: put this in the operator table somehow?
  If (TokenType = CodeTokenTypes.GROUP_END)
@@ -118,15 +135,18 @@ CodeParseDispatchLeftBindingPower(Token)
 ;dispatches the invocation of the null denotation handler of a given token
 CodeParseDispatchNullDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token)
 {
- global CodeTokenTypes
+ global CodeTokenTypes, CodeTreeTypes
  TokenType := Token.Type
  If (TokenType = CodeTokenTypes.OPERATOR)
   Return, CodeParseOperatorNullDenotation(Tokens,Errors,ParserError,Index,Token)
- If (TokenType = CodeTokenTypes.INTEGER || TokenType = CodeTokenTypes.DECIMAL || TokenType = CodeTokenTypes.STRING || TokenType = CodeTokenTypes.IDENTIFIER)
-  Return, Object(1,Token.Type
-   ,2,Token.Value
-   ,3,Token.Position
-   ,4,Token.File) ;Return, Token
+ If (TokenType = CodeTokenTypes.INTEGER)
+  Return, Array(CodeTreeTypes.INTEGER,Token.Value,Token.Position,Token.File)
+ If (TokenType = CodeTokenTypes.DECIMAL)
+  Return, Array(CodeTreeTypes.DECIMAL,Token.Value,Token.Position,Token.File)
+ If (TokenType = CodeTokenTypes.STRING)
+  Return, Array(CodeTreeTypes.STRING,Token.Value,Token.Position,Token.File)
+ If (TokenType = CodeTokenTypes.IDENTIFIER)
+  Return, Array(CodeTreeTypes.IDENTIFIER,Token.Value,Token.Position,Token.File)
  If (TokenType = CodeTokenTypes.GROUP_BEGIN)
   Return, CodeParseGroupNullDenotation(Tokens,Errors,ParserError,Index,Token)
  If (TokenType = CodeTokenTypes.GROUP_END)
@@ -186,35 +206,46 @@ CodeParseOperatorLeftDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRe
 
 CodeParseGroupNullDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token)
 {
- global CodeTokenTypes
- Result := CodeParseExpression(Tokens,Errors,ParserError,Index)
- CurrentToken := Tokens[Index]
- If (CurrentToken.Type = CodeTokenTypes.GROUP_END) ;match a right parenthesis
+ global CodeTokenTypes, CodeTreeTypes
+ Result := Array(CodeTreeTypes.OPERATION,Array(CodeTreeTypes.IDENTIFIER,"EVALUATE")) ;wip: hardcoded string
+ Loop ;loop through one subexpression at a time
  {
-  Index ++ ;move past the right parenthesis
-  Return, Result
+  ObjInsert(Result,CodeParseExpression(Tokens,Errors,ParserError,Index))
+  If (Tokens[Index].Type != CodeTokenTypes.SEPARATOR)
+  {
+   If (ObjMaxIndex(Result) = 3) ;there was only one expression inside the parentheses
+    Result := Result.3 ;remove the evaluate operation and directly return the result
+   Break ;stop parsing subexpressions
+  }
+  Index ++ ;move past separator token
  }
- ParserError := 1
- Return, "ERROR: Unmatched parenthesis" ;wip: better error handling
+ CurrentToken := Tokens[Index]
+ If (CurrentToken.Type != CodeTokenTypes.GROUP_END) ;mismatched parentheses
+ {
+  ParserError := 1
+  Return, "ERROR: Unmatched parenthesis" ;wip: better error handling
+ }
+ Index ++ ;move past the right parenthesis
+ Return, Result
 }
 
 CodeParseGroupLeftDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token,LeftSide)
 {
  global CodeTreeTypes, CodeTokenTypes
- Result := Array()
+ Result := Array(CodeTreeTypes.OPERATION,LeftSide)
  Loop ;loop through one argument at a time
  {
   ObjInsert(Result,CodeParseExpression(Tokens,Errors,ParserError,Index)) ;parse the argument
   If (Tokens[Index].Type != CodeTokenTypes.SEPARATOR) ;break the loop if there is no argument separator present
-   Break
+   Break ;stop parsing parameters
   Index ++ ;move past the separator token
  }
  CurrentToken := Tokens[Index]
- If (CurrentToken.Type = CodeTokenTypes.GROUP_END) ;match a right parenthesis
+ If (CurrentToken.Type != CodeTokenTypes.GROUP_END) ;mismatched parentheses
  {
-  Index ++ ;move past the right parenthesis
-  Return, Array(CodeTreeTypes.OPERATION,LeftSide,Result*) ;wip: uses postfix * operator
+  ParserError := 1
+  Return, "ERROR: Unmatched parenthesis" ;wip: better error handling
  }
- ParserError := 1
- Return, "ERROR: Unmatched parenthesis" ;wip: better error handling
+ Index ++ ;move past the right parenthesis token
+ Return, Result
 }

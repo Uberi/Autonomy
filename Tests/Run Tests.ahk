@@ -31,8 +31,8 @@ SetBatchLines(-1)
 Process, Priority,, RealTime
 
 /*
-Unit Test Format
-----------------
+Test Format
+-----------
 
 If a fields is blank, an empty line is to be left in its place
 
@@ -42,10 +42,10 @@ If a fields is blank, an empty line is to be left in its place
 * Separator: the literal string "---" on its own line
 * Output:    expected output that is to be received from the module being tested
 
-Example Unit Test
------------------
+Example Test
+------------
 
-Lexer unit test:
+Lexer test:
 
     MsgBox("Hello, World!)
     ---
@@ -70,7 +70,7 @@ Lexer unit test:
 Debug := 0 ;whether or not to copy and display unexpected output
 
 Gui, Font, s12 Bold, Arial
-Gui, Add, Text, x0 y0 h20 vTitle Center, Unit Test Results:
+Gui, Add, Text, x0 y0 h20 vTitle Center, Test Results:
 Gui, Font, s8 Norm
 Gui, Add, ListView, x2 y20 vResults, Index|Test Name|Result|Additional Info
 Gui, Font, s10
@@ -101,7 +101,7 @@ Gosub, TestInterpreter
 
 Loop, 4
  LV_ModifyCol(A_Index,"AutoHdr")
-Gui, Show, w515 h385, Unit Test
+Gui, Show, w515 h385, Tests
 Return
 
 ShowOutput(TestName,OutputType,ByRef OutputText)
