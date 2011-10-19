@@ -308,9 +308,7 @@ CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
  Loop, %CodeLexerOperatorMaxLength% ;loop until a valid token is found
  {
   Output := SubStr(Code,Position,Temp1), Value := ""
-  If ((ObjHasKey(CodeOperatorTable.NullDenotation,Output) || ObjHasKey(CodeOperatorTable.LeftDenotation,Output)) && !(InStr(CodeLexerConstants.IDENTIFIER,SubStr(Output,0)) && (CurrentChar := SubStr(Code,Position + Temp1,1)) != "" && InStr(CodeLexerConstants.IDENTIFIER,CurrentChar))) ;found operator, and if the last character is an identifier character, the character after it is not, ensuring the input is an operator instead of an identifier
-   TokenType := CodeTokenTypes.OPERATOR, Value := Output
-  Else If (Output = CodeLexerConstants.SEPARATOR) ;found separator
+  If (Output = CodeLexerConstants.SEPARATOR) ;found separator
    TokenType := CodeTokenTypes.SEPARATOR
   Else If (Output = "(") ;opening parenthesis
    TokenType := CodeTokenTypes.GROUP_BEGIN
@@ -324,6 +322,8 @@ CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
    TokenType := CodeTokenTypes.BLOCK_BEGIN
   Else If (Output = "}") ;closing curly bracket
    TokenType := CodeTokenTypes.BLOCK_END
+  Else If ((ObjHasKey(CodeOperatorTable.NullDenotation,Output) || ObjHasKey(CodeOperatorTable.LeftDenotation,Output)) && !(InStr(CodeLexerConstants.IDENTIFIER,SubStr(Output,0)) && (CurrentChar := SubStr(Code,Position + Temp1,1)) != "" && InStr(CodeLexerConstants.IDENTIFIER,CurrentChar))) ;found operator, and if the last character is an identifier character, the character after it is not, ensuring the input is an operator instead of an identifier
+   TokenType := CodeTokenTypes.OPERATOR, Value := Output
   Else
   {
    Temp1 -- ;reduce the length of the input to be checked

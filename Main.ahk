@@ -48,6 +48,7 @@ Short term tasks:
 
 Long term tasks:
 
+* Dynamic default values for optional function parameters: SomeFunction(Param := 2 * 8 + GlobalVar) { Function body here }
 * Support a command syntax, that is translated to a function call on load (dotted notation only - no square brackets support). Detect this form in the parser by making sure the token is immediately after an opening parenthesis, opening square bracket, block brace, or line end, and the token after the function is either a literal, an identifier, a separator, an operator that doesn't take a parameter on its left, a block brace, or a line end: Math.Mod, 100, 5. Also allow this for function definitions and anywhere parens can be used
 * Warn if Return, Break, Continue, Goto are not the last statements in a block
 * macro { some compile-time related code } syntax and compile time defined type system

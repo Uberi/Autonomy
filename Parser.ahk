@@ -50,9 +50,9 @@ CodeLexInit()
 CodeLex(Code,Tokens,Errors)
 
 CodeParseInit()
-TimerBefore := 0, DllCall("QueryPerformanceCounter","Int64*",TimerBefore) ;wip: debug
+TimerBefore := 0, DllCall("QueryPerformanceCounter","Int64*",TimerBefore)
 Result := CodeParse(Tokens,SyntaxTree,Errors)
-TimerAfter := 0, DllCall("QueryPerformanceCounter","Int64*",TimerAfter), TickFrequency := 0, DllCall("QueryPerformanceFrequency","Int64*",TickFrequency), TimerAfter := (TimerAfter - TimerBefore) / (TickFrequency / 1000) ;wip: debug
+TimerAfter := 0, DllCall("QueryPerformanceCounter","Int64*",TimerAfter), TickFrequency := 0, DllCall("QueryPerformanceFrequency","Int64*",TickFrequency), TimerAfter := (TimerAfter - TimerBefore) / (TickFrequency / 1000)
 MsgBox % TimerAfter . " ms`n`n" . Result . "`n`n" . CodeReconstructShowSyntaxTree(SyntaxTree)
 ExitApp()
 */
@@ -118,7 +118,7 @@ CodeParseExpression(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Righ
 ;dispatches the retrieval of the left binding power of a given token
 CodeParseDispatchLeftBindingPower(Token)
 { ;returns the left binding power of the given token
- global CodeTokenTypes
+ global CodeTokenTypes, CodeOperatorTable
  TokenType := Token.Type
  If (TokenType = CodeTokenTypes.OPERATOR) ;operator token
   Return, CodeParseOperatorLeftBindingPower(Token)
@@ -127,9 +127,9 @@ CodeParseDispatchLeftBindingPower(Token)
  If (TokenType = CodeTokenTypes.SEPARATOR) ;separator token
   Return, 0
  If (TokenType = CodeTokenTypes.GROUP_BEGIN) ;parenthesis token
-  Return, 165 ;above most operators but below dynamic reference and object access ;wip: put this in the operator table somehow?
+  Return, CodeOperatorTable.LeftDenotation["("].LeftBindingPower ;wip: use identifiers for GROUP_BEGIN/GROUP_END
  If (TokenType = CodeTokenTypes.GROUP_END)
-  Return, 0
+  Return, CodeOperatorTable.NullDenotation[")"].LeftBindingPower
 }
 
 ;dispatches the invocation of the null denotation handler of a given token
