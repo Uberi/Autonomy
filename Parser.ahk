@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;wip: check for recursion depth terminating the expression by checking to make sure the token is the last one before returning, otherwise skip over close paren and keep parsing
 ;wip: type verification (possibly implement in type analyser module). need to add type information to operator table
+;wip: operator table specifying postfix/infix/mixfix for left denotation
 
 ;/*
 #Include Resources\Functions.ahk
@@ -35,7 +36,8 @@ SetBatchLines(-1)
 ;Code := "Object.Method(5 + 1,2 * 3)"
 ;Code := "Length := StrLen(Data) << !!A_IsUnicode"
 ;Code := "Description := RegExReplace(SubStr(Page,1,InStr(Page,""<br"") - 1),""S)^[ \t]+|[ \t]+$"")"
-Code := "v := 1, (w := 2, (x := 3), y := 4), z := 5"
+;Code := "v := 1, (w := 2, (x := 3), y := 4), z := 5"
+Code := "Something ? SomethingDone + 1 : SomethingElse"
 
 If CodeInit()
 {
@@ -196,8 +198,27 @@ CodeParseOperatorNullDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRe
 
 CodeParseOperatorLeftDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token,LeftSide)
 {
- global CodeTreeTypes, CodeOperatorTable
+ global CodeTokenTypes, CodeTreeTypes, CodeOperatorTable
  Operator := CodeOperatorTable.LeftDenotation[Token.Value]
+
+ If (Operator.IDENTIFIER = "TERNARY_IF") ;wip: literal string
+ {
+  FirstBranch := CodeParseExpression(Tokens,Errors,ParserError,Index,Operator.RightBindingPower) ;parse the first branch
+  Token := Tokens[Index]
+  If !(Token.Type = CodeTokenTypes.OPERATOR && CodeOperatorTable.NullDenotation[Token.Value].Identifier = "TERNARY_ELSE")
+  {
+   ParserError := 1
+   Return, "ERROR: Ternary operator missing ELSE branch" ;wip: better error handling
+  }
+  Index ++ ;move past the ternary else operator
+  SecondBranch := CodeParseExpression(Tokens,Errors,ParserError,Index,Operator.RightBindingPower) ;parse the second branch
+  Return, Array(CodeTreeTypes.OPERATION
+   ,Array(CodeTreeTypes.IDENTIFIER,Operator.IDENTIFIER)
+   ,LeftSide
+   ,FirstBranch
+   ,SecondBranch)
+ }
+
  Return, Array(CodeTreeTypes.OPERATION
   ,Array(CodeTreeTypes.IDENTIFIER,Operator.Identifier)
   ,LeftSide
