@@ -21,11 +21,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;wip: check for recursion depth terminating the expression by checking to make sure the token is the last one before returning, otherwise skip over close paren and keep parsing
 ;wip: type verification (possibly implement in type analyser module). need to add type information to operator table
-;wip: operator table specifying postfix/infix/mixfix for left denotation
 
-;/*
+/*
 #Include Resources\Functions.ahk
 #Include Resources\Reconstruct.ahk
+#Include Resources\Operators.ahk
 #Include Code.ahk
 #Include Lexer.ahk
 
@@ -37,7 +37,8 @@ SetBatchLines(-1)
 ;Code := "Length := StrLen(Data) << !!A_IsUnicode"
 ;Code := "Description := RegExReplace(SubStr(Page,1,InStr(Page,""<br"") - 1),""S)^[ \t]+|[ \t]+$"")"
 ;Code := "v := 1, (w := 2, (x := 3), y := 4), z := 5"
-Code := "Something ? SomethingDone + 1 : SomethingElse && 5"
+;Code := "Something ? SomethingDone + 1 : SomethingElse && 5"
+;Code := "Something+++++Something1"
 
 If CodeInit()
 {
@@ -219,6 +220,13 @@ CodeParseOperatorLeftDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRe
    ,SecondBranch]
  }
 
+ ;postfix operator
+ If (Operator.RightBindingPower = -1)
+  Return, [CodeTreeTypes.OPERATION
+  ,[CodeTreeTypes.IDENTIFIER,Operator.Identifier]
+  ,LeftSide]
+
+ ;infix operator
  Return, [CodeTreeTypes.OPERATION
   ,[CodeTreeTypes.IDENTIFIER,Operator.Identifier]
   ,LeftSide

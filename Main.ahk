@@ -26,6 +26,7 @@ SetBatchLines(-1)
 
 #Include Resources\Functions.ahk
 #Include Resources\Get Error.ahk
+#Include Resources\Operators.ahk
 #Include Resources\Reconstruct.ahk
 
 #Include Code.ahk

@@ -91,13 +91,7 @@ CodeInit(ResourcesPath = "Resources")
  If FileRead(Temp1,PathJoin(ResourcesPath,"OperatorTable.txt")) ;error reading file
   Return, 1
 
- ;parse operators table file into object
- CodeOperatorTable := Object("NullDenotation",Object(),"LeftDenotation",Object())
- Loop, Parse, Temp1, `n, `r
- {
-  Line := StringSplit(A_LoopField,"`t")
-  CodeOperatorTable[(Line.2 = 0) ? "NullDenotation" : "LeftDenotation"][Line.1] := Object("LeftBindingPower",Line.2,"RightBindingPower",Line.3,"Identifier",Line.4)
- }
+ CodeCreateOperatorTable() ;create the table of operators
 
  If FileRead(Temp1,PathJoin(ResourcesPath,"Errors.txt")) ;error reading file
   Return, 1

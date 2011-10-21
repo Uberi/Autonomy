@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #Include ..\Resources\Functions.ahk
+#Include ..\Resources\Operators.ahk
 #Include ..\Resources\Reconstruct.ahk
 
 #Include ..\Code.ahk

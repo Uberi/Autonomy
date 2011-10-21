@@ -74,22 +74,6 @@
 			Position: 90
 	Identifier: INVALID_OBJECT_ACCESS
 	Level: 3
-9: 
-	Caret: 
-		Length: 1
-		Position: 93
-	File: 1
-	Highlight: 0
-	Identifier: INVALID_CHARACTER
-	Level: 3
-10: 
-	Caret: 
-		Length: 1
-		Position: 96
-	File: 1
-	Highlight: 0
-	Identifier: INVALID_CHARACTER
-	Level: 3
 ---
 File 1: OPERATOR     (1):  '~'
 File 1: OPERATOR     (2):  '!'
@@ -112,5 +96,7 @@ File 1: SEPARATOR    (88): ''
 File 1: OPERATOR     (90): '/'
 File 1: BLOCK_BEGIN  (91): ''
 File 1: BLOCK_END    (92): ''
+File 1: OPERATOR     (93): ':'
 File 1: OPERATOR     (94): '<'
 File 1: OPERATOR     (95): '>'
+File 1: OPERATOR     (96): '?'
