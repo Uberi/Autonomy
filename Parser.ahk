@@ -37,7 +37,7 @@ SetBatchLines(-1)
 ;Code := "Length := StrLen(Data) << !!A_IsUnicode"
 ;Code := "Description := RegExReplace(SubStr(Page,1,InStr(Page,""<br"") - 1),""S)^[ \t]+|[ \t]+$"")"
 ;Code := "v := 1, (w := 2, (x := 3), y := 4), z := 5"
-Code := "Something ? SomethingDone + 1 : SomethingElse"
+Code := "Something ? SomethingDone + 1 : SomethingElse && 5"
 
 If CodeInit()
 {
@@ -71,7 +71,7 @@ CodeParse(ByRef Tokens,ByRef SyntaxTree,ByRef Errors)
  global CodeTokenTypes, CodeTreeTypes
  ParserError := 0, Index := 1 ;initialize variables
 
- SyntaxTree := Array(CodeTreeTypes.OPERATION,Array(CodeTreeTypes.IDENTIFIER,"EVALUATE")) ;wip: hardcoded string
+ SyntaxTree := [CodeTreeTypes.OPERATION,[CodeTreeTypes.IDENTIFIER,"EVALUATE"]] ;wip: hardcoded string
  Loop ;loop through one subexpression at a time
  {
   ObjInsert(SyntaxTree,CodeParseExpression(Tokens,Errors,ParserError,Index))
@@ -142,13 +142,13 @@ CodeParseDispatchNullDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRe
  If (TokenType = CodeTokenTypes.OPERATOR)
   Return, CodeParseOperatorNullDenotation(Tokens,Errors,ParserError,Index,Token)
  If (TokenType = CodeTokenTypes.INTEGER)
-  Return, Array(CodeTreeTypes.INTEGER,Token.Value,Token.Position,Token.File)
+  Return, [CodeTreeTypes.INTEGER,Token.Value,Token.Position,Token.File]
  If (TokenType = CodeTokenTypes.DECIMAL)
-  Return, Array(CodeTreeTypes.DECIMAL,Token.Value,Token.Position,Token.File)
+  Return, [CodeTreeTypes.DECIMAL,Token.Value,Token.Position,Token.File]
  If (TokenType = CodeTokenTypes.STRING)
-  Return, Array(CodeTreeTypes.STRING,Token.Value,Token.Position,Token.File)
+  Return, [CodeTreeTypes.STRING,Token.Value,Token.Position,Token.File]
  If (TokenType = CodeTokenTypes.IDENTIFIER)
-  Return, Array(CodeTreeTypes.IDENTIFIER,Token.Value,Token.Position,Token.File)
+  Return, [CodeTreeTypes.IDENTIFIER,Token.Value,Token.Position,Token.File]
  If (TokenType = CodeTokenTypes.GROUP_BEGIN)
   Return, CodeParseGroupNullDenotation(Tokens,Errors,ParserError,Index,Token)
  If (TokenType = CodeTokenTypes.GROUP_END)
@@ -191,9 +191,9 @@ CodeParseOperatorNullDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRe
 {
  global CodeTreeTypes, CodeOperatorTable
  Operator := CodeOperatorTable.NullDenotation[Token.Value]
- Return, Array(CodeTreeTypes.OPERATION
-  ,Array(CodeTreeTypes.IDENTIFIER,Operator.Identifier)
-  ,CodeParseExpression(Tokens,Errors,ParserError,Index,Operator.RightBindingPower))
+ Return, [CodeTreeTypes.OPERATION
+  ,[CodeTreeTypes.IDENTIFIER,Operator.Identifier]
+  ,CodeParseExpression(Tokens,Errors,ParserError,Index,Operator.RightBindingPower)]
 }
 
 CodeParseOperatorLeftDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token,LeftSide)
@@ -201,7 +201,7 @@ CodeParseOperatorLeftDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRe
  global CodeTokenTypes, CodeTreeTypes, CodeOperatorTable
  Operator := CodeOperatorTable.LeftDenotation[Token.Value]
 
- If (Operator.IDENTIFIER = "TERNARY_IF") ;wip: literal string
+ If (Operator.Identifier = "TERNARY_IF") ;wip: literal string
  {
   FirstBranch := CodeParseExpression(Tokens,Errors,ParserError,Index,Operator.RightBindingPower) ;parse the first branch
   Token := Tokens[Index]
@@ -212,23 +212,23 @@ CodeParseOperatorLeftDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRe
   }
   Index ++ ;move past the ternary else operator
   SecondBranch := CodeParseExpression(Tokens,Errors,ParserError,Index,Operator.RightBindingPower) ;parse the second branch
-  Return, Array(CodeTreeTypes.OPERATION
-   ,Array(CodeTreeTypes.IDENTIFIER,Operator.IDENTIFIER)
+  Return, [CodeTreeTypes.OPERATION
+   ,[CodeTreeTypes.IDENTIFIER,Operator.IDENTIFIER]
    ,LeftSide
    ,FirstBranch
-   ,SecondBranch)
+   ,SecondBranch]
  }
 
- Return, Array(CodeTreeTypes.OPERATION
-  ,Array(CodeTreeTypes.IDENTIFIER,Operator.Identifier)
+ Return, [CodeTreeTypes.OPERATION
+  ,[CodeTreeTypes.IDENTIFIER,Operator.Identifier]
   ,LeftSide
-  ,CodeParseExpression(Tokens,Errors,ParserError,Index,Operator.RightBindingPower))
+  ,CodeParseExpression(Tokens,Errors,ParserError,Index,Operator.RightBindingPower)]
 }
 
 CodeParseGroupNullDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token)
 {
  global CodeTokenTypes, CodeTreeTypes
- Result := Array(CodeTreeTypes.OPERATION,Array(CodeTreeTypes.IDENTIFIER,"EVALUATE")) ;wip: hardcoded string
+ Result := [CodeTreeTypes.OPERATION,[CodeTreeTypes.IDENTIFIER,"EVALUATE"]] ;wip: hardcoded string
  Loop ;loop through one subexpression at a time
  {
   ObjInsert(Result,CodeParseExpression(Tokens,Errors,ParserError,Index))
@@ -253,7 +253,7 @@ CodeParseGroupNullDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef I
 CodeParseGroupLeftDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token,LeftSide)
 {
  global CodeTreeTypes, CodeTokenTypes
- Result := Array(CodeTreeTypes.OPERATION,LeftSide)
+ Result := [CodeTreeTypes.OPERATION,LeftSide]
  Loop ;loop through one argument at a time
  {
   ObjInsert(Result,CodeParseExpression(Tokens,Errors,ParserError,Index)) ;parse the argument

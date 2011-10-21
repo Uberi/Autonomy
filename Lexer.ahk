@@ -37,7 +37,7 @@ CodeLexInit()
 CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
 { ;returns 1 on error, 0 otherwise
  global CodeTokenTypes, CodeLexerConstants
- Tokens := Array(), Position := 1, LexerError := 0 ;initialize variables
+ Tokens := [], Position := 1, LexerError := 0 ;initialize variables
  CurrentChar := SubStr(Code,Position,1)
  If (CurrentChar = "") ;past the end of the string
   Return, 0
@@ -202,7 +202,7 @@ CodeLexString(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef FileInde
   }
   Else If (CurrentChar = "`r" || CurrentChar = "`n" || CurrentChar = "") ;past end of string, or reached a newline before the open quote has been closed
   {
-   CodeRecordError(Errors,"UNMATCHED_QUOTE",3,FileIndex,Position,1,Array(Object("Position",Position1,"Length",Position - Position1)))
+   CodeRecordError(Errors,"UNMATCHED_QUOTE",3,FileIndex,Position,1,[Object("Position",Position1,"Length",Position - Position1)])
    Return, 1
   }
   Else If (CurrentChar = """") ;closing quote mark found
@@ -256,12 +256,12 @@ CodeLexDynamicReference(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRe
    Break
   If (CurrentChar = "`r" || CurrentChar = "`n" || CurrentChar = "") ;past end of string, or found newline before percent sign was matched
   {
-   CodeRecordError(Errors,"UNMATCHED_PERCENT_SIGN",3,FileIndex,Position,1,Array(Object("Position",Position1,"Length",Position - Position1)))
+   CodeRecordError(Errors,"UNMATCHED_PERCENT_SIGN",3,FileIndex,Position,1,[Object("Position",Position1,"Length",Position - Position1)])
    Return, 1
   }
   If !InStr(CodeLexerConstants.IDENTIFIER,CurrentChar) ;invalid character found
   {
-   CodeRecordError(Errors,"INVALID_IDENTIFIER",3,FileIndex,Position,1,Array(Object("Position",Position1,"Length",Position - Position1)))
+   CodeRecordError(Errors,"INVALID_IDENTIFIER",3,FileIndex,Position,1,[Object("Position",Position1,"Length",Position - Position1)])
    Return, 1
   }
   Output .= CurrentChar
@@ -283,7 +283,7 @@ CodeLexPeriodOperator(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,FileIn
    ObjInsert(Tokens,Object("Type",CodeTokenTypes.OPERATOR,"Value"," . ","Position",Position - 1,"File",FileIndex)) ;add a concatenation token to the token array
   Else
   {
-   CodeRecordError(Errors,"INVALID_CONCATENATION",3,FileIndex,Position - 1,1,Array(Object("Position",Position1,"Length",1),Object("Position",Position,"Length",1)))
+   CodeRecordError(Errors,"INVALID_CONCATENATION",3,FileIndex,Position - 1,1,[Object("Position",Position1,"Length",1),Object("Position",Position,"Length",1)])
    Return, 1
   }
  }
@@ -294,7 +294,7 @@ CodeLexPeriodOperator(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,FileIn
  }
  Else ;object access was not followed by an identifier
  {
-  CodeRecordError(Errors,"INVALID_OBJECT_ACCESS",3,FileIndex,Position1,1,Array(Object("Position",Position,"Length",1)))
+  CodeRecordError(Errors,"INVALID_OBJECT_ACCESS",3,FileIndex,Position1,1,[Object("Position",Position,"Length",1)])
   Return, 1
  }
  Return, 0

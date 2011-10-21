@@ -138,8 +138,8 @@ CodeInit(ResourcesPath = "Resources")
 CodeSetScript(ByRef Path = "",ByRef Errors = "",ByRef Files = "")
 {
  If (Path != "")
-  Files := Array(PathExpand(Path)) ;create an array to store the path of each script
- Errors := Array()
+  Files := [PathExpand(Path)] ;create an array to store the path of each script
+ Errors := []
 }
 
 ;records an error containing information about the nature, severity, and location of the issue
@@ -154,7 +154,7 @@ CodeRecordErrorTokens(ByRef Errors,Identifier,Level,Caret = 0,Highlight = 0)
 {
  If (Highlight != 0)
  {
-  File := Highlight.1.File, ProcessedHighlight := Array()
+  File := Highlight.1.File, ProcessedHighlight := []
   For Index, Token In Highlight
    ObjInsert(ProcessedHighlight,Object("Position",Token.Position,"Length",StrLen(Token.Value)))
  }
