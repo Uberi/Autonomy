@@ -31,7 +31,7 @@ Modules
 
 ### Code.ahk
 
-Implements general initialization routines. Depends on Resources/Errors.txt and Resources/OperatorTable.txt. Requires filesystem access.
+Implements general initialization routines. Depends on Resources/Errors.txt and Resources/Operators.ahk. Requires filesystem access.
 
 ### Lexer.ahk
 

@@ -88,8 +88,6 @@ Example
 CodeInit(ResourcesPath = "Resources")
 { ;returns 1 on failure, 0 otherwise
  global CodeOperatorTable, CodeErrorMessages, CodeTokenTypes, CodeTreeTypes
- If FileRead(Temp1,PathJoin(ResourcesPath,"OperatorTable.txt")) ;error reading file
-  Return, 1
 
  CodeCreateOperatorTable() ;create the table of operators
 
