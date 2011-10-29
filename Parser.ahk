@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;wip: check for recursion depth terminating the expression by checking to make sure the token is the last one before returning, otherwise skip over close paren and keep parsing
 ;wip: type verification (possibly implement in type analyser module). need to add type information to operator table
+;wip: nested ternary not supported
 
 /*
 #Include Resources\Functions.ahk
@@ -31,13 +32,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 SetBatchLines(-1)
 
-;Code := "4 - (2 + 4) * -5"
+;Code := "2 + 2 + 2"
 ;Code := "2 ** 3 ** 4"
-;Code := "Object.Method(5 + 1,2 * 3)"
+;Code := "4 - (2 + 4) * -5"
+;Code := "Object.Method(5 + 1,2 * 3) - 4"
 ;Code := "Length := StrLen(Data) << !!A_IsUnicode"
 ;Code := "Description := RegExReplace(SubStr(Page,1,InStr(Page,""<br"") - 1),""S)^[ \t]+|[ \t]+$"")"
 ;Code := "v := 1, (w := 2, (x := 3), y := 4), z := 5"
-;Code := "Something ? SomethingDone + 1 : SomethingElse && 5"
+Code := "Something ? SomethingDone + 1 : SomethingElse && 5"
 ;Code := "Something+++++Something1"
 
 If CodeInit()
@@ -70,50 +72,49 @@ CodeParseInit()
 CodeParse(ByRef Tokens,ByRef SyntaxTree,ByRef Errors)
 { ;returns 1 on parsing error, 0 otherwise
  global CodeTokenTypes, CodeTreeTypes
- ParserError := 0, Index := 1 ;initialize variables
-
+ ErrorIndex := ObjMaxIndex(Errors)
  SyntaxTree := [CodeTreeTypes.OPERATION,[CodeTreeTypes.IDENTIFIER,"EVALUATE"]] ;wip: hardcoded string
  Loop ;loop through one subexpression at a time
  {
-  ObjInsert(SyntaxTree,CodeParseExpression(Tokens,Errors,ParserError,Index))
-  If (Tokens[Index].Type != CodeTokenTypes.SEPARATOR)
-  {
-   If (ObjMaxIndex(SyntaxTree) = 3) ;there was only one expression
-    SyntaxTree := SyntaxTree.3 ;remove the evaluate operation and directly return the result
+  ObjInsert(SyntaxTree,CodeParseExpression(Tokens,Errors))
+  Try Token := CodeParseToken(Tokens)
+  Catch ;end of token stream
+   Break
+  If (Token.Type != CodeTokenTypes.SEPARATOR)
    Break ;stop parsing subexpressions
-  }
-  Index ++ ;move past separator token
  }
+ If (ObjMaxIndex(SyntaxTree) = 3) ;there was only one expression
+  SyntaxTree := SyntaxTree[3] ;remove the evaluate operation and directly return the result
 
- If (Index <= ObjMaxIndex(Tokens)) ;did not reach the end of the token stream
+ If (Index <= ObjMaxIndex(Tokens)) ;did not reach the end of the token stream ;wip
  {
-  ParserError := 1
   ;wip: better error handling
  }
- Return, ParserError
+ If (ErrorIndex = ObjMaxIndex(Errors))
+  Return, 0 ;no errors occurred
+ Return, 1 ;errors occurred
 }
 
 ;parses an expression
-CodeParseExpression(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,RightBindingPower = 0)
+CodeParseExpression(ByRef Tokens,ByRef Errors,RightBindingPower = 0)
 {
- TokensLength := ObjMaxIndex(Tokens) ;retrieve the maximum index of the token stream
- If (Index > TokensLength)
+ Try CurrentToken := CodeParseToken(Tokens)
+ Catch
  {
-  ParserError := 1
+  MsgBox
   Return, "ERROR: Missing token." ;wip: better error handling
  }
- CurrentToken := Tokens[Index], Index ++ ;retrieve the current token, move to the next token
- LeftSide := CodeParseDispatchNullDenotation(Tokens,Errors,ParserError,Index,CurrentToken) ;handle the null denotation - the token does not require tokens to its left
- If (Index > TokensLength) ;ensure the index does not go out of bounds
+ LeftSide := CodeParseDispatchNullDenotation(Tokens,Errors,CurrentToken) ;handle the null denotation - the token does not require tokens to its left
+ Try NextToken := CodeParseToken(Tokens,0)
+ Catch ;end of token stream
   Return, LeftSide
- NextToken := Tokens[Index] ;retrieve the next token
  While, (RightBindingPower < CodeParseDispatchLeftBindingPower(NextToken)) ;loop while the current right binding power is less than that of the left binding power of the next token
  {
-  CurrentToken := NextToken, Index ++ ;store the token and move to the next one
-  LeftSide := CodeParseDispatchLeftDenotation(Tokens,Errors,ParserError,Index,CurrentToken,LeftSide) ;handle the left denotation - the token requires tokens to its left
-  If (Index > TokensLength) ;ensure the index does not go out of bounds
+  CurrentToken := NextToken, NextToken := CodeParseToken(Tokens) ;store the token and move to the next one
+  LeftSide := CodeParseDispatchLeftDenotation(Tokens,Errors,CurrentToken,LeftSide) ;handle the left denotation - the token requires tokens to its left
+  Try NextToken := CodeParseToken(Tokens,0) ;retrieve the next token
+  Catch
    Break
-  NextToken := Tokens[Index] ;retrieve the next token
  }
  Return, LeftSide
 }
@@ -136,12 +137,12 @@ CodeParseDispatchLeftBindingPower(Token)
 }
 
 ;dispatches the invocation of the null denotation handler of a given token
-CodeParseDispatchNullDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token)
+CodeParseDispatchNullDenotation(ByRef Tokens,ByRef Errors,Token)
 {
  global CodeTokenTypes, CodeTreeTypes
  TokenType := Token.Type
  If (TokenType = CodeTokenTypes.OPERATOR)
-  Return, CodeParseOperatorNullDenotation(Tokens,Errors,ParserError,Index,Token)
+  Return, CodeParseOperatorNullDenotation(Tokens,Errors,Token)
  If (TokenType = CodeTokenTypes.INTEGER)
   Return, [CodeTreeTypes.INTEGER,Token.Value,Token.Position,Token.File]
  If (TokenType = CodeTokenTypes.DECIMAL)
@@ -151,31 +152,31 @@ CodeParseDispatchNullDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRe
  If (TokenType = CodeTokenTypes.IDENTIFIER)
   Return, [CodeTreeTypes.IDENTIFIER,Token.Value,Token.Position,Token.File]
  If (TokenType = CodeTokenTypes.GROUP_BEGIN)
-  Return, CodeParseGroupNullDenotation(Tokens,Errors,ParserError,Index,Token)
+  Return, CodeParseGroupNullDenotation(Tokens,Errors,Token)
  If (TokenType = CodeTokenTypes.GROUP_END)
  {
-  ParserError := 1
+  MsgBox
   Return, "ERROR: Unmatched parenthesis" ;wip: better error handling
  }
 }
 
 ;dispatches the invocation of the left denotation handler of a given token
-CodeParseDispatchLeftDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token,LeftSide)
+CodeParseDispatchLeftDenotation(ByRef Tokens,ByRef Errors,Token,LeftSide)
 {
  global CodeTokenTypes
  TokenType := Token.Type
  If (TokenType = CodeTokenTypes.OPERATOR)
-  Return, CodeParseOperatorLeftDenotation(Tokens,Errors,ParserError,Index,Token,LeftSide)
+  Return, CodeParseOperatorLeftDenotation(Tokens,Errors,Token,LeftSide)
  If (TokenType = CodeTokenTypes.INTEGER || TokenType = CodeTokenTypes.DECIMAL || TokenType = CodeTokenTypes.STRING || TokenType = CodeTokenTypes.IDENTIFIER) ;wip: identifiers should allow for the command syntax
  {
-  ParserError := 1
+  MsgBox
   Return, "ERROR: Missing operator" ;wip: better error handling
  }
  If (TokenType = CodeTokenTypes.GROUP_BEGIN)
-  Return, CodeParseGroupLeftDenotation(Tokens,ParserError,Errors,Index,Token,LeftSide)
+  Return, CodeParseGroupLeftDenotation(Tokens,Errors,Token,LeftSide)
  If (TokenType = CodeTokenTypes.GROUP_END)
  {
-  ParserError := 1
+  MsgBox
   Return, "ERROR: Unmatched parenthesis" ;wip: better error handling
  }
 }
@@ -188,31 +189,31 @@ CodeParseOperatorLeftBindingPower(Token)
  Return, CodeOperatorTable.NullDenotation[Token.Value].LeftBindingPower
 }
 
-CodeParseOperatorNullDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token)
+CodeParseOperatorNullDenotation(ByRef Tokens,ByRef Errors,Token)
 {
  global CodeTreeTypes, CodeOperatorTable
  Operator := CodeOperatorTable.NullDenotation[Token.Value]
  Return, [CodeTreeTypes.OPERATION
   ,[CodeTreeTypes.IDENTIFIER,Operator.Identifier]
-  ,CodeParseExpression(Tokens,Errors,ParserError,Index,Operator.RightBindingPower)]
+  ,CodeParseExpression(Tokens,Errors,Operator.RightBindingPower)]
 }
 
-CodeParseOperatorLeftDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token,LeftSide)
+CodeParseOperatorLeftDenotation(ByRef Tokens,ByRef Errors,Token,LeftSide)
 {
  global CodeTokenTypes, CodeTreeTypes, CodeOperatorTable
  Operator := CodeOperatorTable.LeftDenotation[Token.Value]
 
  If (Operator.Identifier = "TERNARY_IF") ;wip: literal string
  {
-  FirstBranch := CodeParseExpression(Tokens,Errors,ParserError,Index,Operator.RightBindingPower) ;parse the first branch
-  Token := Tokens[Index]
-  If !(Token.Type = CodeTokenTypes.OPERATOR && CodeOperatorTable.NullDenotation[Token.Value].Identifier = "TERNARY_ELSE")
+  FirstBranch := CodeParseExpression(Tokens,Errors,Operator.RightBindingPower) ;parse the first branch
+  Token := CodeParseToken(Tokens,0)
+  If !(Token.Type = CodeTokenTypes.OPERATOR && CodeOperatorTable.LeftDenotation[Token.Value].Identifier = "TERNARY_ELSE")
   {
-   ParserError := 1
+   MsgBox
    Return, "ERROR: Ternary operator missing ELSE branch" ;wip: better error handling
   }
-  Index ++ ;move past the ternary else operator
-  SecondBranch := CodeParseExpression(Tokens,Errors,ParserError,Index,Operator.RightBindingPower) ;parse the second branch
+  CodeParseToken(Tokens)
+  SecondBranch := CodeParseExpression(Tokens,Errors,Operator.RightBindingPower) ;parse the second branch
   Return, [CodeTreeTypes.OPERATION
    ,[CodeTreeTypes.IDENTIFIER,Operator.IDENTIFIER]
    ,LeftSide
@@ -230,51 +231,60 @@ CodeParseOperatorLeftDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRe
  Return, [CodeTreeTypes.OPERATION
   ,[CodeTreeTypes.IDENTIFIER,Operator.Identifier]
   ,LeftSide
-  ,CodeParseExpression(Tokens,Errors,ParserError,Index,Operator.RightBindingPower)]
+  ,CodeParseExpression(Tokens,Errors,Operator.RightBindingPower)]
 }
 
-CodeParseGroupNullDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token)
+CodeParseGroupNullDenotation(ByRef Tokens,ByRef Errors,Token)
 {
  global CodeTokenTypes, CodeTreeTypes
  Result := [CodeTreeTypes.OPERATION,[CodeTreeTypes.IDENTIFIER,"EVALUATE"]] ;wip: hardcoded string
  Loop ;loop through one subexpression at a time
  {
-  ObjInsert(Result,CodeParseExpression(Tokens,Errors,ParserError,Index))
-  If (Tokens[Index].Type != CodeTokenTypes.SEPARATOR)
-  {
-   If (ObjMaxIndex(Result) = 3) ;there was only one expression inside the parentheses
-    Result := Result.3 ;remove the evaluate operation and directly return the result
+  ObjInsert(Result,CodeParseExpression(Tokens,Errors))
+  Try Token := CodeParseToken(Tokens) ;move past the separator token
+  Catch ;end of token stream
+   Break
+  If (Token.Type != CodeTokenTypes.SEPARATOR)
    Break ;stop parsing subexpressions
-  }
-  Index ++ ;move past separator token
  }
- CurrentToken := Tokens[Index]
- If (CurrentToken.Type != CodeTokenTypes.GROUP_END) ;mismatched parentheses
+ If (ObjMaxIndex(Result) = 3) ;there was only one expression inside the parentheses
+  Result := Result.3 ;remove the evaluate operation and directly return the result
+ If (Token.Type != CodeTokenTypes.GROUP_END) ;mismatched parentheses
  {
-  ParserError := 1
+  MsgBox
   Return, "ERROR: Unmatched parenthesis" ;wip: better error handling
  }
- Index ++ ;move past the right parenthesis
  Return, Result
 }
 
-CodeParseGroupLeftDenotation(ByRef Tokens,ByRef Errors,ByRef ParserError,ByRef Index,Token,LeftSide)
+CodeParseGroupLeftDenotation(ByRef Tokens,ByRef Errors,Token,LeftSide)
 {
  global CodeTreeTypes, CodeTokenTypes
  Result := [CodeTreeTypes.OPERATION,LeftSide]
  Loop ;loop through one argument at a time
  {
-  ObjInsert(Result,CodeParseExpression(Tokens,Errors,ParserError,Index)) ;parse the argument
-  If (Tokens[Index].Type != CodeTokenTypes.SEPARATOR) ;break the loop if there is no argument separator present
+  ObjInsert(Result,CodeParseExpression(Tokens,Errors)) ;parse the argument
+  Try Token := CodeParseToken(Tokens)
+  Catch ;end of token stream
+   Break
+  If (Token.Type != CodeTokenTypes.SEPARATOR) ;break the loop if there is no argument separator present
    Break ;stop parsing parameters
-  Index ++ ;move past the separator token
  }
- CurrentToken := Tokens[Index]
- If (CurrentToken.Type != CodeTokenTypes.GROUP_END) ;mismatched parentheses
+ If (Token.Type != CodeTokenTypes.GROUP_END) ;mismatched parentheses
  {
-  ParserError := 1
+  MsgBox
   Return, "ERROR: Unmatched parenthesis" ;wip: better error handling
  }
- Index ++ ;move past the right parenthesis token
+ Return, Result
+}
+
+;get the next token
+CodeParseToken(ByRef Tokens,Offset = 1)
+{
+ static Index := 1
+ If (Index > ObjMaxIndex(Tokens))
+  Throw Exception("Token stream end.",-1)
+ Result := Tokens[Index]
+ Index += Offset
  Return, Result
 }
