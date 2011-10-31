@@ -197,9 +197,10 @@ Loop, %A_ScriptDir%\Parser\*.txt
  {
   TestTokens := ParseTokenDescription(TestTokens)
   StringReplace, TestErrorOutput, TestErrorOutput, `r,, All
-  StringReplace, TestTokenOutput, TestTokenOutput, `r,, All
-  Errors := Array()
+  StringReplace, TestTreeOutput, TestTreeOutput, `r,, All
+  Errors := Array(), SyntaxTree := ""
   Temp1 := StartTimer()
+  CodeParseToken(TestTokens,"Reset")
   CodeParse(TestTokens,SyntaxTree,Errors)
   Temp1 := StopTimer(Temp1) - ControlTimer
   If ((Output := ShowObject(Errors)) != TestErrorOutput)
