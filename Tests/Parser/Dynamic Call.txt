@@ -1,0 +1,21 @@
+File 1: IDENTIFIER  (1):  'Object'
+File 1: OPERATOR    (7):  '.'
+File 1: IDENTIFIER  (8):  'Method'
+File 1: GROUP_BEGIN (14): ''
+File 1: INTEGER     (15): '5'
+File 1: OPERATOR    (17): '+'
+File 1: INTEGER     (19): '1'
+File 1: SEPARATOR   (20): ''
+File 1: INTEGER     (21): '2'
+File 1: OPERATOR    (23): '*'
+File 1: INTEGER     (25): '3'
+File 1: GROUP_END   (26): ''
+File 1: OPERATOR    (28): '-'
+File 1: INTEGER     (30): '4'
+---
+
+---
+(SUBTRACT 
+	((ACCESS_PROPERTY Object Method) 
+		(ADD 5 1) 
+		(MULTIPLY 2 3)) 4)

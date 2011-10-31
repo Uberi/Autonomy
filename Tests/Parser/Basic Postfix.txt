@@ -1,0 +1,6 @@
+File 1: IDENTIFIER (1):  'Something'
+File 1: OPERATOR   (10): '++'
+---
+
+---
+(INCREMENT Something)

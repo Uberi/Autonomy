@@ -1,0 +1,7 @@
+File 1: IDENTIFIER  (1):  'SomeFunc'
+File 1: GROUP_BEGIN (9):  ''
+File 1: GROUP_END   (10): ''
+---
+
+---
+(SomeFunc)

@@ -1,0 +1,8 @@
+File 1: IDENTIFIER  (1):  'Something'
+File 1: GROUP_BEGIN (10): ''
+File 1: IDENTIFIER  (11): 'Parameter'
+File 1: GROUP_END   (20): ''
+---
+
+---
+(Something Parameter)

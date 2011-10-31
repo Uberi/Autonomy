@@ -1,0 +1,15 @@
+File 1: IDENTIFIER (1):  'Something'
+File 1: OPERATOR   (11): '?'
+File 1: IDENTIFIER (13): 'SomethingDone'
+File 1: OPERATOR   (27): '+'
+File 1: INTEGER    (29): '1'
+File 1: OPERATOR   (31): ':'
+File 1: IDENTIFIER (33): 'SomethingElse'
+File 1: OPERATOR   (47): '&&'
+File 1: INTEGER    (50): '5'
+---
+
+---
+(TERNARY_IF Something 
+	(ADD SomethingDone 1) 
+	(LOGICAL_AND SomethingElse 5))

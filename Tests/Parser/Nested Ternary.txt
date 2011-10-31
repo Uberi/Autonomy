@@ -1,0 +1,14 @@
+File 1: IDENTIFIER (1):  'OuterCondition'
+File 1: OPERATOR   (16): '?'
+File 1: IDENTIFIER (18): 'InnerCondition'
+File 1: OPERATOR   (33): '?'
+File 1: IDENTIFIER (35): 'InnerTrue'
+File 1: OPERATOR   (45): ':'
+File 1: IDENTIFIER (47): 'InnerFalse'
+File 1: OPERATOR   (58): ':'
+File 1: IDENTIFIER (60): 'OuterFalse'
+---
+
+---
+(TERNARY_IF OuterCondition 
+	(TERNARY_IF InnerCondition InnerTrue InnerFalse) OuterFalse)

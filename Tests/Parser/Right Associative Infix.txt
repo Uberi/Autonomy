@@ -1,0 +1,10 @@
+File 1: INTEGER  (1):  '2'
+File 1: OPERATOR (3):  '**'
+File 1: INTEGER  (6):  '3'
+File 1: OPERATOR (8):  '**'
+File 1: INTEGER  (11): '4'
+---
+
+---
+(EXPONENTIATE 2 
+	(EXPONENTIATE 3 4))
