@@ -17,7 +17,7 @@ CodeCreateOperatorTable()
  CodeOperatorCreateInfix("ASSIGN_BITWISE_XOR","^=",10,9)
  CodeOperatorCreateInfix("ASSIGN_BITWISE_SHIFT_LEFT","<<=",10,9)
  CodeOperatorCreateInfix("ASSIGN_BITWISE_SHIFT_RIGHT",">>=",10,9)
- CodeOperatorCreateInfix("TERNARY_IF","?",20,20,Func("CodeParseOperatorLeftDenotationTernary"))
+ CodeOperatorCreateInfix("TERNARY_IF","?",20,19,Func("CodeParseOperatorLeftDenotationTernary"))
  CodeOperatorCreateInfix("TERNARY_ELSE",":",0,0) ;wip: colon operator, not ternary
  CodeOperatorCreateInfix("LOGICAL_OR","||",40,40)
  CodeOperatorCreateInfix("LOGICAL_AND","&&",50,50)

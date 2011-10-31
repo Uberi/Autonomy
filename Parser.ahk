@@ -39,7 +39,8 @@ SetBatchLines(-1)
 ;Code := "Length := StrLen(Data) << !!A_IsUnicode"
 ;Code := "Description := RegExReplace(SubStr(Page,1,InStr(Page,""<br"") - 1),""S)^[ \t]+|[ \t]+$"")"
 ;Code := "v := 1, (w := 2, (x := 3), y := 4), z := 5"
-Code := "Something ? SomethingDone + 1 : SomethingElse && 5"
+;Code := "Something ? SomethingDone + 1 : SomethingElse && 5"
+Code := "OuterCondition ? InnerCondition ? InnerTrue : InnerFalse : OuterFalse"
 ;Code := "Something+++++Something1"
 
 If CodeInit()
