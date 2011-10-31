@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;wip: check for recursion depth terminating the expression by checking to make sure the token is the last one before returning, otherwise skip over close paren and keep parsing
 ;wip: type verification (possibly implement in type analyser module). need to add type information to operator table
-;wip: nested ternary not supported
 
 /*
 #Include Resources\Functions.ahk
@@ -32,16 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 SetBatchLines(-1)
 
-;Code := "2 + 2 + 2"
-;Code := "2 ** 3 ** 4"
-;Code := "4 - (2 + 4) * -5"
-;Code := "Object.Method(5 + 1,2 * 3) - 4"
-;Code := "Length := StrLen(Data) << !!A_IsUnicode"
-;Code := "Description := RegExReplace(SubStr(Page,1,InStr(Page,""<br"") - 1),""S)^[ \t]+|[ \t]+$"")"
-;Code := "v := 1, (w := 2, (x := 3), y := 4), z := 5"
-;Code := "Something ? SomethingDone + 1 : SomethingElse && 5"
-Code := "OuterCondition ? InnerCondition ? InnerTrue : InnerFalse : OuterFalse"
-;Code := "Something+++++Something1"
+Code := "!!Something"
 
 If CodeInit()
 {
@@ -59,7 +49,7 @@ CodeParseInit()
 TimerBefore := 0, DllCall("QueryPerformanceCounter","Int64*",TimerBefore)
 Result := CodeParse(Tokens,SyntaxTree,Errors)
 TimerAfter := 0, DllCall("QueryPerformanceCounter","Int64*",TimerAfter), TickFrequency := 0, DllCall("QueryPerformanceFrequency","Int64*",TickFrequency), TimerAfter := (TimerAfter - TimerBefore) / (TickFrequency / 1000)
-MsgBox % TimerAfter . " ms`n`n" . Result . "`n`n" . CodeReconstructShowSyntaxTree(SyntaxTree)
+MsgBox % TimerAfter . " ms`n`n" . Result . "`n`n" . Clipboard := CodeReconstructShowSyntaxTree(SyntaxTree)
 ExitApp()
 */
 
@@ -74,7 +64,11 @@ CodeParse(ByRef Tokens,ByRef SyntaxTree,ByRef Errors)
 { ;returns 1 on parsing error, 0 otherwise
  global CodeTokenTypes, CodeTreeTypes
  ErrorIndex := ObjMaxIndex(Errors)
+ TokenIndex := ObjMaxIndex(Tokens)
+
  SyntaxTree := [CodeTreeTypes.OPERATION,[CodeTreeTypes.IDENTIFIER,"EVALUATE"]] ;wip: hardcoded string
+ If !TokenIndex ;no tokens given
+  Return, 0
  Loop ;loop through one subexpression at a time
  {
   ObjInsert(SyntaxTree,CodeParseExpression(Tokens,Errors))
@@ -239,6 +233,11 @@ CodeParseGroupNullDenotation(ByRef Tokens,ByRef Errors,Token)
 {
  global CodeTokenTypes, CodeTreeTypes
  Result := [CodeTreeTypes.OPERATION,[CodeTreeTypes.IDENTIFIER,"EVALUATE"]] ;wip: hardcoded string
+ If (CodeParseToken(Tokens,0).Type = CodeTokenTypes.GROUP_END) ;empty parentheses
+ {
+  MsgBox
+  Return, "ERROR: Unmatched parenthesis" ;wip: better error handling
+ }
  Loop ;loop through one subexpression at a time
  {
   ObjInsert(Result,CodeParseExpression(Tokens,Errors))
@@ -249,7 +248,7 @@ CodeParseGroupNullDenotation(ByRef Tokens,ByRef Errors,Token)
    Break ;stop parsing subexpressions
  }
  If (ObjMaxIndex(Result) = 3) ;there was only one expression inside the parentheses
-  Result := Result.3 ;remove the evaluate operation and directly return the result
+  Result := Result[3] ;remove the evaluate operation and directly return the result
  If (Token.Type != CodeTokenTypes.GROUP_END) ;mismatched parentheses
  {
   MsgBox
@@ -262,6 +261,8 @@ CodeParseGroupLeftDenotation(ByRef Tokens,ByRef Errors,Token,LeftSide)
 {
  global CodeTreeTypes, CodeTokenTypes
  Result := [CodeTreeTypes.OPERATION,LeftSide]
+ If (CodeParseToken(Tokens,0).Type = CodeTokenTypes.GROUP_END) ;empty parentheses
+  Return, Result
  Loop ;loop through one argument at a time
  {
   ObjInsert(Result,CodeParseExpression(Tokens,Errors)) ;parse the argument
@@ -283,6 +284,11 @@ CodeParseGroupLeftDenotation(ByRef Tokens,ByRef Errors,Token,LeftSide)
 CodeParseToken(ByRef Tokens,Offset = 1)
 {
  static Index := 1
+ If (Offset = "Reset") ;wip
+ {
+  Index := 1
+  Return
+ }
  If (Index > ObjMaxIndex(Tokens))
   Throw Exception("Token stream end.",-1)
  Result := Tokens[Index]
