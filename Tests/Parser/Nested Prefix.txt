@@ -1,8 +1,0 @@
-File 1: OPERATOR   (1): '!'
-File 1: OPERATOR   (2): '!'
-File 1: IDENTIFIER (3): 'Something'
----
-
----
-(LOGICAL_NOT 
-	(LOGICAL_NOT Something))
