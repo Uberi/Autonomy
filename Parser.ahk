@@ -191,16 +191,22 @@ CodeParseOperatorNullDenotation(ByRef Tokens,ByRef Errors,Token)
 {
  global CodeTreeTypes, CodeOperatorTable
  Operator := CodeOperatorTable.NullDenotation[Token.Value]
- Return, [CodeTreeTypes.OPERATION
-  ,[CodeTreeTypes.IDENTIFIER,Operator.Identifier]
-  ,CodeParseExpression(Tokens,Errors,Operator.RightBindingPower)]
+ Return, Operator.Handler.(Tokens,Errors,Operator) ;dispatch the null denotation handler for the operator ;wip: function reference call
 }
 
 CodeParseOperatorLeftDenotation(ByRef Tokens,ByRef Errors,Token,LeftSide)
 {
  global CodeTokenTypes, CodeTreeTypes, CodeOperatorTable
  Operator := CodeOperatorTable.LeftDenotation[Token.Value]
- Return, Operator.Handler.(Tokens,Errors,Operator,LeftSide) ;wip: function reference call
+ Return, Operator.Handler.(Tokens,Errors,Operator,LeftSide) ;dispatch the left denotation handler for the operator ;wip: function reference call
+}
+
+CodeParseOperatorPrefix(ByRef Tokens,ByRef Errors,Operator)
+{
+ global CodeTreeTypes
+ Return, [CodeTreeTypes.OPERATION
+  ,[CodeTreeTypes.IDENTIFIER,Operator.Identifier]
+  ,CodeParseExpression(Tokens,Errors,Operator.RightBindingPower)]
 }
 
 CodeParseOperatorInfix(ByRef Tokens,ByRef Errors,Operator,LeftSide)
