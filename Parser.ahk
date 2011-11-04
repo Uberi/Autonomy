@@ -200,21 +200,24 @@ CodeParseOperatorLeftDenotation(ByRef Tokens,ByRef Errors,Token,LeftSide)
 {
  global CodeTokenTypes, CodeTreeTypes, CodeOperatorTable
  Operator := CodeOperatorTable.LeftDenotation[Token.Value]
+ Return, Operator.Handler.(Tokens,Errors,Operator,LeftSide) ;wip: function reference call
+}
 
- If IsFunc(Operator.Handler) ;custom handler defined
-  Return, Operator.Handler.(Tokens,Errors,Operator,LeftSide) ;wip: function reference call
-
- ;postfix operator
- If (Operator.RightBindingPower = -1)
-  Return, [CodeTreeTypes.OPERATION
-  ,[CodeTreeTypes.IDENTIFIER,Operator.Identifier]
-  ,LeftSide]
-
- ;infix operator
+CodeParseOperatorInfix(ByRef Tokens,ByRef Errors,Operator,LeftSide)
+{
+ global CodeTreeTypes
  Return, [CodeTreeTypes.OPERATION
   ,[CodeTreeTypes.IDENTIFIER,Operator.Identifier]
   ,LeftSide
   ,CodeParseExpression(Tokens,Errors,Operator.RightBindingPower)]
+}
+
+CodeParseOperatorPostfix(ByRef Tokens,ByRef Errors,Operator,LeftSide)
+{
+ global CodeTreeTypes
+ Return, [CodeTreeTypes.OPERATION
+  ,[CodeTreeTypes.IDENTIFIER,Operator.Identifier]
+  ,LeftSide]
 }
 
 CodeParseGroupNullDenotation(ByRef Tokens,ByRef Errors,Token)
