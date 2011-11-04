@@ -1,5 +1,7 @@
 #NoEnv
 
+;wip: use custom handlers for all these types
+
 CodeCreateOperatorTable()
 {
  global CodeOperatorTable
@@ -55,9 +57,23 @@ CodeCreateOperatorTable()
  CodeOperatorCreatePrefix("DEREFERENCE","%",190,Func("CodeParseOperatorNullDenotationDereference"))
 }
 
-CodeParseOperatorLeftDenotationTernary() ;wip
+CodeParseOperatorLeftDenotationTernary(ByRef Tokens,ByRef Errors,Operator,LeftSide) ;wip
 {
- 
+ global CodeTokenTypes, CodeTreeTypes, CodeOperatorTable
+ FirstBranch := CodeParseExpression(Tokens,Errors,Operator.RightBindingPower) ;parse the first branch
+ Token := CodeParseToken(Tokens,0) ;retrieve the current token
+ If !(Token.Type = CodeTokenTypes.OPERATOR && CodeOperatorTable.LeftDenotation[Token.Value].Identifier = "TERNARY_ELSE") ;ensure the current token is a ternary else token
+ {
+  ;wip: implement binary ternary operator here
+  Return, "ERROR: Ternary operator missing ELSE branch" ;wip: better error handling
+ }
+ CodeParseToken(Tokens) ;move to the next token
+ SecondBranch := CodeParseExpression(Tokens,Errors,Operator.RightBindingPower) ;parse the second branch
+ Return, [CodeTreeTypes.OPERATION
+  ,[CodeTreeTypes.IDENTIFIER,Operator.IDENTIFIER]
+  ,LeftSide
+  ,FirstBranch
+  ,SecondBranch]
 }
 
 CodeParseOperatorLeftDenotationGroup() ;wip

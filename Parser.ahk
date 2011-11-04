@@ -23,6 +23,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;wip: type verification (possibly implement in type analyser module). need to add type information to operator table
 
 /*
+#Warn All
+#Warn LocalSameAsGlobal, Off
+
 #Include Resources\Functions.ahk
 #Include Resources\Reconstruct.ahk
 #Include Resources\Operators.ahk
@@ -31,7 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 SetBatchLines(-1)
 
-Code := "!!Something"
+Code := "1?2:3"
 
 If CodeInit()
 {
@@ -85,7 +88,7 @@ CodeParse(ByRef Tokens,ByRef SyntaxTree,ByRef Errors)
  {
   ;wip: better error handling
  }
- If (ErrorIndex = ObjMaxIndex(Errors))
+ If (ErrorIndex = ObjMaxIndex(Errors)) ;number of error entries unchanged
   Return, 0 ;no errors occurred
  Return, 1 ;errors occurred
 }
@@ -198,23 +201,8 @@ CodeParseOperatorLeftDenotation(ByRef Tokens,ByRef Errors,Token,LeftSide)
  global CodeTokenTypes, CodeTreeTypes, CodeOperatorTable
  Operator := CodeOperatorTable.LeftDenotation[Token.Value]
 
- If (Operator.Identifier = "TERNARY_IF") ;wip: literal string
- {
-  FirstBranch := CodeParseExpression(Tokens,Errors,Operator.RightBindingPower) ;parse the first branch
-  Token := CodeParseToken(Tokens,0)
-  If !(Token.Type = CodeTokenTypes.OPERATOR && CodeOperatorTable.LeftDenotation[Token.Value].Identifier = "TERNARY_ELSE")
-  {
-   MsgBox
-   Return, "ERROR: Ternary operator missing ELSE branch" ;wip: better error handling
-  }
-  CodeParseToken(Tokens)
-  SecondBranch := CodeParseExpression(Tokens,Errors,Operator.RightBindingPower) ;parse the second branch
-  Return, [CodeTreeTypes.OPERATION
-   ,[CodeTreeTypes.IDENTIFIER,Operator.IDENTIFIER]
-   ,LeftSide
-   ,FirstBranch
-   ,SecondBranch]
- }
+ If IsFunc(Operator.Handler) ;custom handler defined
+  Return, Operator.Handler.(Tokens,Errors,Operator,LeftSide) ;wip: function reference call
 
  ;postfix operator
  If (Operator.RightBindingPower = -1)
