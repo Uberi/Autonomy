@@ -32,6 +32,13 @@ SetBatchLines(-1)
 Process, Priority,, RealTime
 
 /*
+#Warn All
+#Warn LocalSameAsGlobal, Off
+*/
+
+Debug := 0 ;whether or not to copy and display unexpected output
+
+/*
 Test Format
 -----------
 
@@ -62,13 +69,6 @@ Lexer test:
     File 1: IDENTIFIER  (1):  'MsgBox'
     File 1: GROUP_BEGIN (7):  ''
 */
-
-/*
-#Warn All
-#Warn LocalSameAsGlobal, Off
-*/
-
-Debug := 0 ;whether or not to copy and display unexpected output
 
 Gui, Font, s12 Bold, Arial
 Gui, Add, Text, x0 y0 h20 vTitle Center, Test Results:
