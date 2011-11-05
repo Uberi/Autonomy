@@ -100,9 +100,9 @@ Gosub, TestParser
 Gosub, TestBytecode
 Gosub, TestInterpreter
 
-Loop, 4
- LV_ModifyCol(A_Index,"AutoHdr")
-Gui, Show, w515 h385, Tests
+Gosub, GuiSize
+
+Gui, Show, w515 h550, Tests
 Return
 
 ShowOutput(TestName,OutputType,ByRef OutputText)
@@ -239,6 +239,8 @@ GuiControl, MoveDraw, Title, w%A_GuiWidth%
 GuiControl, Move, Results, % "w" . (A_GuiWidth - 4) . " h" . (A_GuiHeight - 65)
 GuiControl, Move, CopyReport, % "y" . (A_GuiHeight - 35)
 GuiControl, MoveDraw, SaveReport, % "x" . (A_GuiWidth - 152) . " y" . (A_GuiHeight - 35)
+Loop, 4
+ LV_ModifyCol(A_Index,"AutoHdr")
 Return
 
 GuiEscape:
