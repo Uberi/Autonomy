@@ -1,7 +1,5 @@
 #NoEnv
 
-;wip: use custom handlers for all these types
-
 CodeCreateOperatorTable()
 {
  global CodeOperatorTable

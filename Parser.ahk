@@ -37,8 +37,8 @@ SetBatchLines(-1)
 Code = 
 (
 Test()
-Something + 1
-SomethingElse
+Something +
+1, SomethingElse
 )
 
 If CodeInit()
@@ -88,11 +88,11 @@ CodeParse(ByRef Tokens,ByRef SyntaxTree,ByRef Errors)
   Try Token := CodeParseToken(Tokens)
   Catch ;end of token stream
    Break
-  If (Token.Type = CodeTokenTypes.LINE_END) ;token is a new line token
+  If (Token.Type = CodeTokenTypes.LINE_END) ;line end token
   {
-   ;wip: process new line here
+   ;wip: process line end here
   }
-  Else If (Token.Type != CodeTokenTypes.SEPARATOR) ;token is not a separator token
+  Else If (Token.Type != CodeTokenTypes.SEPARATOR) ;not a separator token
    Break ;stop parsing subexpressions
  }
  If (ObjMaxIndex(SyntaxTree) = 3) ;there was only one expression
@@ -163,6 +163,11 @@ CodeParseDispatchNullDenotation(ByRef Tokens,ByRef Errors,Token)
   Return, [CodeTreeTypes.STRING,Token.Value,Token.Position,Token.File] ;create a string tree node
  If (TokenType = CodeTokenTypes.IDENTIFIER) ;identifier token
   Return, [CodeTreeTypes.IDENTIFIER,Token.Value,Token.Position,Token.File] ;create an identifier tree node
+ If (TokenType = CodeTokenTypes.LINE_END) ;line end token
+ {
+  Token := CodeParseToken(Tokens) ;retrieve the token after the line end token
+  Return, CodeParseDispatchNullDenotation(Tokens,Errors,Token) ;dispatch the null denotation handler of the next token
+ }
 }
 
 ;dispatches the invocation of the left denotation handler of a given token
