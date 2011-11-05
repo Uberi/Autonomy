@@ -106,14 +106,12 @@ CodeInit(ResourcesPath = "Resources")
   ,"STRING",3
   ,"IDENTIFIER",4
   ,"SEPARATOR",5
-  ,"GROUP_BEGIN",6
-  ,"GROUP_END",7
-  ,"OBJECT_BEGIN",8
-  ,"OBJECT_END",9
-  ,"BLOCK_BEGIN",10
-  ,"BLOCK_END",11
-  ,"STATEMENT",12
-  ,"LINE_END",13)
+  ,"OBJECT_BEGIN",6
+  ,"OBJECT_END",7
+  ,"BLOCK_BEGIN",8
+  ,"BLOCK_END",9
+  ,"STATEMENT",10
+  ,"LINE_END",11)
 
  ;set up syntax tree type enumeration
  CodeTreeTypes := Object("OPERATION",0
