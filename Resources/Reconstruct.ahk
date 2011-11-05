@@ -70,10 +70,6 @@ CodeReconstructTokens(Tokens)
    Code .= """" . TokenValue . """"
   Else If (TokenType = CodeTokenTypes.SEPARATOR) ;add the separator character
    Code .= ","
-  Else If (TokenType = CodeTokenTypes.OBJECT_BEGIN) ;add the opening square bracket character
-   Code .= "["
-  Else If (TokenType = CodeTokenTypes.OBJECT_END) ;add the closing square bracket character
-   Code .= "]"
   Else If (TokenType = CodeTokenTypes.BLOCK_BEGIN) ;add the opening curly bracket character
    Code .= "{"
   Else If (TokenType = CodeTokenTypes.BLOCK_END) ;add the closing curly bracket character

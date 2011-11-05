@@ -310,10 +310,6 @@ CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
   SyntaxElement := SubStr(Code,Position,Temp1), Value := ""
   If (SyntaxElement = CodeLexerConstants.SEPARATOR) ;found separator
    TokenType := CodeTokenTypes.SEPARATOR
-  Else If (SyntaxElement = "[") ;opening square bracket
-   TokenType := CodeTokenTypes.OBJECT_BEGIN
-  Else If (SyntaxElement = "]") ;closing square bracket
-   TokenType := CodeTokenTypes.OBJECT_END
   Else If (SyntaxElement = "{") ;opening curly bracket
    TokenType := CodeTokenTypes.BLOCK_BEGIN
   Else If (SyntaxElement = "}") ;closing curly bracket
