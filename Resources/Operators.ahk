@@ -22,7 +22,7 @@ CodeCreateOperatorTable()
  CodeOperatorCreateLeftDenotation("ASSIGN_BITWISE_XOR","^=",10,9,InfixHandler)
  CodeOperatorCreateLeftDenotation("ASSIGN_BITWISE_SHIFT_LEFT","<<=",10,9,InfixHandler)
  CodeOperatorCreateLeftDenotation("ASSIGN_BITWISE_SHIFT_RIGHT",">>=",10,9,InfixHandler)
- CodeOperatorCreateLeftDenotation("TERNARY_IF","?",20,19,Func("CodeParseOperatorLeftDenotationTernary"))
+ CodeOperatorCreateLeftDenotation("TERNARY_IF","?",20,19,Func("CodeParseOperatorTernary"))
  CodeOperatorCreateLeftDenotation("TERNARY_ELSE",":",0,0,ErrorHandler) ;wip: colon operator, not ternary
  CodeOperatorCreateLeftDenotation("LOGICAL_OR","||",40,40,InfixHandler)
  CodeOperatorCreateLeftDenotation("LOGICAL_AND","&&",50,50,InfixHandler)
@@ -54,11 +54,17 @@ CodeCreateOperatorTable()
  CodeOperatorCreateNullDenotation("DECREMENT","--",160,PrefixHandler)
  CodeOperatorCreateLeftDenotation("INCREMENT","++",160,0,PostfixHandler)
  CodeOperatorCreateLeftDenotation("DECREMENT","--",160,0,PostfixHandler)
- CodeOperatorCreateNullDenotation("EVALUATE","(",0,Func("CodeParseOperatorNullDenotationGroup"))
- CodeOperatorCreateLeftDenotation("GROUP_END",")",0,0,ErrorHandler) ;wip
- CodeOperatorCreateLeftDenotation("CALL","(",170,0,Func("CodeParseOperatorLeftDenotationGroup"))
- CodeOperatorCreateLeftDenotation("ACCESS_PROPERTY",".",180,180,InfixHandler)
- CodeOperatorCreateNullDenotation("DEREFERENCE","%",190,Func("CodeParseOperatorNullDenotationDereference"))
+
+ CodeOperatorCreateNullDenotation("EVALUATE","(",0,Func("CodeParseOperatorEvaluate"))
+ CodeOperatorCreateLeftDenotation("CALL","(",170,0,Func("CodeParseOperatorCall"))
+ CodeOperatorCreateLeftDenotation("GROUP_END",")",0,0,ErrorHandler)
+
+ CodeOperatorCreateNullDenotation("ARRAY","[",0,Func("CodeParseOperatorArray"))
+ CodeOperatorCreateLeftDenotation("OBJECT_ACCESS_DYNAMIC","[",180,0,Func("CodeParseOperatorObjectAccess"))
+ CodeOperatorCreateLeftDenotation("OBJECT_END","]",0,0,ErrorHandler)
+
+ CodeOperatorCreateLeftDenotation("OBJECT_ACCESS",".",180,180,InfixHandler)
+ CodeOperatorCreateNullDenotation("DEREFERENCE","%",190,Func("CodeParseOperatorDereference"))
 }
 
 CodeParseOperatorError(ByRef Tokens,ByRef Errors,Operator,LeftSide = "")
@@ -67,13 +73,17 @@ CodeParseOperatorError(ByRef Tokens,ByRef Errors,Operator,LeftSide = "")
  Return, "Error: Unexpected operator." ;wip: better error handling
 }
 
-CodeParseOperatorNullDenotationGroup(ByRef Tokens,ByRef Errors,Operator) ;wip
+CodeParseOperatorEvaluate(ByRef Tokens,ByRef Errors,Operator)
 {
  global CodeTokenTypes, CodeTreeTypes, CodeOperatorTable
  Result := [CodeTreeTypes.OPERATION,[CodeTreeTypes.IDENTIFIER,Operator.Identifier]]
  Token := CodeParseToken(Tokens,0)
- If (Token.Type = CodeTokenTypes.OPERATOR && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "GROUP_END") ;empty parentheses
-  Return, Result ;wip: empty set of parentheses should give a warning
+ If (Token.Type = CodeTokenTypes.OPERATOR ;operator token
+    && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "GROUP_END") ;closing parenthesis operator token
+ {
+  CodeParseToken(Tokens) ;move past the closing parenthesis token
+  Return, Result ;wip: empty set of parentheses should give an error
+ }
  Loop ;loop through one subexpression at a time
  {
   ObjInsert(Result,CodeParseExpression(Tokens,Errors))
@@ -83,7 +93,8 @@ CodeParseOperatorNullDenotationGroup(ByRef Tokens,ByRef Errors,Operator) ;wip
   If (Token.Type != CodeTokenTypes.SEPARATOR)
    Break ;stop parsing subexpressions
  }
- If !(Token.Type = CodeTokenTypes.OPERATOR && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "GROUP_END") ;mismatched parentheses
+ If !(Token.Type = CodeTokenTypes.OPERATOR ;operator token
+    && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "GROUP_END") ;closing parenthesis operator token
  {
   MsgBox
   Return, "ERROR: Unmatched parenthesis" ;wip: better error handling
@@ -93,17 +104,13 @@ CodeParseOperatorNullDenotationGroup(ByRef Tokens,ByRef Errors,Operator) ;wip
  Return, Result
 }
 
-CodeParseOperatorNullDenotationDereference(ByRef Tokens,ByRef Errors,Operator) ;wip
-{
- 
-}
-
-CodeParseOperatorLeftDenotationGroup(ByRef Tokens,ByRef Errors,Operator,LeftSide) ;wip
+CodeParseOperatorCall(ByRef Tokens,ByRef Errors,Operator,LeftSide)
 {
  global CodeTreeTypes, CodeTokenTypes, CodeOperatorTable
  Result := [CodeTreeTypes.OPERATION,LeftSide]
  Token := CodeParseToken(Tokens,0)
- If (Token.Type = CodeTokenTypes.OPERATOR && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "GROUP_END") ;empty parentheses
+ If (Token.Type = CodeTokenTypes.OPERATOR ;operator token
+    && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "GROUP_END") ;closing parenthesis operator token
  {
   CodeParseToken(Tokens) ;move past the closing parenthesis token
   Return, Result
@@ -117,7 +124,8 @@ CodeParseOperatorLeftDenotationGroup(ByRef Tokens,ByRef Errors,Operator,LeftSide
   If (Token.Type != CodeTokenTypes.SEPARATOR) ;break the loop if there is no argument separator present
    Break ;stop parsing parameters
  }
- If !(Token.Type = CodeTokenTypes.OPERATOR && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "GROUP_END") ;mismatched parentheses
+ If !(Token.Type = CodeTokenTypes.OPERATOR ;operator token
+    && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "GROUP_END") ;closing parenthesis operator token
  {
   MsgBox
   Return, "ERROR: Unmatched parenthesis" ;wip: better error handling
@@ -125,12 +133,60 @@ CodeParseOperatorLeftDenotationGroup(ByRef Tokens,ByRef Errors,Operator,LeftSide
  Return, Result
 }
 
-CodeParseOperatorLeftDenotationTernary(ByRef Tokens,ByRef Errors,Operator,LeftSide) ;wip
+CodeParseOperatorArray(ByRef Tokens,ByRef Errors,Operator)
+{
+ global CodeTokenTypes, CodeTreeTypes, CodeOperatorTable
+ Result := [CodeTreeTypes.OPERATION,[CodeTreeTypes.IDENTIFIER,Operator.Identifier]]
+ Token := CodeParseToken(Tokens,0) ;retrieve the token after the array begin token
+ If (Token.Type = CodeTokenTypes.OPERATOR && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "OBJECT_END") ;empty braces
+ {
+  CodeParseToken(Tokens) ;move past the closing brace token
+  Return, Result
+ }
+ Loop ;loop through one subexpression at a time
+ {
+  ObjInsert(Result,CodeParseExpression(Tokens,Errors))
+  Try Token := CodeParseToken(Tokens) ;move past the separator token
+  Catch ;end of token stream
+   Break
+  If (Token.Type != CodeTokenTypes.SEPARATOR)
+   Break ;stop parsing subexpressions
+ }
+ If !(Token.Type = CodeTokenTypes.OPERATOR && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "OBJECT_END") ;mismatched braces
+ {
+  MsgBox
+  Return, "ERROR: Invalid array." ;wip: better error handling
+ }
+ Return, Result
+}
+
+CodeParseOperatorObjectAccess(ByRef Tokens,ByRef Errors,Operator,LeftSide)
+{
+ global CodeTreeTypes, CodeTokenTypes, CodeOperatorTable
+ Token := CodeParseToken(Tokens,0)
+ If (Token.Type = CodeTokenTypes.OPERATOR ;operator token
+    && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "OBJECT_END") ;object end operator token
+ {
+  CodeParseToken(Tokens) ;move past the closing brace token
+  Return, "ERROR: Blank object access" ;wip: empty set of object braces should give an error
+ }
+ Result := [CodeTreeTypes.OPERATION,[CodeTreeTypes.IDENTIFIER,Operator.Identifier],LeftSide,CodeParseExpression(Tokens,Errors)]
+ Token := CodeParseToken(Tokens)
+ If !(Token.Type = CodeTokenTypes.OPERATOR && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "OBJECT_END") ;mismatched parentheses
+ {
+  MsgBox
+  Return, "ERROR: Invalid object access." ;wip: better error handling
+ }
+ Return, Result
+}
+
+CodeParseOperatorTernary(ByRef Tokens,ByRef Errors,Operator,LeftSide) ;wip
 {
  global CodeTokenTypes, CodeTreeTypes, CodeOperatorTable
  FirstBranch := CodeParseExpression(Tokens,Errors,Operator.RightBindingPower) ;parse the first branch
  Token := CodeParseToken(Tokens,0) ;retrieve the current token
- If !(Token.Type = CodeTokenTypes.OPERATOR && CodeOperatorTable.LeftDenotation[Token.Value].Identifier = "TERNARY_ELSE") ;ensure the current token is a ternary else token
+ If !(Token.Type = CodeTokenTypes.OPERATOR ;operator token
+    && CodeOperatorTable.LeftDenotation[Token.Value].Identifier = "TERNARY_ELSE") ;ternary else operator token
  {
   ;wip: implement binary ternary operator here
   Return, "ERROR: Ternary operator missing ELSE branch" ;wip: better error handling
@@ -142,6 +198,11 @@ CodeParseOperatorLeftDenotationTernary(ByRef Tokens,ByRef Errors,Operator,LeftSi
   ,LeftSide
   ,FirstBranch
   ,SecondBranch]
+}
+
+CodeParseOperatorDereference(ByRef Tokens,ByRef Errors,Operator) ;wip
+{
+ 
 }
 
 CodeOperatorCreateNullDenotation(Identifier,Value,RightBindingPower,Handler)
