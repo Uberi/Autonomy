@@ -307,25 +307,28 @@ CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
  Temp1 := CodeLexerOperatorMaxLength, Position1 := Position
  Loop, %CodeLexerOperatorMaxLength% ;loop until a valid token is found
  {
-  Output := SubStr(Code,Position,Temp1), Value := ""
-  If (Output = CodeLexerConstants.SEPARATOR) ;found separator
+  SyntaxElement := SubStr(Code,Position,Temp1), Value := ""
+  If (SyntaxElement = CodeLexerConstants.SEPARATOR) ;found separator
    TokenType := CodeTokenTypes.SEPARATOR
-  Else If (Output = "[") ;opening square bracket
+  Else If (SyntaxElement = "[") ;opening square bracket
    TokenType := CodeTokenTypes.OBJECT_BEGIN
-  Else If (Output = "]") ;closing square bracket
+  Else If (SyntaxElement = "]") ;closing square bracket
    TokenType := CodeTokenTypes.OBJECT_END
-  Else If (Output = "{") ;opening curly bracket
+  Else If (SyntaxElement = "{") ;opening curly bracket
    TokenType := CodeTokenTypes.BLOCK_BEGIN
-  Else If (Output = "}") ;closing curly bracket
+  Else If (SyntaxElement = "}") ;closing curly bracket
    TokenType := CodeTokenTypes.BLOCK_END
-  Else If ((ObjHasKey(CodeOperatorTable.NullDenotation,Output) || ObjHasKey(CodeOperatorTable.LeftDenotation,Output)) && !(InStr(CodeLexerConstants.IDENTIFIER,SubStr(Output,0)) && (CurrentChar := SubStr(Code,Position + Temp1,1)) != "" && InStr(CodeLexerConstants.IDENTIFIER,CurrentChar))) ;found operator, and if the last character is an identifier character, the character after it is not, ensuring the input is an operator instead of an identifier
-   TokenType := CodeTokenTypes.OPERATOR, Value := Output
+  Else If ((ObjHasKey(CodeOperatorTable.NullDenotation,SyntaxElement) || ObjHasKey(CodeOperatorTable.LeftDenotation,SyntaxElement)) ;found operator in null or left denotation of the operator table
+          && !(InStr(CodeLexerConstants.IDENTIFIER,SubStr(SyntaxElement,0)) ;last character of the operator is an identifier character
+          && (CurrentChar := SubStr(Code,Position + Temp1,1)) != "" ;operator is not at the end of the source file
+          && InStr(CodeLexerConstants.IDENTIFIER,CurrentChar))) ;character after the operator is an identifier character
+   TokenType := CodeTokenTypes.OPERATOR, Value := SyntaxElement
   Else
   {
    Temp1 -- ;reduce the length of the input to be checked
    Continue
   }
-  Position += StrLen(Output) ;move past the syntax element, making sure the position is not past the end of the file
+  Position += StrLen(SyntaxElement) ;move past the syntax element, making sure the position is not past the end of the file
   ObjInsert(Tokens,Object("Type",TokenType,"Value",Value,"Position",Position1,"File",FileIndex)) ;add the found syntax element to the token array
   Return, 0
  }

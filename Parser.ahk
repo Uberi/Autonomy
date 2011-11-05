@@ -49,9 +49,14 @@ CodeLexInit()
 CodeLex(Code,Tokens,Errors)
 
 CodeParseInit()
+
 TimerBefore := 0, DllCall("QueryPerformanceCounter","Int64*",TimerBefore)
+
 Result := CodeParse(Tokens,SyntaxTree,Errors)
-TimerAfter := 0, DllCall("QueryPerformanceCounter","Int64*",TimerAfter), TickFrequency := 0, DllCall("QueryPerformanceFrequency","Int64*",TickFrequency), TimerAfter := (TimerAfter - TimerBefore) / (TickFrequency / 1000)
+
+TimerAfter := 0, DllCall("QueryPerformanceCounter","Int64*",TimerAfter)
+TickFrequency := 0, DllCall("QueryPerformanceFrequency","Int64*",TickFrequency)
+TimerAfter := (TimerAfter - TimerBefore) / (TickFrequency / 1000)
 MsgBox % TimerAfter . " ms`n`n" . Result . "`n`n" . Clipboard := CodeReconstructShowSyntaxTree(SyntaxTree)
 ExitApp()
 */
@@ -69,7 +74,7 @@ CodeParse(ByRef Tokens,ByRef SyntaxTree,ByRef Errors)
  ErrorIndex := ObjMaxIndex(Errors)
  TokenIndex := ObjMaxIndex(Tokens)
 
- SyntaxTree := [CodeTreeTypes.OPERATION,[CodeTreeTypes.IDENTIFIER,"EVALUATE"]] ;wip: hardcoded string
+ SyntaxTree := [CodeTreeTypes.OPERATION,[CodeTreeTypes.IDENTIFIER,"EVALUATE"]]
  If !TokenIndex ;no tokens given
   Return, 0
  Loop ;loop through one subexpression at a time
@@ -124,7 +129,10 @@ CodeParseDispatchLeftBindingPower(Token)
  TokenType := Token.Type
  If (TokenType = CodeTokenTypes.OPERATOR) ;operator token
   Return, CodeParseOperatorLeftBindingPower(Token)
- If (TokenType = CodeTokenTypes.INTEGER || TokenType = CodeTokenTypes.DECIMAL || TokenType = CodeTokenTypes.STRING || TokenType = CodeTokenTypes.IDENTIFIER) ;literal token
+ If (TokenType = CodeTokenTypes.INTEGER ;integer token
+    || TokenType = CodeTokenTypes.DECIMAL ;decimal token
+    || TokenType = CodeTokenTypes.STRING ;string token
+    || TokenType = CodeTokenTypes.IDENTIFIER) ;identifier token
   Return, 0
  If (TokenType = CodeTokenTypes.SEPARATOR) ;separator token
   Return, 0
@@ -135,16 +143,16 @@ CodeParseDispatchNullDenotation(ByRef Tokens,ByRef Errors,Token)
 {
  global CodeTokenTypes, CodeTreeTypes
  TokenType := Token.Type
- If (TokenType = CodeTokenTypes.OPERATOR)
-  Return, CodeParseOperatorNullDenotation(Tokens,Errors,Token)
- If (TokenType = CodeTokenTypes.INTEGER)
-  Return, [CodeTreeTypes.INTEGER,Token.Value,Token.Position,Token.File]
- If (TokenType = CodeTokenTypes.DECIMAL)
-  Return, [CodeTreeTypes.DECIMAL,Token.Value,Token.Position,Token.File]
- If (TokenType = CodeTokenTypes.STRING)
-  Return, [CodeTreeTypes.STRING,Token.Value,Token.Position,Token.File]
- If (TokenType = CodeTokenTypes.IDENTIFIER)
-  Return, [CodeTreeTypes.IDENTIFIER,Token.Value,Token.Position,Token.File]
+ If (TokenType = CodeTokenTypes.OPERATOR) ;operator token
+  Return, CodeParseOperatorNullDenotation(Tokens,Errors,Token) ;parse the operator in null denotation
+ If (TokenType = CodeTokenTypes.INTEGER) ;integer token
+  Return, [CodeTreeTypes.INTEGER,Token.Value,Token.Position,Token.File] ;create an integer tree node
+ If (TokenType = CodeTokenTypes.DECIMAL) ;decimal token
+  Return, [CodeTreeTypes.DECIMAL,Token.Value,Token.Position,Token.File] ;create a decimal tree node
+ If (TokenType = CodeTokenTypes.STRING) ;string token
+  Return, [CodeTreeTypes.STRING,Token.Value,Token.Position,Token.File] ;create a string tree node
+ If (TokenType = CodeTokenTypes.IDENTIFIER) ;identifier token
+  Return, [CodeTreeTypes.IDENTIFIER,Token.Value,Token.Position,Token.File] ;create an identifier tree node
 }
 
 ;dispatches the invocation of the left denotation handler of a given token
@@ -152,9 +160,12 @@ CodeParseDispatchLeftDenotation(ByRef Tokens,ByRef Errors,Token,LeftSide)
 {
  global CodeTokenTypes
  TokenType := Token.Type
- If (TokenType = CodeTokenTypes.OPERATOR)
+ If (TokenType = CodeTokenTypes.OPERATOR) ;operator token
   Return, CodeParseOperatorLeftDenotation(Tokens,Errors,Token,LeftSide)
- If (TokenType = CodeTokenTypes.INTEGER || TokenType = CodeTokenTypes.DECIMAL || TokenType = CodeTokenTypes.STRING || TokenType = CodeTokenTypes.IDENTIFIER) ;wip: identifiers should allow for the command syntax
+ If (TokenType = CodeTokenTypes.INTEGER ;integer token
+    || TokenType = CodeTokenTypes.DECIMAL ;decimal token
+    || TokenType = CodeTokenTypes.STRING ;string token
+    || TokenType = CodeTokenTypes.IDENTIFIER) ;identifier token ;wip: identifiers should allow for the command syntax
  {
   MsgBox
   Return, "ERROR: Missing operator" ;wip: better error handling
