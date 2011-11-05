@@ -1,0 +1,16 @@
+File 1: IDENTIFIER (1):  'SomeObject'
+File 1: OPERATOR   (11): '.'
+File 1: IDENTIFIER (12): 'SomeProperty'
+File 1: OPERATOR   (24): '['
+File 1: STRING     (25): 'Key'
+File 1: OPERATOR   (30): ']'
+File 1: OPERATOR   (31): '('
+File 1: OPERATOR   (32): ')'
+File 1: OPERATOR   (34): '+'
+File 1: INTEGER    (36): '4'
+---
+
+---
+(ADD 
+	((OBJECT_ACCESS_DYNAMIC 
+			(OBJECT_ACCESS SomeObject SomeProperty) "Key")) 4)

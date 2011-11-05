@@ -16,6 +16,6 @@ File 1: INTEGER    (30): '4'
 
 ---
 (SUBTRACT 
-	((ACCESS_PROPERTY Object Method) 
+	((OBJECT_ACCESS Object Method) 
 		(ADD 5 1) 
 		(MULTIPLY 2 3)) 4)

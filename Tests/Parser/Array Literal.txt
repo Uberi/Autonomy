@@ -1,0 +1,17 @@
+File 1: INTEGER    (1):  '1'
+File 1: OPERATOR   (3):  '+'
+File 1: OPERATOR   (5):  '['
+File 1: IDENTIFIER (6):  'A'
+File 1: SEPARATOR  (7):  ''
+File 1: IDENTIFIER (8):  'B'
+File 1: SEPARATOR  (9):  ''
+File 1: IDENTIFIER (10): 'C'
+File 1: OPERATOR   (11): ']'
+File 1: OPERATOR   (13): '+'
+File 1: INTEGER    (15): '2'
+---
+
+---
+(ADD 
+	(ADD 1 
+		(ARRAY A B C)) 2)
