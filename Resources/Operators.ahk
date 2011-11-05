@@ -106,7 +106,10 @@ CodeParseOperatorLeftDenotationGroup(ByRef Tokens,ByRef Errors,Operator,LeftSide
  Result := [CodeTreeTypes.OPERATION,LeftSide]
  Token := CodeParseToken(Tokens,0)
  If (Token.Type = CodeTokenTypes.OPERATOR && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "GROUP_END") ;empty parentheses
+ {
+  CodeParseToken(Tokens) ;move past the closing parenthesis token
   Return, Result
+ }
  Loop ;loop through one argument at a time
  {
   ObjInsert(Result,CodeParseExpression(Tokens,Errors)) ;parse the argument

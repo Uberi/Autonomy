@@ -34,7 +34,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 SetBatchLines(-1)
 
-Code := "1?2:3"
+Code = 
+(
+Test()
+Something + 1
+SomethingElse
+)
 
 If CodeInit()
 {
@@ -83,7 +88,11 @@ CodeParse(ByRef Tokens,ByRef SyntaxTree,ByRef Errors)
   Try Token := CodeParseToken(Tokens)
   Catch ;end of token stream
    Break
-  If (Token.Type != CodeTokenTypes.SEPARATOR)
+  If (Token.Type = CodeTokenTypes.LINE_END) ;token is a new line token
+  {
+   ;wip: process new line here
+  }
+  Else If (Token.Type != CodeTokenTypes.SEPARATOR) ;token is not a separator token
    Break ;stop parsing subexpressions
  }
  If (ObjMaxIndex(SyntaxTree) = 3) ;there was only one expression
@@ -132,7 +141,8 @@ CodeParseDispatchLeftBindingPower(Token)
  If (TokenType = CodeTokenTypes.INTEGER ;integer token
     || TokenType = CodeTokenTypes.DECIMAL ;decimal token
     || TokenType = CodeTokenTypes.STRING ;string token
-    || TokenType = CodeTokenTypes.IDENTIFIER) ;identifier token
+    || TokenType = CodeTokenTypes.IDENTIFIER ;identifier token
+    || TokenType = CodeTokenTypes.LINE_END) ;line end token
   Return, 0
  If (TokenType = CodeTokenTypes.SEPARATOR) ;separator token
   Return, 0
