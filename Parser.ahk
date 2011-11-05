@@ -36,9 +36,7 @@ SetBatchLines(-1)
 
 Code = 
 (
-Test()
-Something +
-1, SomethingElse
+SomeObject.SomeProperty["Key"]() + 4
 )
 
 If CodeInit()
@@ -134,7 +132,7 @@ CodeParseExpression(ByRef Tokens,ByRef Errors,RightBindingPower = 0)
 ;dispatches the retrieval of the left binding power of a given token
 CodeParseDispatchLeftBindingPower(Token)
 { ;returns the left binding power of the given token
- global CodeTokenTypes, CodeOperatorTable
+ global CodeTokenTypes
  TokenType := Token.Type
  If (TokenType = CodeTokenTypes.OPERATOR) ;operator token
   Return, CodeParseOperatorLeftBindingPower(Token)
@@ -180,10 +178,11 @@ CodeParseDispatchLeftDenotation(ByRef Tokens,ByRef Errors,Token,LeftSide)
  If (TokenType = CodeTokenTypes.INTEGER ;integer token
     || TokenType = CodeTokenTypes.DECIMAL ;decimal token
     || TokenType = CodeTokenTypes.STRING ;string token
-    || TokenType = CodeTokenTypes.IDENTIFIER) ;identifier token ;wip: identifiers should allow for the command syntax
+    || TokenType = CodeTokenTypes.IDENTIFIER ;identifier token
+    || TokenType = CodeTokenTypes.LINE_END) ;line end token ;wip: identifiers should allow for the command syntax
  {
   MsgBox
-  Return, "ERROR: Missing operator" ;wip: better error handling
+  Return, "ERROR: Missing operator." ;wip: better error handling
  }
 }
 
@@ -198,14 +197,24 @@ CodeParseOperatorLeftBindingPower(Token)
 CodeParseOperatorNullDenotation(ByRef Tokens,ByRef Errors,Token)
 {
  global CodeTreeTypes, CodeOperatorTable
- Operator := CodeOperatorTable.NullDenotation[Token.Value]
+ If !ObjHasKey(CodeOperatorTable.NullDenotation,Token.Value)
+ {
+  MsgBox
+  Return, "ERROR: Invalid operator usage." ;wip: better error handling
+ }
+ Operator := CodeOperatorTable.NullDenotation[Token.Value] ;retrieve operator object
  Return, Operator.Handler.(Tokens,Errors,Operator) ;dispatch the null denotation handler for the operator ;wip: function reference call
 }
 
 CodeParseOperatorLeftDenotation(ByRef Tokens,ByRef Errors,Token,LeftSide)
 {
  global CodeTokenTypes, CodeTreeTypes, CodeOperatorTable
- Operator := CodeOperatorTable.LeftDenotation[Token.Value]
+ If !ObjHasKey(CodeOperatorTable.LeftDenotation,Token.Value)
+ {
+  MsgBox
+  Return, "ERROR: Invalid operator usage." ;wip: better error handling
+ }
+ Operator := CodeOperatorTable.LeftDenotation[Token.Value] ;retrieve operator object
  Return, Operator.Handler.(Tokens,Errors,Operator,LeftSide) ;dispatch the left denotation handler for the operator ;wip: function reference call
 }
 
