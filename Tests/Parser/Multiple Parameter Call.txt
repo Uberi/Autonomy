@@ -1,9 +1,9 @@
-File 1: IDENTIFIER  (1):  'Something'
-File 1: GROUP_BEGIN (10): ''
-File 1: IDENTIFIER  (11): 'Parameter1'
-File 1: SEPARATOR   (21): ''
-File 1: IDENTIFIER  (22): 'Parameter2'
-File 1: GROUP_END   (32): ''
+File 1: IDENTIFIER (1):  'Something'
+File 1: OPERATOR   (10): '('
+File 1: IDENTIFIER (11): 'Parameter1'
+File 1: SEPARATOR  (21): ''
+File 1: IDENTIFIER (22): 'Parameter2'
+File 1: OPERATOR   (32): ')'
 ---
 
 ---

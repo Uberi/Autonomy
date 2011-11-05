@@ -1,13 +1,13 @@
-File 1: INTEGER     (1):  '4'
-File 1: OPERATOR    (3):  '-'
-File 1: GROUP_BEGIN (5):  ''
-File 1: INTEGER     (6):  '2'
-File 1: OPERATOR    (8):  '+'
-File 1: INTEGER     (10): '4'
-File 1: GROUP_END   (11): ''
-File 1: OPERATOR    (13): '*'
-File 1: OPERATOR    (15): '-'
-File 1: INTEGER     (16): '5'
+File 1: INTEGER  (1):  '4'
+File 1: OPERATOR (3):  '-'
+File 1: OPERATOR (5):  '('
+File 1: INTEGER  (6):  '2'
+File 1: OPERATOR (8):  '+'
+File 1: INTEGER  (10): '4'
+File 1: OPERATOR (11): ')'
+File 1: OPERATOR (13): '*'
+File 1: OPERATOR (15): '-'
+File 1: INTEGER  (16): '5'
 ---
 
 ---

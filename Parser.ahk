@@ -128,10 +128,6 @@ CodeParseDispatchLeftBindingPower(Token)
   Return, 0
  If (TokenType = CodeTokenTypes.SEPARATOR) ;separator token
   Return, 0
- If (TokenType = CodeTokenTypes.GROUP_BEGIN) ;parenthesis token
-  Return, CodeOperatorTable.LeftDenotation["("].LeftBindingPower ;wip: use identifiers for GROUP_BEGIN/GROUP_END
- If (TokenType = CodeTokenTypes.GROUP_END)
-  Return, CodeOperatorTable.NullDenotation[")"].LeftBindingPower
 }
 
 ;dispatches the invocation of the null denotation handler of a given token
@@ -149,13 +145,6 @@ CodeParseDispatchNullDenotation(ByRef Tokens,ByRef Errors,Token)
   Return, [CodeTreeTypes.STRING,Token.Value,Token.Position,Token.File]
  If (TokenType = CodeTokenTypes.IDENTIFIER)
   Return, [CodeTreeTypes.IDENTIFIER,Token.Value,Token.Position,Token.File]
- If (TokenType = CodeTokenTypes.GROUP_BEGIN)
-  Return, CodeParseGroupNullDenotation(Tokens,Errors,Token)
- If (TokenType = CodeTokenTypes.GROUP_END)
- {
-  MsgBox
-  Return, "ERROR: Unmatched parenthesis" ;wip: better error handling
- }
 }
 
 ;dispatches the invocation of the left denotation handler of a given token
@@ -169,13 +158,6 @@ CodeParseDispatchLeftDenotation(ByRef Tokens,ByRef Errors,Token,LeftSide)
  {
   MsgBox
   Return, "ERROR: Missing operator" ;wip: better error handling
- }
- If (TokenType = CodeTokenTypes.GROUP_BEGIN)
-  Return, CodeParseGroupLeftDenotation(Tokens,Errors,Token,LeftSide)
- If (TokenType = CodeTokenTypes.GROUP_END)
- {
-  MsgBox
-  Return, "ERROR: Unmatched parenthesis" ;wip: better error handling
  }
 }
 
@@ -224,57 +206,6 @@ CodeParseOperatorPostfix(ByRef Tokens,ByRef Errors,Operator,LeftSide)
  Return, [CodeTreeTypes.OPERATION
   ,[CodeTreeTypes.IDENTIFIER,Operator.Identifier]
   ,LeftSide]
-}
-
-CodeParseGroupNullDenotation(ByRef Tokens,ByRef Errors,Token)
-{
- global CodeTokenTypes, CodeTreeTypes
- Result := [CodeTreeTypes.OPERATION,[CodeTreeTypes.IDENTIFIER,"EVALUATE"]] ;wip: hardcoded string
- If (CodeParseToken(Tokens,0).Type = CodeTokenTypes.GROUP_END) ;empty parentheses
- {
-  MsgBox
-  Return, "ERROR: Unmatched parenthesis" ;wip: better error handling
- }
- Loop ;loop through one subexpression at a time
- {
-  ObjInsert(Result,CodeParseExpression(Tokens,Errors))
-  Try Token := CodeParseToken(Tokens) ;move past the separator token
-  Catch ;end of token stream
-   Break
-  If (Token.Type != CodeTokenTypes.SEPARATOR)
-   Break ;stop parsing subexpressions
- }
- If (ObjMaxIndex(Result) = 3) ;there was only one expression inside the parentheses
-  Result := Result[3] ;remove the evaluate operation and directly return the result
- If (Token.Type != CodeTokenTypes.GROUP_END) ;mismatched parentheses
- {
-  MsgBox
-  Return, "ERROR: Unmatched parenthesis" ;wip: better error handling
- }
- Return, Result
-}
-
-CodeParseGroupLeftDenotation(ByRef Tokens,ByRef Errors,Token,LeftSide)
-{
- global CodeTreeTypes, CodeTokenTypes
- Result := [CodeTreeTypes.OPERATION,LeftSide]
- If (CodeParseToken(Tokens,0).Type = CodeTokenTypes.GROUP_END) ;empty parentheses
-  Return, Result
- Loop ;loop through one argument at a time
- {
-  ObjInsert(Result,CodeParseExpression(Tokens,Errors)) ;parse the argument
-  Try Token := CodeParseToken(Tokens)
-  Catch ;end of token stream
-   Break
-  If (Token.Type != CodeTokenTypes.SEPARATOR) ;break the loop if there is no argument separator present
-   Break ;stop parsing parameters
- }
- If (Token.Type != CodeTokenTypes.GROUP_END) ;mismatched parentheses
- {
-  MsgBox
-  Return, "ERROR: Unmatched parenthesis" ;wip: better error handling
- }
- Return, Result
 }
 
 ;get the next token
