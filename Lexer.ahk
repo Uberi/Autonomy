@@ -310,10 +310,6 @@ CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
   SyntaxElement := SubStr(Code,Position,Temp1), Value := ""
   If (SyntaxElement = CodeLexerConstants.SEPARATOR) ;found separator
    TokenType := CodeTokenTypes.SEPARATOR
-  Else If (SyntaxElement = "{") ;opening curly bracket
-   TokenType := CodeTokenTypes.BLOCK_BEGIN
-  Else If (SyntaxElement = "}") ;closing curly bracket
-   TokenType := CodeTokenTypes.BLOCK_END
   Else If ((ObjHasKey(CodeOperatorTable.NullDenotation,SyntaxElement) || ObjHasKey(CodeOperatorTable.LeftDenotation,SyntaxElement)) ;found operator in null or left denotation of the operator table
           && !(InStr(CodeLexerConstants.IDENTIFIER,SubStr(SyntaxElement,0)) ;last character of the operator is an identifier character
           && (CurrentChar := SubStr(Code,Position + Temp1,1)) != "" ;operator is not at the end of the source file

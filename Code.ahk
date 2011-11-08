@@ -106,8 +106,6 @@ CodeInit(ResourcesPath = "Resources")
   ,"STRING",3
   ,"IDENTIFIER",4
   ,"SEPARATOR",5
-  ,"BLOCK_BEGIN",8
-  ,"BLOCK_END",9
   ,"STATEMENT",10
   ,"LINE_END",11)
 
