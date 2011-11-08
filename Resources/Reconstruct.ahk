@@ -32,8 +32,8 @@ CodeReconstructShowSyntaxTree(SyntaxTree,Padding = "",Operation = 1)
  }
  Else If (NodeType = CodeTreeTypes.STRING)
   Return, """" . SyntaxTree.2 . """"
- Else If (NodeType = CodeTreeTypes.BLOCK)
-  Return, "{" . CodeReconstructShowSyntaxTree(SyntaxTree.2) . "}"
+ Else If (NodeType = CodeTreeTypes.BLOCK) ;wip: use OPERATION type instead?
+  Return, "{" . CodeReconstructShowSyntaxTree(SyntaxTree.2) . " " . CodeReconstructShowSyntaxTree(SyntaxTree.3) . "}"
  Else
   Return, SyntaxTree.2
 }
@@ -70,10 +70,6 @@ CodeReconstructTokens(Tokens)
    Code .= """" . TokenValue . """"
   Else If (TokenType = CodeTokenTypes.SEPARATOR) ;add the separator character
    Code .= ","
-  Else If (TokenType = CodeTokenTypes.BLOCK_BEGIN) ;add the opening curly bracket character
-   Code .= "{"
-  Else If (TokenType = CodeTokenTypes.BLOCK_END) ;add the closing curly bracket character
-   Code .= "}"
   Else If (TokenType = CodeTokenTypes.STATEMENT) ;add delimiter in a statement
    Code .= TokenValue . " "
   Else If (TokenType = CodeTokenTypes.LINE_END) ;add a new line

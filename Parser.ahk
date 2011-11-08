@@ -21,8 +21,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;wip: check for recursion depth terminating the expression by checking to make sure the token is the last one before returning, otherwise skip over close paren and keep parsing
 ;wip: type verification (possibly implement in type analyser module). need to add type information to operator table
+;wip: treat line_end tokens as operators
+;wip: do not check for blank parens or other matched operators - just call CodeEvaluateExpression and take the result as-is
+;wip: unit test for blocks
 
-/*
+;/*
 #Warn All
 #Warn LocalSameAsGlobal, Off
 
@@ -36,7 +39,7 @@ SetBatchLines(-1)
 
 Code = 
 (
-SomeObject.SomeProperty["Key"]() + 4
+SomeFunc() { Something }
 )
 
 If CodeInit()

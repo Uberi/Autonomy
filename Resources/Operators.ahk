@@ -59,6 +59,10 @@ CodeCreateOperatorTable()
  CodeOperatorCreateLeftDenotation("CALL","(",170,0,Func("CodeParseOperatorCall"))
  CodeOperatorCreateLeftDenotation("GROUP_END",")",0,0,ErrorHandler)
 
+ CodeOperatorCreateNullDenotation("OBJECT","{",0,Func("CodeParseOperatorObject"))
+ CodeOperatorCreateLeftDenotation("BLOCK","{",170,0,Func("CodeParseOperatorBlock"))
+ CodeOperatorCreateLeftDenotation("BLOCK_END","}",0,0,ErrorHandler)
+
  CodeOperatorCreateNullDenotation("ARRAY","[",0,Func("CodeParseOperatorArray"))
  CodeOperatorCreateLeftDenotation("OBJECT_ACCESS_DYNAMIC","[",180,0,Func("CodeParseOperatorObjectAccess"))
  CodeOperatorCreateLeftDenotation("OBJECT_END","]",0,0,ErrorHandler)
@@ -133,6 +137,33 @@ CodeParseOperatorCall(ByRef Tokens,ByRef Errors,Operator,LeftSide)
  Return, Result
 }
 
+CodeParseOperatorObject(ByRef Tokens,ByRef Errors,Operator)
+{
+ ;wip
+}
+
+CodeParseOperatorBlock(ByRef Tokens,ByRef Errors,Operator,LeftSide)
+{
+ global CodeTokenTypes, CodeTreeTypes, CodeOperatorTable
+ Result := [CodeTreeTypes.BLOCK,LeftSide]
+ Token := CodeParseToken(Tokens,0)
+ If (Token.Type = CodeTokenTypes.OPERATOR ;operator token
+    && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "BLOCK_END") ;closing block brace operator token
+ {
+  CodeParseToken(Tokens) ;move past the closing block brace token
+  Return, Result
+ }
+ ObjInsert(Result,CodeParseExpression(Tokens,Errors)) ;parse the argument
+ Token := CodeParseToken(Tokens)
+ If !(Token.Type = CodeTokenTypes.OPERATOR ;operator token
+    && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "BLOCK_END") ;closing parenthesis operator token
+ {
+  MsgBox
+  Return, "ERROR: Unmatched block braces." ;wip: better error handling
+ }
+ Return, Result
+}
+
 CodeParseOperatorArray(ByRef Tokens,ByRef Errors,Operator)
 {
  global CodeTokenTypes, CodeTreeTypes, CodeOperatorTable
@@ -168,7 +199,7 @@ CodeParseOperatorObjectAccess(ByRef Tokens,ByRef Errors,Operator,LeftSide)
     && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "OBJECT_END") ;object end operator token
  {
   CodeParseToken(Tokens) ;move past the closing brace token
-  Return, "ERROR: Blank object access" ;wip: empty set of object braces should give an error
+  Return, "ERROR: Blank object access." ;wip: empty set of object braces should give an error
  }
  Result := [CodeTreeTypes.OPERATION,[CodeTreeTypes.IDENTIFIER,Operator.Identifier],LeftSide,CodeParseExpression(Tokens,Errors)]
  Token := CodeParseToken(Tokens)
