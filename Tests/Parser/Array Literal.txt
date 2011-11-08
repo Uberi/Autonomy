@@ -3,15 +3,22 @@ File 1: OPERATOR   (3):  '+'
 File 1: OPERATOR   (5):  '['
 File 1: IDENTIFIER (6):  'A'
 File 1: SEPARATOR  (7):  ''
-File 1: IDENTIFIER (8):  'B'
-File 1: SEPARATOR  (9):  ''
-File 1: IDENTIFIER (10): 'C'
-File 1: OPERATOR   (11): ']'
-File 1: OPERATOR   (13): '+'
-File 1: INTEGER    (15): '2'
+File 1: OPERATOR   (8):  '['
+File 1: IDENTIFIER (9):  'B'
+File 1: OPERATOR   (10): ']'
+File 1: SEPARATOR  (11): ''
+File 1: OPERATOR   (12): '['
+File 1: OPERATOR   (13): ']'
+File 1: SEPARATOR  (14): ''
+File 1: IDENTIFIER (15): 'C'
+File 1: OPERATOR   (16): ']'
+File 1: OPERATOR   (18): '+'
+File 1: INTEGER    (20): '2'
 ---
 
 ---
 (ADD 
 	(ADD 1 
-		(ARRAY A B C)) 2)
+		(ARRAY A 
+			(ARRAY B) 
+			(ARRAY) C)) 2)
