@@ -28,3 +28,59 @@ Bytecode format
 ;wip: distinct Array type using contiguous memory, faster than Object hash table implementation
 ;wip: http://www.llvm.org/docs/LangRef.html
 */
+
+#Include Resources\Functions.ahk
+#Include Resources\Reconstruct.ahk
+#Include Resources\Operators.ahk
+#Include Code.ahk
+#Include Lexer.ahk
+#Include Parser.ahk
+
+SetBatchLines(-1)
+
+Code = 
+(
+Something + 1
+)
+
+If CodeInit()
+{
+ Display("Error initializing code tools.`n") ;display error at standard output
+ ExitApp(1) ;fatal error
+}
+
+FileName := A_ScriptFullPath
+CodeSetScript(FileName,Errors,Files) ;set the current script file
+
+CodeLexInit()
+CodeLex(Code,Tokens,Errors)
+
+CodeParseInit()
+Result := CodeParse(Tokens,SyntaxTree,Errors)
+
+MsgBox % Clipboard := CodeBytecode(SyntaxTree)
+ExitApp()
+
+CodeBytecode(SyntaxTree)
+{
+ global CodeTreeTypes
+ NodeType := SyntaxTree[1]
+ If (NodeType = CodeTreeTypes.OPERATION)
+ {
+  Index := ObjMaxIndex(SyntaxTree), Result := ""
+  Loop, %Index%
+  {
+   Result .= CodeBytecode(SyntaxTree[Index])
+   Index --
+  }
+  Return, Result . "POP REGISTER`nCALL REGISTER`n"
+ }
+ Else If (NodeType = CodeTreeTypes.INTEGER)
+  Return, "PUSH INTEGER(" . SyntaxTree[2] . ")`n"
+ Else If (NodeType = CodeTreeTypes.DECIMAL)
+  Return, "PUSH DECIMAL(" . SyntaxTree[2] . ")`n"
+ Else If (NodeType = CodeTreeTypes.STRING)
+  Return, "PUSH STRING(" . SyntaxTree[2] . ")`n"
+ Else If (NodeType = CodeTreeTypes.IDENTIFIER)
+  Return, "PUSH IDENTIFIER(" . SyntaxTree[2] . ")`n"
+}
