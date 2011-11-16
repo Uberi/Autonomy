@@ -40,7 +40,7 @@ SetBatchLines(-1)
 
 Code = 
 (
-Something + 1
+Var + 1 * 2 ^ !3
 )
 
 If CodeInit()
@@ -58,8 +58,16 @@ CodeLex(Code,Tokens,Errors)
 CodeParseInit()
 Result := CodeParse(Tokens,SyntaxTree,Errors)
 
+CodeBytecodeInit()
 MsgBox % Clipboard := CodeBytecode(SyntaxTree)
 ExitApp()
+
+CodeBytecodeInit()
+{
+ global FreeRegisters, UsedRegisters
+ FreeRegisters := ["EDI","ESI","EDX","ECX","EBX"]
+ UsedRegisters := []
+}
 
 CodeBytecode(SyntaxTree)
 {
@@ -67,20 +75,56 @@ CodeBytecode(SyntaxTree)
  NodeType := SyntaxTree[1]
  If (NodeType = CodeTreeTypes.OPERATION)
  {
-  Index := ObjMaxIndex(SyntaxTree), Result := ""
-  Loop, %Index%
+  Index := ObjMaxIndex(SyntaxTree)
+  Result := ""
+  While, Index
   {
    Result .= CodeBytecode(SyntaxTree[Index])
    Index --
   }
-  Return, Result . "POP REGISTER`nCALL REGISTER`n"
+  Return, Result . CodeBytecodeStackPop("TMP") . "CALL TMP`n"
  }
  Else If (NodeType = CodeTreeTypes.INTEGER)
-  Return, "PUSH INTEGER(" . SyntaxTree[2] . ")`n"
+  Return, CodeBytecodeStackPush("INTEGER:" . SyntaxTree[2])
  Else If (NodeType = CodeTreeTypes.DECIMAL)
-  Return, "PUSH DECIMAL(" . SyntaxTree[2] . ")`n"
+  Return, CodeBytecodeStackPush("DECIMAL:" . SyntaxTree[2])
  Else If (NodeType = CodeTreeTypes.STRING)
-  Return, "PUSH STRING(" . SyntaxTree[2] . ")`n"
+  Return, CodeBytecodeStackPush("STRING:" . SyntaxTree[2])
  Else If (NodeType = CodeTreeTypes.IDENTIFIER)
-  Return, "PUSH IDENTIFIER(" . SyntaxTree[2] . ")`n"
+  Return, CodeBytecodeStackPush("IDENTIFIER:" . SyntaxTree[2])
+ Else If (NodeType = CodeTreeTypes.BLOCK)
+ {
+  Index := ObjMaxIndex(SyntaxTree)
+  Result := CodeBytecodeStackPush("BLOCK()")
+  Loop, % Index - 2
+  {
+   Result .= CodeBytecode(SyntaxTree[Index])
+   Index --
+  }
+  Result .= CodeBytecodeStackPop("BLOCK()")
+  Result .= CodeBytecode(SyntaxTree[2])
+  Return, Result . CodeBytecodeStackPop("TMP") . "CALL TMP`n"
+ }
+}
+
+CodeBytecodeStackPush(Value)
+{
+ global FreeRegisters, UsedRegisters
+ Index := ObjMaxIndex(FreeRegisters)
+ If (Index = "")
+  Return, "PUSH " . Value . "`n"
+ Register := ObjRemove(FreeRegisters,Index)
+ ObjInsert(UsedRegisters,Register) ;move the register into the used register list
+ Return, "LOAD " . Register . " " . Value . "`n"
+}
+
+CodeBytecodeStackPop(Register)
+{
+ global FreeRegisters, UsedRegisters
+ Index := ObjMaxIndex(FreeRegisters)
+ If (Index = "")
+  Return, "POP " . Register . "`n"
+ SourceRegister := ObjRemove(UsedRegisters,Index)
+ ObjInsert(FreeRegisters,SourceRegister) ;move the register into the free register list
+ Return, "MOVE " . Register . " " . SourceRegister . "`n"
 }
