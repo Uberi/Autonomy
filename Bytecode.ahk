@@ -40,7 +40,7 @@ SetBatchLines(-1)
 
 Code = 
 (
-Var + 1 * 2 ^ !3
+1+2*3
 )
 
 If CodeInit()
@@ -77,19 +77,28 @@ CodeBytecode(SyntaxTree)
  {
   Index := ObjMaxIndex(SyntaxTree)
   Result := ""
-  While, Index
+  While, Index > 1
   {
    Result .= CodeBytecode(SyntaxTree[Index])
    Index --
   }
-  Return, Result . CodeBytecodeStackPop("TMP") . "CALL TMP`n"
+  Result .= CodeBytecodeStackCall("EAX")
+  Index := ObjMaxIndex(SyntaxTree)
+  Result .= "ADD ESP " . ((Index - 1) * 4) . "`n" ;size of all parameters
+  While, Index > 1
+  {
+   CodeBytecodeStackPop()
+   Index --
+  }
+  Result .= CodeBytecodeStackPush("EAX")
+  Return, Result
  }
  Else If (NodeType = CodeTreeTypes.INTEGER)
-  Return, CodeBytecodeStackPush("INTEGER:" . SyntaxTree[2])
+  Return, CodeBytecodeStackPush(SyntaxTree[2])
  Else If (NodeType = CodeTreeTypes.DECIMAL)
   Return, CodeBytecodeStackPush("DECIMAL:" . SyntaxTree[2])
  Else If (NodeType = CodeTreeTypes.STRING)
-  Return, CodeBytecodeStackPush("STRING:" . SyntaxTree[2])
+  Return, CodeBytecodeStackPush("'" . SyntaxTree[2] . "'")
  Else If (NodeType = CodeTreeTypes.IDENTIFIER)
   Return, CodeBytecodeStackPush("IDENTIFIER:" . SyntaxTree[2])
  Else If (NodeType = CodeTreeTypes.BLOCK)
@@ -103,7 +112,7 @@ CodeBytecode(SyntaxTree)
   }
   Result .= CodeBytecodeStackPop("BLOCK()")
   Result .= CodeBytecode(SyntaxTree[2])
-  Return, Result . CodeBytecodeStackPop("TMP") . "CALL TMP`n"
+  Return, Result . CodeBytecodeStackPop("EAX") . "CALL EAX`n"
  }
 }
 
@@ -118,13 +127,24 @@ CodeBytecodeStackPush(Value)
  Return, "LOAD " . Register . " " . Value . "`n"
 }
 
-CodeBytecodeStackPop(Register)
+CodeBytecodeStackPop(Register = "")
 {
  global FreeRegisters, UsedRegisters
- Index := ObjMaxIndex(FreeRegisters)
+ Index := ObjMaxIndex(UsedRegisters)
  If (Index = "")
   Return, "POP " . Register . "`n"
  SourceRegister := ObjRemove(UsedRegisters,Index)
  ObjInsert(FreeRegisters,SourceRegister) ;move the register into the free register list
+ If (Register = "")
+  Return, "CLEAR " . SourceRegister . "`n"
  Return, "MOVE " . Register . " " . SourceRegister . "`n"
+}
+
+CodeBytecodeStackCall(Register)
+{
+ global FreeRegisters, UsedRegisters
+ Index := ObjMaxIndex(UsedRegisters)
+ If (Index = "")
+  Return, "POP " . Register . "`nCALL " . Register . "`n"
+ Return, "CALL " . UsedRegisters[Index] . "`n"
 }
