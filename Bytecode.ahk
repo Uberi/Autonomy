@@ -1,5 +1,7 @@
 #NoEnv
 
+#Include Code.ahk
+
 /*
 Copyright 2011 Anthony Zhang <azhang9@gmail.com>
 
@@ -29,10 +31,8 @@ Bytecode format
 ;wip: http://www.llvm.org/docs/LangRef.html
 */
 
-#Include Resources\Functions.ahk
+/*
 #Include Resources\Reconstruct.ahk
-#Include Resources\Operators.ahk
-#Include Code.ahk
 #Include Lexer.ahk
 #Include Parser.ahk
 
@@ -60,7 +60,8 @@ Result := CodeParse(Tokens,SyntaxTree,Errors)
 
 CodeBytecodeInit()
 MsgBox % Clipboard := CodeBytecode(SyntaxTree)
-ExitApp()
+ExitApp
+*/
 
 CodeBytecodeInit()
 {

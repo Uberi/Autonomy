@@ -1,5 +1,9 @@
 #NoEnv
 
+#Include Code.ahk
+#Include Lexer.ahk
+#Include Resources/Functions.ahk
+
 /*
 Copyright 2011 Anthony Zhang <azhang9@gmail.com>
 

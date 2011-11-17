@@ -22,11 +22,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #Warn All
 #Warn LocalSameAsGlobal, Off
 
-SetBatchLines(-1)
+SetBatchLines, -1
 
-#Include Resources\Functions.ahk
 #Include Resources\Get Error.ahk
-#Include Resources\Operators.ahk
 #Include Resources\Reconstruct.ahk
 
 #Include Code.ahk
@@ -40,6 +38,7 @@ TODO
 
 Short term tasks:
 
+* Remove DECIMAL token and tree type
 * Allow backticks inline in code
 * Duplicate LINE_END tokens can be present if there was an error that spanned an entire line. see Strings.txt unit test for example. see if this can be avoided
 * Escaping the end of a line with a backtick may result in an incorrect length for the token. need to add a length field for each token
@@ -84,25 +83,25 @@ Return,, 1 + 1
 If CodeInit()
 {
  Display("Error initializing code tools.`n") ;display error at standard output
- ExitApp(1) ;fatal error
+ ExitApp ;fatal error
 }
 
 CodeSetScript(FileName,Errors,Files) ;set the current script file
 
 CodeLexInit()
 CodeLex(Code,Tokens,Errors)
-;DisplayObject(Tokens)
+;CodeRecontructShowTokens(Tokens)
 MsgBox % Clipboard := CodeReconstructShowTokens(Tokens)
 
 CodePreprocessInit(Files)
 CodePreprocess(Tokens,ProcessedTokens,Errors,Files)
-DisplayObject(ProcessedTokens)
+CodeReconstructShowTokens(ProcessedTokens)
 ;MsgBox % Clipboard := CodeGetError(Code,Errors,Files)
-DisplayObject(Errors)
+ShowObject(Errors)
 
 CodeParseInit()
 CodeParse(ProcessedTokens,SyntaxTree,Errors)
-DisplayObject(SyntaxTree)
+CodeReconstructShowSyntaxTree(SyntaxTree)
 
 If (ObjMaxIndex(Errors) != "")
  Display(CodeGetError(Code,Errors,Files)) ;display error at standard output
@@ -110,4 +109,10 @@ If (ObjMaxIndex(Errors) != "")
 ;DisplayObject(SyntaxTree)
 ;MsgBox % CodeRecontructSyntaxTree(SyntaxTree)
 
-ExitApp()
+ExitApp
+
+Display(DisplayText)
+{
+ FileAppend, %DisplayText%, *
+ Return, ErrorLevel
+}

@@ -1,5 +1,7 @@
 #NoEnv
 
+#Include Resources/Functions.ahk
+
 /*
 Copyright 2011 Anthony Zhang <azhang9@gmail.com>
 
@@ -97,7 +99,7 @@ CodeInit(ResourcesPath = "Resources")
  ;parse error message file into object, and enumerate error identifiers
  CodeErrorMessages := Object()
  Loop, Parse, Temp1, `n, `r
-  Line := StringSplit(A_LoopField,"`t"), ObjInsert(CodeErrorMessages,Line.1,Line.2)
+  Line := StringSplit(A_LoopField,"`t"), ObjInsert(CodeErrorMessages,Line[1],Line[2])
 
  ;set up token stream type enumeration
  CodeTokenTypes := Object("OPERATOR",0

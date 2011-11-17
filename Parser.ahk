@@ -1,5 +1,8 @@
 #NoEnv
 
+#Include Code.ahk
+#Include Resources/Operators.ahk
+
 /*
 Copyright 2011 Anthony Zhang <azhang9@gmail.com>
 
@@ -22,30 +25,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;wip: check for recursion depth terminating the expression by checking to make sure the token is the last one before returning, otherwise skip over close paren and keep parsing
 ;wip: type verification (possibly implement in type analyser module). need to add type information to operator table
 ;wip: treat line_end tokens as operators
-;wip: do not check for blank parens or other matched operators - just call CodeEvaluateExpression and take the result as-is
 ;wip: unit test for blocks
+;wip: handle skipped parameters: Function(Param,,Param)
 
-;/*
-#Warn All
-#Warn LocalSameAsGlobal, Off
+/*
+;#Warn All
+;#Warn LocalSameAsGlobal, Off
 
-#Include Resources\Functions.ahk
 #Include Resources\Reconstruct.ahk
-#Include Resources\Operators.ahk
-#Include Code.ahk
 #Include Lexer.ahk
 
-SetBatchLines(-1)
+SetBatchLines, -1
 
 Code = 
 (
-SomeFunc() { Something }
+SomeFunc() { Something
+ SomethingElse }
 )
 
 If CodeInit()
 {
  Display("Error initializing code tools.`n") ;display error at standard output
- ExitApp(1) ;fatal error
+ ExitApp ;fatal error
 }
 
 FileName := A_ScriptFullPath
@@ -64,7 +65,7 @@ TimerAfter := 0, DllCall("QueryPerformanceCounter","Int64*",TimerAfter)
 TickFrequency := 0, DllCall("QueryPerformanceFrequency","Int64*",TickFrequency)
 TimerAfter := (TimerAfter - TimerBefore) / (TickFrequency / 1000)
 MsgBox % TimerAfter . " ms`n`n" . Result . "`n`n" . Clipboard := CodeReconstructShowSyntaxTree(SyntaxTree)
-ExitApp()
+ExitApp
 */
 
 ;initializes resources that the parser requires

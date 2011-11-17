@@ -19,16 +19,15 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#Include ..\Resources\Functions.ahk
-#Include ..\Resources\Operators.ahk
-#Include ..\Resources\Reconstruct.ahk
+#Include ..\
+#Include Resources\Reconstruct.ahk
 
-#Include ..\Code.ahk
-#Include ..\Lexer.ahk
-#Include ..\Preprocessor.ahk
-#Include ..\Parser.ahk
+#Include Code.ahk
+#Include Lexer.ahk
+#Include Preprocessor.ahk
+#Include Parser.ahk
 
-SetBatchLines(-1)
+SetBatchLines, -1
 Process, Priority,, RealTime
 
 /*

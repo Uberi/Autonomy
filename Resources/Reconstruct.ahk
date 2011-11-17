@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 CodeReconstructShowSyntaxTree(SyntaxTree,Padding = "",Operation = 1)
 {
  global CodeTreeTypes
- NodeType := SyntaxTree.1
+ NodeType := SyntaxTree[1]
  If (NodeType = CodeTreeTypes.OPERATION)
  {
   Result := (Operation ? "" : ("`n" . Padding)) . "(", Index := 2
@@ -31,11 +31,11 @@ CodeReconstructShowSyntaxTree(SyntaxTree,Padding = "",Operation = 1)
   Return, SubStr(Result,1,-1) . ")"
  }
  Else If (NodeType = CodeTreeTypes.STRING)
-  Return, """" . SyntaxTree.2 . """"
+  Return, """" . SyntaxTree[2] . """"
  Else If (NodeType = CodeTreeTypes.BLOCK) ;wip: use OPERATION type instead?
-  Return, "{" . CodeReconstructShowSyntaxTree(SyntaxTree.2) . " " . CodeReconstructShowSyntaxTree(SyntaxTree.3) . "}"
+  Return, "{" . CodeReconstructShowSyntaxTree(SyntaxTree[2]) . " " . CodeReconstructShowSyntaxTree(SyntaxTree[3]) . "}"
  Else
-  Return, SyntaxTree.2
+  Return, SyntaxTree[2]
 }
 
 CodeReconstructShowTokens(TokenStream)
@@ -99,4 +99,21 @@ CodeRecontructSyntaxTree(SyntaxTree) ;wip
   Code .= ","
  }
  Return, Operator . "(" . SubStr(Code,1,-1) . ")"
+}
+
+SearchObject(InputObject,SearchValue) ;wip: remove the need for this function with ObjFind()
+{
+ For Key, Value In InputObject
+ {
+  If (Value = SearchValue)
+   Return, Key
+ }
+}
+
+Pad(Length,Character = " ")
+{
+ Result := ""
+ Loop, %Length%
+  Result .= Character
+ Return, Result
 }

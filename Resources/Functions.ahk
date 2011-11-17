@@ -19,23 +19,6 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-SearchObject(InputObject,SearchValue)
-{
- For Key, Value In InputObject
- {
-  If (Value = SearchValue)
-   Return, Key
- }
-}
-
-Pad(Length,Character = " ")
-{
- Result := ""
- Loop, %Length%
-  Result .= Character
- Return, Result
-}
-
 ShowObject(ShowObject,Padding = "")
 {
  ListLines, Off
@@ -57,39 +40,6 @@ ShowObject(ShowObject,Padding = "")
  Return, ObjectContents
 }
 
-DisplayObject(DisplayObject,ParentID = 0)
-{
- ListLines, Off
- If (ParentID = 0)
- {
-  Gui, Add, Text, x10 y0 w300 h30 Center, Object Contents
-  Gui, Add, TreeView, x10 y30 w300 h230
-  Gui, Add, Button, x210 y265 w100 h30 gDisplayObjectConfirm Default, OK 
- }
- For Key, Value In DisplayObject
-  IsObject(Value) ? DisplayObject(Value,TV_Add(Key,ParentID,"Bold Expand")) : TV_Add(Key . ": " . Value,ParentID)
- If (ParentID = 0)
- {
-  Gui, +ToolWindow +AlwaysOnTop +LastFound
-  GuiActive := 1, WindowID := WinExist()
-  Gui, Show, w320 h300
-  While, (GuiActive && WinExist("ahk_id " . WindowID))
-   Sleep, 100
-  Gui, Destroy
-  ListLines, On
-  Return
- }
-
- DisplayObjectConfirm:
- GuiActive := 0
- Return
-}
-
-SetBatchLines(Amount)
-{
- SetBatchLines, %Amount%
-}
-
 FileRead(ByRef OutputVar,Filename)
 {
  FileRead, OutputVar, %Filename%
@@ -100,11 +50,6 @@ Display(DisplayText)
 {
  FileAppend, %DisplayText%, *
  Return, ErrorLevel
-}
-
-ExitApp(ExitCode = 0)
-{
- ExitApp, %ExitCode%
 }
 
 StringSplit(InputVar,Delimiters = "",OmitChars = "")
