@@ -28,15 +28,14 @@ Bytecode format
 ;wip: when processing different types, preconvert the smaller type to the common-denominator type at compile time. for example, if a variable was originally detected to be in a Short range, but was then added to a Long, declare the variable as a long instead of a short to avoid conversion
 ;wip: static tail call detection
 ;wip: distinct Array type using contiguous memory, faster than Object hash table implementation
-;wip: http://www.llvm.org/docs/LangRef.html
 */
 
-/*
+;/*
 #Include Resources\Reconstruct.ahk
 #Include Lexer.ahk
 #Include Parser.ahk
 
-SetBatchLines(-1)
+SetBatchLines, -1
 
 Code = 
 (
@@ -46,7 +45,7 @@ Code =
 If CodeInit()
 {
  Display("Error initializing code tools.`n") ;display error at standard output
- ExitApp(1) ;fatal error
+ ExitApp ;fatal error
 }
 
 FileName := A_ScriptFullPath
@@ -66,7 +65,8 @@ ExitApp
 CodeBytecodeInit()
 {
  global FreeRegisters, UsedRegisters
- FreeRegisters := ["EDI","ESI","EDX","ECX","EBX"]
+ ;FreeRegisters := ["%edi","%esi","%edx","%ecx","%ebx"] ;wip: debug
+ FreeRegisters := []
  UsedRegisters := []
 }
 
@@ -83,15 +83,15 @@ CodeBytecode(SyntaxTree)
    Result .= CodeBytecode(SyntaxTree[Index])
    Index --
   }
-  Result .= CodeBytecodeStackCall("EAX")
+  Result .= CodeBytecodeStackCall("%eax")
   Index := ObjMaxIndex(SyntaxTree)
-  Result .= "ADD ESP " . ((Index - 1) * 4) . "`n" ;size of all parameters
+  Result .= "add %esp " . ((Index - 1) * 4) . "`n" ;size of all parameters ;wip: does not work with register allocator
   While, Index > 1
   {
    CodeBytecodeStackPop()
    Index --
   }
-  Result .= CodeBytecodeStackPush("EAX")
+  Result .= CodeBytecodeStackPush("%eax")
   Return, Result
  }
  Else If (NodeType = CodeTreeTypes.INTEGER)
@@ -111,9 +111,9 @@ CodeBytecode(SyntaxTree)
    Result .= CodeBytecode(SyntaxTree[Index])
    Index --
   }
-  Result .= CodeBytecodeStackPop("BLOCK()")
+  Result .= CodeBytecodeStackPop()
   Result .= CodeBytecode(SyntaxTree[2])
-  Return, Result . CodeBytecodeStackPop("EAX") . "CALL EAX`n"
+  Return, Result . CodeBytecodeStackCall("%eax")
  }
 }
 
@@ -122,10 +122,10 @@ CodeBytecodeStackPush(Value)
  global FreeRegisters, UsedRegisters
  Index := ObjMaxIndex(FreeRegisters)
  If (Index = "")
-  Return, "PUSH " . Value . "`n"
+  Return, "push " . Value . "`n"
  Register := ObjRemove(FreeRegisters,Index)
  ObjInsert(UsedRegisters,Register) ;move the register into the used register list
- Return, "LOAD " . Register . " " . Value . "`n"
+ Return, "mov " . Register . "," . Value . "`n"
 }
 
 CodeBytecodeStackPop(Register = "")
@@ -133,12 +133,12 @@ CodeBytecodeStackPop(Register = "")
  global FreeRegisters, UsedRegisters
  Index := ObjMaxIndex(UsedRegisters)
  If (Index = "")
-  Return, "POP " . Register . "`n"
+  Return, "pop " . Register . "`n"
  SourceRegister := ObjRemove(UsedRegisters,Index)
  ObjInsert(FreeRegisters,SourceRegister) ;move the register into the free register list
  If (Register = "")
-  Return, "CLEAR " . SourceRegister . "`n"
- Return, "MOVE " . Register . " " . SourceRegister . "`n"
+  Return, "xor " . SourceRegister . "," . SourceRegister . "`n"
+ Return, "mov " . Register . "," . SourceRegister . "`n"
 }
 
 CodeBytecodeStackCall(Register)
@@ -146,6 +146,6 @@ CodeBytecodeStackCall(Register)
  global FreeRegisters, UsedRegisters
  Index := ObjMaxIndex(UsedRegisters)
  If (Index = "")
-  Return, "POP " . Register . "`nCALL " . Register . "`n"
- Return, "CALL " . UsedRegisters[Index] . "`n"
+  Return, "call [%esp]`n"
+ Return, "call [" . UsedRegisters[Index] . "]`n"
 }
