@@ -2,7 +2,7 @@ File 1: IDENTIFIER (1):  'SomeFunc'
 File 1: OPERATOR   (9):  '('
 File 1: OPERATOR   (10): ')'
 File 1: OPERATOR   (12): '+'
-File 1: INTEGER    (14): '1'
+File 1: NUMBER     (14): '1'
 ---
 
 ---

@@ -1,8 +1,8 @@
-File 1: INTEGER  (1): '1'
+File 1: NUMBER   (1): '1'
 File 1: OPERATOR (3): '+'
-File 1: INTEGER  (5): '2'
+File 1: NUMBER   (5): '2'
 File 1: OPERATOR (7): '+'
-File 1: INTEGER  (9): '3'
+File 1: NUMBER   (9): '3'
 ---
 
 ---

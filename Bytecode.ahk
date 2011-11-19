@@ -94,10 +94,8 @@ CodeBytecode(SyntaxTree)
   Result .= CodeBytecodeStackPush("%eax")
   Return, Result
  }
- Else If (NodeType = CodeTreeTypes.INTEGER)
+ Else If (NodeType = CodeTreeTypes.NUMBER)
   Return, CodeBytecodeStackPush(SyntaxTree[2])
- Else If (NodeType = CodeTreeTypes.DECIMAL)
-  Return, CodeBytecodeStackPush("DECIMAL:" . SyntaxTree[2])
  Else If (NodeType = CodeTreeTypes.STRING)
   Return, CodeBytecodeStackPush("'" . SyntaxTree[2] . "'")
  Else If (NodeType = CodeTreeTypes.IDENTIFIER)
@@ -106,7 +104,7 @@ CodeBytecode(SyntaxTree)
  {
   Index := ObjMaxIndex(SyntaxTree)
   Result := CodeBytecodeStackPush("BLOCK()")
-  Loop, % Index - 2
+  While, Index > 1
   {
    Result .= CodeBytecode(SyntaxTree[Index])
    Index --

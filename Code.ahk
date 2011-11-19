@@ -103,21 +103,19 @@ CodeInit(ResourcesPath = "Resources")
 
  ;set up token stream type enumeration
  CodeTokenTypes := Object("OPERATOR",0
-  ,"INTEGER",1
-  ,"DECIMAL",2
-  ,"STRING",3
-  ,"IDENTIFIER",4
-  ,"SEPARATOR",5
-  ,"STATEMENT",10
-  ,"LINE_END",11)
+  ,"NUMBER",1
+  ,"STRING",2
+  ,"IDENTIFIER",3
+  ,"SEPARATOR",4
+  ,"STATEMENT",5
+  ,"LINE_END",6)
 
  ;set up syntax tree type enumeration
  CodeTreeTypes := Object("OPERATION",0
-  ,"INTEGER",1
-  ,"DECIMAL",2
-  ,"STRING",3
-  ,"IDENTIFIER",4
-  ,"BLOCK",5)
+  ,"NUMBER",1
+  ,"STRING",2
+  ,"IDENTIFIER",3
+  ,"BLOCK",4)
 
  Return, 0
 }

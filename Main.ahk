@@ -38,7 +38,6 @@ TODO
 
 Short term tasks:
 
-* Remove DECIMAL token and tree type
 * Allow backticks inline in code
 * Duplicate LINE_END tokens can be present if there was an error that spanned an entire line. see Strings.txt unit test for example. see if this can be avoided
 * Escaping the end of a line with a backtick may result in an incorrect length for the token. need to add a length field for each token

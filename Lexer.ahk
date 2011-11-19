@@ -333,7 +333,7 @@ CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
 CodeLexNumber(ByRef Code,ByRef Position,ByRef Tokens,FileIndex)
 { ;returns 1 if the input could not be lexed as a number, 0 otherwise
  global CodeTokenTypes, CodeLexerConstants
- Output := "", Position1 := Position, NumberChars := "1234567890", DecimalUsed := 0, TokenType := CodeTokenTypes.INTEGER
+ Output := "", Position1 := Position, NumberChars := "1234567890", DecimalUsed := 0
  If (SubStr(Code,Position,2) = "0x") ;hexadecimal number
   DecimalUsed := 1, Position += 2, Output .= "0x", NumberChars .= "abcdefABCDEF" ;prevent the usage of decimals in hexadecimal numbers, skip over the identifying characters, append them to the number, and expand the valid number characters set
  Loop
@@ -350,7 +350,7 @@ CodeLexNumber(ByRef Code,ByRef Position,ByRef Tokens,FileIndex)
     Position := Position1 ;return the position back to the start of this section, to try to process it again as an identifier
     Return, 1
    }
-   Output .= CurrentChar, DecimalUsed := 1, TokenType := CodeTokenTypes.DECIMAL ;set a flag to show that a decimal point has been used, change the token type to the decimal type
+   Output .= CurrentChar, DecimalUsed := 1 ;set a flag to show that a decimal point has been used
   }
   Else If InStr(CodeLexerConstants.IDENTIFIER,CurrentChar) ;notify if the code is a valid identifier char if it cannot be processed as a number
   {
@@ -361,7 +361,7 @@ CodeLexNumber(ByRef Code,ByRef Position,ByRef Tokens,FileIndex)
    Break
   Position ++
  }
- ObjInsert(Tokens,Object("Type",TokenType,"Value",Output,"Position",Position1,"File",FileIndex)) ;add the number literal to the token array
+ ObjInsert(Tokens,Object("Type",CodeTokenTypes.NUMBER,"Value",Output,"Position",Position1,"File",FileIndex)) ;add the number literal to the token array
  Return, 0
 }
 

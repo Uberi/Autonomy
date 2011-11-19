@@ -140,8 +140,7 @@ CodeParseDispatchLeftBindingPower(Token)
  TokenType := Token.Type
  If (TokenType = CodeTokenTypes.OPERATOR) ;operator token
   Return, CodeParseOperatorLeftBindingPower(Token)
- If (TokenType = CodeTokenTypes.INTEGER ;integer token
-    || TokenType = CodeTokenTypes.DECIMAL ;decimal token
+ If (TokenType = CodeTokenTypes.NUMBER ;integer token
     || TokenType = CodeTokenTypes.STRING ;string token
     || TokenType = CodeTokenTypes.IDENTIFIER ;identifier token
     || TokenType = CodeTokenTypes.LINE_END) ;line end token
@@ -157,10 +156,8 @@ CodeParseDispatchNullDenotation(ByRef Tokens,ByRef Errors,Token)
  TokenType := Token.Type
  If (TokenType = CodeTokenTypes.OPERATOR) ;operator token
   Return, CodeParseOperatorNullDenotation(Tokens,Errors,Token) ;parse the operator in null denotation
- If (TokenType = CodeTokenTypes.INTEGER) ;integer token
-  Return, [CodeTreeTypes.INTEGER,Token.Value,Token.Position,Token.File] ;create an integer tree node
- If (TokenType = CodeTokenTypes.DECIMAL) ;decimal token
-  Return, [CodeTreeTypes.DECIMAL,Token.Value,Token.Position,Token.File] ;create a decimal tree node
+ If (TokenType = CodeTokenTypes.NUMBER) ;integer token
+  Return, [CodeTreeTypes.NUMBER,Token.Value,Token.Position,Token.File] ;create an integer tree node
  If (TokenType = CodeTokenTypes.STRING) ;string token
   Return, [CodeTreeTypes.STRING,Token.Value,Token.Position,Token.File] ;create a string tree node
  If (TokenType = CodeTokenTypes.IDENTIFIER) ;identifier token
@@ -179,8 +176,7 @@ CodeParseDispatchLeftDenotation(ByRef Tokens,ByRef Errors,Token,LeftSide)
  TokenType := Token.Type
  If (TokenType = CodeTokenTypes.OPERATOR) ;operator token
   Return, CodeParseOperatorLeftDenotation(Tokens,Errors,Token,LeftSide)
- If (TokenType = CodeTokenTypes.INTEGER ;integer token
-    || TokenType = CodeTokenTypes.DECIMAL ;decimal token
+ If (TokenType = CodeTokenTypes.NUMBER ;integer token
     || TokenType = CodeTokenTypes.STRING ;string token
     || TokenType = CodeTokenTypes.IDENTIFIER ;identifier token
     || TokenType = CodeTokenTypes.LINE_END) ;line end token ;wip: identifiers should allow for the command syntax
