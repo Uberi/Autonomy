@@ -48,6 +48,7 @@ Simplifications:
 * static single assignment                           http://en.wikipedia.org/wiki/Static_single_assignment_form
 * strength reduction:                                http://en.wikipedia.org/wiki/Strength_reduction
 * partial redundancy elimination:                    http://en.wikipedia.org/wiki/Partial_redundancy_elimination
+* scalar replacement:                                http://kitty.2y.cc/doc/intel_cc_80/doc/c_ug/lin1074.htm
 */
 
 ;simplifies a syntax tree given as input

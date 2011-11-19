@@ -70,12 +70,14 @@ Lexer test:
 */
 
 Gui, Font, s12 Bold, Arial
-Gui, Add, Text, x0 y0 h20 vTitle Center, Test Results:
+Gui, Add, Text, x0 y5 h25 vTitle Center, Test Results:
 Gui, Font, s8 Norm
-Gui, Add, ListView, x2 y20 vResults, Index|Test Name|Result|Additional Info
+Gui, Add, ListView, x2 y30 vResults, Index|Test Name|Result|Additional Info
 Gui, Font, s10
 Gui, Add, Button, x2 w150 h30 vCopyReport gCopyReport Default, Copy To Clipboard
 Gui, Add, Button, w150 h30 vSaveReport gSaveReport, Save To File
+Gui, Font, s8
+Gui, Add, StatusBar
 GuiControl, Focus, Button1
 Gui, +Resize +MinSize320x200
 Gosub, GuiSize
@@ -99,9 +101,14 @@ Gosub, TestParser
 Gosub, TestBytecode
 Gosub, TestInterpreter
 
+Index := LV_GetCount(), PassAmount := 0
+Loop, %Index%
+ LV_GetText(Temp1,A_Index,3), (Temp1 = "Pass") ? (PassAmount ++)
+SB_SetText("`t`t" . PassAmount . " of " . Index . " tests passed.",1)
+
 Gosub, GuiSize
 
-Gui, Show, w515 h550, Tests
+Gui, Show, w515 h600, Tests
 Return
 
 ShowOutput(TestName,OutputType,ByRef OutputText)
@@ -235,9 +242,9 @@ Return
 
 GuiSize:
 GuiControl, MoveDraw, Title, w%A_GuiWidth%
-GuiControl, Move, Results, % "w" . (A_GuiWidth - 4) . " h" . (A_GuiHeight - 65)
-GuiControl, Move, CopyReport, % "y" . (A_GuiHeight - 35)
-GuiControl, MoveDraw, SaveReport, % "x" . (A_GuiWidth - 152) . " y" . (A_GuiHeight - 35)
+GuiControl, Move, Results, % "w" . (A_GuiWidth - 4) . " h" . (A_GuiHeight - 105)
+GuiControl, Move, CopyReport, % "y" . (A_GuiHeight - 65)
+GuiControl, MoveDraw, SaveReport, % "x" . (A_GuiWidth - 152) . " y" . (A_GuiHeight - 65)
 Loop, 4
  LV_ModifyCol(A_Index,"AutoHdr")
 Return
