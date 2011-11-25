@@ -94,7 +94,11 @@ CodeParseOperatorEvaluate(ByRef Tokens,ByRef Errors,Operator)
   Try Token := CodeParseToken(Tokens) ;move past the separator token
   Catch ;end of token stream
    Break
-  If (Token.Type != CodeTokenTypes.SEPARATOR)
+  If (Token.Type = CodeTokenTypes.LINE_END) ;line end token
+  {
+   ;wip: process line end here
+  }
+  Else If (Token.Type != CodeTokenTypes.SEPARATOR)
    Break ;stop parsing subexpressions
  }
  If !(Token.Type = CodeTokenTypes.OPERATOR ;operator token
@@ -125,7 +129,11 @@ CodeParseOperatorCall(ByRef Tokens,ByRef Errors,Operator,LeftSide)
   Try Token := CodeParseToken(Tokens)
   Catch ;end of token stream
    Break
-  If (Token.Type != CodeTokenTypes.SEPARATOR) ;break the loop if there is no argument separator present
+  If (Token.Type = CodeTokenTypes.LINE_END) ;line end token
+  {
+   ;wip: process line end here
+  }
+  Else If (Token.Type != CodeTokenTypes.SEPARATOR) ;break the loop if there is no argument separator present
    Break ;stop parsing parameters
  }
  If !(Token.Type = CodeTokenTypes.OPERATOR ;operator token
@@ -153,13 +161,24 @@ CodeParseOperatorBlock(ByRef Tokens,ByRef Errors,Operator,LeftSide)
   CodeParseToken(Tokens) ;move past the closing block brace token
   Return, Result
  }
- ObjInsert(Result,CodeParseExpression(Tokens,Errors)) ;parse the argument
- Token := CodeParseToken(Tokens)
+ Loop ;loop through one argument at a time
+ {
+  ObjInsert(Result,CodeParseExpression(Tokens,Errors)) ;parse the argument
+  Try Token := CodeParseToken(Tokens)
+  Catch ;end of token stream
+   Break
+  If (Token.Type = CodeTokenTypes.LINE_END) ;line end token
+  {
+   ;wip: process line end here
+  }
+  Else If (Token.Type != CodeTokenTypes.SEPARATOR) ;break the loop if there is no argument separator present
+   Break ;stop parsing parameters
+ }
  If !(Token.Type = CodeTokenTypes.OPERATOR ;operator token
     && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "BLOCK_END") ;closing parenthesis operator token
  {
   MsgBox
-  Return, "ERROR: Unmatched block braces." ;wip: better error handling
+  Return, "ERROR: Unmatched block brace." ;wip: better error handling
  }
  Return, Result
 }

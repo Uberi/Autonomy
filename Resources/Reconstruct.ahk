@@ -32,8 +32,13 @@ CodeReconstructShowSyntaxTree(SyntaxTree,Padding = "",Operation = 1)
  }
  Else If (NodeType = CodeTreeTypes.STRING)
   Return, """" . SyntaxTree[2] . """"
- Else If (NodeType = CodeTreeTypes.BLOCK) ;wip: use OPERATION type instead?
-  Return, "{" . CodeReconstructShowSyntaxTree(SyntaxTree[2]) . " " . CodeReconstructShowSyntaxTree(SyntaxTree[3]) . "}"
+ Else If (NodeType = CodeTreeTypes.BLOCK)
+ {
+  Result := (Operation ? "" : ("`n" . Padding)) . "{", Index := 2
+  Loop, % ObjMaxIndex(SyntaxTree) - 1
+   Result .= CodeReconstructShowSyntaxTree(SyntaxTree[Index],Padding . "`t",Index = 2) . " ", Index ++
+  Return, SubStr(Result,1,-1) . "}"
+ }
  Else
   Return, SyntaxTree[2]
 }
