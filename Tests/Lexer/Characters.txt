@@ -20,23 +20,12 @@
 3: 
 	Caret: 
 		Length: 1
-		Position: 7
-	File: 1
-	Highlight: 
-		1: 
-			Length: 1
-			Position: 6
-	Identifier: INVALID_IDENTIFIER
-	Level: 3
-4: 
-	Caret: 
-		Length: 1
 		Position: 14
 	File: 1
 	Highlight: 0
 	Identifier: INVALID_CHARACTER
 	Level: 3
-5: 
+4: 
 	Caret: 
 		Length: 1
 		Position: 82
@@ -47,7 +36,7 @@
 			Position: 78
 	Identifier: UNMATCHED_QUOTE
 	Level: 3
-6: 
+5: 
 	Caret: 
 		Length: 1
 		Position: 86
@@ -55,7 +44,7 @@
 	Highlight: 0
 	Identifier: INVALID_CHARACTER
 	Level: 3
-7: 
+6: 
 	Caret: 
 		Length: 1
 		Position: 87
@@ -63,7 +52,7 @@
 	Highlight: 0
 	Identifier: INVALID_CHARACTER
 	Level: 3
-8: 
+7: 
 	Caret: 
 		Length: 1
 		Position: 89
@@ -78,6 +67,7 @@
 File 1: OPERATOR   (1):  '~'
 File 1: OPERATOR   (2):  '!'
 File 1: IDENTIFIER (4):  '#'
+File 1: OPERATOR   (6):  '%'
 File 1: OPERATOR   (7):  '^'
 File 1: OPERATOR   (8):  '&'
 File 1: OPERATOR   (9):  '*'

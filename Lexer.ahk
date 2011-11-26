@@ -66,8 +66,6 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
    CodeLexMultilineComment(Code,Position) ;skip over the comment block
   Else If (CurrentTwoChar = CodeLexerConstants.MULTILINE_COMMENT_END) ;end multiline comment
    Position += StrLen(CodeLexerConstants.MULTILINE_COMMENT_END) ;move past multiline comment end
-  Else If (CurrentChar = "%") ;dynamic variable reference or dynamic function call
-   LexerError := CodeLexDynamicReference(Code,Position,Tokens,Errors,FileIndex) || LexerError
   Else If (CurrentChar = ".") ;concatenation operator or object access
    LexerError := CodeLexPeriodOperator(Code,Position,Tokens,Errors,FileIndex) || LexerError
   Else If (CurrentChar = " " || CurrentChar = "`t") ;whitespace
@@ -244,34 +242,6 @@ CodeLexMultilineComment(ByRef Code,ByRef Position)
   Position ++
  }
  Position += StrLen(CodeLexerConstants.MULTILINE_COMMENT_END) - 1 ;skip over the closing comment
-}
-
-;lexes dynamic variable and function references
-CodeLexDynamicReference(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef FileIndex)
-{ ;returns 1 on an invalid dynamic reference, 0 otherwise
- global CodeTokenTypes, CodeLexerConstants
- Output := "", Position1 := Position
- Loop
- {
-  Position ++, CurrentChar := SubStr(Code,Position,1)
-  If (CurrentChar = "%") ;found percent sign
-   Break
-  If (CurrentChar = "`r" || CurrentChar = "`n" || CurrentChar = "") ;past end of string, or found newline before percent sign was matched
-  {
-   CodeRecordError(Errors,"UNMATCHED_PERCENT_SIGN",3,FileIndex,Position,1,[Object("Position",Position1,"Length",Position - Position1)])
-   Return, 1
-  }
-  If !InStr(CodeLexerConstants.IDENTIFIER,CurrentChar) ;invalid character found
-  {
-   CodeRecordError(Errors,"INVALID_IDENTIFIER",3,FileIndex,Position,1,[Object("Position",Position1,"Length",Position - Position1)])
-   Return, 1
-  }
-  Output .= CurrentChar
- }
- Position ++ ;move past matching percent sign
- ObjInsert(Tokens,Object("Type",CodeTokenTypes.OPERATOR,"Value","%","Position",Position1,"File",FileIndex)) ;add the dereference operator to the token array
- ObjInsert(Tokens,Object("Type",CodeTokenTypes.IDENTIFIER,"Value",Output,"Position",Position1 + 1,"File",FileIndex)) ;add the identifier to the token array
- Return, 0
 }
 
 ;lexes a period operator, which can be either a concatenation operator or an object access operator depending on the surrounding whitespace

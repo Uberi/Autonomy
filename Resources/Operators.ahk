@@ -74,7 +74,7 @@ CodeCreateOperatorTable()
 CodeParseOperatorError(ByRef Tokens,ByRef Errors,Operator,LeftSide = "")
 {
  MsgBox
- Return, "Error: Unexpected operator." ;wip: better error handling
+ Return, "Error: Unexpected operator (" . Operator.Identifier . ")." ;wip: better error handling
 }
 
 CodeParseOperatorEvaluate(ByRef Tokens,ByRef Errors,Operator)
@@ -95,9 +95,7 @@ CodeParseOperatorEvaluate(ByRef Tokens,ByRef Errors,Operator)
   Catch ;end of token stream
    Break
   If (Token.Type = CodeTokenTypes.LINE_END) ;line end token
-  {
-   ;wip: process line end here
-  }
+   CodeParseStatement(Tokens,Errors)
   Else If (Token.Type != CodeTokenTypes.SEPARATOR)
    Break ;stop parsing subexpressions
  }
@@ -130,9 +128,7 @@ CodeParseOperatorCall(ByRef Tokens,ByRef Errors,Operator,LeftSide)
   Catch ;end of token stream
    Break
   If (Token.Type = CodeTokenTypes.LINE_END) ;line end token
-  {
-   ;wip: process line end here
-  }
+   CodeParseStatement(Tokens,Errors)
   Else If (Token.Type != CodeTokenTypes.SEPARATOR) ;break the loop if there is no argument separator present
    Break ;stop parsing parameters
  }
@@ -168,9 +164,7 @@ CodeParseOperatorBlock(ByRef Tokens,ByRef Errors,Operator,LeftSide)
   Catch ;end of token stream
    Break
   If (Token.Type = CodeTokenTypes.LINE_END) ;line end token
-  {
-   ;wip: process line end here
-  }
+   CodeParseStatement(Tokens,Errors)
   Else If (Token.Type != CodeTokenTypes.SEPARATOR) ;break the loop if there is no argument separator present
    Break ;stop parsing parameters
  }
@@ -230,7 +224,7 @@ CodeParseOperatorObjectAccess(ByRef Tokens,ByRef Errors,Operator,LeftSide)
  Return, Result
 }
 
-CodeParseOperatorTernary(ByRef Tokens,ByRef Errors,Operator,LeftSide) ;wip
+CodeParseOperatorTernary(ByRef Tokens,ByRef Errors,Operator,LeftSide)
 {
  global CodeTokenTypes, CodeTreeTypes, CodeOperatorTable
  FirstBranch := CodeParseExpression(Tokens,Errors,Operator.RightBindingPower) ;parse the first branch
@@ -253,6 +247,11 @@ CodeParseOperatorTernary(ByRef Tokens,ByRef Errors,Operator,LeftSide) ;wip
 CodeParseOperatorDereference(ByRef Tokens,ByRef Errors,Operator) ;wip
 {
  
+}
+
+CodeParseStatement(ByRef Tokens,ByRef Errors)
+{
+ ;wip: parse statement here
 }
 
 CodeOperatorCreateNullDenotation(Identifier,Value,RightBindingPower,Handler)
