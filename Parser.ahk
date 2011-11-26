@@ -157,7 +157,7 @@ CodeParseDispatchNullDenotation(ByRef Tokens,ByRef Errors,Token)
  If (TokenType = CodeTokenTypes.OPERATOR) ;operator token
   Return, CodeParseOperatorNullDenotation(Tokens,Errors,Token) ;parse the operator in null denotation
  If (TokenType = CodeTokenTypes.NUMBER) ;integer token
-  Return, [CodeTreeTypes.NUMBER,Token.Value,Token.Position,Token.File] ;create an integer tree node
+  Return, [CodeTreeTypes.NUMBER,Token.Value,Token.Position,Token.File] ;create an number tree node
  If (TokenType = CodeTokenTypes.STRING) ;string token
   Return, [CodeTreeTypes.STRING,Token.Value,Token.Position,Token.File] ;create a string tree node
  If (TokenType = CodeTokenTypes.IDENTIFIER) ;identifier token

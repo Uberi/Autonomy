@@ -28,6 +28,7 @@ Bytecode format
 ;wip: when processing different types, preconvert the smaller type to the common-denominator type at compile time. for example, if a variable was originally detected to be in a Short range, but was then added to a Long, declare the variable as a long instead of a short to avoid conversion
 ;wip: static tail call detection
 ;wip: distinct Array type using contiguous memory, faster than Object hash table implementation
+;wip: dead/unreachable code elimination
 */
 
 ;/*
@@ -39,7 +40,7 @@ SetBatchLines, -1
 
 Code = 
 (
-1+2*3
+1+2*3 . "hello"
 )
 
 If CodeInit()
@@ -75,25 +76,7 @@ CodeBytecode(SyntaxTree)
  global CodeTreeTypes
  NodeType := SyntaxTree[1]
  If (NodeType = CodeTreeTypes.OPERATION)
- {
-  Index := ObjMaxIndex(SyntaxTree)
-  Result := ""
-  While, Index > 1
-  {
-   Result .= CodeBytecode(SyntaxTree[Index])
-   Index --
-  }
-  Result .= CodeBytecodeStackCall("%eax")
-  Index := ObjMaxIndex(SyntaxTree)
-  Result .= "add %esp " . ((Index - 1) * 4) . "`n" ;size of all parameters ;wip: does not work with register allocator
-  While, Index > 1
-  {
-   CodeBytecodeStackPop()
-   Index --
-  }
-  Result .= CodeBytecodeStackPush("%eax")
-  Return, Result
- }
+  Return, CodeBytecodeOperation(SyntaxTree)
  Else If (NodeType = CodeTreeTypes.NUMBER)
   Return, CodeBytecodeStackPush(SyntaxTree[2])
  Else If (NodeType = CodeTreeTypes.STRING)
@@ -113,6 +96,26 @@ CodeBytecode(SyntaxTree)
   Result .= CodeBytecode(SyntaxTree[2])
   Return, Result . CodeBytecodeStackCall("%eax")
  }
+}
+
+CodeBytecodeOperation(SyntaxTree)
+{
+ Index := ObjMaxIndex(SyntaxTree)
+ Result := ""
+ While, Index > 1
+ {
+  Result .= CodeBytecode(SyntaxTree[Index])
+  Index --
+ }
+ Result .= CodeBytecodeStackCall("%eax")
+ Index := ObjMaxIndex(SyntaxTree)
+ Result .= "add %esp " . ((Index - 1) * 4) . "`n" ;size of all parameters ;wip: does not work with register allocator
+ While, Index > 1
+ {
+  CodeBytecodeStackPop()
+  Index --
+ }
+ Return, Result . CodeBytecodeStackPush("%eax")
 }
 
 CodeBytecodeStackPush(Value)
@@ -146,4 +149,13 @@ CodeBytecodeStackCall(Register)
  If (Index = "")
   Return, "call [%esp]`n"
  Return, "call [" . UsedRegisters[Index] . "]`n"
+}
+
+CodeBytecodeSymbol(Prefix)
+{
+ static UsedSymbols := Object()
+ If !ObjHasKey(UsedSymbols,Prefix)
+  UsedSymbols[Prefix] := 0
+ UsedSymbols[Prefix] ++
+ Return, Prefix . UsedSymbols[Prefix]
 }
