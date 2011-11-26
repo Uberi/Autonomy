@@ -90,8 +90,7 @@ CodeSetScript(FileName,Errors,Files) ;set the current script file
 
 CodeLexInit()
 CodeLex(Code,Tokens,Errors)
-;CodeRecontructShowTokens(Tokens)
-MsgBox % Clipboard := CodeReconstructShowTokens(Tokens)
+;MsgBox % Clipboard := CodeReconstructShowTokens(Tokens)
 
 CodePreprocessInit(Files)
 CodePreprocess(Tokens,ProcessedTokens,Errors,Files)
@@ -101,7 +100,13 @@ ShowObject(Errors)
 
 CodeParseInit()
 CodeParse(ProcessedTokens,SyntaxTree,Errors)
-CodeReconstructShowSyntaxTree(SyntaxTree)
+;MsgBox % Clipboard := CodeReconstructShowSyntaxTree(SyntaxTree)
+
+SimplifiedSyntaxTree := CodeSimplify(SyntaxTree)
+MsgBox % Clipboard := CodeReconstructShowSyntaxTree(SimplifiedSyntaxTree)
+
+Bytecode := CodeBytecode(SimplifiedSyntaxTree)
+MsgBox % Clipboard := Bytecode
 
 If (ObjMaxIndex(Errors) != "")
  Display(CodeGetError(Code,Errors,Files)) ;display error at standard output

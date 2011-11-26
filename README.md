@@ -8,10 +8,10 @@ Progress
 | Module        | Status         |
 |:--------------|:---------------|
 | Lexer         | Working        |
-| Preprocessor  | Almost working |
-| Parser        | In Progress    |
-| Simplifier    | Pending        |
-| Bytecode      | Pending        |
+| Preprocessor  | On Hold        |
+| Parser        | Mostly Working |
+| Simplifier    | In Progress    |
+| Bytecode      | In Progress    |
 | Interpreter   | Pending        |
 | Error Handler | Working        |
 
