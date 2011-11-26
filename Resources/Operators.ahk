@@ -22,72 +22,74 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 CodeCreateOperatorTable()
 {
  global CodeOperatorTable
- CodeOperatorTable := Object("NullDenotation",Object(),"LeftDenotation",Object())
+ CodeOperatorTable := Object()
+ CodeOperatorTable.NullDenotation := Object()
+ CodeOperatorTable.LeftDenotation := Object()
 
- ErrorHandler := Func("CodeParseOperatorError")
- PrefixHandler := Func("CodeParseOperatorPrefix")
- InfixHandler := Func("CodeParseOperatorInfix")
- PostfixHandler := Func("CodeParseOperatorPostfix")
+ Invalid := Func("CodeParseOperatorError")
+ Prefix := Func("CodeParseOperatorPrefix")
+ Infix := Func("CodeParseOperatorInfix")
+ Postfix := Func("CodeParseOperatorPostfix")
 
- CodeOperatorCreateLeftDenotation("ASSIGN",":=",10,9,InfixHandler)
- CodeOperatorCreateLeftDenotation("ASSIGN_ADD","+=",10,9,InfixHandler)
- CodeOperatorCreateLeftDenotation("ASSIGN_SUBTRACT","-=",10,9,InfixHandler)
- CodeOperatorCreateLeftDenotation("ASSIGN_MULTIPLY","*=",10,9,InfixHandler)
- CodeOperatorCreateLeftDenotation("ASSIGN_DIVIDE","/=",10,9,InfixHandler)
- CodeOperatorCreateLeftDenotation("ASSIGN_DIVIDE_FLOOR","//=",10,9,InfixHandler)
- CodeOperatorCreateLeftDenotation("ASSIGN_CONCATENATE",".=",10,9,InfixHandler)
- CodeOperatorCreateLeftDenotation("ASSIGN_BITWISE_OR","|=",10,9,InfixHandler)
- CodeOperatorCreateLeftDenotation("ASSIGN_BITWISE_AND","&=",10,9,InfixHandler)
- CodeOperatorCreateLeftDenotation("ASSIGN_BITWISE_XOR","^=",10,9,InfixHandler)
- CodeOperatorCreateLeftDenotation("ASSIGN_BITWISE_SHIFT_LEFT","<<=",10,9,InfixHandler)
- CodeOperatorCreateLeftDenotation("ASSIGN_BITWISE_SHIFT_RIGHT",">>=",10,9,InfixHandler)
- CodeOperatorCreateLeftDenotation("TERNARY_IF","?",20,19,Func("CodeParseOperatorTernary"))
- CodeOperatorCreateLeftDenotation("TERNARY_ELSE",":",0,0,ErrorHandler) ;wip: colon operator, not ternary
- CodeOperatorCreateLeftDenotation("LOGICAL_OR","||",40,40,InfixHandler)
- CodeOperatorCreateLeftDenotation("LOGICAL_AND","&&",50,50,InfixHandler)
- CodeOperatorCreateLeftDenotation("LOGICAL_EQUAL_CASE_INSENSITIVE","=",70,70,InfixHandler)
- CodeOperatorCreateLeftDenotation("LOGICAL_EQUAL_CASE_SENSITIVE","==",70,70,InfixHandler)
- CodeOperatorCreateLeftDenotation("LOGICAL_NOT_EQUAL_CASE_INSENSITIVE","!=",70,70,InfixHandler)
- CodeOperatorCreateLeftDenotation("LOGICAL_NOT_EQUAL_CASE_SENSITIVE","!==",70,70,InfixHandler)
- CodeOperatorCreateLeftDenotation("LOGICAL_GREATER_THAN",">",80,80,InfixHandler)
- CodeOperatorCreateLeftDenotation("LOGICAL_LESS_THAN","<",80,80,InfixHandler)
- CodeOperatorCreateLeftDenotation("LOGICAL_GREATER_THAN_OR_EQUAL",">=",80,80,InfixHandler)
- CodeOperatorCreateLeftDenotation("LOGICAL_LESS_THAN_OR_EQUAL","<=",80,80,InfixHandler)
- CodeOperatorCreateLeftDenotation("CONCATENATE"," . ",90,90,InfixHandler)
- CodeOperatorCreateLeftDenotation("BITWISE_AND","&",100,100,InfixHandler)
- CodeOperatorCreateLeftDenotation("BITWISE_EXCLUSIVE_OR","^",100,100,InfixHandler)
- CodeOperatorCreateLeftDenotation("BITWISE_OR","|",100,100,InfixHandler)
- CodeOperatorCreateLeftDenotation("BITWISE_SHIFT_LEFT","<<",110,110,InfixHandler)
- CodeOperatorCreateLeftDenotation("BITWISE_SHIFT_RIGHT",">>",110,110,InfixHandler)
- CodeOperatorCreateLeftDenotation("ADD","+",120,120,InfixHandler)
- CodeOperatorCreateLeftDenotation("SUBTRACT","-",120,120,InfixHandler)
- CodeOperatorCreateLeftDenotation("MULTIPLY","*",130,130,InfixHandler)
- CodeOperatorCreateLeftDenotation("DIVIDE","/",130,130,InfixHandler)
- CodeOperatorCreateLeftDenotation("DIVIDE_FLOOR","//",130,130,InfixHandler)
- CodeOperatorCreateNullDenotation("LOGICAL_NOT","!",140,PrefixHandler)
- CodeOperatorCreateNullDenotation("INVERT","-",140,PrefixHandler)
- CodeOperatorCreateNullDenotation("BITWISE_NOT","~",140,PrefixHandler)
- CodeOperatorCreateNullDenotation("ADDRESS","&",140,PrefixHandler)
- CodeOperatorCreateLeftDenotation("EXPONENTIATE","**",150,149,InfixHandler)
- CodeOperatorCreateNullDenotation("INCREMENT","++",160,PrefixHandler)
- CodeOperatorCreateNullDenotation("DECREMENT","--",160,PrefixHandler)
- CodeOperatorCreateLeftDenotation("INCREMENT","++",160,0,PostfixHandler)
- CodeOperatorCreateLeftDenotation("DECREMENT","--",160,0,PostfixHandler)
+ CodeOperatorTable.LeftDenotation[":="]  := CodeOperatorCreate("ASSIGN"                             ,10 ,9  ,Infix)
+ CodeOperatorTable.LeftDenotation["+="]  := CodeOperatorCreate("ASSIGN_ADD"                         ,10 ,9  ,Infix)
+ CodeOperatorTable.LeftDenotation["-="]  := CodeOperatorCreate("ASSIGN_SUBTRACT"                    ,10 ,9  ,Infix)
+ CodeOperatorTable.LeftDenotation["*="]  := CodeOperatorCreate("ASSIGN_MULTIPLY"                    ,10 ,9  ,Infix)
+ CodeOperatorTable.LeftDenotation["/="]  := CodeOperatorCreate("ASSIGN_DIVIDE"                      ,10 ,9  ,Infix)
+ CodeOperatorTable.LeftDenotation["//="] := CodeOperatorCreate("ASSIGN_DIVIDE_FLOOR"                ,10 ,9  ,Infix)
+ CodeOperatorTable.LeftDenotation[".="]  := CodeOperatorCreate("ASSIGN_CONCATENATE"                 ,10 ,9  ,Infix)
+ CodeOperatorTable.LeftDenotation["|="]  := CodeOperatorCreate("ASSIGN_BITWISE_OR"                  ,10 ,9  ,Infix)
+ CodeOperatorTable.LeftDenotation["&="]  := CodeOperatorCreate("ASSIGN_BITWISE_AND"                 ,10 ,9  ,Infix)
+ CodeOperatorTable.LeftDenotation["^="]  := CodeOperatorCreate("ASSIGN_BITWISE_XOR"                 ,10 ,9  ,Infix)
+ CodeOperatorTable.LeftDenotation["<<="] := CodeOperatorCreate("ASSIGN_BITWISE_SHIFT_LEFT"          ,10 ,9  ,Infix)
+ CodeOperatorTable.LeftDenotation[">>="] := CodeOperatorCreate("ASSIGN_BITWISE_SHIFT_RIGHT"         ,10 ,9  ,Infix)
+ CodeOperatorTable.LeftDenotation["?"]   := CodeOperatorCreate("TERNARY_IF"                         ,20 ,19 ,Func("CodeParseOperatorTernary"))
+ CodeOperatorTable.LeftDenotation[":"]   := CodeOperatorCreate("TERNARY_ELSE"                       ,0  ,0  ,Invalid) ;wip: colon operator, not ternary
+ CodeOperatorTable.LeftDenotation["||"]  := CodeOperatorCreate("LOGICAL_OR"                         ,40 ,40 ,Infix)
+ CodeOperatorTable.LeftDenotation["&&"]  := CodeOperatorCreate("LOGICAL_AND"                        ,50 ,50 ,Infix)
+ CodeOperatorTable.LeftDenotation["="]   := CodeOperatorCreate("LOGICAL_EQUAL_CASE_INSENSITIVE"     ,70 ,70 ,Infix)
+ CodeOperatorTable.LeftDenotation["=="]  := CodeOperatorCreate("LOGICAL_EQUAL_CASE_SENSITIVE"       ,70 ,70 ,Infix)
+ CodeOperatorTable.LeftDenotation["!="]  := CodeOperatorCreate("LOGICAL_NOT_EQUAL_CASE_INSENSITIVE" ,70 ,70 ,Infix)
+ CodeOperatorTable.LeftDenotation["!=="] := CodeOperatorCreate("LOGICAL_NOT_EQUAL_CASE_SENSITIVE"   ,70 ,70 ,Infix)
+ CodeOperatorTable.LeftDenotation[">"]   := CodeOperatorCreate("LOGICAL_GREATER_THAN"               ,80 ,80 ,Infix)
+ CodeOperatorTable.LeftDenotation["<"]   := CodeOperatorCreate("LOGICAL_LESS_THAN"                  ,80 ,80 ,Infix)
+ CodeOperatorTable.LeftDenotation[">="]  := CodeOperatorCreate("LOGICAL_GREATER_THAN_OR_EQUAL"      ,80 ,80 ,Infix)
+ CodeOperatorTable.LeftDenotation["<="]  := CodeOperatorCreate("LOGICAL_LESS_THAN_OR_EQUAL"         ,80 ,80 ,Infix)
+ CodeOperatorTable.LeftDenotation[" . "] := CodeOperatorCreate("CONCATENATE"                        ,90 ,90 ,Infix)
+ CodeOperatorTable.LeftDenotation["&"]   := CodeOperatorCreate("BITWISE_AND"                        ,100,100,Infix)
+ CodeOperatorTable.LeftDenotation["^"]   := CodeOperatorCreate("BITWISE_EXCLUSIVE_OR"               ,100,100,Infix)
+ CodeOperatorTable.LeftDenotation["|"]   := CodeOperatorCreate("BITWISE_OR"                         ,100,100,Infix)
+ CodeOperatorTable.LeftDenotation["<<"]  := CodeOperatorCreate("BITWISE_SHIFT_LEFT"                 ,110,110,Infix)
+ CodeOperatorTable.LeftDenotation[">>"]  := CodeOperatorCreate("BITWISE_SHIFT_RIGHT"                ,110,110,Infix)
+ CodeOperatorTable.LeftDenotation["+"]   := CodeOperatorCreate("ADD"                                ,120,120,Infix)
+ CodeOperatorTable.LeftDenotation["-"]   := CodeOperatorCreate("SUBTRACT"                           ,120,120,Infix)
+ CodeOperatorTable.LeftDenotation["*"]   := CodeOperatorCreate("MULTIPLY"                           ,130,130,Infix)
+ CodeOperatorTable.LeftDenotation["/"]   := CodeOperatorCreate("DIVIDE"                             ,130,130,Infix)
+ CodeOperatorTable.LeftDenotation["//"]  := CodeOperatorCreate("DIVIDE_FLOOR"                       ,130,130,Infix)
+ CodeOperatorTable.NullDenotation["!"]   := CodeOperatorCreate("LOGICAL_NOT"                        ,0  ,140,Prefix)
+ CodeOperatorTable.NullDenotation["-"]   := CodeOperatorCreate("INVERT"                             ,0  ,140,Prefix)
+ CodeOperatorTable.NullDenotation["~"]   := CodeOperatorCreate("BITWISE_NOT"                        ,0  ,140,Prefix)
+ CodeOperatorTable.NullDenotation["&"]   := CodeOperatorCreate("ADDRESS"                            ,0  ,140,Prefix)
+ CodeOperatorTable.LeftDenotation["**"]  := CodeOperatorCreate("EXPONENTIATE"                       ,150,149,Infix)
+ CodeOperatorTable.NullDenotation["++"]  := CodeOperatorCreate("INCREMENT"                          ,0  ,160,Prefix)
+ CodeOperatorTable.NullDenotation["--"]  := CodeOperatorCreate("DECREMENT"                          ,0  ,160,Prefix)
+ CodeOperatorTable.LeftDenotation["++"]  := CodeOperatorCreate("INCREMENT"                          ,160,0  ,Postfix)
+ CodeOperatorTable.LeftDenotation["--"]  := CodeOperatorCreate("DECREMENT"                          ,160,0  ,Postfix)
 
- CodeOperatorCreateNullDenotation("EVALUATE","(",0,Func("CodeParseOperatorEvaluate"))
- CodeOperatorCreateLeftDenotation("CALL","(",170,0,Func("CodeParseOperatorCall"))
- CodeOperatorCreateLeftDenotation("GROUP_END",")",0,0,ErrorHandler)
+ CodeOperatorTable.NullDenotation["("]   := CodeOperatorCreate("EVALUATE"                           ,0  ,0  ,Func("CodeParseOperatorEvaluate"))
+ CodeOperatorTable.LeftDenotation["("]   := CodeOperatorCreate("CALL"                               ,170,0  ,Func("CodeParseOperatorCall"))
+ CodeOperatorTable.LeftDenotation[")"]   := CodeOperatorCreate("GROUP_END"                          ,0  ,0  ,Invalid)
 
- CodeOperatorCreateNullDenotation("OBJECT","{",0,Func("CodeParseOperatorObject"))
- CodeOperatorCreateLeftDenotation("BLOCK","{",170,0,Func("CodeParseOperatorBlock"))
- CodeOperatorCreateLeftDenotation("BLOCK_END","}",0,0,ErrorHandler)
+ CodeOperatorTable.NullDenotation["{"]   := CodeOperatorCreate("OBJECT"                             ,0  ,0  ,Func("CodeParseOperatorObject"))
+ CodeOperatorTable.LeftDenotation["{"]   := CodeOperatorCreate("BLOCK"                              ,170,0  ,Func("CodeParseOperatorBlock"))
+ CodeOperatorTable.LeftDenotation["}"]   := CodeOperatorCreate("BLOCK_END"                          ,0  ,0  ,Invalid)
 
- CodeOperatorCreateNullDenotation("ARRAY","[",0,Func("CodeParseOperatorArray"))
- CodeOperatorCreateLeftDenotation("OBJECT_ACCESS_DYNAMIC","[",180,0,Func("CodeParseOperatorObjectAccess"))
- CodeOperatorCreateLeftDenotation("OBJECT_END","]",0,0,ErrorHandler)
+ CodeOperatorTable.NullDenotation["["]   := CodeOperatorCreate("ARRAY"                              ,0  ,0  ,Func("CodeParseOperatorArray"))
+ CodeOperatorTable.LeftDenotation["["]   := CodeOperatorCreate("OBJECT_ACCESS_DYNAMIC"              ,180,0  ,Func("CodeParseOperatorObjectAccess"))
+ CodeOperatorTable.LeftDenotation["]"]   := CodeOperatorCreate("OBJECT_END"                         ,0  ,0  ,Invalid)
 
- CodeOperatorCreateLeftDenotation("OBJECT_ACCESS",".",180,180,InfixHandler)
- CodeOperatorCreateNullDenotation("DEREFERENCE","%",190,Func("CodeParseOperatorDereference"))
+ CodeOperatorTable.LeftDenotation["."]   := CodeOperatorCreate("OBJECT_ACCESS"                      ,180,180,Infix)
+ CodeOperatorTable.NullDenotation["%"]   := CodeOperatorCreate("DEREFERENCE"                        ,0  ,190,Func("CodeParseOperatorDereference"))
 }
 
 CodeParseOperatorError(ByRef Tokens,ByRef Errors,Operator,LeftSide = "")
@@ -273,24 +275,12 @@ CodeParseStatement(ByRef Tokens,ByRef Errors)
  ;wip: parse statement here
 }
 
-CodeOperatorCreateNullDenotation(Identifier,Value,RightBindingPower,Handler)
+CodeOperatorCreate(Identifier,LeftBindingPower,RightBindingPower,Handler)
 {
- global CodeOperatorTable
- Operator := Object()
- Operator.Identifier := Identifier
- Operator.LeftBindingPower := 0
- Operator.RightBindingPower := RightBindingPower
- Operator.Handler := Handler
- CodeOperatorTable.NullDenotation[Value] := Operator
-}
-
-CodeOperatorCreateLeftDenotation(Identifier,Value,LeftBindingPower,RightBindingPower,Handler)
-{
- global CodeOperatorTable
  Operator := Object()
  Operator.Identifier := Identifier
  Operator.LeftBindingPower := LeftBindingPower
  Operator.RightBindingPower := RightBindingPower
  Operator.Handler := Handler
- CodeOperatorTable.LeftDenotation[Value] := Operator
+ Return, Operator
 }
