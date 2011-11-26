@@ -51,8 +51,76 @@ Simplifications:
 * scalar replacement:                                http://kitty.2y.cc/doc/intel_cc_80/doc/c_ug/lin1074.htm
 */
 
+;/*
+#Include Resources\Reconstruct.ahk
+#Include Lexer.ahk
+#Include Parser.ahk
+
+SetBatchLines, -1
+
+Code = 
+(
+1+2*3
+)
+
+If CodeInit()
+{
+ Display("Error initializing code tools.`n") ;display error at standard output
+ ExitApp ;fatal error
+}
+
+FileName := A_ScriptFullPath
+CodeSetScript(FileName,Errors,Files) ;set the current script file
+
+CodeLexInit()
+CodeLex(Code,Tokens,Errors)
+
+CodeParseInit()
+Result := CodeParse(Tokens,SyntaxTree,Errors)
+
+MsgBox % Clipboard := CodeReconstructShowSyntaxTree(CodeSimplify(SyntaxTree))
+ExitApp
+*/
+
 ;simplifies a syntax tree given as input
-CodeSimplify(ByRef SyntaxTree)
+CodeSimplify(SyntaxTree)
+{
+ global CodeTreeTypes
+ static SimplifyOperations := Object("ADD",Func("CodeSimplifyAdd"),"INVERT",Func("CodeSimplifyInvert"))
+ NodeType := SyntaxTree[1]
+ If (NodeType = CodeTreeTypes.OPERATION)
+ {
+  Operation := SyntaxTree[2][2] ;wip: support dynamic operations
+  If !ObjHasKey(SimplifyOperations,Operation)
+   Return, SyntaxTree
+
+  Index := 3, Applyable := 1 ;wip: use recursive applyable measure
+  Loop, % ObjMaxIndex(SyntaxTree) - 2
+  {
+   Node := SyntaxTree[Index]
+   If (Node[1] != CodeTreeTypes.NUMBER && Node[1] != CodeTreeTypes.STRING)
+   {
+    Applyable := 0
+    Break
+   }
+   Index ++
+  }
+
+  If Applyable
+   Return, SimplifyOperations[Operation](SyntaxTree)
+  Else
+   Return, SyntaxTree
+ }
+ Return, SyntaxTree
+}
+
+CodeSImplifyAdd(This,Node)
+{
+ global CodeTreeTypes
+ Return, [CodeTreeTypes.NUMBER,Node[3][2] + Node[4][2],0,0] ;create an number tree node
+}
+
+CodeSimplifyInvert(This)
 {
  
 }
