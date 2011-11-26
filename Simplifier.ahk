@@ -33,7 +33,6 @@ Resources:
 
 Simplifications:
 
-* constant folding:                                  (3 + 4) * Sin(5) -> [Value of (3 + 4) * Sin(5)]
 * common subexpression elimination:                  http://en.wikipedia.org/wiki/Common_subexpression_elimination
 * integer bit shift left equivalance:                Integer1 * [Power of 2: Integer2] -> Integer1 << [Log2(Integer2)]
 * integer bit shift right equivalance:               Integer1 // [Power of 2: Integer2] -> Integer1 >> [Log2(Integer2)]
@@ -51,7 +50,7 @@ Simplifications:
 * scalar replacement:                                http://kitty.2y.cc/doc/intel_cc_80/doc/c_ug/lin1074.htm
 */
 
-;/*
+/*
 #Include Resources\Reconstruct.ahk
 #Include Lexer.ahk
 #Include Parser.ahk
@@ -60,7 +59,7 @@ SetBatchLines, -1
 
 Code = 
 (
-1+2*3
+2*4-5+2
 )
 
 If CodeInit()
@@ -78,49 +77,65 @@ CodeLex(Code,Tokens,Errors)
 CodeParseInit()
 Result := CodeParse(Tokens,SyntaxTree,Errors)
 
-MsgBox % Clipboard := CodeReconstructShowSyntaxTree(CodeSimplify(SyntaxTree))
+IsDynamic := 0 ;wip: work around for the ByRef limitation
+MsgBox % Clipboard := CodeReconstructShowSyntaxTree(CodeSimplify(SyntaxTree,IsDynamic))
 ExitApp
 */
 
 ;simplifies a syntax tree given as input
-CodeSimplify(SyntaxTree)
+CodeSimplify(SyntaxTree,ByRef DynamicValue)
 {
  global CodeTreeTypes
- static SimplifyOperations := Object("ADD",Func("CodeSimplifyAdd"),"INVERT",Func("CodeSimplifyInvert"))
+ static SimplifyOperations := Object("ADD",Func("CodeSimplifyAdd")
+                                    ,"SUBTRACT",Func("CodeSimplifySubtract")
+                                    ,"MULTIPLY",Func("CodeSimplifyMultiply")
+                                    ,"DIVIDE",Func("CodeSimplifyDivide")
+                                    ,"INVERT",Func("CodeSimplifyInvert"))
+
  NodeType := SyntaxTree[1]
  If (NodeType = CodeTreeTypes.OPERATION)
  {
-  Operation := SyntaxTree[2][2] ;wip: support dynamic operations
-  If !ObjHasKey(SimplifyOperations,Operation)
-   Return, SyntaxTree
+  Operation := CodeSimplify(SyntaxTree[2],DynamicValue)
+  Result := [NodeType,Operation]
 
-  Index := 3, Applyable := 1 ;wip: use recursive applyable measure
+  Index := 3
   Loop, % ObjMaxIndex(SyntaxTree) - 2
-  {
-   Node := SyntaxTree[Index]
-   If (Node[1] != CodeTreeTypes.NUMBER && Node[1] != CodeTreeTypes.STRING)
-   {
-    Applyable := 0
-    Break
-   }
-   Index ++
-  }
+   ObjInsert(Result,CodeSimplify(SyntaxTree[Index],DynamicValue)), Index ++
 
-  If Applyable
-   Return, SimplifyOperations[Operation](SyntaxTree)
-  Else
-   Return, SyntaxTree
+  If (!DynamicValue && ObjHasKey(SimplifyOperations,Operation[2]))
+   Return, SimplifyOperations[Operation[2]](Result)
+  DynamicValue := 1
+  Return, Result
  }
  Return, SyntaxTree
 }
 
-CodeSImplifyAdd(This,Node)
+CodeSimplifyAdd(This,Node)
 {
  global CodeTreeTypes
  Return, [CodeTreeTypes.NUMBER,Node[3][2] + Node[4][2],0,0] ;create an number tree node
 }
 
-CodeSimplifyInvert(This)
+CodeSimplifySubtract(This,Node)
 {
- 
+ global CodeTreeTypes
+ Return, [CodeTreeTypes.NUMBER,Node[3][2] - Node[4][2],0,0] ;create an number tree node
+}
+
+CodeSimplifyMultiply(This,Node)
+{
+ global CodeTreeTypes
+ Return, [CodeTreeTypes.NUMBER,Node[3][2] * Node[4][2],0,0] ;create an number tree node
+}
+
+CodeSimplifyDivide(This,Node)
+{
+ global CodeTreeTypes
+ Return, [CodeTreeTypes.NUMBER,Node[3][2] / Node[4][2],0,0] ;create an number tree node
+}
+
+CodeSimplifyInvert(This,Node)
+{
+ global CodeTreeTypes
+ Return, [CodeTreeTypes.NUMBER,-Node[3][2],0,0] ;create an number tree node
 }
