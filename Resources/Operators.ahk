@@ -43,7 +43,7 @@ CodeCreateOperatorTable()
  CodeOperatorTable.LeftDenotation["^="]  := CodeOperatorCreate("ASSIGN_BITWISE_XOR"                 ,10 ,9  ,Infix)
  CodeOperatorTable.LeftDenotation["<<="] := CodeOperatorCreate("ASSIGN_BITWISE_SHIFT_LEFT"          ,10 ,9  ,Infix)
  CodeOperatorTable.LeftDenotation[">>="] := CodeOperatorCreate("ASSIGN_BITWISE_SHIFT_RIGHT"         ,10 ,9  ,Infix)
- CodeOperatorTable.LeftDenotation["?"]   := CodeOperatorCreate("TERNARY_IF"                         ,20 ,19 ,Func("CodeParseOperatorTernary"))
+ CodeOperatorTable.LeftDenotation["?"]   := CodeOperatorCreate("TERNARY_IF"                         ,20 ,19 ,Func("CodeParseOperatorTernaryIf"))
  CodeOperatorTable.LeftDenotation[":"]   := CodeOperatorCreate("TERNARY_ELSE"                       ,0  ,0  ,Invalid) ;wip: colon operator, not ternary
  CodeOperatorTable.LeftDenotation["||"]  := CodeOperatorCreate("LOGICAL_OR"                         ,40 ,40 ,Infix)
  CodeOperatorTable.LeftDenotation["&&"]  := CodeOperatorCreate("LOGICAL_AND"                        ,50 ,50 ,Infix)
@@ -245,7 +245,7 @@ CodeParseOperatorObjectAccess(ByRef Tokens,ByRef Errors,Operator,LeftSide)
  Return, Result
 }
 
-CodeParseOperatorTernary(ByRef Tokens,ByRef Errors,Operator,LeftSide)
+CodeParseOperatorTernaryIf(ByRef Tokens,ByRef Errors,Operator,LeftSide)
 {
  global CodeTokenTypes, CodeTreeTypes, CodeOperatorTable
  FirstBranch := CodeParseExpression(Tokens,Errors,Operator.RightBindingPower) ;parse the first branch
