@@ -34,13 +34,11 @@ Resources:
 Simplifications:
 
 * common subexpression elimination:                  http://en.wikipedia.org/wiki/Common_subexpression_elimination
-* integer bit shift left equivalance:                Integer1 * [Power of 2: Integer2] -> Integer1 << [Log2(Integer2)]
 * integer bit shift right equivalance:               Integer1 // [Power of 2: Integer2] -> Integer1 >> [Log2(Integer2)]
 * floor divide:                                      Floor(Number1 / Number2) -> Number1 // Number2
-* multiply by one:                                   [Evaluates to integer 1] * Number, Number * [Evaluates to integer 1] -> Number
 * divide by one:                                     Integer / [Evaluates to 1] -> Integer
-* zero product property:                             Number * [Evaluates to 0] -> 0 ;if the multiplicand that evaluates to zero was a float, then the number type should be converted to a float as well
 * bitwise modulo:                                    Mod(Integer1,[Power of 2: Integer2]) -> Integer1 & [Integer2 - 1]
+* x*0 = 0, x**0 = 1, x & 0 = 0, x ^ x = 0, (x<<2)<<1 = x<<3, (x>>2)<<1 = x>>1
 * logical transforms:                                (!Something && !SomethingElse) -> !(Something || SomethingElse) ;many other different types of logical transforms too
 * type specialization:                               If [Something that evaluates to a boolean: Expression] -> If Expression = True ;avoids needing to check both boolean truthiness and for string truthiness
 * case sensitivity:                                  If [String: String1] = [String without alphabetic characters: String2] -> If String [Case sensitive compare] ;avoid case insensitivity routines that may be more complex or slow
@@ -50,7 +48,7 @@ Simplifications:
 * scalar replacement:                                http://kitty.2y.cc/doc/intel_cc_80/doc/c_ug/lin1074.htm
 */
 
-/*
+;/*
 #Include Resources\Reconstruct.ahk
 #Include Lexer.ahk
 #Include Parser.ahk
@@ -59,7 +57,7 @@ SetBatchLines, -1
 
 Code = 
 (
-2*4-5+2
+1+2*(a//2)
 )
 
 If CodeInit()
@@ -77,65 +75,281 @@ CodeLex(Code,Tokens,Errors)
 CodeParseInit()
 Result := CodeParse(Tokens,SyntaxTree,Errors)
 
-IsDynamic := 0 ;wip: work around for the ByRef limitation
-MsgBox % Clipboard := CodeReconstructShowSyntaxTree(CodeSimplify(SyntaxTree,IsDynamic))
+MsgBox % Clipboard := CodeReconstructShowSyntaxTree(CodeSimplify(SyntaxTree))
 ExitApp
 */
 
 ;simplifies a syntax tree given as input
-CodeSimplify(SyntaxTree,ByRef DynamicValue)
+CodeSimplify(SyntaxTree)
 {
  global CodeTreeTypes
- static SimplifyOperations := Object("ADD",Func("CodeSimplifyAdd")
+ static SimplifyOperations := Object("TERNARY_IF",Func("CodeSimplifyTernaryIf")
+                                    ,"CONCATENATE",Func("CodeSimplifyConcatenate")
+                                    ,"BITWISE_AND",Func("CodeSimplifyBitwiseAnd")
+                                    ,"BITWISE_EXCLUSIVE_OR",Func("CodeSimplifyBitwiseExclusiveOr")
+                                    ,"BITWISE_OR",Func("CodeSimplifyBitwiseOr")
+                                    ,"BITWISE_SHIFT_LEFT",Func("CodeSimplifyBitwiseShiftLeft")
+                                    ,"BITWISE_SHIFT_RIGHT",Func("CodeSimplifyBitwiseShiftRight")
+                                    ,"ADD",Func("CodeSimplifyAdd")
                                     ,"SUBTRACT",Func("CodeSimplifySubtract")
                                     ,"MULTIPLY",Func("CodeSimplifyMultiply")
                                     ,"DIVIDE",Func("CodeSimplifyDivide")
-                                    ,"INVERT",Func("CodeSimplifyInvert"))
+                                    ,"DIVIDE_FLOOR",Func("CodeSimplifyDivideFloor")
+                                    ,"LOGICAL_NOT",Func("CodeSimplifyLogicalNot")
+                                    ,"INVERT",Func("CodeSimplifyInvert")
+                                    ,"BITWISE_NOT",Func("CodeSimplifyBitwiseNot")
+                                    ,"EXPONENTIATE",Func("CodeSimplifyExponentiate"))
 
  NodeType := SyntaxTree[1]
  If (NodeType = CodeTreeTypes.OPERATION)
  {
-  Operation := CodeSimplify(SyntaxTree[2],DynamicValue)
+  Operation := CodeSimplify(SyntaxTree[2])
   Result := [NodeType,Operation]
 
   Index := 3
   Loop, % ObjMaxIndex(SyntaxTree) - 2
-   ObjInsert(Result,CodeSimplify(SyntaxTree[Index],DynamicValue)), Index ++
+   ObjInsert(Result,CodeSimplify(SyntaxTree[Index])), Index ++
 
-  If (!DynamicValue && ObjHasKey(SimplifyOperations,Operation[2]))
+  If ObjHasKey(SimplifyOperations,Operation[2])
    Return, SimplifyOperations[Operation[2]](Result)
-  DynamicValue := 1
   Return, Result
  }
  Return, SyntaxTree
 }
 
+CodeSimplifyTernary(This,Node)
+{
+ global CodeTreeTypes
+ Operand1 := Node[3], Operand2 := Node[4], Operand3 := Node[5]
+ If (Operand1[1] = CodeTreeTypes.NUMBER) ;first operand is a number
+  Return, (Operand1[2] = 0) ? Operand3 : Operand2
+ If (Operand1[1] = CodeTreeTypes.STRING) ;first operand is a string
+  Return, (Operand1[2] = "") ? Operand3 : Operand2
+ Return, Node
+}
+
+CodeSimplifyConcatenate(This,Node)
+{
+ global CodeTreeTypes
+ Operand1 := Node[3], Operand2 := Node[4]
+ If ((Operand1[1] = CodeTreeTypes.NUMBER || Operand1[1] = CodeTreeTypes.STRING) ;first operand is a number or string
+    && (Operand2[1] = CodeTreeTypes.NUMBER || Operand2[1] = CodeTreeTypes.STRING)) ;second operand is a number or string
+  Return, [CodeTreeTypes.STRING,Operand1[2] . Operand2[2],0,0]
+ Return, Node
+}
+
+CodeSimplifyBitwiseAnd(This,Node)
+{
+ global CodeTreeTypes
+ Operand1 := Node[3], Operand2 := Node[4]
+ If (Operand1[1] = CodeTreeTypes.NUMBER && Operand2[1] = CodeTreeTypes.NUMBER) ;both operands are numbers
+  Return, [CodeTreeTypes.NUMBER,Operand1[2] & Operand2[2],0,0]
+ Return, Node
+}
+
+CodeSimplifyBitwiseExclusiveOr(This,Node)
+{
+ global CodeTreeTypes
+ Operand1 := Node[3], Operand2 := Node[4]
+ If (Operand1[1] = CodeTreeTypes.NUMBER) ;first operand is a number
+ {
+  If (Operand1[2] = 0) ;value of the first operand is the number 0
+   Return, Operand2
+  If (Operand2[1] = CodeTreeTypes.NUMBER) ;both operands are numbers
+   Return, [CodeTreeTypes.NUMBER,Operand1[2] ^ Operand2[2],0,0]
+ }
+ If (Operand2[1] = CodeTreeTypes.NUMBER && Operand2[2] = 0) ;value of the second operand is the number 0
+  Return, Operand1
+ Return, Node
+}
+
+CodeSimplifyBitwiseOr(This,Node)
+{
+ global CodeTreeTypes
+ Operand1 := Node[3], Operand2 := Node[4]
+ If (Operand1[1] = CodeTreeTypes.NUMBER) ;first operand is a number
+ {
+  If (Operand1[2] = 0) ;value of the first operand is the number 0
+   Return, Operand2
+  If (Operand2[1] = CodeTreeTypes.NUMBER) ;both operands are numbers
+   Return, [CodeTreeTypes.NUMBER,Operand1[2] | Operand2[2],0,0]
+ }
+ If (Operand2[1] = CodeTreeTypes.NUMBER && Operand2[2] = 0) ;value of the second operand is the number 0
+  Return, Operand1
+ Return, Node
+}
+
+CodeSimplifyBitwiseShiftLeft(This,Node)
+{
+ global CodeTreeTypes
+ Operand1 := Node[3], Operand2 := Node[4]
+ If (Operand1[1] = CodeTreeTypes.NUMBER) ;first operand is a number
+ {
+  If (Operand1[2] = 0) ;value of the first operand is the number 0
+   Return, Operand2
+  If (Operand2[1] = CodeTreeTypes.NUMBER) ;both operands are numbers
+   Return, [CodeTreeTypes.NUMBER,Operand1[2] << Operand2[2],0,0]
+ }
+ If (Operand2[1] = CodeTreeTypes.NUMBER && Operand2[2] = 0) ;value of the second operand is the number 0
+  Return, Operand1
+ Return, Node
+}
+
+CodeSimplifyBitwiseShiftRight(This,Node)
+{
+ global CodeTreeTypes
+ Operand1 := Node[3], Operand2 := Node[4]
+ If (Operand1[1] = CodeTreeTypes.NUMBER) ;first operand is a number
+ {
+  If (Operand1[2] = 0) ;value of the first operand is the number 0
+   Return, Operand2
+  If (Operand2[1] = CodeTreeTypes.NUMBER) ;both operands are numbers
+   Return, [CodeTreeTypes.NUMBER,Operand1[2] >> Operand2[2],0,0]
+ }
+ If (Operand2[1] = CodeTreeTypes.NUMBER && Operand2[2] = 0) ;value of the second operand is the number 0
+  Return, Operand1
+ Return, Node
+}
+
 CodeSimplifyAdd(This,Node)
 {
  global CodeTreeTypes
- Return, [CodeTreeTypes.NUMBER,Node[3][2] + Node[4][2],0,0] ;create an number tree node
+ Operand1 := Node[3], Operand2 := Node[4]
+ If (Operand1[1] = CodeTreeTypes.NUMBER) ;first operand is a number
+ {
+  If (Operand1[2] = 0) ;value of the first operand is the number 0
+   Return, Operand2
+  If (Operand2[1] = CodeTreeTypes.NUMBER) ;both operands are numbers
+   Return, [CodeTreeTypes.NUMBER,Operand1[2] + Operand2[2],0,0]
+ }
+ If (Operand2[1] = CodeTreeTypes.NUMBER && Operand2[2] = 0) ;value of the second operand is the number 0
+  Return, Operand1
+ Return, Node
 }
 
 CodeSimplifySubtract(This,Node)
 {
  global CodeTreeTypes
- Return, [CodeTreeTypes.NUMBER,Node[3][2] - Node[4][2],0,0] ;create an number tree node
+ Operand1 := Node[3], Operand2 := Node[4]
+ If (Operand1[1] = CodeTreeTypes.NUMBER) ;first operand is a number
+ {
+  If (Operand1[2] = 0) ;value of the first operand is the number 0
+   Return, Operand2
+  If (Operand2[1] = CodeTreeTypes.NUMBER) ;both operands are numbers
+   Return, [CodeTreeTypes.NUMBER,Operand1[2] - Operand2[2],0,0]
+ }
+ If (Operand2[1] = CodeTreeTypes.NUMBER && Operand2[2] = 0) ;value of the second operand is the number 0
+  Return, Operand1
+ Return, Node
 }
 
 CodeSimplifyMultiply(This,Node)
 {
  global CodeTreeTypes
- Return, [CodeTreeTypes.NUMBER,Node[3][2] * Node[4][2],0,0] ;create an number tree node
+ Operand1 := Node[3], Operand2 := Node[4]
+ If (Operand1[1] = CodeTreeTypes.NUMBER) ;first operand is a number
+ {
+  If (Operand1[2] = 1) ;value of the first operand is the number 1
+   Return, Operand2
+  If (Operand2[1] = CodeTreeTypes.NUMBER) ;both operands are numbers
+   Return, [CodeTreeTypes.NUMBER,Operand1[2] * Operand2[2],0,0]
+  If (Operand1[2] > 0 && (Operand1[2] & (Operand1[2] - 1)) = 0) ;value of the first operand is a number that is greater than than 0 and is a power of two
+   Return, [CodeTreeTypes.OPERATION
+           ,[CodeTreeTypes.IDENTIFIER
+            ,"BITWISE_SHIFT_LEFT",0,0]
+           ,Operand2
+           ,[CodeTreeTypes.NUMBER
+            ,Floor(Log(Operand1[2]) / Log(2)),0,0]]
+ }
+ If (Operand2[1] = CodeTreeTypes.NUMBER) ;second operand is a number
+ {
+  If (Operand2[2] = 1) ;value of the second operand is the number 1
+   Return, Operand1
+  If (Operand2[2] > 0 && (Operand2[2] & (Operand2[2] - 1)) = 0) ;value of the second operand is a number that is greater than 0 and is a power of two
+   Return, [CodeTreeTypes.OPERATION
+           ,[CodeTreeTypes.IDENTIFIER
+            ,"BITWISE_SHIFT_LEFT",0,0]
+           ,Operand1
+           ,[CodeTreeTypes.NUMBER
+            ,Floor(Log(Operand2[2]) / Log(2)),0,0]]
+ }
+ Return, Node
 }
 
 CodeSimplifyDivide(This,Node)
 {
  global CodeTreeTypes
- Return, [CodeTreeTypes.NUMBER,Node[3][2] / Node[4][2],0,0] ;create an number tree node
+ Operand1 := Node[3], Operand2 := Node[4]
+ If (Operand2[1] = CodeTreeTypes.NUMBER) ;second operand is a number
+ {
+  If (Operand2[2] = 1) ;value of the second operand is the number 1
+   Return, Operand1
+  If (Operand1[1] = CodeTreeTypes.NUMBER) ;both operands are numbers
+   Return, [CodeTreeTypes.NUMBER,Operand1[2] / Operand2[2],0,0]
+ }
+ Return, Node
+}
+
+CodeSimplifyDivideFloor(This,Node)
+{
+ global CodeTreeTypes
+ Operand1 := Node[3], Operand2 := Node[4]
+ If (Operand2[1] = CodeTreeTypes.NUMBER) ;second operand is a number
+ {
+  If (Operand2[2] = 1) ;value of the second operand is the number 1
+   Return, Operand1
+  If (Operand1[1] = CodeTreeTypes.NUMBER) ;both operands are numbers
+   Return, [CodeTreeTypes.NUMBER,Operand1[2] // Operand2[2],0,0]
+  If (Operand2[2] > 0 && (Operand2[2] & (Operand2[2] - 1)) = 0) ;value of the second operand is a number that is greater than than 0 and is a power of two
+   Return, [CodeTreeTypes.OPERATION
+           ,[CodeTreeTypes.IDENTIFIER
+            ,"BITWISE_SHIFT_RIGHT",0,0]
+           ,Operand1
+           ,[CodeTreeTypes.NUMBER
+            ,Floor(Log(Operand2[2]) / Log(2)),0,0]]
+ }
+ Return, Node
+}
+
+CodeSimplifyLogicalNot(This,Node)
+{
+ global CodeTreeTypes
+ Operand := Node[3]
+ If (Operand[1] = CodeTreeTypes.NUMBER) ;first operand is a number
+  Return, [CodeTreeTypes.NUMBER,!Operand[2],0,0]
+ If (Operand[1] = CodeTreeTypes.STRING) ;first operand is a string
+  Return, [CodeTreeTypes.NUMBER,!Operand[2],0,0]
+ Return, Node
 }
 
 CodeSimplifyInvert(This,Node)
 {
  global CodeTreeTypes
- Return, [CodeTreeTypes.NUMBER,-Node[3][2],0,0] ;create an number tree node
+ Operand := Node[3]
+ If (Operand[1] = CodeTreeTypes.NUMBER) ;first operand is a number
+  Return, [CodeTreeTypes.NUMBER,-Operand[2],0,0]
+ Return, Node
+}
+
+CodeSimplifyBitwiseNot(This,Node)
+{
+ global CodeTreeTypes
+ Operand := Node[3]
+ If (Operand[1] = CodeTreeTypes.NUMBER) ;first operand is a number
+  Return, [CodeTreeTypes.NUMBER,~Operand[2],0,0]
+ Return, Node
+}
+
+CodeSimplifyExponentiate(This,Node)
+{
+ global CodeTreeTypes
+ Operand1 := Node[3], Operand2 := Node[4]
+ If (Operand2[1] = CodeTreeTypes.NUMBER) ;second operand is a number
+ {
+  If (Operand2[2] = 1) ;value of the second operand is the number 1
+   Return, Operand1
+  If (Operand1[1] = CodeTreeTypes.NUMBER) ;both operands are numbers
+   Return, [CodeTreeTypes.NUMBER,Operand1[2] ** Operand2[2],0,0]
+ }
+ Return, Node
 }
