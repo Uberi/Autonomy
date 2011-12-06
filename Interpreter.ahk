@@ -19,40 +19,54 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-;wip: see if dynamic labels can be faster
-
 ;initializes resources that the interpreter requires
 CodeInterpretInit()
 {
- global CodeInterpreterJumpTable
- Index := 0, CodeInterpreterJumpTable := Array()
+ global CodeInterpreterJumpTable, CodeInterpreterStack
+ Index := 0, CodeInterpreterJumpTable := []
  Loop, 255
   ObjInsert(CodeInterpreterJumpTable,Index,Func("CodeInterpretInstruction" . Index)), Index ++ ;store a function reference for each instruction
 
- CodeInterpreterNamespace := Object() ;namespace to store variables in
+ CodeInterpreterStack := []
 }
 
 ;interprets bytecode given as input
 CodeInterpret(ByRef Bytecode,Length)
 {
  global CodeInterpreterJumpTable
- Index := 0
+ pBytecode := &Bytecode
  While, (Index < Length)
  {
-  ;Instruction := NumGet(Bytecode,Index,"UChar"), Index ++ ;retrieve and move past the bytecode instruction
-  Instruction := *(&Bytecode + Index), Index ++ ;retrieve and move past the bytecode instruction
+  Instruction := NumGet(pBytecode + 0,0,"UChar"), pBytecode ++ ;retrieve and move past the bytecode instruction
   CodeInterpreterJumpTable[Instruction]() ;call the function reference stored for the current instruction
  }
 }
 
+CodeInterpretStackPush(Value)
+{
+ global CodeInterpreterStack
+ ObjInsert(CodeInterpreterStack,Value)
+}
+
+CodeInterpretStackPop()
+{
+ global CodeInterpreterStack
+ ObjRemove(CodeInterpreterStack)
+}
+
+;assign
 CodeInterpretInstruction0()
 {
  MsgBox 0
 }
 
+;add
 CodeInterpretInstruction1()
 {
- MsgBox 1
+ Operand1 := CodeInterpretStackPop()
+ Operand2 := CodeInterpretStackPop()
+ CodeInterpretStackPush(Operand1 + Operand2)
+ Return
 }
 
 CodeInterpretInstruction2()

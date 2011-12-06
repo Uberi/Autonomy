@@ -66,8 +66,8 @@ ExitApp
 CodeBytecodeInit()
 {
  global FreeRegisters, UsedRegisters
- ;FreeRegisters := ["%edi","%esi","%edx","%ecx","%ebx"] ;wip: debug
- FreeRegisters := []
+ FreeRegisters := ["edi","esi","edx","ecx","ebx"] ;wip: debug
+ ;FreeRegisters := []
  UsedRegisters := []
 }
 
@@ -82,7 +82,7 @@ CodeBytecode(SyntaxTree)
  Else If (NodeType = CodeTreeTypes.STRING)
   Return, CodeBytecodeStackPush("'" . SyntaxTree[2] . "'")
  Else If (NodeType = CodeTreeTypes.IDENTIFIER)
-  Return, CodeBytecodeStackPush("IDENTIFIER:" . SyntaxTree[2])
+  Return, CodeBytecodeStackPush("$" . SyntaxTree[2])
  Else If (NodeType = CodeTreeTypes.BLOCK)
  {
   Index := ObjMaxIndex(SyntaxTree)
@@ -94,7 +94,7 @@ CodeBytecode(SyntaxTree)
   }
   Result .= CodeBytecodeStackPop()
   Result .= CodeBytecode(SyntaxTree[2])
-  Return, Result . CodeBytecodeStackCall("%eax")
+  Return, Result . CodeBytecodeStackCall()
  }
 }
 
@@ -103,19 +103,11 @@ CodeBytecodeOperation(SyntaxTree)
  Index := ObjMaxIndex(SyntaxTree)
  Result := ""
  While, Index > 1
- {
-  Result .= CodeBytecode(SyntaxTree[Index])
-  Index --
- }
- Result .= CodeBytecodeStackCall("%eax")
- Index := ObjMaxIndex(SyntaxTree)
- Result .= "add %esp " . ((Index - 1) * 4) . "`n" ;size of all parameters ;wip: does not work with register allocator
- While, Index > 1
- {
+  Result .= CodeBytecode(SyntaxTree[Index]), Index --
+ Result .= CodeBytecodeStackCall()
+ Loop, % ObjMaxIndex(SyntaxTree) - 1
   CodeBytecodeStackPop()
-  Index --
- }
- Return, Result . CodeBytecodeStackPush("%eax")
+ Return, Result
 }
 
 CodeBytecodeStackPush(Value)
@@ -142,7 +134,7 @@ CodeBytecodeStackPop(Register = "")
  Return, "mov " . Register . "," . SourceRegister . "`n"
 }
 
-CodeBytecodeStackCall(Register)
+CodeBytecodeStackCall()
 {
  global FreeRegisters, UsedRegisters
  Index := ObjMaxIndex(UsedRegisters)
