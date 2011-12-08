@@ -93,14 +93,6 @@ CodeInit(ResourcesPath = "Resources")
 
  CodeCreateOperatorTable() ;create the table of operators
 
- If FileRead(Temp1,PathJoin(ResourcesPath,"Errors.txt")) ;error reading file
-  Return, 1
-
- ;parse error message file into object, and enumerate error identifiers
- CodeErrorMessages := Object()
- Loop, Parse, Temp1, `n, `r
-  Line := StringSplit(A_LoopField,"`t"), ObjInsert(CodeErrorMessages,Line[1],Line[2])
-
  ;set up token stream type enumeration
  CodeTokenTypes := Object("OPERATOR",0
   ,"NUMBER",1

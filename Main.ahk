@@ -24,13 +24,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 SetBatchLines, -1
 
-#Include Resources\Get Error.ahk
+#Include Resources\Error Format.ahk
 #Include Resources\Reconstruct.ahk
 
 #Include Code.ahk
 #Include Lexer.ahk
 #Include Preprocessor.ahk
 #Include Parser.ahk
+#Include Simplifier.ahk
+#Include Bytecode.ahk
 
 /*
 TODO
@@ -39,6 +41,7 @@ TODO
 Short term tasks:
 
 * Allow backticks inline in code
+* Support a command syntax, that is translated to a function call on load (dotted notation only - no square brackets support). Detect this form in the parser by making sure the token is immediately after an opening parenthesis, opening square bracket, block brace, or line end, and the token after the function is either a literal, an identifier, a separator, an operator that doesn't take a parameter on its left, a block brace, or a line end: Math.Mod, 100, 5. Also allow this for function definitions and anywhere parens can be used
 * Operations in syntax tree do not have position or length or file info
 * Duplicate LINE_END tokens can be present if there was an error that spanned an entire line. see Strings.txt unit test for example. see if this can be avoided
 * Escaping the end of a line with a backtick may result in an incorrect length for the token. need to add a length field for each token
@@ -49,7 +52,8 @@ Short term tasks:
 
 Long term tasks:
 
-* Support a command syntax, that is translated to a function call on load (dotted notation only - no square brackets support). Detect this form in the parser by making sure the token is immediately after an opening parenthesis, opening square bracket, block brace, or line end, and the token after the function is either a literal, an identifier, a separator, an operator that doesn't take a parameter on its left, a block brace, or a line end: Math.Mod, 100, 5. Also allow this for function definitions and anywhere parens can be used
+* gensym() compile-time function - generates a unique identifier
+* "ensure" blocks allow code to be statically verified
 * Exceptions with try/catch/throw and "continue" in catch blocks
 * Dynamic default values for optional function parameters: SomeFunction(Param := 2 * 8 + GlobalVar) { Function body here }
 * macro { some compile-time related code } syntax and compile time defined type system
@@ -95,7 +99,7 @@ CodeLex(Code,Tokens,Errors)
 CodePreprocessInit(Files)
 CodePreprocess(Tokens,ProcessedTokens,Errors,Files)
 CodeReconstructShowTokens(ProcessedTokens)
-;MsgBox % Clipboard := CodeGetError(Code,Errors,Files)
+;MsgBox % Clipboard := CodeErrorFormat(Code,Errors,Files)
 ShowObject(Errors)
 
 CodeParseInit()
@@ -109,7 +113,7 @@ Bytecode := CodeBytecode(SimplifiedSyntaxTree)
 MsgBox % Clipboard := Bytecode
 
 If (ObjMaxIndex(Errors) != "")
- Display(CodeGetError(Code,Errors,Files)) ;display error at standard output
+ Display(CodeErrorFormat(Code,Errors,Files)) ;display error at standard output
 
 ;DisplayObject(SyntaxTree)
 ;MsgBox % CodeRecontructSyntaxTree(SyntaxTree)

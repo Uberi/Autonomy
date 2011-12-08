@@ -46,12 +46,6 @@ FileRead(ByRef OutputVar,Filename)
  Return, ErrorLevel
 }
 
-Display(DisplayText)
-{
- FileAppend, %DisplayText%, *
- Return, ErrorLevel
-}
-
 StringSplit(InputVar,Delimiters = "",OmitChars = "")
 {
  StringSplit, Array, InputVar, %Delimiters%, %OmitChars%
