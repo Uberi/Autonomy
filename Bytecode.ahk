@@ -25,7 +25,30 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Bytecode format
 ---------------
 
-;wip: when processing different types, preconvert the smaller type to the common-denominator type at compile time. for example, if a variable was originally detected to be in a Short range, but was then added to a Long, declare the variable as a long instead of a short to avoid conversion
+Stack based virtual machine implementing a few simple instructions
+
+push value                     pushes a value onto the stack.
+
+pop                            pops a value off of the stack.
+
+call                           pops and stores the jump target.
+                               pushes the current stack base onto the stack.
+                               pushes the current instruction pointer onto the stack.
+                               jumps to the stored jump target.
+
+return                         pops and stores the return value.
+                               pops the parameter count off of the stack.
+                               pops the correct number of parameters off of the stack.
+                               pushes the return value back onto the stack.
+                               pops and jumps to the instruction pointer.
+                               pops and restores the stack base.
+
+jump                           pops and jumps to the jump target.
+
+conditional                    pops a value off of the stack.
+                               pops and stores the potential jump target.
+                               jumps to the provided identifier if the value is truthy.
+
 ;wip: static tail call detection
 ;wip: distinct Array type using contiguous memory, faster than Object hash table implementation
 ;wip: dead/unreachable code elimination
@@ -65,10 +88,7 @@ ExitApp
 
 CodeBytecodeInit()
 {
- global FreeRegisters, UsedRegisters
- FreeRegisters := ["edi","esi","edx","ecx","ebx"] ;wip: debug
- ;FreeRegisters := []
- UsedRegisters := []
+ 
 }
 
 CodeBytecode(SyntaxTree)
@@ -78,23 +98,22 @@ CodeBytecode(SyntaxTree)
  If (NodeType = CodeTreeTypes.OPERATION)
   Return, CodeBytecodeOperation(SyntaxTree)
  Else If (NodeType = CodeTreeTypes.NUMBER)
-  Return, CodeBytecodeStackPush(SyntaxTree[2])
+  Return, "push #" . SyntaxTree[2] . "`n"
  Else If (NodeType = CodeTreeTypes.STRING)
-  Return, CodeBytecodeStackPush("'" . SyntaxTree[2] . "'")
+  Return, "push '" . SyntaxTree[2] . "'`n"
  Else If (NodeType = CodeTreeTypes.IDENTIFIER)
-  Return, CodeBytecodeStackPush("$" . SyntaxTree[2])
+  Return, "push :" . SyntaxTree[2] . "`n"
  Else If (NodeType = CodeTreeTypes.BLOCK)
  {
   Index := ObjMaxIndex(SyntaxTree)
-  Result := CodeBytecodeStackPush("BLOCK()")
+  Result := "push BLOCK()`n"
   While, Index > 1
   {
    Result .= CodeBytecode(SyntaxTree[Index])
    Index --
   }
-  Result .= CodeBytecodeStackPop()
   Result .= CodeBytecode(SyntaxTree[2])
-  Return, Result . CodeBytecodeStackCall()
+  Return, Result . "call`n"
  }
 }
 
@@ -104,50 +123,6 @@ CodeBytecodeOperation(SyntaxTree)
  Result := ""
  While, Index > 1
   Result .= CodeBytecode(SyntaxTree[Index]), Index --
- Result .= CodeBytecodeStackCall()
- Loop, % ObjMaxIndex(SyntaxTree) - 1
-  CodeBytecodeStackPop()
+ Result .= "call`n"
  Return, Result
-}
-
-CodeBytecodeStackPush(Value)
-{
- global FreeRegisters, UsedRegisters
- Index := ObjMaxIndex(FreeRegisters)
- If (Index = "")
-  Return, "push " . Value . "`n"
- Register := ObjRemove(FreeRegisters,Index)
- ObjInsert(UsedRegisters,Register) ;move the register into the used register list
- Return, "mov " . Register . "," . Value . "`n"
-}
-
-CodeBytecodeStackPop(Register = "")
-{
- global FreeRegisters, UsedRegisters
- Index := ObjMaxIndex(UsedRegisters)
- If (Index = "")
-  Return, "pop " . Register . "`n"
- SourceRegister := ObjRemove(UsedRegisters,Index)
- ObjInsert(FreeRegisters,SourceRegister) ;move the register into the free register list
- If (Register = "")
-  Return, "xor " . SourceRegister . "," . SourceRegister . "`n"
- Return, "mov " . Register . "," . SourceRegister . "`n"
-}
-
-CodeBytecodeStackCall()
-{
- global FreeRegisters, UsedRegisters
- Index := ObjMaxIndex(UsedRegisters)
- If (Index = "")
-  Return, "call [%esp]`n"
- Return, "call [" . UsedRegisters[Index] . "]`n"
-}
-
-CodeBytecodeSymbol(Prefix)
-{
- static UsedSymbols := Object()
- If !ObjHasKey(UsedSymbols,Prefix)
-  UsedSymbols[Prefix] := 0
- UsedSymbols[Prefix] ++
- Return, Prefix . UsedSymbols[Prefix]
 }
