@@ -119,9 +119,3 @@ If (ObjMaxIndex(Errors) != "")
 ;MsgBox % CodeRecontructSyntaxTree(SyntaxTree)
 
 ExitApp
-
-Display(DisplayText)
-{
- FileAppend, %DisplayText%, *
- Return, ErrorLevel
-}
