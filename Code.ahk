@@ -89,7 +89,7 @@ Example
 ;initializes resources that will be required by other modules
 CodeInit(ResourcesPath = "Resources")
 { ;returns 1 on failure, 0 otherwise
- global CodeOperatorTable, CodeErrorMessages, CodeTokenTypes, CodeTreeTypes
+ global CodeOperatorTable, CodeTokenTypes, CodeTreeTypes
 
  CodeCreateOperatorTable() ;create the table of operators
 

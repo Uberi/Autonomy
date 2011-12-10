@@ -24,8 +24,12 @@ CodeInterpretInit()
 {
  global CodeInterpreterJumpTable, CodeInterpreterStack
  Index := 0, CodeInterpreterJumpTable := []
- Loop, 255
-  ObjInsert(CodeInterpreterJumpTable,Index,Func("CodeInterpretInstruction" . Index)), Index ++ ;store a function reference for each instruction
+ CodeInterpreterJumpTable := [Func("CodeInterpretPush")
+                             ,Func("CodeInterpretPop")
+                             ,Func("CodeInterpretCall")
+                             ,Func("CodeInterpretStackReturn")
+                             ,Func("CodeInterpretJump")
+                             ,Func("CodeInterpretConditional")]
 
  CodeInterpreterStack := []
 }
@@ -42,44 +46,30 @@ CodeInterpret(ByRef Bytecode,Length)
  }
 }
 
-CodeInterpretStackPush(Value)
+;stack push
+CodeInterpretPush(Value)
 {
  global CodeInterpreterStack
  ObjInsert(CodeInterpreterStack,Value)
 }
 
-CodeInterpretStackPop()
+;stack pop
+CodeInterpretPop()
 {
  global CodeInterpreterStack
  ObjRemove(CodeInterpreterStack)
 }
 
-;assign
-CodeInterpretInstruction0()
+;subroutine call
+CodeInterpretCall()
 {
- MsgBox 0
+ MsgBox Call
 }
 
-;add
-CodeInterpretInstruction1()
+;subroutine return
+CodeInterpretReturn()
 {
- Operand1 := CodeInterpretStackPop()
- Operand2 := CodeInterpretStackPop()
- CodeInterpretStackPush(Operand1 + Operand2)
- Return
+ 
 }
 
-CodeInterpretInstruction2()
-{
- MsgBox 2
-}
-
-CodeInterpretInstruction3()
-{
- MsgBox 3
-}
-
-CodeInterpretInstruction4()
-{
- MsgBox 4
-}
+;unconditional jump
