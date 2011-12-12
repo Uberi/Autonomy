@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;initializes resources that the interpreter requires
 CodeInterpretInit()
 {
- global CodeInterpreterJumpTable, CodeInterpreterStack
+ global CodeInterpreterJumpTable
  Index := 0, CodeInterpreterJumpTable := []
  CodeInterpreterJumpTable := [Func("CodeInterpretPush")
                              ,Func("CodeInterpretPop")
@@ -30,46 +30,63 @@ CodeInterpretInit()
                              ,Func("CodeInterpretStackReturn")
                              ,Func("CodeInterpretJump")
                              ,Func("CodeInterpretConditional")]
-
- CodeInterpreterStack := []
 }
 
 ;interprets bytecode given as input
 CodeInterpret(ByRef Bytecode,Length)
 {
  global CodeInterpreterJumpTable
- pBytecode := &Bytecode
+ Stack := [] ;initialize the stack
+ Index := 0
  While, (Index < Length)
  {
-  Instruction := NumGet(pBytecode + 0,0,"UChar"), pBytecode ++ ;retrieve and move past the bytecode instruction
-  CodeInterpreterJumpTable[Instruction]() ;call the function reference stored for the current instruction
+  Instruction := NumGet(Bytecode,Index,"UChar"), Index ++ ;retrieve and move past the bytecode instruction
+  CodeInterpreterJumpTable[Instruction](Stack,Index) ;call the function reference stored for the current instruction
  }
 }
 
 ;stack push
-CodeInterpretPush(Value)
+CodeInterpretPush(This,Stack,ByRef Index,Value)
 {
- global CodeInterpreterStack
- ObjInsert(CodeInterpreterStack,Value)
+ ObjInsert(Stack,Value)
 }
 
 ;stack pop
-CodeInterpretPop()
+CodeInterpretPop(This,Stack,ByRef Index)
 {
- global CodeInterpreterStack
- ObjRemove(CodeInterpreterStack)
+ ObjRemove(Stack)
 }
 
 ;subroutine call
-CodeInterpretCall()
+CodeInterpretCall(This,Stack,ByRef Index)
 {
- MsgBox Call
+ Index := ObjRemove(Stack) ;pop the jump target off of the stack and jump to it
+ ObjInsert(Stack,StackBase) ;push the stack base onto the stack ;wip: stack base variable
+ ObjInsert(Stack,Index) ;push the instruction index onto the stack
 }
 
 ;subroutine return
-CodeInterpretReturn()
+CodeInterpretReturn(This,Stack,ByRef Index)
 {
- 
+ ReturnValue := ObjRemove(Stack) ;pop the return value off of the stack and store it
+ Loop, % ObjRemove(Stack) ;pop the parameter count off of the stack and iterate the correct number of times
+  ObjRemove(Stack) ;remove a parameter from the stack
+ Index := ObjRemove(Stack) ;pop the jump target off of the stack and jump to it
+ StackBase := ObjRemove(Stack) ;pop the stack base off of the stack and restore it ;wip: stack base variable
+ ObjInsert(Stack,ReturnValue) ;push the return value back onto the stack
 }
 
 ;unconditional jump
+CodeInterpretJump(This,Stack,ByRef Index)
+{
+ Index := ObjRemove(Stack) ;pop the jump target off of the stack and jump to it
+}
+
+;conditional jump
+CodeInterpretConditional(This,Stack,ByRef Index)
+{
+ If ObjRemove(Stack) ;pop the test condition off of the stack and test it
+  Index := ObjRemove(Stack) ;pop the jump target off of the stack and store it
+ Else
+  ObjRemove(Stack) ;pop the jump target off of the stack
+}

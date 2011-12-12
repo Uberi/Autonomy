@@ -31,17 +31,16 @@ push value                     pushes a value onto the stack.
 
 pop                            pops a value off of the stack.
 
-call                           pops and stores the jump target.
+call                           pops and jumps to the jump target.
                                pushes the current stack base onto the stack.
                                pushes the current instruction pointer onto the stack.
-                               jumps to the stored jump target.
 
 return                         pops and stores the return value.
                                pops the parameter count off of the stack.
                                pops the correct number of parameters off of the stack.
-                               pushes the return value back onto the stack.
                                pops and jumps to the instruction pointer.
                                pops and restores the stack base.
+                               pushes the return value back onto the stack.
 
 jump                           pops and jumps to the jump target.
 
