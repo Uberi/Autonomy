@@ -86,8 +86,8 @@ Return,, 1 + 1
 
 If CodeInit()
 {
- Display("Error initializing code tools.`n") ;display error at standard output
- ExitApp ;fatal error
+    Display("Error initializing code tools.`n") ;display error at standard output
+    ExitApp ;fatal error
 }
 
 CodeSetScript(FileName,Errors,Files) ;set the current script file
@@ -102,7 +102,6 @@ CodeReconstructShowTokens(ProcessedTokens)
 ;MsgBox % Clipboard := CodeErrorFormat(Code,Errors,Files)
 ShowObject(Errors)
 
-CodeParseInit()
 CodeParse(ProcessedTokens,SyntaxTree,Errors)
 ;MsgBox % Clipboard := CodeReconstructShowSyntaxTree(SyntaxTree)
 
@@ -113,7 +112,7 @@ Bytecode := CodeBytecode(SimplifiedSyntaxTree)
 MsgBox % Clipboard := Bytecode
 
 If (ObjMaxIndex(Errors) != "")
- Display(CodeErrorFormat(Code,Errors,Files)) ;display error at standard output
+    Display(CodeErrorFormat(Code,Errors,Files)) ;display error at standard output
 
 ;DisplayObject(SyntaxTree)
 ;MsgBox % CodeRecontructSyntaxTree(SyntaxTree)

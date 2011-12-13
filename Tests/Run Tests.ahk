@@ -84,8 +84,8 @@ Gosub, GuiSize
 
 If CodeInit("..\Resources")
 {
- MsgBox, Error: Could not initialize code tools.
- ExitApp
+    MsgBox, Error: Could not initialize code tools.
+    ExitApp
 }
 
 FileName := PathJoin(A_ScriptDir,"Run Tests.ahk") ;set the file name of the current file
@@ -103,7 +103,7 @@ Gosub, TestInterpreter
 
 Index := LV_GetCount(), PassAmount := 0
 Loop, %Index%
- LV_GetText(Temp1,A_Index,3), (Temp1 = "Pass") ? (PassAmount ++)
+    LV_GetText(Temp1,A_Index,3), (Temp1 = "Pass") ? (PassAmount ++)
 SB_SetText("`t`t" . PassAmount . " of " . Index . " tests passed.",1)
 
 Gosub, GuiSize
@@ -113,10 +113,10 @@ Return
 
 ShowOutput(TestName,OutputType,ByRef OutputText)
 {
- Clipboard := OutputText
- OutputType := (OutputType = 0) ? "errors" : "output"
- MsgBox, Unexpected %OutputType% in %TestName%:`n`n%OutputText%
- ExitApp
+    Clipboard := OutputText
+    OutputType := (OutputType = 0) ? "errors" : "output"
+    MsgBox, Unexpected %OutputType% in %TestName%:`n`n%OutputText%
+    ExitApp
 }
 
 TestLexer:
@@ -124,34 +124,34 @@ CodeSetScript(FileName,Errors,Files)
 CodeLexInit()
 Loop, %A_ScriptDir%\Lexer\*.txt
 {
- TestName := "Lexer - " . A_LoopFileName
- FileRead(FileContents,A_LoopFileLongPath)
- If RegExMatch(FileContents,"sS)^(?P<Code>.*?)\r?\n---\r?\n(?P<ErrorOutput>.*?)\r?\n---\r?\n(?P<TokenOutput>.*)$",Test)
- {
-  StringReplace, TestErrorOutput, TestErrorOutput, `r,, All
-  StringReplace, TestTokenOutput, TestTokenOutput, `r,, All
-  Errors := Array()
-  Temp1 := StartTimer()
-  CodeLex(TestCode,Tokens,Errors)
-  Temp1 := StopTimer(Temp1) - ControlTimer
-  If ((Output := ShowObject(Errors)) != TestErrorOutput)
-  {
-   ExtraInfo := "Generated errors do not match expected errors.", TestStatus := "Fail"
-   If Debug
-    ShowOutput(TestName,0,Output)
-  }
-  Else If ((Output := CodeReconstructShowTokens(Tokens)) != TestTokenOutput)
-  {
-   ExtraInfo := "Output does not match expected output.", TestStatus := "Fail"
-   If Debug
-    ShowOutput(TestName,1,Output)
-  }
-  Else
-   ExtraInfo := "Executed in " . Temp1 . " milliseconds.", TestStatus := "Pass"
- }
- Else
-  ExtraInfo := "Invalid test.", TestStatus := "Fail"
- LV_Add("",TestIndex,TestName,TestStatus,ExtraInfo), TestIndex ++
+    TestName := "Lexer - " . A_LoopFileName
+    FileRead(FileContents,A_LoopFileLongPath)
+    If RegExMatch(FileContents,"sS)^(?P<Code>.*?)\r?\n---\r?\n(?P<ErrorOutput>.*?)\r?\n---\r?\n(?P<TokenOutput>.*)$",Test)
+    {
+        StringReplace, TestErrorOutput, TestErrorOutput, `r,, All
+        StringReplace, TestTokenOutput, TestTokenOutput, `r,, All
+        Errors := Array()
+        Temp1 := StartTimer()
+        CodeLex(TestCode,Tokens,Errors)
+        Temp1 := StopTimer(Temp1) - ControlTimer
+        If ((Output := ShowObject(Errors)) != TestErrorOutput)
+        {
+            ExtraInfo := "Generated errors do not match expected errors.", TestStatus := "Fail"
+            If Debug
+                ShowOutput(TestName,0,Output)
+        }
+        Else If ((Output := CodeReconstructShowTokens(Tokens)) != TestTokenOutput)
+        {
+            ExtraInfo := "Output does not match expected output.", TestStatus := "Fail"
+            If Debug
+                ShowOutput(TestName,1,Output)
+        }
+        Else
+            ExtraInfo := "Executed in " . Temp1 . " milliseconds.", TestStatus := "Pass"
+    }
+    Else
+        ExtraInfo := "Invalid test.", TestStatus := "Fail"
+    LV_Add("",TestIndex,TestName,TestStatus,ExtraInfo), TestIndex ++
 }
 Return
 
@@ -161,35 +161,35 @@ CodeSetScript(TestPath,Errors,Files) ;set the current script file
 CodePreprocessInit(Files)
 Loop, %A_ScriptDir%\Preprocessor\*.txt
 {
- TestName := "Preprocessor - " . A_LoopFileName
- FileRead(FileContents,A_LoopFileLongPath)
- If RegExMatch(FileContents,"sS)^(?P<Tokens>.*?)\r?\n---\r?\n(?P<ErrorOutput>.*?)\r?\n---\r?\n(?P<TokenOutput>.*)$",Test)
- {
-  TestTokens := ParseTokenDescription(TestTokens)
-  StringReplace, TestErrorOutput, TestErrorOutput, `r,, All
-  StringReplace, TestTokenOutput, TestTokenOutput, `r,, All
-  CodeSetScript(TestPath,Errors,Files) ;reset variables
-  Temp1 := StartTimer()
-  CodePreprocess(TestTokens,ProcessedTokens,Errors,Files)
-  Temp1 := StopTimer(Temp1) - ControlTimer
-  If ((Output := ShowObject(Errors)) != TestErrorOutput)
-  {
-   ExtraInfo := "Generated errors do not match expected errors.", TestStatus := "Fail"
-   If Debug
-    ShowOutput(TestName,0,Output)
-  }
-  Else If ((Output := CodeReconstructShowTokens(ProcessedTokens)) != TestTokenOutput)
-  {
-   ExtraInfo := "Output does not match expected output.", TestStatus := "Fail"
-   If Debug
-    ShowOutput(TestName,1,Output)
-  }
-  Else
-   ExtraInfo := "Executed in " . Temp1 . " milliseconds.", TestStatus := "Pass"
- }
- Else
-  ExtraInfo := "Invalid test.", TestStatus := "Fail"
- LV_Add("",TestIndex,TestName,TestStatus,ExtraInfo), TestIndex ++
+    TestName := "Preprocessor - " . A_LoopFileName
+    FileRead(FileContents,A_LoopFileLongPath)
+    If RegExMatch(FileContents,"sS)^(?P<Tokens>.*?)\r?\n---\r?\n(?P<ErrorOutput>.*?)\r?\n---\r?\n(?P<TokenOutput>.*)$",Test)
+    {
+        TestTokens := ParseTokenDescription(TestTokens)
+        StringReplace, TestErrorOutput, TestErrorOutput, `r,, All
+        StringReplace, TestTokenOutput, TestTokenOutput, `r,, All
+        CodeSetScript(TestPath,Errors,Files) ;reset variables
+        Temp1 := StartTimer()
+        CodePreprocess(TestTokens,ProcessedTokens,Errors,Files)
+        Temp1 := StopTimer(Temp1) - ControlTimer
+        If ((Output := ShowObject(Errors)) != TestErrorOutput)
+        {
+            ExtraInfo := "Generated errors do not match expected errors.", TestStatus := "Fail"
+            If Debug
+                ShowOutput(TestName,0,Output)
+        }
+        Else If ((Output := CodeReconstructShowTokens(ProcessedTokens)) != TestTokenOutput)
+        {
+            ExtraInfo := "Output does not match expected output.", TestStatus := "Fail"
+            If Debug
+                ShowOutput(TestName,1,Output)
+        }
+        Else
+            ExtraInfo := "Executed in " . Temp1 . " milliseconds.", TestStatus := "Pass"
+    }
+    Else
+        ExtraInfo := "Invalid test.", TestStatus := "Fail"
+    LV_Add("",TestIndex,TestName,TestStatus,ExtraInfo), TestIndex ++
 }
 Return
 
@@ -197,36 +197,36 @@ TestParser:
 CodeSetScript(FileName)
 Loop, %A_ScriptDir%\Parser\*.txt
 {
- TestName := "Parser - " . A_LoopFileName
- FileRead(FileContents,A_LoopFileLongPath)
- If RegExMatch(FileContents,"sS)^(?P<Tokens>.*?)\r?\n---\r?\n(?P<ErrorOutput>.*?)\r?\n---\r?\n(?P<TreeOutput>.*)$",Test)
- {
-  TestTokens := ParseTokenDescription(TestTokens)
-  StringReplace, TestErrorOutput, TestErrorOutput, `r,, All
-  StringReplace, TestTreeOutput, TestTreeOutput, `r,, All
-  Errors := Array(), SyntaxTree := ""
-  Temp1 := StartTimer()
-  CodeParseToken(TestTokens,"Reset")
-  CodeParse(TestTokens,SyntaxTree,Errors)
-  Temp1 := StopTimer(Temp1) - ControlTimer
-  If ((Output := ShowObject(Errors)) != TestErrorOutput)
-  {
-   ExtraInfo := "Generated errors do not match expected errors.", TestStatus := "Fail"
-   If Debug
-    ShowOutput(TestName,0,Output)
-  }
-  Else If ((Output := CodeReconstructShowSyntaxTree(SyntaxTree)) != TestTreeOutput)
-  {
-   ExtraInfo := "Output does not match expected output.", TestStatus := "Fail"
-   If Debug
-    ShowOutput(TestName,1,Output)
-  }
-  Else
-   ExtraInfo := "Executed in " . Temp1 . " milliseconds.", TestStatus := "Pass"
- }
- Else
-  ExtraInfo := "Invalid test.", TestStatus := "Fail"
- LV_Add("",TestIndex,TestName,TestStatus,ExtraInfo), TestIndex ++
+    TestName := "Parser - " . A_LoopFileName
+    FileRead(FileContents,A_LoopFileLongPath)
+    If RegExMatch(FileContents,"sS)^(?P<Tokens>.*?)\r?\n---\r?\n(?P<ErrorOutput>.*?)\r?\n---\r?\n(?P<TreeOutput>.*)$",Test)
+    {
+        TestTokens := ParseTokenDescription(TestTokens)
+        StringReplace, TestErrorOutput, TestErrorOutput, `r,, All
+        StringReplace, TestTreeOutput, TestTreeOutput, `r,, All
+        Errors := Array(), SyntaxTree := ""
+        Temp1 := StartTimer()
+        CodeParseToken(TestTokens,"Reset")
+        CodeParse(TestTokens,SyntaxTree,Errors)
+        Temp1 := StopTimer(Temp1) - ControlTimer
+        If ((Output := ShowObject(Errors)) != TestErrorOutput)
+        {
+            ExtraInfo := "Generated errors do not match expected errors.", TestStatus := "Fail"
+            If Debug
+                ShowOutput(TestName,0,Output)
+        }
+        Else If ((Output := CodeReconstructShowSyntaxTree(SyntaxTree)) != TestTreeOutput)
+        {
+            ExtraInfo := "Output does not match expected output.", TestStatus := "Fail"
+            If Debug
+                ShowOutput(TestName,1,Output)
+        }
+        Else
+            ExtraInfo := "Executed in " . Temp1 . " milliseconds.", TestStatus := "Pass"
+    }
+    Else
+        ExtraInfo := "Invalid test.", TestStatus := "Fail"
+    LV_Add("",TestIndex,TestName,TestStatus,ExtraInfo), TestIndex ++
 }
 Return
 
@@ -246,7 +246,7 @@ GuiControl, Move, Results, % "w" . (A_GuiWidth - 4) . " h" . (A_GuiHeight - 105)
 GuiControl, Move, CopyReport, % "y" . (A_GuiHeight - 65)
 GuiControl, MoveDraw, SaveReport, % "x" . (A_GuiWidth - 152) . " y" . (A_GuiHeight - 65)
 Loop, 4
- LV_ModifyCol(A_Index,"AutoHdr")
+    LV_ModifyCol(A_Index,"AutoHdr")
 Return
 
 GuiEscape:
@@ -265,51 +265,51 @@ Gui, Hide
 GenerateReport(TestReport)
 FileSelectFile, FileName, S18, Report.txt, Please Select A Path To Save The Report To:, *.txt
 If FileExist(FileName)
- FileDelete, %FileName%
+    FileDelete, %FileName%
 FileAppend, %TestReport%, %FileName%
 MsgBox, 64, Saved, Report has been saved to the following file:`n`n"%FileName%"
 Return
 
 GenerateReport(ByRef TestReport)
 {
- TestReport := "", PassAmount := 0, FailAmount := 0
- Index := LV_GetCount(), PassList := "", FailList := ""
- Loop, %Index%
- {
-  LV_GetText(Temp1,A_Index,2)
-  LV_GetText(Temp2,A_Index,3)
-  LV_GetText(Temp3,A_Index,4)
-  If (Temp2 = "Pass")
-   PassList .= "`r`n" . Temp1, PassAmount ++
-  Else
-   FailList .= "`r`n" . Temp1, FailAmount ++
-  TestReport .= "`r`n" . Temp1 . A_Tab . A_Tab . A_Tab . Temp2 . ((Temp3 != "") ? " (" . Temp3 . ")" : "")
- }
- TestReport := "Tested with " . Index . " test(s):`r`n" . TestReport . "`r`n`r`n" . FailAmount . " test(s) failed:`r`n" . FailList . "`r`n`r`n" . PassAmount . " test(s) passed:`r`n" . PassList
+    TestReport := "", PassAmount := 0, FailAmount := 0
+    Index := LV_GetCount(), PassList := "", FailList := ""
+    Loop, %Index%
+    {
+        LV_GetText(Temp1,A_Index,2)
+        LV_GetText(Temp2,A_Index,3)
+        LV_GetText(Temp3,A_Index,4)
+        If (Temp2 = "Pass")
+            PassList .= "`r`n" . Temp1, PassAmount ++
+        Else
+            FailList .= "`r`n" . Temp1, FailAmount ++
+        TestReport .= "`r`n" . Temp1 . A_Tab . A_Tab . A_Tab . Temp2 . ((Temp3 != "") ? " (" . Temp3 . ")" : "")
+    }
+    TestReport := "Tested with " . Index . " test(s):`r`n" . TestReport . "`r`n`r`n" . FailAmount . " test(s) failed:`r`n" . FailList . "`r`n`r`n" . PassAmount . " test(s) passed:`r`n" . PassList
 }
 
 StartTimer()
 {
- TimerBefore := 0, DllCall("QueryPerformanceCounter","Int64*",TimerBefore)
- Return, TimerBefore
+    TimerBefore := 0, DllCall("QueryPerformanceCounter","Int64*",TimerBefore)
+    Return, TimerBefore
 }
 
 StopTimer(ByRef TimerBefore)
 {
- TimerAfter := 0, DllCall("QueryPerformanceCounter","Int64*",TimerAfter), TickFrequency := 0, DllCall("QueryPerformanceFrequency","Int64*",TickFrequency)
- Return, (TimerAfter - TimerBefore) / (TickFrequency / 1000)
+    TimerAfter := 0, DllCall("QueryPerformanceCounter","Int64*",TimerAfter), TickFrequency := 0, DllCall("QueryPerformanceFrequency","Int64*",TickFrequency)
+    Return, (TimerAfter - TimerBefore) / (TickFrequency / 1000)
 }
 
 ParseTokenDescription(TokenDescription)
 {
- global CodeTokenTypes
- StringReplace, TokenDescription, TokenDescription, %A_Tab%, %A_Space%, All
- StringReplace, TokenDescription, TokenDescription, `r,, All
- TokenDescription := Trim(TokenDescription,"`n"), Result := Array()
- Loop, Parse, TokenDescription, `n, %A_Space%
- {
-  RegExMatch(A_LoopField,"iS)^File *(\d+) *: *(\w+) *\( *(\d+) *\) *: *'(.*)'$",Field)
-  ObjInsert(Result,Object("File",Field1,"Type",CodeTokenTypes[Field2],"Position",Field3,"Value",Field4))
- }
- Return, Result
+    global CodeTokenTypes
+    StringReplace, TokenDescription, TokenDescription, %A_Tab%, %A_Space%, All
+    StringReplace, TokenDescription, TokenDescription, `r,, All
+    TokenDescription := Trim(TokenDescription,"`n"), Result := Array()
+    Loop, Parse, TokenDescription, `n, %A_Space%
+    {
+        RegExMatch(A_LoopField,"iS)^File *(\d+) *: *(\w+) *\( *(\d+) *\) *: *'(.*)'$",Field)
+        ObjInsert(Result,Object("File",Field1,"Type",CodeTokenTypes[Field2],"Position",Field3,"Value",Field4))
+    }
+    Return, Result
 }

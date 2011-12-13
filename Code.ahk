@@ -89,58 +89,58 @@ Example
 ;initializes resources that will be required by other modules
 CodeInit(ResourcesPath = "Resources")
 { ;returns 1 on failure, 0 otherwise
- global CodeOperatorTable, CodeTokenTypes, CodeTreeTypes
+    global CodeOperatorTable, CodeTokenTypes, CodeTreeTypes
 
- CodeCreateOperatorTable() ;create the table of operators
+    CodeCreateOperatorTable() ;create the table of operators
 
- ;set up token stream type enumeration
- CodeTokenTypes := Object("OPERATOR",0
-  ,"NUMBER",1
-  ,"STRING",2
-  ,"IDENTIFIER",3
-  ,"SEPARATOR",4
-  ,"STATEMENT",5
-  ,"LINE_END",6)
+    ;set up token stream type enumeration
+    CodeTokenTypes := Object("OPERATOR",0
+                            ,"NUMBER",1
+                            ,"STRING",2
+                            ,"IDENTIFIER",3
+                            ,"SEPARATOR",4
+                            ,"STATEMENT",5
+                            ,"LINE_END",6)
 
- ;set up syntax tree type enumeration
- CodeTreeTypes := Object("OPERATION",0
-  ,"NUMBER",1
-  ,"STRING",2
-  ,"IDENTIFIER",3
-  ,"BLOCK",4)
+    ;set up syntax tree type enumeration
+    CodeTreeTypes := Object("OPERATION",0
+                           ,"NUMBER",1
+                           ,"STRING",2
+                           ,"IDENTIFIER",3
+                           ,"BLOCK",4)
 
- Return, 0
+    Return, 0
 }
 
 ;initializes or resets resources that are needed by other modules each time they work on a different input
-CodeSetScript(ByRef Path = "",ByRef Errors = "",ByRef Files = "")
+CodeSetScript(ByRef Path = "",ByRef Errors = "",ByRef Files = "") ;wip: remove this function? might be needed by the error handler
 {
- If (Path != "")
-  Files := [PathExpand(Path)] ;create an array to store the path of each script
- Errors := []
+    If (Path != "")
+        Files := [PathExpand(Path)] ;create an array to store the path of each script
+    Errors := []
 }
 
 ;records an error containing information about the nature, severity, and location of the issue
 CodeRecordError(ByRef Errors,Identifier,Level,File,Caret = 0,CaretLength = 1,Highlight = 0)
 {
- ErrorRecord := Object("Identifier",Identifier,"Level",Level,"Highlight",Highlight,"Caret",Object("Position",Caret,"Length",CaretLength),"File",File)
- ObjInsert(Errors,ErrorRecord) ;add an error to the error log
+    ErrorRecord := Object("Identifier",Identifier,"Level",Level,"Highlight",Highlight,"Caret",Object("Position",Caret,"Length",CaretLength),"File",File)
+    ObjInsert(Errors,ErrorRecord) ;add an error to the error log
 }
 
 ;an alternative, convenient way to record errors by passing tokens to the function instead of positions and lengths
 CodeRecordErrorTokens(ByRef Errors,Identifier,Level,Caret = 0,Highlight = 0)
 {
- If (Highlight != 0)
- {
-  File := Highlight.1.File, ProcessedHighlight := []
-  For Index, Token In Highlight
-   ObjInsert(ProcessedHighlight,Object("Position",Token.Position,"Length",StrLen(Token.Value)))
- }
- Else
-  ProcessedHighlight := 0
- If IsObject(Caret)
-  File := Caret.File, Position := Caret.Position, Length := StrLen(Caret.Value)
- Else
-  Position := 0, Length := 1
- CodeRecordError(Errors,Identifier,Level,File,Position,Length,ProcessedHighlight)
+    If (Highlight != 0)
+    {
+        File := Highlight.1.File, ProcessedHighlight := []
+        For Index, Token In Highlight
+            ObjInsert(ProcessedHighlight,Object("Position",Token.Position,"Length",StrLen(Token.Value)))
+    }
+    Else
+        ProcessedHighlight := 0
+    If IsObject(Caret)
+        File := Caret.File, Position := Caret.Position, Length := StrLen(Caret.Value)
+    Else
+        Position := 0, Length := 1
+    CodeRecordError(Errors,Identifier,Level,File,Position,Length,ProcessedHighlight)
 }
