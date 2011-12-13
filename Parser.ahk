@@ -1,8 +1,7 @@
 #NoEnv
 
-#Include Code.ahk ;wip: remove this
 #Include Resources/Operators.ahk
-#Include Resources/Tree.ahk
+#Include Resources/Syntax Tree.ahk
 
 /*
 Copyright 2011 Anthony Zhang <azhang9@gmail.com>

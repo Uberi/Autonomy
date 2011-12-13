@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #Include ..\
 #Include Resources\Reconstruct.ahk
+#Include Resources\Syntax Tree.ahk
 
 #Include Code.ahk
 #Include Lexer.ahk
