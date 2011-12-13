@@ -89,7 +89,7 @@ Example
 ;initializes resources that will be required by other modules
 CodeInit(ResourcesPath = "Resources")
 { ;returns 1 on failure, 0 otherwise
-    global CodeOperatorTable, CodeTokenTypes, CodeTreeTypes
+    global CodeOperatorTable, CodeTokenTypes
 
     CodeCreateOperatorTable() ;create the table of operators
 
@@ -101,14 +101,6 @@ CodeInit(ResourcesPath = "Resources")
                             ,"SEPARATOR",4
                             ,"STATEMENT",5
                             ,"LINE_END",6)
-
-    ;set up syntax tree type enumeration
-    CodeTreeTypes := Object("OPERATION",0
-                           ,"NUMBER",1
-                           ,"STRING",2
-                           ,"IDENTIFIER",3
-                           ,"BLOCK",4)
-
     Return, 0
 }
 

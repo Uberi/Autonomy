@@ -1,7 +1,8 @@
 #NoEnv
 
-#Include Code.ahk
+#Include Code.ahk ;wip: remove this
 #Include Resources/Operators.ahk
+#Include Resources/Tree.ahk
 
 /*
 Copyright 2011 Anthony Zhang <azhang9@gmail.com>
@@ -22,6 +23,7 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+;wip: position info for operation nodes
 ;wip: check for recursion depth terminating the expression by checking to make sure the token is the last one before returning, otherwise skip over close paren and keep parsing
 ;wip: type verification (possibly implement in type analyser module). need to add type information to operator table
 ;wip: treat line_end tokens as operators
@@ -57,6 +59,8 @@ CodeLex(Code,Tokens,Errors)
 
 TimerBefore := 0, DllCall("QueryPerformanceCounter","Int64*",TimerBefore)
 
+CodeTreeInit()
+
 Result := CodeParse(Tokens,SyntaxTree,Errors)
 
 TimerAfter := 0, DllCall("QueryPerformanceCounter","Int64*",TimerAfter)
@@ -73,12 +77,16 @@ CodeParse(ByRef Tokens,ByRef SyntaxTree,ByRef Errors)
     ErrorIndex := ObjMaxIndex(Errors)
     TokenIndex := ObjMaxIndex(Tokens)
 
-    SyntaxTree := [CodeTreeTypes.OPERATION,[CodeTreeTypes.IDENTIFIER,"EVALUATE"]]
     If !TokenIndex ;no tokens given
+    {
+        SyntaxTree := CodeTreeOperationNode(CodeTreeIdentifierNode("EVALUATE"),Operands)
         Return, 0
+    }
+
+    Operands := []
     Loop ;loop through one subexpression at a time
     {
-        ObjInsert(SyntaxTree,CodeParseExpression(Tokens,Errors))
+        ObjInsert(Operands,CodeParseExpression(Tokens,Errors))
         Try Token := CodeParseToken(Tokens)
         Catch ;end of token stream
             Break
@@ -89,8 +97,10 @@ CodeParse(ByRef Tokens,ByRef SyntaxTree,ByRef Errors)
         Else If (Token.Type != CodeTokenTypes.SEPARATOR) ;not a separator token
             Break ;stop parsing subexpressions
     }
-    If (ObjMaxIndex(SyntaxTree) = 3) ;there was only one expression
-        SyntaxTree := SyntaxTree[3] ;remove the evaluate operation and directly return the result
+    If (ObjMaxIndex(Operands) = 1) ;there was only one expression
+        SyntaxTree := Operands[1] ;remove the evaluate operation and directly return the result
+    Else
+        SyntaxTree := CodeTreeOperationNode(CodeTreeIdentifierNode("EVALUATE"),Operands)
 
     If (Index <= ObjMaxIndex(Tokens)) ;did not reach the end of the token stream ;wip
     {
@@ -149,11 +159,11 @@ CodeParseDispatchNullDenotation(ByRef Tokens,ByRef Errors,Token)
     If (TokenType = CodeTokenTypes.OPERATOR) ;operator token
         Return, CodeParseOperatorNullDenotation(Tokens,Errors,Token) ;parse the operator in null denotation
     If (TokenType = CodeTokenTypes.NUMBER) ;integer token
-        Return, [CodeTreeTypes.NUMBER,Token.Value,Token.Position,Token.File] ;create an number tree node
+        Return, CodeTreeNumberNode(Token.Value,Token.Position,Token.File) ;create an number tree node
     If (TokenType = CodeTokenTypes.STRING) ;string token
-        Return, [CodeTreeTypes.STRING,Token.Value,Token.Position,Token.File] ;create a string tree node
+        Return, CodeTreeStringNode(Token.Value,Token.Position,Token.File) ;create a string tree node
     If (TokenType = CodeTokenTypes.IDENTIFIER) ;identifier token
-        Return, [CodeTreeTypes.IDENTIFIER,Token.Value,Token.Position,Token.File] ;create an identifier tree node
+        Return, CodeTreeIdentifierNode(Token.Value,Token.Position,Token.File) ;create an identifier tree node
     If (TokenType = CodeTokenTypes.LINE_END) ;line end token
     {
         Token := CodeParseToken(Tokens) ;retrieve the token after the line end token
@@ -200,7 +210,7 @@ CodeParseOperatorNullDenotation(ByRef Tokens,ByRef Errors,Token)
 
 CodeParseOperatorLeftDenotation(ByRef Tokens,ByRef Errors,Token,LeftSide)
 {
-    global CodeTokenTypes, CodeTreeTypes, CodeOperatorTable
+    global CodeTokenTypes, CodeOperatorTable
     If !ObjHasKey(CodeOperatorTable.LeftDenotation,Token.Value)
     {
         MsgBox
@@ -213,32 +223,29 @@ CodeParseOperatorLeftDenotation(ByRef Tokens,ByRef Errors,Token,LeftSide)
 CodeParseOperatorPrefix(ByRef Tokens,ByRef Errors,Operator)
 {
     global CodeTreeTypes
-    Return, [CodeTreeTypes.OPERATION
-            ,[CodeTreeTypes.IDENTIFIER,Operator.Identifier]
-            ,CodeParseExpression(Tokens,Errors,Operator.RightBindingPower)]
+    Return, CodeTreeOperationNode(CodeTreeIdentifierNode(Operator.Identifier)
+                                 ,[CodeParseExpression(Tokens,Errors,Operator.RightBindingPower)])
 }
 
 CodeParseOperatorInfix(ByRef Tokens,ByRef Errors,Operator,LeftSide)
 {
     global CodeTreeTypes
-    Return, [CodeTreeTypes.OPERATION
-            ,[CodeTreeTypes.IDENTIFIER,Operator.Identifier]
-            ,LeftSide
-            ,CodeParseExpression(Tokens,Errors,Operator.RightBindingPower)]
+    Return, CodeTreeOperationNode(CodeTreeIdentifierNode(Operator.Identifier)
+                                 ,[LeftSide,CodeParseExpression(Tokens,Errors,Operator.RightBindingPower)])
 }
 
 CodeParseOperatorPostfix(ByRef Tokens,ByRef Errors,Operator,LeftSide)
 {
     global CodeTreeTypes
-    Return, [CodeTreeTypes.OPERATION
-            ,[CodeTreeTypes.IDENTIFIER,Operator.Identifier]
-            ,LeftSide]
+    Return, CodeTreeOperationNode(CodeTreeIdentifierNode(Operator.Identifier)
+                                 ,[LeftSide])
 }
 
 ;get the next token
 CodeParseToken(ByRef Tokens,Offset = 1)
 {
     static Index := 1
+    ListLines, Off
     If (Offset = "Reset") ;wip
     {
         Index := 1
@@ -248,5 +255,6 @@ CodeParseToken(ByRef Tokens,Offset = 1)
         Throw Exception("Token stream end.",-1)
     Result := Tokens[Index]
     Index += Offset
+    ListLines, On
     Return, Result
 }

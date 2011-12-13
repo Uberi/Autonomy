@@ -195,6 +195,7 @@ Return
 
 TestParser:
 CodeSetScript(FileName)
+CodeTreeInit()
 Loop, %A_ScriptDir%\Parser\*.txt
 {
     TestName := "Parser - " . A_LoopFileName
