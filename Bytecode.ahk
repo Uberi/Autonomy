@@ -31,14 +31,15 @@ push value                     pushes a value onto the stack.
 
 pop                            pops a value off of the stack.
 
-call                           pops and jumps to the jump target.
+call                           pops and stores the jump target.
                                pushes the current stack base onto the stack.
-                               pushes the current instruction pointer onto the stack.
+                               pushes the current instruction index onto the stack.
+                               jumps to the stored jump target
 
 return                         pops and stores the return value.
                                pops the parameter count off of the stack.
                                pops the correct number of parameters off of the stack.
-                               pops and jumps to the instruction pointer.
+                               pops and jumps to the instruction index.
                                pops and restores the stack base.
                                pushes the return value back onto the stack.
 
@@ -67,8 +68,8 @@ Code =
 
 If CodeInit()
 {
- Display("Error initializing code tools.`n") ;display error at standard output
- ExitApp ;fatal error
+    Display("Error initializing code tools.`n") ;display error at standard output
+    ExitApp ;fatal error
 }
 
 FileName := A_ScriptFullPath
@@ -77,7 +78,6 @@ CodeSetScript(FileName,Errors,Files) ;set the current script file
 CodeLexInit()
 CodeLex(Code,Tokens,Errors)
 
-CodeParseInit()
 Result := CodeParse(Tokens,SyntaxTree,Errors)
 
 CodeBytecodeInit()
@@ -87,41 +87,41 @@ ExitApp
 
 CodeBytecodeInit()
 {
- 
+    
 }
 
 CodeBytecode(SyntaxTree)
 {
- global CodeTreeTypes
- NodeType := SyntaxTree[1]
- If (NodeType = CodeTreeTypes.OPERATION)
-  Return, CodeBytecodeOperation(SyntaxTree)
- Else If (NodeType = CodeTreeTypes.NUMBER)
-  Return, "push #" . SyntaxTree[2] . "`n"
- Else If (NodeType = CodeTreeTypes.STRING)
-  Return, "push '" . SyntaxTree[2] . "'`n"
- Else If (NodeType = CodeTreeTypes.IDENTIFIER)
-  Return, "push :" . SyntaxTree[2] . "`n"
- Else If (NodeType = CodeTreeTypes.BLOCK)
- {
-  Index := ObjMaxIndex(SyntaxTree)
-  Result := "push BLOCK()`n"
-  While, Index > 1
-  {
-   Result .= CodeBytecode(SyntaxTree[Index])
-   Index --
-  }
-  Result .= CodeBytecode(SyntaxTree[2])
-  Return, Result . "call`n"
- }
+    global CodeTreeTypes
+    NodeType := SyntaxTree[1]
+    If (NodeType = CodeTreeTypes.OPERATION)
+        Return, CodeBytecodeOperation(SyntaxTree)
+    Else If (NodeType = CodeTreeTypes.NUMBER)
+        Return, "push #" . SyntaxTree[2] . "`n"
+    Else If (NodeType = CodeTreeTypes.STRING)
+        Return, "push '" . SyntaxTree[2] . "'`n"
+    Else If (NodeType = CodeTreeTypes.IDENTIFIER)
+        Return, "push :" . SyntaxTree[2] . "`n"
+    Else If (NodeType = CodeTreeTypes.BLOCK)
+    {
+        Index := ObjMaxIndex(SyntaxTree)
+        Result := "push BLOCK()`n"
+        While, Index > 1
+        {
+            Result .= CodeBytecode(SyntaxTree[Index])
+            Index --
+        }
+        Result .= CodeBytecode(SyntaxTree[2])
+        Return, Result . "call`n"
+    }
 }
 
 CodeBytecodeOperation(SyntaxTree)
 {
- Index := ObjMaxIndex(SyntaxTree)
- Result := ""
- While, Index > 1
-  Result .= CodeBytecode(SyntaxTree[Index]), Index --
- Result .= "call`n"
- Return, Result
+    Index := ObjMaxIndex(SyntaxTree)
+    Result := ""
+    While, Index > 1
+        Result .= CodeBytecode(SyntaxTree[Index]), Index --
+    Result .= "call`n"
+    Return, Result
 }
