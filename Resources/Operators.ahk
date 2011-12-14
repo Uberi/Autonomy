@@ -106,7 +106,7 @@ CodeParseOperatorEvaluate(ByRef Tokens,ByRef Errors,Operator)
        && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "GROUP_END") ;closing parenthesis operator token
     {
         CodeParseToken(Tokens) ;move past the closing parenthesis token
-        Return, CodeTreeOperationNode(CodeTreeIdentifierNode(Operator.Identifier)) ;wip: empty set of parentheses should give an error
+        Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier)) ;wip: empty set of parentheses should give an error
     }
     Operands := []
     Loop ;loop through one subexpression at a time
@@ -129,7 +129,7 @@ CodeParseOperatorEvaluate(ByRef Tokens,ByRef Errors,Operator)
     If (ObjMaxIndex(Operands) = 1) ;there was only one expression inside the parentheses
         Return, Operands[1] ;remove the evaluate operation and directly return the result
     Else
-        Return, CodeTreeOperationNode(CodeTreeIdentifierNode(Operator.Identifier),Operands)
+        Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier),Operands)
 }
 
 CodeParseOperatorCall(ByRef Tokens,ByRef Errors,Operator,LeftSide)
@@ -140,7 +140,7 @@ CodeParseOperatorCall(ByRef Tokens,ByRef Errors,Operator,LeftSide)
        && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "GROUP_END") ;closing parenthesis operator token
     {
         CodeParseToken(Tokens) ;move past the closing parenthesis token
-        Return, CodeTreeOperationNode(LeftSide)
+        Return, CodeTreeOperation(LeftSide)
     }
     Operands := []
     Loop ;loop through one argument at a time
@@ -160,7 +160,7 @@ CodeParseOperatorCall(ByRef Tokens,ByRef Errors,Operator,LeftSide)
         MsgBox
         Return, "ERROR: Unmatched parenthesis" ;wip: better error handling
     }
-    Return, CodeTreeOperationNode(LeftSide,Operands)
+    Return, CodeTreeOperation(LeftSide,Operands)
 }
 
 CodeParseOperatorObject(ByRef Tokens,ByRef Errors,Operator)
@@ -170,13 +170,13 @@ CodeParseOperatorObject(ByRef Tokens,ByRef Errors,Operator)
 
 CodeParseOperatorBlock(ByRef Tokens,ByRef Errors,Operator,LeftSide)
 {
-    global CodeTokenTypes, CodeTreeTypes, CodeOperatorTable
+    global CodeTokenTypes, CodeOperatorTable
     Token := CodeParseToken(Tokens,0)
     If (Token.Type = CodeTokenTypes.OPERATOR ;operator token
        && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "BLOCK_END") ;closing block brace operator token
     {
         CodeParseToken(Tokens) ;move past the closing block brace token
-        Return, CodeTreeBlockNode(LeftSide)
+        Return, CodeTreeBlock(LeftSide)
     }
     Operands := []
     Loop ;loop through one argument at a time
@@ -196,7 +196,7 @@ CodeParseOperatorBlock(ByRef Tokens,ByRef Errors,Operator,LeftSide)
         MsgBox
         Return, "ERROR: Unmatched block brace." ;wip: better error handling
     }
-    Return, CodeTreeBlockNode(LeftSide,Operands)
+    Return, CodeTreeBlock(LeftSide,Operands)
 }
 
 CodeParseOperatorArray(ByRef Tokens,ByRef Errors,Operator)
@@ -206,7 +206,7 @@ CodeParseOperatorArray(ByRef Tokens,ByRef Errors,Operator)
     If (Token.Type = CodeTokenTypes.OPERATOR && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "OBJECT_END") ;empty braces
     {
         CodeParseToken(Tokens) ;move past the closing brace token
-        Return, CodeTreeOperationNode(CodeTreeIdentifierNode(Operator.Identifier))
+        Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier))
     }
     Operands := []
     Loop ;loop through one subexpression at a time
@@ -223,7 +223,7 @@ CodeParseOperatorArray(ByRef Tokens,ByRef Errors,Operator)
         MsgBox
         Return, "ERROR: Invalid array." ;wip: better error handling
     }
-    Return, CodeTreeOperationNode(CodeTreeIdentifierNode(Operator.Identifier),Operands)
+    Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier),Operands)
 }
 
 CodeParseOperatorObjectAccessDynamic(ByRef Tokens,ByRef Errors,Operator,LeftSide)
@@ -243,7 +243,7 @@ CodeParseOperatorObjectAccessDynamic(ByRef Tokens,ByRef Errors,Operator,LeftSide
         MsgBox
         Return, "ERROR: Invalid object access." ;wip: better error handling
     }
-    Return, CodeTreeOperationNode(CodeTreeIdentifierNode(Operator.Identifier)
+    Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier)
                                  ,[LeftSide,Key])
 }
 
@@ -260,7 +260,7 @@ CodeParseOperatorTernaryIf(ByRef Tokens,ByRef Errors,Operator,LeftSide)
     }
     CodeParseToken(Tokens) ;move to the next token
     SecondBranch := CodeParseExpression(Tokens,Errors,Operator.RightBindingPower) ;parse the second branch
-    Return, CodeTreeOperationNode(CodeTreeIdentifierNode(Operator.Identifier)
+    Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier)
                                  ,[LeftSide,FirstBranch,SecondBranch])
 }
 

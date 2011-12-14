@@ -89,6 +89,8 @@ If CodeInit("..\Resources")
     ExitApp
 }
 
+CodeTreeInit()
+
 FileName := PathJoin(A_ScriptDir,"Run Tests.ahk") ;set the file name of the current file
 
 ;take a quick control benchmark
@@ -196,7 +198,6 @@ Return
 
 TestParser:
 CodeSetScript(FileName)
-CodeTreeInit()
 Loop, %A_ScriptDir%\Parser\*.txt
 {
     TestName := "Parser - " . A_LoopFileName

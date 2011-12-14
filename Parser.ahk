@@ -78,7 +78,7 @@ CodeParse(ByRef Tokens,ByRef SyntaxTree,ByRef Errors)
 
     If !TokenIndex ;no tokens given
     {
-        SyntaxTree := CodeTreeOperationNode(CodeTreeIdentifierNode("EVALUATE"),Operands)
+        SyntaxTree := CodeTreeOperation(CodeTreeIdentifier("EVALUATE"),Operands)
         Return, 0
     }
 
@@ -99,7 +99,7 @@ CodeParse(ByRef Tokens,ByRef SyntaxTree,ByRef Errors)
     If (ObjMaxIndex(Operands) = 1) ;there was only one expression
         SyntaxTree := Operands[1] ;remove the evaluate operation and directly return the result
     Else
-        SyntaxTree := CodeTreeOperationNode(CodeTreeIdentifierNode("EVALUATE"),Operands)
+        SyntaxTree := CodeTreeOperation(CodeTreeIdentifier("EVALUATE"),Operands)
 
     If (Index <= ObjMaxIndex(Tokens)) ;did not reach the end of the token stream ;wip
     {
@@ -158,11 +158,11 @@ CodeParseDispatchNullDenotation(ByRef Tokens,ByRef Errors,Token)
     If (TokenType = CodeTokenTypes.OPERATOR) ;operator token
         Return, CodeParseOperatorNullDenotation(Tokens,Errors,Token) ;parse the operator in null denotation
     If (TokenType = CodeTokenTypes.NUMBER) ;integer token
-        Return, CodeTreeNumberNode(Token.Value,Token.Position,Token.File) ;create an number tree node
+        Return, CodeTreeNumber(Token.Value,Token.Position,Token.File) ;create an number tree node
     If (TokenType = CodeTokenTypes.STRING) ;string token
-        Return, CodeTreeStringNode(Token.Value,Token.Position,Token.File) ;create a string tree node
+        Return, CodeTreeString(Token.Value,Token.Position,Token.File) ;create a string tree node
     If (TokenType = CodeTokenTypes.IDENTIFIER) ;identifier token
-        Return, CodeTreeIdentifierNode(Token.Value,Token.Position,Token.File) ;create an identifier tree node
+        Return, CodeTreeIdentifier(Token.Value,Token.Position,Token.File) ;create an identifier tree node
     If (TokenType = CodeTokenTypes.LINE_END) ;line end token
     {
         Token := CodeParseToken(Tokens) ;retrieve the token after the line end token
@@ -222,21 +222,21 @@ CodeParseOperatorLeftDenotation(ByRef Tokens,ByRef Errors,Token,LeftSide)
 CodeParseOperatorPrefix(ByRef Tokens,ByRef Errors,Operator)
 {
     global CodeTreeTypes
-    Return, CodeTreeOperationNode(CodeTreeIdentifierNode(Operator.Identifier)
+    Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier)
                                  ,[CodeParseExpression(Tokens,Errors,Operator.RightBindingPower)])
 }
 
 CodeParseOperatorInfix(ByRef Tokens,ByRef Errors,Operator,LeftSide)
 {
     global CodeTreeTypes
-    Return, CodeTreeOperationNode(CodeTreeIdentifierNode(Operator.Identifier)
+    Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier)
                                  ,[LeftSide,CodeParseExpression(Tokens,Errors,Operator.RightBindingPower)])
 }
 
 CodeParseOperatorPostfix(ByRef Tokens,ByRef Errors,Operator,LeftSide)
 {
     global CodeTreeTypes
-    Return, CodeTreeOperationNode(CodeTreeIdentifierNode(Operator.Identifier)
+    Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier)
                                  ,[LeftSide])
 }
 

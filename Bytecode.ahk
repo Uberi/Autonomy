@@ -1,6 +1,7 @@
 #NoEnv
 
 #Include Code.ahk
+#Include Resources\Syntax Tree.ahk
 
 /*
 Copyright 2011 Anthony Zhang <azhang9@gmail.com>
@@ -74,6 +75,8 @@ If CodeInit()
 
 FileName := A_ScriptFullPath
 CodeSetScript(FileName,Errors,Files) ;set the current script file
+
+CodeTreeInit()
 
 CodeLexInit()
 CodeLex(Code,Tokens,Errors)

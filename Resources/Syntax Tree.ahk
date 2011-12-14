@@ -30,7 +30,7 @@ CodeTreeInit()
                            ,"BLOCK",      4)
 }
 
-CodeTreeOperationNode(Operation,Operands = "",Position = 0,File = 0) ;wip: position/file info
+CodeTreeOperation(Operation,Operands = "",Position = 0,File = 0) ;wip: position/file info
 {
     global CodeTreeTypes
     Result := [CodeTreeTypes.OPERATION,Operation]
@@ -41,25 +41,25 @@ CodeTreeOperationNode(Operation,Operands = "",Position = 0,File = 0) ;wip: posit
     Return, Result
 }
 
-CodeTreeIdentifierNode(Value,Position = 0,File = 0)
+CodeTreeIdentifier(Value,Position = 0,File = 0)
 {
     global CodeTreeTypes
     Return, [CodeTreeTypes.IDENTIFIER,Value,Position,File]
 }
 
-CodeTreeNumberNode(Value,Position = 0,File = 0)
+CodeTreeNumber(Value,Position = 0,File = 0)
 {
     global CodeTreeTypes
     Return, [CodeTreeTypes.NUMBER,Value,Position,File]
 }
 
-CodeTreeStringNode(Value,Position = 0,File = 0)
+CodeTreeString(Value,Position = 0,File = 0)
 {
     global CodeTreeTypes
     Return, [CodeTreeTypes.STRING,Value,Position,File]
 }
 
-CodeTreeBlockNode(Operation,Operands = "",Position = 0,File = 0) ;wip: position/file info
+CodeTreeBlock(Operation,Operands = "",Position = 0,File = 0) ;wip: position/file info
 {
     global CodeTreeTypes
     Result := [CodeTreeTypes.BLOCK,Operation]

@@ -1,6 +1,9 @@
 #NoEnv
 
 #Include Code.ahk
+#Include Resources\Syntax Tree.ahk
+
+;wip: use Syntax Tree.ahk for tree manipulations
 
 /*
 Copyright 2011 Anthony Zhang <azhang9@gmail.com>
@@ -49,6 +52,7 @@ Simplifications:
 */
 
 ;/*
+
 #Include Resources\Reconstruct.ahk
 #Include Lexer.ahk
 #Include Parser.ahk
@@ -69,10 +73,11 @@ If CodeInit()
 FileName := A_ScriptFullPath
 CodeSetScript(FileName,Errors,Files) ;set the current script file
 
+CodeTreeInit()
+
 CodeLexInit()
 CodeLex(Code,Tokens,Errors)
 
-CodeParseInit()
 Result := CodeParse(Tokens,SyntaxTree,Errors)
 
 MsgBox % Clipboard := CodeReconstructShowSyntaxTree(CodeSimplify(SyntaxTree))
@@ -100,11 +105,10 @@ CodeSimplify(SyntaxTree)
                                        ,"BITWISE_NOT",Func("CodeSimplifyBitwiseNot")
                                        ,"EXPONENTIATE",Func("CodeSimplifyExponentiate"))
 
-    NodeType := SyntaxTree[1]
-    If (NodeType = CodeTreeTypes.OPERATION)
+    If (SyntaxTree[1] = CodeTreeTypes.OPERATION)
     {
         Operation := CodeSimplify(SyntaxTree[2])
-        Result := [NodeType,Operation]
+        Result := [CodeTreeTypes.OPERATION,Operation]
 
         Index := 3
         Loop, % ObjMaxIndex(SyntaxTree) - 2
@@ -134,7 +138,7 @@ CodeSimplifyConcatenate(This,Node)
     Operand1 := Node[3], Operand2 := Node[4]
     If ((Operand1[1] = CodeTreeTypes.NUMBER || Operand1[1] = CodeTreeTypes.STRING) ;first operand is a number or string
        && (Operand2[1] = CodeTreeTypes.NUMBER || Operand2[1] = CodeTreeTypes.STRING)) ;second operand is a number or string
-        Return, [CodeTreeTypes.STRING,Operand1[2] . Operand2[2],0,0]
+        Return, CodeTreeString(Operand1[2] . Operand2[2])
     Return, Node
 }
 
