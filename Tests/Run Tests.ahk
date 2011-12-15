@@ -133,9 +133,9 @@ Loop, %A_ScriptDir%\Lexer\*.txt
     {
         StringReplace, TestErrorOutput, TestErrorOutput, `r,, All
         StringReplace, TestTokenOutput, TestTokenOutput, `r,, All
-        Errors := Array()
+        Errors := []
         Temp1 := StartTimer()
-        CodeLex(TestCode,Tokens,Errors)
+        Tokens := CodeLex(TestCode,Errors)
         Temp1 := StopTimer(Temp1) - ControlTimer
         If ((Output := ShowObject(Errors)) != TestErrorOutput)
         {
@@ -207,10 +207,9 @@ Loop, %A_ScriptDir%\Parser\*.txt
         TestTokens := ParseTokenDescription(TestTokens)
         StringReplace, TestErrorOutput, TestErrorOutput, `r,, All
         StringReplace, TestTreeOutput, TestTreeOutput, `r,, All
-        Errors := Array(), SyntaxTree := ""
+        Errors := [], SyntaxTree := ""
         Temp1 := StartTimer()
-        CodeParseToken(TestTokens,"Reset")
-        CodeParse(TestTokens,SyntaxTree,Errors)
+        SyntaxTree := CodeParse(TestTokens,Errors)
         Temp1 := StopTimer(Temp1) - ControlTimer
         If ((Output := ShowObject(Errors)) != TestErrorOutput)
         {
@@ -308,7 +307,7 @@ ParseTokenDescription(TokenDescription)
     global CodeTokenTypes
     StringReplace, TokenDescription, TokenDescription, %A_Tab%, %A_Space%, All
     StringReplace, TokenDescription, TokenDescription, `r,, All
-    TokenDescription := Trim(TokenDescription,"`n"), Result := Array()
+    TokenDescription := Trim(TokenDescription,"`n"), Result := []
     Loop, Parse, TokenDescription, `n, %A_Space%
     {
         RegExMatch(A_LoopField,"iS)^File *(\d+) *: *(\w+) *\( *(\d+) *\) *: *'(.*)'$",Field)

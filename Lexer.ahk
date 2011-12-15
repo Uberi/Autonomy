@@ -36,10 +36,10 @@ CodeLexInit()
 }
 
 ;lexes plain source code, including all syntax
-CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
+CodeLex(ByRef Code,ByRef Errors,ByRef FileIndex = 1)
 { ;returns 1 on error, 0 otherwise
     global CodeTokenTypes, CodeLexerConstants
-    Tokens := [], Position := 1, LexerError := 0 ;initialize variables
+    Tokens := [], Position := 1 ;initialize variables
     CurrentChar := SubStr(Code,Position,1)
     If (CurrentChar = "") ;past the end of the string
         Return, 0
@@ -59,7 +59,7 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
             CodeLexStatement(Code,Position,Tokens,FileIndex) ;check for statements
         }
         Else If (CurrentChar = """") ;begin literal string
-            LexerError := CodeLexString(Code,Position,Tokens,Errors,FileIndex) || LexerError
+            CodeLexString(Code,Position,Tokens,Errors,FileIndex)
         Else If (CurrentChar = CodeLexerConstants.SINGLE_LINE_COMMENT) ;single line comment
             CodeLexSingleLineComment(Code,Position)
         Else If (CurrentTwoChar = CodeLexerConstants.MULTILINE_COMMENT_BEGIN) ;begin multiline comment
@@ -67,7 +67,7 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
         Else If (CurrentTwoChar = CodeLexerConstants.MULTILINE_COMMENT_END) ;end multiline comment
             Position += StrLen(CodeLexerConstants.MULTILINE_COMMENT_END) ;move past multiline comment end
         Else If (CurrentChar = ".") ;concatenation operator or object access
-            LexerError := CodeLexPeriodOperator(Code,Position,Tokens,Errors,FileIndex) || LexerError
+            CodeLexPeriodOperator(Code,Position,Tokens,Errors,FileIndex)
         Else If (CurrentChar = " " || CurrentChar = "`t") ;whitespace
             Position ++ ;skip to the next character
         Else If !CodeLexSyntaxElement(Code,Position,Tokens,FileIndex) ;input is a syntax element
@@ -82,14 +82,14 @@ CodeLex(ByRef Code,ByRef Tokens,ByRef Errors,ByRef FileIndex = 1)
             CodeLexIdentifier(Code,Position,Tokens,FileIndex)
         Else ;invalid character
         {
-            CodeRecordError(Errors,"INVALID_CHARACTER",3,FileIndex,Position), LexerError := 1
+            CodeRecordError(Errors,"INVALID_CHARACTER",3,FileIndex,Position)
             Position ++ ;move past the character
         }
     }
     Temp1 := ObjMaxIndex(Tokens) ;get the highest token index
     If (Tokens[Temp1].Type = CodeTokenTypes.LINE_END) ;last token is a newline
         ObjRemove(Tokens,Temp1,"") ;remove the last token
-    Return, LexerError
+    Return, Tokens
 }
 
 ;lexes lines with comments or whitespace

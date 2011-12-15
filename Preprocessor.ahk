@@ -161,7 +161,7 @@ CodePreprocessInclusion(Token,ByRef TokenIndex,ByRef ProcessedTokens,ByRef Error
     FileIndex := ObjMaxIndex(Files) + 1 ;get the index to insert the file entry at
     ObjInsert(Files,FileIndex,Parameter) ;add the current script file to the file array
 
-    CodeLex(Code,FileTokens,Errors,FileIndex) ;lex the external file
+    FileTokens := CodeLex(Code,Errors,FileIndex) ;lex the external file
     CodePreprocess(FileTokens,FileProcessedTokens,Errors,Files,FileIndex) ;preprocess the tokens
 
     ;copy tokens from included file into the main token stream

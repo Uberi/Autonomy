@@ -93,7 +93,7 @@ If CodeInit()
 CodeSetScript(FileName,Errors,Files) ;set the current script file
 
 CodeLexInit()
-CodeLex(Code,Tokens,Errors)
+Tokens := CodeLex(Code,Errors)
 ;MsgBox % Clipboard := CodeReconstructShowTokens(Tokens)
 
 CodePreprocessInit(Files)
@@ -102,7 +102,7 @@ CodeReconstructShowTokens(ProcessedTokens)
 ;MsgBox % Clipboard := CodeErrorFormat(Code,Errors,Files)
 ShowObject(Errors)
 
-CodeParse(ProcessedTokens,SyntaxTree,Errors)
+SyntaxTree := CodeParse(ProcessedTokens,Errors)
 ;MsgBox % Clipboard := CodeReconstructShowSyntaxTree(SyntaxTree)
 
 SimplifiedSyntaxTree := CodeSimplify(SyntaxTree)
