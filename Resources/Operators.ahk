@@ -135,7 +135,7 @@ CodeParseOperatorEvaluate(Tokens,ByRef Index,ByRef Errors,Operator)
 CodeParseOperatorCall(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
 {
     global CodeTokenTypes, CodeOperatorTable
-    Token := CodeParseToken(Tokens,Index) ;retrieve the current token
+    Token := CodeParseToken(Tokens,Index) ;retrieve the current token ;wip: check for stream end
     If (Token.Type = CodeTokenTypes.OPERATOR ;operator token
        && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "GROUP_END") ;closing parenthesis operator token
     {
@@ -271,7 +271,45 @@ CodeParseOperatorDereference(Tokens,ByRef Index,ByRef Errors,Operator) ;wip
 
 CodeParseStatement(Tokens,ByRef Index,ByRef Errors)
 {
-    ;wip: parse statement here
+    global CodeTokenTypes, CodeOperatorTable
+    ;check whether the line is a statement or not
+    Token := Tokens[Index], Index ++
+    If !ObjHasKey(Tokens,Index) ;no index remaining
+    {
+        throw "Stuff"
+        Return, CodeTreeOperation(CodeTreeIdentifier(Token.Value))
+    }
+    NextToken := Tokens[Index]
+    If (Token.Type = CodeTokenTypes.IDENTIFIER) ;current token is an identifier
+    {
+        If (NextToken.Type = CodeTokenTypes.LINE_END)  ;next token is a line end
+            Return, CodeTreeOperation(CodeTreeIdentifier(Token.Value))
+        If (NextToken.Type = CodeTokenTypes.NUMBER ;next token is a number
+         || NextToken.Type = CodeTokenTypes.STRING  ;next token is a string
+         || NextToken.Type = CodeTokenTypes.IDENTIFIER  ;next token is an identifier
+         || (NextToken.Type = CodeTokenTypes.OPERATOR  ;next token is an operator
+          && !ObjHasKey(CodeOperatorTable.LeftDenotation,NextToken.Value)))  ;next token does not have a form in left denotation
+        {
+            Operands := []
+            Loop ;loop through one subexpression at a time
+            {
+                ObjInsert(Operands,CodeParseExpression(Tokens,Index,Errors,0)) ;parse an expression and add it to the operand array
+                Try Token := CodeParseToken(Tokens,Index), Index ++
+                Catch ;end of token stream
+                    Break
+                If (Token.Type = CodeTokenTypes.LINE_END) ;line end token
+                    Break
+                Else If (Token.Type != CodeTokenTypes.SEPARATOR) ;not a separator token
+                {
+                    ;wip: handle errors here
+                    Break ;stop parsing subexpressions
+                }
+            }
+            Return, CodeTreeOperation(CodeTreeIdentifier(Token.Value),Operands)
+        }
+    }
+    Index --
+    Return, CodeTreeIdentifier("Bla")
 }
 
 CodeOperatorCreate(Identifier,LeftBindingPower,RightBindingPower,Handler)

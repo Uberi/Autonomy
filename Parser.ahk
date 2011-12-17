@@ -78,6 +78,7 @@ CodeParse(Tokens,ByRef Errors)
         Return, CodeTreeOperation(CodeTreeIdentifier("EVALUATE")) ;empty evaluation node
 
     Operands := [], Index := 1
+    ;wip: check for statements as the first line
     Loop ;loop through one subexpression at a time
     {
         ObjInsert(Operands,CodeParseExpression(Tokens,Index,Errors,0)) ;parse an expression and add it to the operand array
@@ -86,10 +87,16 @@ CodeParse(Tokens,ByRef Errors)
             Break
         If (Token.Type = CodeTokenTypes.LINE_END) ;line end token
         {
-            ;wip: process line end here
+            ObjInsert(Operands,CodeParseStatement(Tokens,Index,Errors))
+            Try CodeParseToken(Tokens,Index)
+            Catch
+                Break
         }
         Else If (Token.Type != CodeTokenTypes.SEPARATOR) ;not a separator token
+        {
+            ;wip: handle errors here
             Break ;stop parsing subexpressions
+        }
     }
 
     If (Index <= ObjMaxIndex(Tokens)) ;did not reach the end of the token stream
