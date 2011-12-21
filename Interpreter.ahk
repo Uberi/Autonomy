@@ -83,7 +83,7 @@ CodeInterpretCall(This,Stack,ByRef Index)
     Index := JumpTarget ;jump to the stored jump target
     If JumpTarget < 0 ;negative jump target means built in interpreter instruction
     {
-        
+        ;wip
     }
 }
 

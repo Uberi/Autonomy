@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;wip: unit test for blocks
 ;wip: handle skipped parameters: Function(Param,,Param)
 
-/*
+;/*
 ;#Warn All
 ;#Warn LocalSameAsGlobal, Off
 
@@ -42,6 +42,12 @@ Code =
 (
 SomeFunc() { Something
  SomethingElse }
+)
+Code =
+(
+Something
+SomethingElse abc+1
+def
 )
 
 If CodeInit()
@@ -88,7 +94,7 @@ CodeParse(Tokens,ByRef Errors)
         If (Token.Type = CodeTokenTypes.LINE_END) ;line end token
         {
             ObjInsert(Operands,CodeParseStatement(Tokens,Index,Errors))
-            Try CodeParseToken(Tokens,Index)
+            Try CodeParseToken(Tokens,Index), Index ++
             Catch
                 Break
         }
@@ -116,7 +122,7 @@ CodeParseExpression(Tokens,ByRef Index,ByRef Errors,RightBindingPower)
     Try CurrentToken := CodeParseToken(Tokens,Index), Index ++
     Catch
     {
-        MsgBox
+        MsgBox Missing token.
         Return, "ERROR: Missing token." ;wip: better error handling
     }
     LeftSide := CodeParseDispatchNullDenotation(Tokens,Index,Errors,CurrentToken) ;handle the null denotation - the token does not require tokens to its left
@@ -182,7 +188,7 @@ CodeParseDispatchLeftDenotation(Tokens,ByRef Index,ByRef Errors,Token,LeftSide)
        || TokenType = CodeTokenTypes.IDENTIFIER ;identifier token
        || TokenType = CodeTokenTypes.LINE_END) ;line end token ;wip: identifiers should allow for the command syntax
     {
-        MsgBox
+        MsgBox Missing operator.
         Return, "ERROR: Missing operator." ;wip: better error handling
     }
 }
@@ -203,7 +209,7 @@ CodeParseOperatorNullDenotation(Tokens,ByRef Index,ByRef Errors,Token)
         Operator := CodeOperatorTable.NullDenotation[Token.Value] ;retrieve operator object
         Return, Operator.Handler.(Tokens,Index,Errors,Operator) ;dispatch the null denotation handler for the operator ;wip: function reference call
     }
-    MsgBox
+    MsgBox Ivalid operator usage.
     Return, "ERROR: Invalid operator usage." ;wip: better error handling
 }
 
@@ -212,7 +218,7 @@ CodeParseOperatorLeftDenotation(Tokens,ByRef Index,ByRef Errors,Token,LeftSide)
     global CodeTokenTypes, CodeOperatorTable
     If !ObjHasKey(CodeOperatorTable.LeftDenotation,Token.Value)
     {
-        MsgBox
+        MsgBox Invalid operator usage.
         Return, "ERROR: Invalid operator usage." ;wip: better error handling
     }
     Operator := CodeOperatorTable.LeftDenotation[Token.Value] ;retrieve operator object

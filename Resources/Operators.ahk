@@ -94,7 +94,7 @@ CodeCreateOperatorTable()
 
 CodeParseOperatorError(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide = "")
 {
-    MsgBox
+    MsgBox Unexpected operator.
     Return, "Error: Unexpected operator (" . Operator.Identifier . ")." ;wip: better error handling
 }
 
@@ -123,8 +123,8 @@ CodeParseOperatorEvaluate(Tokens,ByRef Index,ByRef Errors,Operator)
     If !(Token.Type = CodeTokenTypes.OPERATOR ;operator token
        && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "GROUP_END") ;closing parenthesis operator token
     {
-        MsgBox
-        Return, "ERROR: Unmatched parenthesis" ;wip: better error handling
+        MsgBox Unmatched parenthesis.
+        Return, "ERROR: Unmatched parenthesis." ;wip: better error handling
     }
     If (ObjMaxIndex(Operands) = 1) ;there was only one expression inside the parentheses
         Return, Operands[1] ;remove the evaluate operation and directly return the result
@@ -157,8 +157,8 @@ CodeParseOperatorCall(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
     If !(Token.Type = CodeTokenTypes.OPERATOR ;operator token
        && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "GROUP_END") ;closing parenthesis operator token
     {
-        MsgBox
-        Return, "ERROR: Unmatched parenthesis" ;wip: better error handling
+        MsgBox Unmatched parenthesis.
+        Return, "ERROR: Unmatched parenthesis." ;wip: better error handling
     }
     Return, CodeTreeOperation(LeftSide,Operands)
 }
@@ -193,7 +193,7 @@ CodeParseOperatorBlock(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
     If !(Token.Type = CodeTokenTypes.OPERATOR ;operator token
        && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "BLOCK_END") ;closing parenthesis operator token
     {
-        MsgBox
+        MsgBox Unmatched block brace.
         Return, "ERROR: Unmatched block brace." ;wip: better error handling
     }
     Return, CodeTreeBlock(LeftSide,Operands)
@@ -220,8 +220,8 @@ CodeParseOperatorArray(Tokens,ByRef Index,ByRef Errors,Operator)
     }
     If !(Token.Type = CodeTokenTypes.OPERATOR && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "OBJECT_END") ;mismatched braces
     {
-        MsgBox
-        Return, "ERROR: Invalid array." ;wip: better error handling
+        MsgBox Invalid array literal.
+        Return, "ERROR: Invalid array literal." ;wip: better error handling
     }
     Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier),Operands)
 }
@@ -240,7 +240,7 @@ CodeParseOperatorObjectAccessDynamic(Tokens,ByRef Index,ByRef Errors,Operator,Le
     Token := CodeParseToken(Tokens,Index), Index ++ ;wip: handle errors
     If !(Token.Type = CodeTokenTypes.OPERATOR && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "OBJECT_END") ;mismatched parentheses
     {
-        MsgBox
+        MsgBox Invalid object access.
         Return, "ERROR: Invalid object access." ;wip: better error handling
     }
     Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier)
@@ -273,13 +273,13 @@ CodeParseStatement(Tokens,ByRef Index,ByRef Errors)
 {
     global CodeTokenTypes, CodeOperatorTable
     ;check whether the line is a statement or not
-    Token := Tokens[Index], Index ++
-    If !ObjHasKey(Tokens,Index) ;no index remaining
+    Token := Tokens[Index]
+    If !ObjHasKey(Tokens,Index + 1) ;no index remaining
     {
-        throw "Stuff"
+        Index ++
         Return, CodeTreeOperation(CodeTreeIdentifier(Token.Value))
     }
-    NextToken := Tokens[Index]
+    NextToken := Tokens[Index + 1]
     If (Token.Type = CodeTokenTypes.IDENTIFIER) ;current token is an identifier
     {
         If (NextToken.Type = CodeTokenTypes.LINE_END)  ;next token is a line end
@@ -290,7 +290,7 @@ CodeParseStatement(Tokens,ByRef Index,ByRef Errors)
          || (NextToken.Type = CodeTokenTypes.OPERATOR  ;next token is an operator
           && !ObjHasKey(CodeOperatorTable.LeftDenotation,NextToken.Value)))  ;next token does not have a form in left denotation
         {
-            Operands := []
+            Index ++, Operands := []
             Loop ;loop through one subexpression at a time
             {
                 ObjInsert(Operands,CodeParseExpression(Tokens,Index,Errors,0)) ;parse an expression and add it to the operand array
@@ -308,8 +308,6 @@ CodeParseStatement(Tokens,ByRef Index,ByRef Errors)
             Return, CodeTreeOperation(CodeTreeIdentifier(Token.Value),Operands)
         }
     }
-    Index --
-    Return, CodeTreeIdentifier("Bla")
 }
 
 CodeOperatorCreate(Identifier,LeftBindingPower,RightBindingPower,Handler)
