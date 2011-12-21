@@ -103,7 +103,7 @@ CodeParseOperatorEvaluate(Tokens,ByRef Index,ByRef Errors,Operator)
     global CodeTokenTypes, CodeOperatorTable
     Token := CodeParseToken(Tokens,Index) ;retrieve the current token
     If (Token.Type = CodeTokenTypes.OPERATOR ;operator token
-       && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "GROUP_END") ;closing parenthesis operator token
+        && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "GROUP_END") ;closing parenthesis operator token
     {
         CodeParseToken(Tokens,Index), Index ++ ;move past the closing parenthesis token ;wip: handle errors
         Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier)) ;wip: empty set of parentheses should give an error
@@ -121,7 +121,7 @@ CodeParseOperatorEvaluate(Tokens,ByRef Index,ByRef Errors,Operator)
             Break ;stop parsing subexpressions
     }
     If !(Token.Type = CodeTokenTypes.OPERATOR ;operator token
-       && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "GROUP_END") ;closing parenthesis operator token
+        && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "GROUP_END") ;closing parenthesis operator token
     {
         MsgBox Unmatched parenthesis.
         Return, "ERROR: Unmatched parenthesis." ;wip: better error handling
@@ -137,7 +137,7 @@ CodeParseOperatorCall(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
     global CodeTokenTypes, CodeOperatorTable
     Token := CodeParseToken(Tokens,Index) ;retrieve the current token ;wip: check for stream end
     If (Token.Type = CodeTokenTypes.OPERATOR ;operator token
-       && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "GROUP_END") ;closing parenthesis operator token
+        && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "GROUP_END") ;closing parenthesis operator token
     {
         CodeParseToken(Tokens,Index), Index ++ ;move past the closing parenthesis token ;wip: handle errors
         Return, CodeTreeOperation(LeftSide)
@@ -155,7 +155,7 @@ CodeParseOperatorCall(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
             Break ;stop parsing parameters
     }
     If !(Token.Type = CodeTokenTypes.OPERATOR ;operator token
-       && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "GROUP_END") ;closing parenthesis operator token
+        && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "GROUP_END") ;closing parenthesis operator token
     {
         MsgBox Unmatched parenthesis.
         Return, "ERROR: Unmatched parenthesis." ;wip: better error handling
@@ -173,7 +173,7 @@ CodeParseOperatorBlock(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
     global CodeTokenTypes, CodeOperatorTable
     Token := CodeParseToken(Tokens,Index)
     If (Token.Type = CodeTokenTypes.OPERATOR ;operator token
-       && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "BLOCK_END") ;closing block brace operator token
+        && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "BLOCK_END") ;closing block brace operator token
     {
         CodeParseToken(Tokens,Index), Index ++ ;move past the closing block brace token ;wip: handle errors
         Return, CodeTreeBlock(LeftSide)
@@ -191,7 +191,7 @@ CodeParseOperatorBlock(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
             Break ;stop parsing parameters
     }
     If !(Token.Type = CodeTokenTypes.OPERATOR ;operator token
-       && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "BLOCK_END") ;closing parenthesis operator token
+        && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "BLOCK_END") ;closing parenthesis operator token
     {
         MsgBox Unmatched block brace.
         Return, "ERROR: Unmatched block brace." ;wip: better error handling
@@ -231,7 +231,7 @@ CodeParseOperatorObjectAccessDynamic(Tokens,ByRef Index,ByRef Errors,Operator,Le
     global CodeTokenTypes, CodeOperatorTable
     Token := CodeParseToken(Tokens,Index) ;retrieve the current token
     If (Token.Type = CodeTokenTypes.OPERATOR ;operator token
-       && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "OBJECT_END") ;object end operator token
+        && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "OBJECT_END") ;object end operator token
     {
         CodeParseToken(Tokens,Index), Index ++ ;move past the closing brace token ;wip: handle errors
         Return, "ERROR: Blank object access." ;wip: empty set of object braces should give an error
@@ -253,7 +253,7 @@ CodeParseOperatorTernaryIf(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
     FirstBranch := CodeParseExpression(Tokens,Index,Errors,Operator.RightBindingPower) ;parse the first branch
     Token := CodeParseToken(Tokens,Index) ;retrieve the current token
     If !(Token.Type = CodeTokenTypes.OPERATOR ;operator token
-       && CodeOperatorTable.LeftDenotation[Token.Value].Identifier = "TERNARY_ELSE") ;ternary else operator token
+        && CodeOperatorTable.LeftDenotation[Token.Value].Identifier = "TERNARY_ELSE") ;ternary else operator token
     {
         ;wip: implement binary ternary operator here
         Return, "ERROR: Ternary operator missing ELSE branch" ;wip: better error handling
@@ -272,42 +272,27 @@ CodeParseOperatorDereference(Tokens,ByRef Index,ByRef Errors,Operator) ;wip
 CodeParseStatement(Tokens,ByRef Index,ByRef Errors)
 {
     global CodeTokenTypes, CodeOperatorTable
-    ;check whether the line is a statement or not
-    Token := Tokens[Index]
-    If !ObjHasKey(Tokens,Index + 1) ;no index remaining
+    Statement := Tokens[Index], Index ++ ;retrieve the statement identifier
+    Try Token := CodeParseToken(Tokens,Index)
+    Catch ;no tokens remain
+        Return, CodeTreeOperation(CodeTreeIdentifier(Statement.Value))
+    Operands := []
+    Loop ;loop through one subexpression at a time
     {
-        Index ++
-        Return, CodeTreeOperation(CodeTreeIdentifier(Token.Value))
-    }
-    NextToken := Tokens[Index + 1]
-    If (Token.Type = CodeTokenTypes.IDENTIFIER) ;current token is an identifier
-    {
-        If (NextToken.Type = CodeTokenTypes.LINE_END)  ;next token is a line end
-            Return, CodeTreeOperation(CodeTreeIdentifier(Token.Value))
-        If (NextToken.Type = CodeTokenTypes.NUMBER ;next token is a number
-         || NextToken.Type = CodeTokenTypes.STRING  ;next token is a string
-         || NextToken.Type = CodeTokenTypes.IDENTIFIER  ;next token is an identifier
-         || (NextToken.Type = CodeTokenTypes.OPERATOR  ;next token is an operator
-          && !ObjHasKey(CodeOperatorTable.LeftDenotation,NextToken.Value)))  ;next token does not have a form in left denotation
+        ObjInsert(Operands,CodeParseExpression(Tokens,Index,Errors,0)) ;parse an expression and add it to the operand array
+        Try CurrentToken := CodeParseToken(Tokens,Index)
+        Catch ;end of token stream
+            Break
+        If (CurrentToken.Type = CodeTokenTypes.LINE_END) ;line end token
+            Break
+        Else If (CurrentToken.Type != CodeTokenTypes.SEPARATOR) ;not a separator token
         {
-            Index ++, Operands := []
-            Loop ;loop through one subexpression at a time
-            {
-                ObjInsert(Operands,CodeParseExpression(Tokens,Index,Errors,0)) ;parse an expression and add it to the operand array
-                Try Token := CodeParseToken(Tokens,Index), Index ++
-                Catch ;end of token stream
-                    Break
-                If (Token.Type = CodeTokenTypes.LINE_END) ;line end token
-                    Break
-                Else If (Token.Type != CodeTokenTypes.SEPARATOR) ;not a separator token
-                {
-                    ;wip: handle errors here
-                    Break ;stop parsing subexpressions
-                }
-            }
-            Return, CodeTreeOperation(CodeTreeIdentifier(Token.Value),Operands)
+            ;wip: handle errors here
+            Break ;stop parsing subexpressions
         }
+        Index ++
     }
+    Return, CodeTreeOperation(CodeTreeIdentifier(Statement.Value),Operands)
 }
 
 CodeOperatorCreate(Identifier,LeftBindingPower,RightBindingPower,Handler)

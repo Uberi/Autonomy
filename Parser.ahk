@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;wip: check for recursion depth terminating the expression by checking to make sure the token is the last one before returning, otherwise skip over close paren and keep parsing
 ;wip: type verification (possibly implement in type analyser module). need to add type information to operator table
 ;wip: treat line_end tokens as operators
-;wip: unit test for blocks
+;wip: unit test for blocks and statements
 ;wip: handle skipped parameters: Function(Param,,Param)
 
 ;/*
@@ -45,9 +45,9 @@ SomeFunc() { Something
 )
 Code =
 (
-Something
-SomethingElse abc+1
-def
+Something a, b, c
+1+1
+Test 1, 2, 3
 )
 
 If CodeInit()
@@ -85,24 +85,26 @@ CodeParse(Tokens,ByRef Errors)
 
     Operands := [], Index := 1
     ;wip: check for statements as the first line
+    Try Token := CodeParseToken(Tokens,Index)
+    Catch
+    {
+        ;wip: handle empty token stream here
+    }
     Loop ;loop through one subexpression at a time
     {
-        ObjInsert(Operands,CodeParseExpression(Tokens,Index,Errors,0)) ;parse an expression and add it to the operand array
-        Try Token := CodeParseToken(Tokens,Index), Index ++
+        If (Token.Type = CodeTokenTypes.LINE_END || Index = 1) ;beginning of a line
+            ObjInsert(Operands,CodeParseLine(Tokens,Index,Errors)) ;parse an expression and add it to the operand array
+        Else
+            ObjInsert(Operands,CodeParseExpression(Tokens,Index,Errors,0)) ;parse an expression and add it to the operand array
+        Try Token := CodeParseToken(Tokens,Index)
         Catch ;end of token stream
             Break
-        If (Token.Type = CodeTokenTypes.LINE_END) ;line end token
-        {
-            ObjInsert(Operands,CodeParseStatement(Tokens,Index,Errors))
-            Try CodeParseToken(Tokens,Index), Index ++
-            Catch
-                Break
-        }
-        Else If (Token.Type != CodeTokenTypes.SEPARATOR) ;not a separator token
+        If (Token.Type != CodeTokenTypes.LINE_END && Token.Type != CodeTokenTypes.SEPARATOR) ;not a separator token
         {
             ;wip: handle errors here
             Break ;stop parsing subexpressions
         }
+        Index ++
     }
 
     If (Index <= ObjMaxIndex(Tokens)) ;did not reach the end of the token stream
@@ -114,6 +116,25 @@ CodeParse(Tokens,ByRef Errors)
         Return, Operands[1] ;remove the evaluate operation and directly return the result
     Else
         Return, CodeTreeOperation(CodeTreeIdentifier("EVALUATE"),Operands)
+}
+
+CodeParseLine(Tokens,ByRef Index,ByRef Errors) ;wip: handle object.method or object[method] as a statement too
+{
+    global CodeTokenTypes, CodeOperatorTable
+    ;check whether the line is a statement or not
+    Token := Tokens[Index]
+    If !ObjHasKey(Tokens,Index + 1) ;no tokens remain
+        Return, CodeParseStatement(Tokens,Index,Errors)
+    NextToken := Tokens[Index + 1]
+    If (Token.Type = CodeTokenTypes.IDENTIFIER ;current token is an identifier
+        && (NextToken.Type = CodeTokenTypes.LINE_END ;next token is a line end
+            || NextToken.Type = CodeTokenTypes.NUMBER ;next token is a number
+            || NextToken.Type = CodeTokenTypes.STRING ;next token is a string
+            || NextToken.Type = CodeTokenTypes.IDENTIFIER ;next token is an identifier
+            || (NextToken.Type = CodeTokenTypes.OPERATOR ;next token is an operator
+                && !ObjHasKey(CodeOperatorTable.LeftDenotation,NextToken.Value))))
+        Return, CodeParseStatement(Tokens,Index,Errors)
+    Return, CodeParseExpression(Tokens,Index,Errors,0)
 }
 
 ;parses an expression
@@ -148,9 +169,9 @@ CodeParseDispatchLeftBindingPower(Token)
     If (TokenType = CodeTokenTypes.OPERATOR) ;operator token
         Return, CodeParseOperatorLeftBindingPower(Token)
     If (TokenType = CodeTokenTypes.NUMBER ;integer token
-       || TokenType = CodeTokenTypes.STRING ;string token
-       || TokenType = CodeTokenTypes.IDENTIFIER ;identifier token
-       || TokenType = CodeTokenTypes.LINE_END) ;line end token
+        || TokenType = CodeTokenTypes.STRING ;string token
+        || TokenType = CodeTokenTypes.IDENTIFIER ;identifier token
+        || TokenType = CodeTokenTypes.LINE_END) ;line end token
         Return, 0
     If (TokenType = CodeTokenTypes.SEPARATOR) ;separator token
         Return, 0
@@ -184,9 +205,9 @@ CodeParseDispatchLeftDenotation(Tokens,ByRef Index,ByRef Errors,Token,LeftSide)
     If (TokenType = CodeTokenTypes.OPERATOR) ;operator token
         Return, CodeParseOperatorLeftDenotation(Tokens,Index,Errors,Token,LeftSide)
     If (TokenType = CodeTokenTypes.NUMBER ;integer token
-       || TokenType = CodeTokenTypes.STRING ;string token
-       || TokenType = CodeTokenTypes.IDENTIFIER ;identifier token
-       || TokenType = CodeTokenTypes.LINE_END) ;line end token ;wip: identifiers should allow for the command syntax
+        || TokenType = CodeTokenTypes.STRING ;string token
+        || TokenType = CodeTokenTypes.IDENTIFIER ;identifier token
+        || TokenType = CodeTokenTypes.LINE_END) ;line end token ;wip: identifiers should allow for the command syntax
     {
         MsgBox Missing operator.
         Return, "ERROR: Missing operator." ;wip: better error handling
@@ -228,19 +249,19 @@ CodeParseOperatorLeftDenotation(Tokens,ByRef Index,ByRef Errors,Token,LeftSide)
 CodeParseOperatorPrefix(Tokens,ByRef Index,ByRef Errors,Operator)
 {
     Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier)
-                                 ,[CodeParseExpression(Tokens,Index,Errors,Operator.RightBindingPower)])
+                ,[CodeParseExpression(Tokens,Index,Errors,Operator.RightBindingPower)])
 }
 
 CodeParseOperatorInfix(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
 {
     Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier)
-                                 ,[LeftSide,CodeParseExpression(Tokens,Index,Errors,Operator.RightBindingPower)])
+                ,[LeftSide,CodeParseExpression(Tokens,Index,Errors,Operator.RightBindingPower)])
 }
 
 CodeParseOperatorPostfix(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
 {
     Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier)
-                                 ,[LeftSide])
+                ,[LeftSide])
 }
 
 ;get the next token
@@ -248,7 +269,5 @@ CodeParseToken(Tokens,ByRef Index)
 {
     If (Index > ObjMaxIndex(Tokens))
         Throw Exception("Token stream end.",-1)
-    Result := Tokens[Index]
-    Index += Offset
-    Return, Result
+    Return, Tokens[Index]
 }
