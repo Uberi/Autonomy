@@ -53,6 +53,7 @@ conditional                    pops a value off of the stack.
 ;wip: static tail call detection
 ;wip: distinct Array type using contiguous memory, faster than Object hash table implementation
 ;wip: dead/unreachable code elimination
+;wip: lazily evaluated expressions such as the ternary or the logical AND and OR operators are not lazily evaluated. use jump instructions and blocks to add lazy evaluation
 */
 
 ;/*
@@ -81,7 +82,7 @@ CodeTreeInit()
 CodeLexInit()
 Tokens := CodeLex(Code,Errors)
 
-Result := CodeParse(Tokens,SyntaxTree,Errors)
+SyntaxTree := CodeParse(Tokens,Errors)
 
 CodeBytecodeInit()
 MsgBox % Clipboard := CodeBytecode(SyntaxTree)

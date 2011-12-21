@@ -81,6 +81,10 @@ CodeInterpretCall(This,Stack,ByRef Index)
     ObjInsert(Stack,StackBase) ;push the stack base onto the stack ;wip: stack base variable
     ObjInsert(Stack,Index) ;push the instruction index onto the stack
     Index := JumpTarget ;jump to the stored jump target
+    If JumpTarget < 0 ;negative jump target means built in interpreter instruction
+    {
+        
+    }
 }
 
 ;subroutine return
