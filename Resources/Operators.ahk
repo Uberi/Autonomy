@@ -92,6 +92,34 @@ CodeCreateOperatorTable()
     CodeOperatorTable.NullDenotation["%"]   := CodeOperatorCreate("DEREFERENCE"                        ,0   ,190 ,Func("CodeParseOperatorDereference"))
 }
 
+CodeParseStatement(Tokens,ByRef Index,ByRef Errors)
+{
+    global CodeTokenTypes, CodeOperatorTable
+    Statement := Tokens[Index], Index ++ ;retrieve the statement identifier
+    Try Token := CodeParseToken(Tokens,Index)
+    Catch ;no tokens remain
+        Return, CodeTreeOperation(CodeTreeIdentifier(Statement.Value))
+    If (Token.Type = CodeTokenTypes.LINE_END)
+        Return, CodeTreeOperation(CodeTreeIdentifier(Statement.Value))
+    Operands := []
+    Loop ;loop through one subexpression at a time
+    {
+        ObjInsert(Operands,CodeParseExpression(Tokens,Index,Errors,0)) ;parse an expression and add it to the operand array
+        Try CurrentToken := CodeParseToken(Tokens,Index)
+        Catch ;end of token stream
+            Break
+        If (CurrentToken.Type = CodeTokenTypes.LINE_END) ;line end token
+            Break
+        Else If (CurrentToken.Type != CodeTokenTypes.SEPARATOR) ;not a separator token
+        {
+            ;wip: handle errors here
+            Break ;stop parsing subexpressions
+        }
+        Index ++
+    }
+    Return, CodeTreeOperation(CodeTreeIdentifier(Statement.Value),Operands)
+}
+
 CodeParseOperatorError(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide = "")
 {
     MsgBox Unexpected operator.
@@ -111,13 +139,14 @@ CodeParseOperatorEvaluate(Tokens,ByRef Index,ByRef Errors,Operator)
     Operands := []
     Loop ;loop through one subexpression at a time
     {
-        ObjInsert(Operands,CodeParseExpression(Tokens,Index,Errors,0))
+        If (Token.Type = CodeTokenTypes.LINE_END || A_Index = 1) ;beginning of a line ;wip: remove A_Index
+            ObjInsert(Operands,CodeParseLine(Tokens,Index,Errors)) ;parse a line and add it to the operand array
+        Else
+            ObjInsert(Operands,CodeParseExpression(Tokens,Index,Errors,0)) ;parse the argument
         Try Token := CodeParseToken(Tokens,Index), Index ++ ;move past the separator token
         Catch ;end of token stream
             Break
-        If (Token.Type = CodeTokenTypes.LINE_END) ;line end token
-            CodeParseStatement(Tokens,Index,Errors)
-        Else If (Token.Type != CodeTokenTypes.SEPARATOR)
+        If (Token.Type != CodeTokenTypes.LINE_END && Token.Type != CodeTokenTypes.SEPARATOR) ;break the loop if there are no subexpressions left
             Break ;stop parsing subexpressions
     }
     If !(Token.Type = CodeTokenTypes.OPERATOR ;operator token
@@ -145,13 +174,14 @@ CodeParseOperatorCall(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
     Operands := []
     Loop ;loop through one argument at a time
     {
-        ObjInsert(Operands,CodeParseExpression(Tokens,Index,Errors,0)) ;parse the argument
+        If (Token.Type = CodeTokenTypes.LINE_END || A_Index = 1) ;beginning of a line ;wip: remove A_Index
+            ObjInsert(Operands,CodeParseLine(Tokens,Index,Errors)) ;parse a line and add it to the operand array
+        Else
+            ObjInsert(Operands,CodeParseExpression(Tokens,Index,Errors,0)) ;parse the argument
         Try Token := CodeParseToken(Tokens,Index), Index ++
         Catch ;end of token stream
             Break
-        If (Token.Type = CodeTokenTypes.LINE_END) ;line end token
-            CodeParseStatement(Tokens,Index,Errors)
-        Else If (Token.Type != CodeTokenTypes.SEPARATOR) ;break the loop if there is no argument separator present
+        If (Token.Type != CodeTokenTypes.LINE_END && Token.Type != CodeTokenTypes.SEPARATOR) ;break the loop if there are no subexpressions left
             Break ;stop parsing parameters
     }
     If !(Token.Type = CodeTokenTypes.OPERATOR ;operator token
@@ -181,13 +211,14 @@ CodeParseOperatorBlock(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
     Operands := []
     Loop ;loop through one argument at a time
     {
-        ObjInsert(Operands,CodeParseExpression(Tokens,Index,Errors,0)) ;parse the argument
+        If (Token.Type = CodeTokenTypes.LINE_END || A_Index = 1) ;beginning of a line ;wip: remove A_Index
+            ObjInsert(Operands,CodeParseLine(Tokens,Index,Errors)) ;parse a line and add it to the operand array
+        Else
+            ObjInsert(Operands,CodeParseExpression(Tokens,Index,Errors,0)) ;parse the argument
         Try Token := CodeParseToken(Tokens,Index), Index ++
         Catch ;end of token stream
             Break
-        If (Token.Type = CodeTokenTypes.LINE_END) ;line end token
-            CodeParseStatement(Tokens,Index,Errors)
-        Else If (Token.Type != CodeTokenTypes.SEPARATOR) ;break the loop if there is no argument separator present
+        If (Token.Type != CodeTokenTypes.LINE_END && Token.Type != CodeTokenTypes.SEPARATOR) ;break the loop if there are no subexpressions left
             Break ;stop parsing parameters
     }
     If !(Token.Type = CodeTokenTypes.OPERATOR ;operator token
@@ -211,11 +242,14 @@ CodeParseOperatorArray(Tokens,ByRef Index,ByRef Errors,Operator)
     Operands := []
     Loop ;loop through one subexpression at a time
     {
-        ObjInsert(Operands,CodeParseExpression(Tokens,Index,Errors,0))
+        If (Token.Type = CodeTokenTypes.LINE_END || A_Index = 1) ;beginning of a line ;wip: remove A_Index
+            ObjInsert(Operands,CodeParseLine(Tokens,Index,Errors)) ;parse a line and add it to the operand array
+        Else
+            ObjInsert(Operands,CodeParseExpression(Tokens,Index,Errors,0)) ;parse the argument
         Try Token := CodeParseToken(Tokens,Index), Index ++ ;move past the separator token
         Catch ;end of token stream
             Break
-        If (Token.Type != CodeTokenTypes.SEPARATOR)
+        If (Token.Type != CodeTokenTypes.LINE_END && Token.Type != CodeTokenTypes.SEPARATOR) ;break the loop if there are no subexpressions left
             Break ;stop parsing subexpressions
     }
     If !(Token.Type = CodeTokenTypes.OPERATOR && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "OBJECT_END") ;mismatched braces
@@ -267,32 +301,6 @@ CodeParseOperatorTernaryIf(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
 CodeParseOperatorDereference(Tokens,ByRef Index,ByRef Errors,Operator) ;wip
 {
     
-}
-
-CodeParseStatement(Tokens,ByRef Index,ByRef Errors)
-{
-    global CodeTokenTypes, CodeOperatorTable
-    Statement := Tokens[Index], Index ++ ;retrieve the statement identifier
-    Try Token := CodeParseToken(Tokens,Index)
-    Catch ;no tokens remain
-        Return, CodeTreeOperation(CodeTreeIdentifier(Statement.Value))
-    Operands := []
-    Loop ;loop through one subexpression at a time
-    {
-        ObjInsert(Operands,CodeParseExpression(Tokens,Index,Errors,0)) ;parse an expression and add it to the operand array
-        Try CurrentToken := CodeParseToken(Tokens,Index)
-        Catch ;end of token stream
-            Break
-        If (CurrentToken.Type = CodeTokenTypes.LINE_END) ;line end token
-            Break
-        Else If (CurrentToken.Type != CodeTokenTypes.SEPARATOR) ;not a separator token
-        {
-            ;wip: handle errors here
-            Break ;stop parsing subexpressions
-        }
-        Index ++
-    }
-    Return, CodeTreeOperation(CodeTreeIdentifier(Statement.Value),Operands)
 }
 
 CodeOperatorCreate(Identifier,LeftBindingPower,RightBindingPower,Handler)

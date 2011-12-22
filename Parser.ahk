@@ -38,16 +38,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 SetBatchLines, -1
 
-Code = 
-(
-SomeFunc() { Something
- SomethingElse }
-)
 Code =
 (
 Something a, b, c
-1+1
+4+5
 Test 1, 2, 3
+)
+Code = 
+(
+Test() { Something
+ SomethingElse }
 )
 
 If CodeInit()
@@ -80,26 +80,21 @@ CodeParse(Tokens,ByRef Errors)
 { ;returns 1 on parsing error, 0 otherwise
     global CodeTokenTypes
 
-    If !ObjMaxIndex(Tokens) ;no tokens given
-        Return, CodeTreeOperation(CodeTreeIdentifier("EVALUATE")) ;empty evaluation node
-
     Operands := [], Index := 1
     ;wip: check for statements as the first line
     Try Token := CodeParseToken(Tokens,Index)
     Catch
-    {
-        ;wip: handle empty token stream here
-    }
+        Return, CodeTreeOperation(CodeTreeIdentifier("EVALUATE")) ;empty evaluation node
     Loop ;loop through one subexpression at a time
     {
         If (Token.Type = CodeTokenTypes.LINE_END || Index = 1) ;beginning of a line
-            ObjInsert(Operands,CodeParseLine(Tokens,Index,Errors)) ;parse an expression and add it to the operand array
+            ObjInsert(Operands,CodeParseLine(Tokens,Index,Errors)) ;parse a line and add it to the operand array
         Else
             ObjInsert(Operands,CodeParseExpression(Tokens,Index,Errors,0)) ;parse an expression and add it to the operand array
         Try Token := CodeParseToken(Tokens,Index)
         Catch ;end of token stream
             Break
-        If (Token.Type != CodeTokenTypes.LINE_END && Token.Type != CodeTokenTypes.SEPARATOR) ;not a separator token
+        If (Token.Type != CodeTokenTypes.LINE_END && Token.Type != CodeTokenTypes.SEPARATOR) ;invalid token
         {
             ;wip: handle errors here
             Break ;stop parsing subexpressions
@@ -115,18 +110,18 @@ CodeParse(Tokens,ByRef Errors)
     If (ObjMaxIndex(Operands) = 1) ;there was only one expression
         Return, Operands[1] ;remove the evaluate operation and directly return the result
     Else
-        Return, CodeTreeOperation(CodeTreeIdentifier("EVALUATE"),Operands)
+        Return, CodeTreeOperation(CodeTreeIdentifier("EVALUATE"),Operands) ;wip: not sure if this is redundant
 }
 
 CodeParseLine(Tokens,ByRef Index,ByRef Errors) ;wip: handle object.method or object[method] as a statement too
 {
     global CodeTokenTypes, CodeOperatorTable
     ;check whether the line is a statement or not
-    Token := Tokens[Index]
+    Statement := Tokens[Index]
     If !ObjHasKey(Tokens,Index + 1) ;no tokens remain
         Return, CodeParseStatement(Tokens,Index,Errors)
     NextToken := Tokens[Index + 1]
-    If (Token.Type = CodeTokenTypes.IDENTIFIER ;current token is an identifier
+    If (Statement.Type = CodeTokenTypes.IDENTIFIER ;current token is an identifier
         && (NextToken.Type = CodeTokenTypes.LINE_END ;next token is a line end
             || NextToken.Type = CodeTokenTypes.NUMBER ;next token is a number
             || NextToken.Type = CodeTokenTypes.STRING ;next token is a string
@@ -230,7 +225,7 @@ CodeParseOperatorNullDenotation(Tokens,ByRef Index,ByRef Errors,Token)
         Operator := CodeOperatorTable.NullDenotation[Token.Value] ;retrieve operator object
         Return, Operator.Handler.(Tokens,Index,Errors,Operator) ;dispatch the null denotation handler for the operator ;wip: function reference call
     }
-    MsgBox Ivalid operator usage.
+    MsgBox Invalid operator usage.
     Return, "ERROR: Invalid operator usage." ;wip: better error handling
 }
 
