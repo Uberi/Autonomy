@@ -99,7 +99,10 @@ CodeParseStatement(Tokens,ByRef Index,ByRef Errors)
     Try Token := CodeParseToken(Tokens,Index)
     Catch ;no tokens remain
         Return, CodeTreeOperation(CodeTreeIdentifier(Statement.Value))
-    If (Token.Type = CodeTokenTypes.LINE_END)
+    If (Token.Type = CodeTokenTypes.LINE_END ;line end token
+        || (Token.Type = CodeTokenTypes.OPERATOR ;operator token
+            && ObjHasKey(CodeOperatorTable.LeftDenotation,Token.Value) ;operator has a left denotation
+            && CodeOperatorTable.LeftDenotation[Token.Value].LeftBindingPower = 0)) ;operator left binding power is 0
         Return, CodeTreeOperation(CodeTreeIdentifier(Statement.Value))
     Operands := []
     Loop ;loop through one subexpression at a time
@@ -112,7 +115,12 @@ CodeParseStatement(Tokens,ByRef Index,ByRef Errors)
             Break
         Else If (CurrentToken.Type != CodeTokenTypes.SEPARATOR) ;not a separator token
         {
-            ;wip: handle errors here
+            If (Token.Type != CodeTokenTypes.OPERATOR ;operator token
+                || !ObjHasKey(CodeOperatorTable.LeftDenotation,Token.Value) ;operator does not have a left denotation
+                || CodeOperatorTable.LeftDenotation[Token.Value].LeftBindingPower > 0) ;operator left binding power is greater than 0
+            {
+                ;wip: handle errors here
+            }
             Break ;stop parsing subexpressions
         }
         Index ++

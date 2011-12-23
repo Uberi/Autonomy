@@ -38,7 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 SetBatchLines, -1
 
-Code =
+Code = 
 (
 Something a, b, c
 4+5
@@ -127,7 +127,8 @@ CodeParseLine(Tokens,ByRef Index,ByRef Errors) ;wip: handle object.method or obj
             || NextToken.Type = CodeTokenTypes.STRING ;next token is a string
             || NextToken.Type = CodeTokenTypes.IDENTIFIER ;next token is an identifier
             || (NextToken.Type = CodeTokenTypes.OPERATOR ;next token is an operator
-                && !ObjHasKey(CodeOperatorTable.LeftDenotation,NextToken.Value))))
+                && (!ObjHasKey(CodeOperatorTable.LeftDenotation,NextToken.Value) ;operator does not have a left denotation
+                    || CodeOperatorTable.LeftDenotation[NextToken.Value].LeftBindingPower = 0)))) ;operator left binding power is 0
         Return, CodeParseStatement(Tokens,Index,Errors)
     Return, CodeParseExpression(Tokens,Index,Errors,0)
 }
