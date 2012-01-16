@@ -78,7 +78,7 @@ CodeTreeInit()
 CodeLexInit()
 CodeLex(Code,Tokens,Errors)
 
-Result := CodeParse(Tokens,SyntaxTree,Errors)
+SyntaxTree := CodeParse(Tokens,Errors)
 
 MsgBox % Clipboard := CodeReconstructShowSyntaxTree(CodeSimplify(SyntaxTree))
 ExitApp

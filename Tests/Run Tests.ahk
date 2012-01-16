@@ -19,15 +19,6 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#Include ..\
-#Include Resources\Reconstruct.ahk
-#Include Resources\Syntax Tree.ahk
-
-#Include Code.ahk
-#Include Lexer.ahk
-#Include Preprocessor.ahk
-#Include Parser.ahk
-
 SetBatchLines, -1
 Process, Priority,, RealTime
 
@@ -113,6 +104,15 @@ Gosub, GuiSize
 
 Gui, Show, w515 h600, Tests
 Return
+
+#Include ..\
+#Include Resources\Reconstruct.ahk
+#Include Resources\Syntax Tree.ahk
+
+#Include Code.ahk
+#Include Lexer.ahk
+#Include Preprocessor.ahk
+#Include Parser.ahk
 
 ShowOutput(TestName,OutputType,ByRef OutputText)
 {

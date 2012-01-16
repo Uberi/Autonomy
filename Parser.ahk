@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;wip: unit test for blocks and statements
 ;wip: handle skipped parameters: Function(Param,,Param)
 
-;/*
+/*
 ;#Warn All
 ;#Warn LocalSameAsGlobal, Off
 
@@ -120,15 +120,13 @@ CodeParseLine(Tokens,ByRef Index,ByRef Errors) ;wip: handle object.method or obj
     Statement := Tokens[Index]
     If !ObjHasKey(Tokens,Index + 1) ;no tokens remain
         Return, CodeParseStatement(Tokens,Index,Errors)
-    NextToken := Tokens[Index + 1]
+    NextToken := Tokens[Index + 1] ;wip: check for token stream end
     If (Statement.Type = CodeTokenTypes.IDENTIFIER ;current token is an identifier
-        && (NextToken.Type = CodeTokenTypes.LINE_END ;next token is a line end
-            || NextToken.Type = CodeTokenTypes.NUMBER ;next token is a number
+        && (NextToken.Type = CodeTokenTypes.NUMBER ;next token is a number
             || NextToken.Type = CodeTokenTypes.STRING ;next token is a string
             || NextToken.Type = CodeTokenTypes.IDENTIFIER ;next token is an identifier
             || (NextToken.Type = CodeTokenTypes.OPERATOR ;next token is an operator
-                && (!ObjHasKey(CodeOperatorTable.LeftDenotation,NextToken.Value) ;operator does not have a left denotation
-                    || CodeOperatorTable.LeftDenotation[NextToken.Value].LeftBindingPower = 0)))) ;operator left binding power is 0
+                && !ObjHasKey(CodeOperatorTable.LeftDenotation,NextToken.Value)))) ;operator does not have a left denotation
         Return, CodeParseStatement(Tokens,Index,Errors)
     Return, CodeParseExpression(Tokens,Index,Errors,0)
 }
