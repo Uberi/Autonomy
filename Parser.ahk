@@ -118,16 +118,17 @@ CodeParseLine(Tokens,ByRef Index,ByRef Errors,RightBindingPower = 0) ;wip: handl
     global CodeTokenTypes, CodeOperatorTable
     ;check whether the line is a statement or not
     Statement := Tokens[Index]
-    If !ObjHasKey(Tokens,Index + 1) ;no tokens remain
-        Return, CodeParseStatement(Tokens,Index,Errors)
-    NextToken := Tokens[Index + 1] ;wip: check for token stream end
-    If (Statement.Type = CodeTokenTypes.IDENTIFIER ;current token is an identifier
-        && (NextToken.Type = CodeTokenTypes.NUMBER ;next token is a number
-            || NextToken.Type = CodeTokenTypes.STRING ;next token is a string
-            || NextToken.Type = CodeTokenTypes.IDENTIFIER ;next token is an identifier
-            || (NextToken.Type = CodeTokenTypes.OPERATOR ;next token is an operator
-                && !ObjHasKey(CodeOperatorTable.LeftDenotation,NextToken.Value)))) ;operator does not have a left denotation
-        Return, CodeParseStatement(Tokens,Index,Errors)
+    If ObjHasKey(Tokens,Index + 1) ;no tokens remain
+    {
+        NextToken := Tokens[Index + 1] ;wip: check for token stream end
+        If (Statement.Type = CodeTokenTypes.IDENTIFIER ;current token is an identifier
+            && (NextToken.Type = CodeTokenTypes.NUMBER ;next token is a number
+                || NextToken.Type = CodeTokenTypes.STRING ;next token is a string
+                || NextToken.Type = CodeTokenTypes.IDENTIFIER ;next token is an identifier
+                || (NextToken.Type = CodeTokenTypes.OPERATOR ;next token is an operator
+                    && !ObjHasKey(CodeOperatorTable.LeftDenotation,NextToken.Value)))) ;operator does not have a left denotation
+            Return, CodeParseStatement(Tokens,Index,Errors)
+    }
     Return, CodeParseExpression(Tokens,Index,Errors,RightBindingPower)
 }
 
