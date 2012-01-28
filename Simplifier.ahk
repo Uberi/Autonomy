@@ -76,7 +76,7 @@ CodeSetScript(FileName,Errors,Files) ;set the current script file
 CodeTreeInit()
 
 CodeLexInit()
-CodeLex(Code,Tokens,Errors)
+Tokens := CodeLex(Code,Tokens,Errors)
 
 SyntaxTree := CodeParse(Tokens,Errors)
 
