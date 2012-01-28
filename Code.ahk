@@ -91,7 +91,7 @@ CodeInit(ResourcesPath = "Resources")
 { ;returns 1 on failure, 0 otherwise
     global CodeOperatorTable, CodeTokenTypes
 
-    CodeCreateOperatorTable() ;create the table of operators
+    CodeOperatorTable := CodeCreateOperatorTable() ;create the table of operators
 
     ;set up token stream type enumeration
     CodeTokenTypes := Object("OPERATOR",0

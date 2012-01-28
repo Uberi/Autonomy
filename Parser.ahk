@@ -113,7 +113,7 @@ CodeParse(Tokens,ByRef Errors)
         Return, CodeTreeOperation(CodeTreeIdentifier("EVALUATE"),Operands) ;wip: not sure if this is redundant
 }
 
-CodeParseLine(Tokens,ByRef Index,ByRef Errors) ;wip: handle object.method or object[method] as a statement too
+CodeParseLine(Tokens,ByRef Index,ByRef Errors,RightBindingPower = 0) ;wip: handle object.method or object[method] as a statement too
 {
     global CodeTokenTypes, CodeOperatorTable
     ;check whether the line is a statement or not
@@ -128,7 +128,7 @@ CodeParseLine(Tokens,ByRef Index,ByRef Errors) ;wip: handle object.method or obj
             || (NextToken.Type = CodeTokenTypes.OPERATOR ;next token is an operator
                 && !ObjHasKey(CodeOperatorTable.LeftDenotation,NextToken.Value)))) ;operator does not have a left denotation
         Return, CodeParseStatement(Tokens,Index,Errors)
-    Return, CodeParseExpression(Tokens,Index,Errors,0)
+    Return, CodeParseExpression(Tokens,Index,Errors,RightBindingPower)
 }
 
 ;parses an expression
@@ -243,13 +243,13 @@ CodeParseOperatorLeftDenotation(Tokens,ByRef Index,ByRef Errors,Token,LeftSide)
 CodeParseOperatorPrefix(Tokens,ByRef Index,ByRef Errors,Operator)
 {
     Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier)
-                ,[CodeParseExpression(Tokens,Index,Errors,Operator.RightBindingPower)])
+                ,[CodeParseLine(Tokens,Index,Errors,Operator.RightBindingPower)])
 }
 
 CodeParseOperatorInfix(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
 {
     Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier)
-                ,[LeftSide,CodeParseExpression(Tokens,Index,Errors,Operator.RightBindingPower)])
+                ,[LeftSide,CodeParseLine(Tokens,Index,Errors,Operator.RightBindingPower)])
 }
 
 CodeParseOperatorPostfix(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
