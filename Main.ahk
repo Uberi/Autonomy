@@ -24,24 +24,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 SetBatchLines, -1
 
-#Include Resources\Error Format.ahk
-#Include Resources\Reconstruct.ahk
-
-#Include Code.ahk
-#Include Lexer.ahk
-#Include Preprocessor.ahk
-#Include Parser.ahk
-#Include Simplifier.ahk
-#Include Bytecode.ahk
-
 /*
 TODO
 ----
 
 Short term tasks:
 
-* Allow backticks inline in code
-* Support a command syntax, that is translated to a function call on load (dotted notation only - no square brackets support). Detect this form in the parser by making sure the token is immediately after an opening parenthesis, opening square bracket, block brace, or line end, and the token after the function is either a literal, an identifier, a separator, an operator that doesn't take a parameter on its left, a block brace, or a line end: Math.Mod, 100, 5. Also allow this for function definitions and anywhere parens can be used
+* Remove prefix ++ operator and make the postfix version behave as the prefix does does now
+* Allow backticks inline in code to represent literal versions of themselves in the code
+* Support a command syntax, that is translated to a function call on load: Math.Mod 100, 5 or Web["HTTP"] "google.ca", "search". Also allow this for function definitions and anywhere parens can be used
 * Operations in syntax tree do not have position or length or file info
 * Duplicate LINE_END tokens can be present if there was an error that spanned an entire line. see Strings.txt unit test for example. see if this can be avoided
 * Escaping the end of a line with a backtick may result in an incorrect length for the token. need to add a length field for each token
@@ -54,6 +45,8 @@ Long term tasks:
 
 * gensym() compile-time function - generates a unique identifier
 * "ensure" blocks allow code to be statically verified
+* "switch" statement, without fallthrough, but allowing multiple possible arbitrary expressions per case, possibly comma separated?
+* "with" statement, allowing a resource like a file to be unconditionally released regardless of how the statement block was exited
 * Exceptions with try/catch/throw and "continue" in catch blocks
 * Dynamic default values for optional function parameters: SomeFunction(Param := 2 * 8 + GlobalVar) { Function body here }
 * macro { some compile-time related code } syntax and compile time defined type system
@@ -64,7 +57,6 @@ Long term tasks:
 * Script that converts AutoHotkey code to or from Autonomy
 * Function definitions are variables holding function references (implemented as function pointers, and utilising reference counting), so variables and functions are in the same namespace
 * Make implementation self hosting
-* Scope info should be attached to each variable
 * Library in non-annotated parse tree format; allows libraries to avoid recompilation each time by using a linker. Libraries cannot be in bytecode because of the type inferencer, unless each function in the library is changed to allow any type of argument at all, and then it would not have very good type checking or performance
 * Multipass compilation by saving passes to file: Source files are *.ato, tokenized is *.att, parsed is *.ats, annotated is *.ata, bytecode is *.atc. this would also allow the preprocessor and etc. to not have to re-lex included files every time a script uses them
 * Incremental parser and lexer for IDE use, have object mapping line numbers to token indexes, have parser save state at intervals, lex changed lines only, restore parser state to the saved state right before the token index of the changed token, keep parsing to the end of the file
@@ -81,6 +73,12 @@ Var := Something
 #Define ANOTHER_DEFINITION := SOME_DEFINITION + 1
 Return,, 1 + 1
 )
+Code =
+(
+abc param1, param2
+def param1 + sin 45
+!ghi + 5 * jkl 123, 456
+)
 
 ;Code := "4-(2+4)*-5"
 
@@ -94,14 +92,13 @@ CodeSetScript(FileName,Errors,Files) ;set the current script file
 
 CodeLexInit()
 Tokens := CodeLex(Code,Errors)
-;MsgBox % Clipboard := CodeReconstructShowTokens(Tokens)
+MsgBox % Clipboard := CodeReconstructShowTokens(Tokens)
 
 CodePreprocessInit(Files)
 CodePreprocess(Tokens,ProcessedTokens,Errors,Files)
-CodeReconstructShowTokens(ProcessedTokens)
 ;MsgBox % Clipboard := CodeErrorFormat(Code,Errors,Files)
-ShowObject(Errors)
 
+CodeTreeInit()
 SyntaxTree := CodeParse(ProcessedTokens,Errors)
 ;MsgBox % Clipboard := CodeReconstructShowSyntaxTree(SyntaxTree)
 
@@ -118,3 +115,13 @@ If (ObjMaxIndex(Errors) != "")
 ;MsgBox % CodeRecontructSyntaxTree(SyntaxTree)
 
 ExitApp
+
+#Include Resources\Error Format.ahk
+#Include Resources\Reconstruct.ahk
+
+#Include Code.ahk
+#Include Lexer.ahk
+#Include Preprocessor.ahk
+#Include Parser.ahk
+#Include Simplifier.ahk
+#Include Bytecode.ahk
