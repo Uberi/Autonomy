@@ -103,7 +103,12 @@ CodeBytecode(SyntaxTree)
     Else If (NodeType = CodeTreeTypes.NUMBER)
         Return, "push #" . SyntaxTree[2] . "`n"
     Else If (NodeType = CodeTreeTypes.STRING)
-        Return, "push '" . SyntaxTree[2] . "'`n"
+    {
+        Result := SyntaxTree[2]
+        StringReplace, Result, Result, ``, ````, All
+        StringReplace, Result, Result, ', ``', All
+        Return, "push '" . Result . "'`n"
+    }
     Else If (NodeType = CodeTreeTypes.IDENTIFIER)
         Return, "push :" . SyntaxTree[2] . "`n"
     Else If (NodeType = CodeTreeTypes.BLOCK)

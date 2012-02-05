@@ -195,11 +195,11 @@ CodeLexString(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef FileInde
                 If (SubStr(Code,Position + 1,1) = "`n")
                     Position ++ ;move to the next character
                 Output .= CodeLexerConstants.ESCAPE . "n", Position ++ ;always concatenate with the newline character
-                Continue
             }
-            If (NextChar = "`n")
-                NextChar := "n" ;change the escape sequence character to "n"
-            Output .= CodeLexerConstants.ESCAPE . NextChar, Position ++ ;append the escape sequence to the output, and move past it
+            Else If (NextChar = "`n")
+                Output .= CodeLexerConstants.ESCAPE . "n", Position ++ ;append the escape sequence to the output, and move past it
+            Else
+                Output .= CodeLexerConstants.ESCAPE . NextChar, Position ++ ;append the escape sequence to the output, and move past it
         }
         Else If (CurrentChar = "`r" || CurrentChar = "`n" || CurrentChar = "") ;past end of string, or reached a newline before the open quote has been closed
         {
