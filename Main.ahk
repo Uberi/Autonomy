@@ -100,7 +100,7 @@ CodePreprocess(Tokens,ProcessedTokens,Errors,Files)
 
 CodeTreeInit()
 SyntaxTree := CodeParse(ProcessedTokens,Errors)
-;MsgBox % Clipboard := CodeReconstructShowSyntaxTree(SyntaxTree)
+MsgBox % Clipboard := CodeReconstructShowSyntaxTree(SyntaxTree)
 
 SimplifiedSyntaxTree := CodeSimplify(SyntaxTree)
 MsgBox % Clipboard := CodeReconstructShowSyntaxTree(SimplifiedSyntaxTree)

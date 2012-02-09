@@ -42,6 +42,8 @@ CodeCreateOperatorTable()
     Operators.LeftDenotation["^="]  := CodeOperatorCreate("ASSIGN_BITWISE_XOR"                 ,10  ,9   ,Infix)
     Operators.LeftDenotation["<<="] := CodeOperatorCreate("ASSIGN_BITWISE_SHIFT_LEFT"          ,10  ,9   ,Infix)
     Operators.LeftDenotation[">>="] := CodeOperatorCreate("ASSIGN_BITWISE_SHIFT_RIGHT"         ,10  ,9   ,Infix)
+    Operators.LeftDenotation["||="] := CodeOperatorCreate("ASSIGN_LOGICAL_OR"                  ,10  ,9   ,Infix)
+    Operators.LeftDenotation["&&="] := CodeOperatorCreate("ASSIGN_LOGICAL_AND"                 ,10  ,9   ,Infix)
     Operators.LeftDenotation["?"]   := CodeOperatorCreate("TERNARY_IF"                         ,20  ,19  ,Func("CodeParseOperatorTernaryIf"))
     Operators.LeftDenotation[":"]   := CodeOperatorCreate("TERNARY_ELSE"                       ,0   ,0   ,Invalid) ;wip: colon operator, not ternary
     Operators.LeftDenotation["||"]  := CodeOperatorCreate("LOGICAL_OR"                         ,40  ,40  ,Infix)
