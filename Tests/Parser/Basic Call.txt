@@ -6,5 +6,6 @@ File 1: NUMBER     (14): '1'
 ---
 
 ---
-(ADD 
-	(SomeFunc) 1)
+(EVALUATE 
+	(ADD 
+		(SomeFunc) 1))

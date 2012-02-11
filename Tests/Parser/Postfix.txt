@@ -6,6 +6,7 @@ File 1: IDENTIFIER (15): 'Something1'
 ---
 
 ---
-(SUBTRACT 
-	(INCREMENT Something) 
-	(INCREMENT Something1))
+(EVALUATE 
+	(SUBTRACT 
+		(INCREMENT Something) 
+		(INCREMENT Something1)))

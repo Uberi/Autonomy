@@ -7,4 +7,5 @@ File 1: OPERATOR   (32): ')'
 ---
 
 ---
-(Something Parameter1 Parameter2)
+(EVALUATE 
+	(Something Parameter1 Parameter2))

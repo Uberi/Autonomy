@@ -17,8 +17,9 @@ File 1: NUMBER     (20): '2'
 ---
 
 ---
-(ADD 
-	(ADD 1 
-		(ARRAY A 
-			(ARRAY B) 
-			(ARRAY) C)) 2)
+(EVALUATE 
+	(ADD 
+		(ADD 1 
+			(ARRAY A 
+				(ARRAY B) 
+				(ARRAY) C)) 2))

@@ -10,5 +10,9 @@ File 1: IDENTIFIER (60): 'OuterFalse'
 ---
 
 ---
-(TERNARY_IF OuterCondition 
-	(TERNARY_IF InnerCondition InnerTrue InnerFalse) OuterFalse)
+(EVALUATE 
+	(IF OuterCondition 
+		{(IF InnerCondition 
+				{InnerTrue} 
+				{InnerFalse})} 
+		{OuterFalse}))

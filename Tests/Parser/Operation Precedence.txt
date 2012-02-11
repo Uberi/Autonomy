@@ -11,7 +11,9 @@ File 1: NUMBER   (16): '5'
 ---
 
 ---
-(SUBTRACT 4 
-	(MULTIPLY 
-		(ADD 2 4) 
-		(INVERT 5)))
+(EVALUATE 
+	(SUBTRACT 4 
+		(MULTIPLY 
+			(EVALUATE 
+				(ADD 2 4)) 
+			(INVERT 5))))

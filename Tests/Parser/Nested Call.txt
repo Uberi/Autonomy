@@ -23,8 +23,9 @@ File 1: OPERATOR   (85): ')'
 ---
 
 ---
-(ASSIGN Description 
-	(RegExReplace 
-		(SubStr Page 1 
-			(SUBTRACT 
-				(InStr Page "<br") 1)) "S)^[ \t]+|[ \t]+$"))
+(EVALUATE 
+	(ASSIGN Description 
+		(RegExReplace 
+			(SubStr Page 1 
+				(SUBTRACT 
+					(InStr Page "<br") 1)) "S)^[ \t]+|[ \t]+$")))

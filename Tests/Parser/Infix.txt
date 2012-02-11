@@ -6,5 +6,6 @@ File 1: NUMBER   (9): '3'
 ---
 
 ---
-(ADD 
-	(ADD 1 2) 3)
+(EVALUATE 
+	(ADD 
+		(ADD 1 2) 3))

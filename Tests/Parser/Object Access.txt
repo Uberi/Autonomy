@@ -14,7 +14,8 @@ File 1: NUMBER     (45): '4'
 ---
 
 ---
-(ADD 
-	((OBJECT_ACCESS_DYNAMIC 
-			(OBJECT_ACCESS SomeObject SomeProperty) 
-			(OBJECT_ACCESS_DYNAMIC Key Something))) 4)
+(EVALUATE 
+	(ADD 
+		((OBJECT_ACCESS_DYNAMIC 
+				(OBJECT_ACCESS SomeObject SomeProperty) 
+				(OBJECT_ACCESS_DYNAMIC Key Something))) 4))

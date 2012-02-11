@@ -28,6 +28,7 @@ File 1: NUMBER     (42): '5'
 	(ASSIGN v 1) 
 	(EVALUATE 
 		(ASSIGN w 2) 
-		(ASSIGN x 3) 
+		(EVALUATE 
+			(ASSIGN x 3)) 
 		(ASSIGN y 4)) 
 	(ASSIGN z 5))
