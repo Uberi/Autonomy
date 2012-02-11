@@ -51,7 +51,7 @@ Simplifications:
 * scalar replacement:                                http://kitty.2y.cc/doc/intel_cc_80/doc/c_ug/lin1074.htm
 */
 
-;/*
+/*
 
 #Include Resources\Reconstruct.ahk
 #Include Lexer.ahk
@@ -103,9 +103,10 @@ CodeSimplify(SyntaxTree)
                                        ,"LOGICAL_NOT",Func("CodeSimplifyLogicalNot")
                                        ,"INVERT",Func("CodeSimplifyInvert")
                                        ,"BITWISE_NOT",Func("CodeSimplifyBitwiseNot")
-                                       ,"EXPONENTIATE",Func("CodeSimplifyExponentiate"))
+                                       ,"EXPONENTIATE",Func("CodeSimplifyExponentiate")
+                                       ,"EVALUATE",Func("CodeSimplifyEvaluate"))
 
-    If (SyntaxTree[1] = CodeTreeTypes.OPERATION)
+    If (SyntaxTree[1] = CodeTreeTypes.OPERATION) ;node is an operation
     {
         Operation := CodeSimplify(SyntaxTree[2])
         Result := [CodeTreeTypes.OPERATION,Operation]
@@ -118,6 +119,11 @@ CodeSimplify(SyntaxTree)
             Return, SimplifyOperations[Operation[2]](Result)
         Return, Result
     }
+    Else If (SyntaxTree[1] = CodeTreeTypes.BLOCK ;node is a block
+            && ObjMaxIndex(SyntaxTree) = 2 ;node contains only one subnode
+            && SyntaxTree[2][1] = CodeTreeTypes.BLOCK) ;subnode is a block
+        Return, CodeSimplify(SyntaxTree[2]) ;directly return the inner block
+
     Return, SyntaxTree
 }
 
@@ -355,5 +361,12 @@ CodeSimplifyExponentiate(This,Node)
         If (Operand1[1] = CodeTreeTypes.NUMBER) ;both operands are numbers
             Return, [CodeTreeTypes.NUMBER,Operand1[2] ** Operand2[2],0,0]
     }
+    Return, Node
+}
+
+CodeSimplifyEvaluate(This,Node)
+{
+    If (ObjMaxIndex(Node) = 3) ;evaluate operation has only one subexpression
+        Return, Node[3] ;return the subexpression
     Return, Node
 }
