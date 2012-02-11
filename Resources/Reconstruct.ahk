@@ -34,7 +34,11 @@ CodeReconstructShowSyntaxTree(SyntaxTree,Padding = "",Operation = 1)
         Return, """" . SyntaxTree[2] . """"
     Else If (NodeType = CodeTreeTypes.BLOCK)
     {
-        Result := (Operation ? "" : ("`n" . Padding)) . "{", Index := 2
+        If Operation
+            Result := "{"
+        Else
+            Result := "`n" . Padding . "{"
+        Index := 2
         Loop, % ObjMaxIndex(SyntaxTree) - 1
             Result .= CodeReconstructShowSyntaxTree(SyntaxTree[Index],Padding . "`t",Index = 2) . " ", Index ++
         Return, SubStr(Result,1,-1) . "}"

@@ -46,21 +46,21 @@ Long term tasks:
 * gensym() compile-time function - generates a unique identifier
 * "ensure" blocks allow code to be statically verified
 * "switch" statement, without fallthrough, but allowing multiple possible arbitrary expressions per case, possibly comma separated?
-* "with" statement, allowing a resource like a file to be unconditionally released regardless of how the statement block was exited
-* Exceptions with try/catch/throw and "continue" in catch blocks
-* Dynamic default values for optional function parameters: SomeFunction(Param := 2 * 8 + GlobalVar) { Function body here }
+* Exceptions with try/catch/throw and "break" in catch blocks
+* Dynamic default values for optional function parameters: SomeFunction(Param: 2 * 8 + GlobalVar) { Function body here }
 * macro { some compile-time related code } syntax and compile time defined type system
-* After the command syntax is implemented, the STATEMENT token type should be used only for literal statements, as the parser can now detect statements, fixing currently broken cases like the assignment "Else := Variable"
 * Base object should not be enumerable or findable by ObjHasKey()
+* "is" operator that checks current class and recursively checks base classes
 * Primitive type methods through augmentation: String.Trim := Trim OR "".base.Trim := Trim ... "  test  ".Trim()
-* Namespaces and the ability to define custom ones
+* Function objects should have an apply() method that applies a given array as the arguments, and allows specifying the "this" object
+* Functions should create a new scope object every execution, so that closures are possible
 * Script that converts AutoHotkey code to or from Autonomy
 * Function definitions are variables holding function references (implemented as function pointers, and utilising reference counting), so variables and functions are in the same namespace
 * Make implementation self hosting
 * Library in non-annotated parse tree format; allows libraries to avoid recompilation each time by using a linker. Libraries cannot be in bytecode because of the type inferencer, unless each function in the library is changed to allow any type of argument at all, and then it would not have very good type checking or performance
 * Multipass compilation by saving passes to file: Source files are *.ato, tokenized is *.att, parsed is *.ats, annotated is *.ata, bytecode is *.atc. this would also allow the preprocessor and etc. to not have to re-lex included files every time a script uses them
 * Incremental parser and lexer for IDE use, have object mapping line numbers to token indexes, have parser save state at intervals, lex changed lines only, restore parser state to the saved state right before the token index of the changed token, keep parsing to the end of the file
-* Lua-like _global[] and _local[] (_G[] in Lua) mechanism to replace dynamic variables. Afterwards remove dynamic variable functionality and make % the modulo or format string operator, and add the in place %= operator as well
+* Lua-like _global[] and _local[] and _parent[] (_G[] in Lua) mechanism to replace dynamic variables. Afterwards remove dynamic variable functionality and make % the modulo or format string operator, and add the in place %= operator as well
 * "local" keyword works on current block, instead of current function, and can make block assume-local: If Something { local SomeVar := "Test" } ;SomeVar is freed after the If block goes out of scope
 */
 

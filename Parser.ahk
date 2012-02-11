@@ -49,7 +49,6 @@ Code =
 a ? b : c
 d && e || f
 )
-Code := "Something++-++Something"
 
 If CodeInit()
 {
