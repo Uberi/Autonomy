@@ -46,8 +46,8 @@ CodeCreateOperatorTable()
     Operators.LeftDenotation["&&="] := CodeOperatorCreate("ASSIGN_LOGICAL_AND"                 ,10  ,9   ,Infix)
     Operators.LeftDenotation["?"]   := CodeOperatorCreate("IF"                                 ,20  ,19  ,Func("CodeParseOperatorTernaryIf"))
     Operators.LeftDenotation[":"]   := CodeOperatorCreate("ELSE"                               ,0   ,0   ,Invalid) ;wip: colon operator, not ternary
-    Operators.LeftDenotation["||"]  := CodeOperatorCreate("LOGICAL_OR"                         ,40  ,40  ,Infix)
-    Operators.LeftDenotation["&&"]  := CodeOperatorCreate("LOGICAL_AND"                        ,50  ,50  ,Infix)
+    Operators.LeftDenotation["||"]  := CodeOperatorCreate("LOGICAL_OR"                         ,40  ,40  ,Func("CodeParseBooleanShortCircuit"))
+    Operators.LeftDenotation["&&"]  := CodeOperatorCreate("LOGICAL_AND"                        ,50  ,50  ,Func("CodeParseBooleanShortCircuit"))
     Operators.LeftDenotation["="]   := CodeOperatorCreate("LOGICAL_EQUAL_CASE_INSENSITIVE"     ,70  ,70  ,Infix)
     Operators.LeftDenotation["=="]  := CodeOperatorCreate("LOGICAL_EQUAL_CASE_SENSITIVE"       ,70  ,70  ,Infix)
     Operators.LeftDenotation["!="]  := CodeOperatorCreate("LOGICAL_NOT_EQUAL_CASE_INSENSITIVE" ,70  ,70  ,Infix)
@@ -136,6 +136,12 @@ CodeParseOperatorError(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide = "")
     Return, "Error: Unexpected operator (" . Operator.Identifier . ")." ;wip: better error handling
 }
 
+CodeParseBooleanShortCircuit(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
+{
+    Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier)
+                ,[CodeTreeBlock([LeftSide]),CodeTreeBlock([CodeParseLine(Tokens,Index,Errors,Operator.RightBindingPower)])])
+}
+
 CodeParseOperatorEvaluate(Tokens,ByRef Index,ByRef Errors,Operator)
 {
     global CodeTokenTypes, CodeOperatorTable
@@ -165,10 +171,7 @@ CodeParseOperatorEvaluate(Tokens,ByRef Index,ByRef Errors,Operator)
         MsgBox Unmatched parenthesis.
         Return, "ERROR: Unmatched parenthesis." ;wip: better error handling
     }
-    If (ObjMaxIndex(Operands) = 1) ;there was only one expression inside the parentheses
-        Return, Operands[1] ;remove the evaluate operation and directly return the result
-    Else
-        Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier),Operands)
+    Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier),Operands)
 }
 
 CodeParseOperatorCall(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
@@ -294,10 +297,8 @@ CodeParseOperatorTernaryIf(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
     Token := CodeParseToken(Tokens,Index) ;retrieve the current token
     If !(Token.Type = CodeTokenTypes.OPERATOR ;operator token
         && CodeOperatorTable.LeftDenotation[Token.Value].Identifier = "ELSE") ;ternary else operator token
-    {
-        ;wip: implement binary ternary operator here
-        Return, "ERROR: Ternary operator missing ELSE branch" ;wip: better error handling
-    }
+        Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier)
+                                 ,[LeftSide,FirstBranch])
     Index ++ ;move to the next token
     SecondBranch := CodeTreeBlock([CodeParseExpression(Tokens,Index,Errors,Operator.RightBindingPower)]) ;parse the second branch
     Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier)

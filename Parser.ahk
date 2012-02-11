@@ -47,7 +47,9 @@ Test 1, 2, 3
 Code = 
 (
 a ? b : c
+d && e || f
 )
+Code := "Something++-++Something"
 
 If CodeInit()
 {
@@ -108,10 +110,7 @@ CodeParse(Tokens,ByRef Errors)
         ;wip: better error handling
     }
 
-    If (ObjMaxIndex(Operands) = 1) ;there was only one expression
-        Return, Operands[1] ;remove the evaluate operation and directly return the result
-    Else
-        Return, CodeTreeGroup(Operands)
+    Return, CodeTreeGroup(Operands)
 }
 
 CodeParseLine(Tokens,ByRef Index,ByRef Errors,RightBindingPower = 0) ;wip: handle object.method or object[method] as a statement too
