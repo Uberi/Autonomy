@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;wip: unit test for blocks and statements
 ;wip: handle skipped parameters: Function(Param,,Param)
 
-/*
+;/*
 ;#Warn All
 ;#Warn LocalSameAsGlobal, Off
 
@@ -46,8 +46,7 @@ Test 1, 2, 3
 )
 Code = 
 (
-Test() { Something
- SomethingElse }
+a ? b : c
 )
 
 If CodeInit()
@@ -80,11 +79,13 @@ CodeParse(Tokens,ByRef Errors)
 { ;returns 1 on parsing error, 0 otherwise
     global CodeTokenTypes
 
-    Operands := [], Index := 1
+    Index := 1
     ;wip: check for statements as the first line
     Try Token := CodeParseToken(Tokens,Index)
     Catch
         Return, CodeTreeOperation(CodeTreeIdentifier("EVALUATE")) ;empty evaluation node
+
+    Operands := []
     Loop ;loop through one subexpression at a time
     {
         If (Token.Type = CodeTokenTypes.LINE_END || Index = 1) ;beginning of a line
@@ -110,7 +111,7 @@ CodeParse(Tokens,ByRef Errors)
     If (ObjMaxIndex(Operands) = 1) ;there was only one expression
         Return, Operands[1] ;remove the evaluate operation and directly return the result
     Else
-        Return, CodeTreeOperation(CodeTreeIdentifier("EVALUATE"),Operands) ;wip: not sure if this is redundant
+        Return, CodeTreeGroup(Operands)
 }
 
 CodeParseLine(Tokens,ByRef Index,ByRef Errors,RightBindingPower = 0) ;wip: handle object.method or object[method] as a statement too

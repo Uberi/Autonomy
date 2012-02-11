@@ -44,8 +44,8 @@ CodeCreateOperatorTable()
     Operators.LeftDenotation[">>="] := CodeOperatorCreate("ASSIGN_BITWISE_SHIFT_RIGHT"         ,10  ,9   ,Infix)
     Operators.LeftDenotation["||="] := CodeOperatorCreate("ASSIGN_LOGICAL_OR"                  ,10  ,9   ,Infix)
     Operators.LeftDenotation["&&="] := CodeOperatorCreate("ASSIGN_LOGICAL_AND"                 ,10  ,9   ,Infix)
-    Operators.LeftDenotation["?"]   := CodeOperatorCreate("TERNARY_IF"                         ,20  ,19  ,Func("CodeParseOperatorTernaryIf"))
-    Operators.LeftDenotation[":"]   := CodeOperatorCreate("TERNARY_ELSE"                       ,0   ,0   ,Invalid) ;wip: colon operator, not ternary
+    Operators.LeftDenotation["?"]   := CodeOperatorCreate("IF"                                 ,20  ,19  ,Func("CodeParseOperatorTernaryIf"))
+    Operators.LeftDenotation[":"]   := CodeOperatorCreate("ELSE"                               ,0   ,0   ,Invalid) ;wip: colon operator, not ternary
     Operators.LeftDenotation["||"]  := CodeOperatorCreate("LOGICAL_OR"                         ,40  ,40  ,Infix)
     Operators.LeftDenotation["&&"]  := CodeOperatorCreate("LOGICAL_AND"                        ,50  ,50  ,Infix)
     Operators.LeftDenotation["="]   := CodeOperatorCreate("LOGICAL_EQUAL_CASE_INSENSITIVE"     ,70  ,70  ,Infix)
@@ -81,8 +81,7 @@ CodeCreateOperatorTable()
     Operators.LeftDenotation["("]   := CodeOperatorCreate("CALL"                               ,170 ,0   ,Func("CodeParseOperatorCall"))
     Operators.LeftDenotation[")"]   := CodeOperatorCreate("GROUP_END"                          ,0   ,0   ,Invalid)
 
-    Operators.NullDenotation["{"]   := CodeOperatorCreate("OBJECT"                             ,0   ,0   ,Func("CodeParseOperatorObject"))
-    Operators.LeftDenotation["{"]   := CodeOperatorCreate("BLOCK"                              ,170 ,0   ,Func("CodeParseOperatorBlock"))
+    Operators.NullDenotation["{"]   := CodeOperatorCreate("BLOCK"                              ,0   ,0   ,Func("CodeParseOperatorBlock"))
     Operators.LeftDenotation["}"]   := CodeOperatorCreate("BLOCK_END"                          ,0   ,0   ,Invalid)
 
     Operators.NullDenotation["["]   := CodeOperatorCreate("ARRAY"                              ,0   ,0   ,Func("CodeParseOperatorArray"))
@@ -204,12 +203,7 @@ CodeParseOperatorCall(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
     Return, CodeTreeOperation(LeftSide,Operands)
 }
 
-CodeParseOperatorObject(Tokens,ByRef Index,ByRef Errors,Operator)
-{
-    ;wip
-}
-
-CodeParseOperatorBlock(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
+CodeParseOperatorBlock(Tokens,ByRef Index,ByRef Errors,Operator)
 {
     global CodeTokenTypes, CodeOperatorTable
     Token := CodeParseToken(Tokens,Index)
@@ -217,7 +211,7 @@ CodeParseOperatorBlock(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
         && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "BLOCK_END") ;closing block brace operator token
     {
         CodeParseToken(Tokens,Index), Index ++ ;move past the closing block brace token ;wip: handle errors
-        Return, CodeTreeBlock(LeftSide)
+        Return, CodeTreeBlock() ;empty block
     }
     Operands := []
     Loop ;loop through one argument at a time
@@ -238,7 +232,7 @@ CodeParseOperatorBlock(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
         MsgBox Unmatched block brace.
         Return, "ERROR: Unmatched block brace." ;wip: better error handling
     }
-    Return, CodeTreeBlock(LeftSide,Operands)
+    Return, CodeTreeBlock(Operands)
 }
 
 CodeParseOperatorArray(Tokens,ByRef Index,ByRef Errors,Operator)
@@ -295,16 +289,17 @@ CodeParseOperatorObjectAccessDynamic(Tokens,ByRef Index,ByRef Errors,Operator,Le
 CodeParseOperatorTernaryIf(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
 {
     global CodeTokenTypes, CodeOperatorTable
-    FirstBranch := CodeParseExpression(Tokens,Index,Errors,Operator.RightBindingPower) ;parse the first branch
+    ;wip: handle first branch being blank
+    FirstBranch := CodeTreeBlock([CodeParseExpression(Tokens,Index,Errors,Operator.RightBindingPower)]) ;parse the first branch
     Token := CodeParseToken(Tokens,Index) ;retrieve the current token
     If !(Token.Type = CodeTokenTypes.OPERATOR ;operator token
-        && CodeOperatorTable.LeftDenotation[Token.Value].Identifier = "TERNARY_ELSE") ;ternary else operator token
+        && CodeOperatorTable.LeftDenotation[Token.Value].Identifier = "ELSE") ;ternary else operator token
     {
         ;wip: implement binary ternary operator here
         Return, "ERROR: Ternary operator missing ELSE branch" ;wip: better error handling
     }
     Index ++ ;move to the next token
-    SecondBranch := CodeParseExpression(Tokens,Index,Errors,Operator.RightBindingPower) ;parse the second branch
+    SecondBranch := CodeTreeBlock([CodeParseExpression(Tokens,Index,Errors,Operator.RightBindingPower)]) ;parse the second branch
     Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier)
                                  ,[LeftSide,FirstBranch,SecondBranch])
 }

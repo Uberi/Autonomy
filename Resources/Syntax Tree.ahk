@@ -41,6 +41,11 @@ CodeTreeOperation(Operation,Operands = "",Position = 0,File = 0) ;wip: position/
     Return, Result
 }
 
+CodeTreeGroup(Operands,Position = 0,File = 0)
+{
+    Return, CodeTreeOperation(CodeTreeIdentifier("EVALUATE"),Operands,Position,File)
+}
+
 CodeTreeIdentifier(Value,Position = 0,File = 0)
 {
     global CodeTreeTypes
@@ -59,13 +64,13 @@ CodeTreeString(Value,Position = 0,File = 0)
     Return, [CodeTreeTypes.STRING,Value,Position,File]
 }
 
-CodeTreeBlock(Operation,Operands = "",Position = 0,File = 0) ;wip: position/file info
+CodeTreeBlock(Values = "",Position = 0,File = 0) ;wip: position/file info
 {
     global CodeTreeTypes
-    Result := [CodeTreeTypes.BLOCK,Operation]
-    If (Operands = "") ;wip: should just directly use dynamic default value
+    Result := [CodeTreeTypes.BLOCK]
+    If (Values = "") ;wip: should just directly use dynamic default value
         Return, Result
-    For Index, Operand In Operands
-        ObjInsert(Result,Operand)
+    For Index, Value In Values
+        ObjInsert(Result,Value)
     Return, Result
 }
