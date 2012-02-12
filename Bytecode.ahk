@@ -30,26 +30,27 @@ Stack based virtual machine implementing a few simple instructions:
 
 push value                      pushes a value onto the stack.
 
-pop                             pops a value off of the stack.
-
 call paramcount                 pops and stores the jump target.
+                                pushes the parameter count onto the stack.
                                 pushes the current stack base onto the stack.
                                 pushes the current instruction index onto the stack.
-                                pushes the parameter count onto the stack.
                                 jumps to the stored jump target.
 
-return                          pops and stores the return value.
+return                          pops the return value off of the stack and stores it.
+                                pops the intruction index off of the stack and stores it.
+                                pops the stack base off of the stack and stores it.
                                 pops the parameter count off of the stack.
-                                pops the correct number of parameters off of the stack.
-                                pops and jumps to the instruction index.
-                                pops and restores the stack base.
+                                pops the parameters off of the stack.
+                                jumps to the stored instruction index.
+                                sets the stack base to the stored stack base.
                                 pushes the return value back onto the stack.
 
-jump                            pops and jumps to the jump target.
+jump                            pops the jump target off of the stack.
+                                jumps to the stored jump target.
 
-conditional                     pops a value off of the stack.
-                                pops and stores the potential jump target.
-                                jumps to the provided identifier if the value is truthy.
+conditional                     pops the value off of the stack and stores it.
+                                pops the potential jump target off of the stack and stores it.
+                                jumps to the stored potential jump target if the stored value is truthy.
 
 ;wip: static tail call detection
 ;wip: distinct Array type using contiguous memory, faster than Object hash table implementation
