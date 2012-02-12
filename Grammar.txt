@@ -1,0 +1,26 @@
+Expression         = Assign , { "," , Assign }
+Assign             = Ternary , { ( ":=" | "+=" | "-=" | "*=" | "/=" | "//=" | ".=" | "|=" | "&=" | "^=" | "<<=" | ">>=" | "||=" | "&&=" ) , Ternary }
+Ternary            = Or , [ "?" , Ternary , ":" , Ternary ]
+Or                 = And , { "||" , And }
+And                = Compare , { "||" , Compare }
+Compare            = Concatenate , { ( "=" | "==" | "!=" | "!==" | ">" | "<" | ">=" | "<=" ) , Concatenate }
+Concatenate        = BitwiseLogic , { "||" , BitwiseLogic }
+BitwiseLogic       = BitwiseShift , { ( "&" | "^" | "|" ) , BitwiseShift }
+BitwiseShift       = AddSubtract , { ( "<<" | ">>" ) , AddSubtract }
+AddSubtract        = MultiplyDivide , { ( "+" | "-" ) , MultiplyDivide }
+MultiplyDivide     = PrefixLogic , { ( "*" | "/" | "//" ) , PrefixLogic }
+PrefixLogic        = Exponentiate | ( ( "!" | "-" | "~" | "&" ) , PrefixLogic )
+Exponentiate       = IncrementDecrement , [ "**" , Exponentiate ]
+IncrementDecrement = ( ObjectAccess , [ "++" ] ) | ( "++" , ObjectAccess )
+ObjectAccess       = Call , { ( "." , Dereference ) | ( "[" , Assign , "]" ) }
+Call               = Atom , [ ( "(" , ")" ) | ( "(" , Assign , { "," , Assign } , ")" ) ]
+Atom               = Number | String | Dereference | Array | Group | Block
+Dereference        = Identifier | ( "%" , Identifier , "%" )
+
+Array              = ( "[" , "]" ) | ( "[" , Assign , { "," , Assign } , "]" )
+Group              = "(" , Expression , ")"
+Block              = "{" , Expression , "}"
+
+Number             = ? a number token ?
+String             = ? a string token ?
+Identifier         = ? an identifier token ?
