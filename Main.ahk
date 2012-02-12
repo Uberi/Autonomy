@@ -80,8 +80,6 @@ def param1 + sin 45
 !ghi + 5 * jkl 123, 456
 )
 
-;Code := "4-(2+4)*-5"
-
 If CodeInit()
 {
     Display("Error initializing code tools.`n") ;display error at standard output
