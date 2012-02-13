@@ -30,8 +30,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;wip: handle skipped parameters: Function(Param,,Param)
 
 /*
-;#Warn All
-;#Warn LocalSameAsGlobal, Off
+#Warn All
+#Warn LocalSameAsGlobal, Off
 
 #Include Resources\Reconstruct.ahk
 #Include Lexer.ahk

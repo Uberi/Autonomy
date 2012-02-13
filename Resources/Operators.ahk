@@ -57,7 +57,7 @@ CodeCreateOperatorTable()
     Operators.LeftDenotation[">="]  := CodeOperatorCreate("LOGICAL_GREATER_THAN_OR_EQUAL"      ,80  ,80  ,Infix)
     Operators.LeftDenotation["<="]  := CodeOperatorCreate("LOGICAL_LESS_THAN_OR_EQUAL"         ,80  ,80  ,Infix)
     Operators.LeftDenotation[" . "] := CodeOperatorCreate("CONCATENATE"                        ,90  ,90  ,Infix)
-    Operators.LeftDenotation["&"]   := CodeOperatorCreate("BITWISE_AND"                        ,100 ,100 ,Infix) ;wip: move bitwise ops above arithmetic ops' precedences
+    Operators.LeftDenotation["&"]   := CodeOperatorCreate("BITWISE_AND"                        ,100 ,100 ,Infix)
     Operators.LeftDenotation["^"]   := CodeOperatorCreate("BITWISE_EXCLUSIVE_OR"               ,100 ,100 ,Infix)
     Operators.LeftDenotation["|"]   := CodeOperatorCreate("BITWISE_OR"                         ,100 ,100 ,Infix)
     Operators.LeftDenotation["<<"]  := CodeOperatorCreate("BITWISE_SHIFT_LEFT"                 ,110 ,110 ,Infix)
@@ -67,6 +67,7 @@ CodeCreateOperatorTable()
     Operators.LeftDenotation["*"]   := CodeOperatorCreate("MULTIPLY"                           ,130 ,130 ,Infix)
     Operators.LeftDenotation["/"]   := CodeOperatorCreate("DIVIDE"                             ,130 ,130 ,Infix)
     Operators.LeftDenotation["//"]  := CodeOperatorCreate("DIVIDE_FLOOR"                       ,130 ,130 ,Infix)
+    Operators.LeftDenotation["%"]   := CodeOperatorCreate("MODULO"                             ,130 ,130 ,Infix)
     Operators.NullDenotation["!"]   := CodeOperatorCreate("LOGICAL_NOT"                        ,0   ,140 ,Prefix)
     Operators.NullDenotation["-"]   := CodeOperatorCreate("INVERT"                             ,0   ,140 ,Prefix)
     Operators.NullDenotation["~"]   := CodeOperatorCreate("BITWISE_NOT"                        ,0   ,140 ,Prefix)
@@ -85,11 +86,10 @@ CodeCreateOperatorTable()
     Operators.LeftDenotation["}"]   := CodeOperatorCreate("BLOCK_END"                          ,0   ,0   ,Invalid)
 
     Operators.NullDenotation["["]   := CodeOperatorCreate("ARRAY"                              ,0   ,0   ,Func("CodeParseOperatorArray"))
-    Operators.LeftDenotation["["]   := CodeOperatorCreate("SUBSCRIPT"                  ,180 ,0   ,Func("CodeParseOperatorObjectAccessDynamic"))
+    Operators.LeftDenotation["["]   := CodeOperatorCreate("SUBSCRIPT"                          ,180 ,0   ,Func("CodeParseOperatorObjectAccessDynamic"))
     Operators.LeftDenotation["]"]   := CodeOperatorCreate("SUBSCRIPT_END"                      ,0   ,0   ,Invalid)
 
     Operators.LeftDenotation["."]   := CodeOperatorCreate("SUBSCRIPT_IDENTIFIER"               ,180 ,180 ,Infix)
-    Operators.NullDenotation["%"]   := CodeOperatorCreate("DEREFERENCE"                        ,0   ,190 ,Func("CodeParseOperatorDereference"))
 
     Return, Operators
 }
@@ -303,11 +303,6 @@ CodeParseOperatorTernaryIf(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
     SecondBranch := CodeTreeBlock([CodeParseExpression(Tokens,Index,Errors,Operator.RightBindingPower)]) ;parse the second branch
     Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier)
                                  ,[LeftSide,FirstBranch,SecondBranch])
-}
-
-CodeParseOperatorDereference(Tokens,ByRef Index,ByRef Errors,Operator) ;wip
-{
-    
 }
 
 CodeOperatorCreate(Identifier,LeftBindingPower,RightBindingPower,Handler)
