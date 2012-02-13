@@ -1,26 +1,30 @@
+Program            = Statement , { LineEnd , Statement }
+Statement          = ( ObjectAccess , Assign , { "," , Assign } ) | Expression
 Expression         = Assign , { "," , Assign }
 Assign             = Ternary , { ( ":=" | "+=" | "-=" | "*=" | "/=" | "//=" | ".=" | "|=" | "&=" | "^=" | "<<=" | ">>=" | "||=" | "&&=" ) , Ternary }
 Ternary            = Or , [ "?" , Ternary , ":" , Ternary ]
 Or                 = And , { "||" , And }
-And                = Compare , { "||" , Compare }
+And                = Compare , { "&&" , Compare }
 Compare            = Concatenate , { ( "=" | "==" | "!=" | "!==" | ">" | "<" | ">=" | "<=" ) , Concatenate }
-Concatenate        = BitwiseLogic , { "||" , BitwiseLogic }
+Concatenate        = BitwiseLogic , { Whitespace , "." , Whitespace , BitwiseLogic }
 BitwiseLogic       = BitwiseShift , { ( "&" | "^" | "|" ) , BitwiseShift }
 BitwiseShift       = AddSubtract , { ( "<<" | ">>" ) , AddSubtract }
 AddSubtract        = MultiplyDivide , { ( "+" | "-" ) , MultiplyDivide }
 MultiplyDivide     = PrefixLogic , { ( "*" | "/" | "//" ) , PrefixLogic }
 PrefixLogic        = Exponentiate | ( ( "!" | "-" | "~" | "&" ) , PrefixLogic )
 Exponentiate       = IncrementDecrement , [ "**" , Exponentiate ]
-IncrementDecrement = ( ObjectAccess , [ "++" ] ) | ( "++" , ObjectAccess )
-ObjectAccess       = Call , { ( "." , Dereference ) | ( "[" , Assign , "]" ) }
-Call               = Atom , [ ( "(" , ")" ) | ( "(" , Assign , { "," , Assign } , ")" ) ]
-Atom               = Number | String | Dereference | Array | Group | Block
+IncrementDecrement = ( Call , [ "++" ] ) | ( "++" , IncrementDecrement )
+Call               = ObjectAccess , [ ( "(" , ")" ) | ( "(" , Assign , { "," , Assign } , ")" ) ]
+ObjectAccess       = Atom , { ( "." , Dereference ) | ( "[" , Assign , "]" ) }
+Atom               = { Whitespace } , ( Number | String | Dereference | Array | Group | Block ) , { Whitespace }
 Dereference        = Identifier | ( "%" , Identifier , "%" )
 
 Array              = ( "[" , "]" ) | ( "[" , Assign , { "," , Assign } , "]" )
 Group              = "(" , Expression , ")"
 Block              = "{" , Expression , "}"
 
+Whitespace         = ? a sequence of tabs or spaces or newlines ?
+LineEnd            = ? a line end token ?
 Number             = ? a number token ?
 String             = ? a string token ?
 Identifier         = ? an identifier token ?
