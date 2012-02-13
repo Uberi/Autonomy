@@ -17,6 +17,6 @@ File 1: NUMBER     (30): '4'
 ---
 (EVALUATE 
 	(SUBTRACT 
-		((OBJECT_ACCESS Object Method) 
+		((SUBSCRIPT_IDENTIFIER Object Method) 
 			(ADD 5 1) 
 			(MULTIPLY 2 3)) 4))

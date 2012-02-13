@@ -16,6 +16,6 @@ File 1: NUMBER     (45): '4'
 ---
 (EVALUATE 
 	(ADD 
-		((OBJECT_ACCESS_DYNAMIC 
-				(OBJECT_ACCESS SomeObject SomeProperty) 
-				(OBJECT_ACCESS_DYNAMIC Key Something))) 4))
+		((SUBSCRIPT 
+				(SUBSCRIPT_IDENTIFIER SomeObject SomeProperty) 
+				(SUBSCRIPT Key Something))) 4))

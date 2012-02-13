@@ -85,10 +85,10 @@ CodeCreateOperatorTable()
     Operators.LeftDenotation["}"]   := CodeOperatorCreate("BLOCK_END"                          ,0   ,0   ,Invalid)
 
     Operators.NullDenotation["["]   := CodeOperatorCreate("ARRAY"                              ,0   ,0   ,Func("CodeParseOperatorArray"))
-    Operators.LeftDenotation["["]   := CodeOperatorCreate("OBJECT_ACCESS_DYNAMIC"              ,180 ,0   ,Func("CodeParseOperatorObjectAccessDynamic"))
-    Operators.LeftDenotation["]"]   := CodeOperatorCreate("OBJECT_END"                         ,0   ,0   ,Invalid)
+    Operators.LeftDenotation["["]   := CodeOperatorCreate("SUBSCRIPT"                  ,180 ,0   ,Func("CodeParseOperatorObjectAccessDynamic"))
+    Operators.LeftDenotation["]"]   := CodeOperatorCreate("SUBSCRIPT_END"                      ,0   ,0   ,Invalid)
 
-    Operators.LeftDenotation["."]   := CodeOperatorCreate("OBJECT_ACCESS"                      ,180 ,180 ,Infix)
+    Operators.LeftDenotation["."]   := CodeOperatorCreate("SUBSCRIPT_IDENTIFIER"               ,180 ,180 ,Infix)
     Operators.NullDenotation["%"]   := CodeOperatorCreate("DEREFERENCE"                        ,0   ,190 ,Func("CodeParseOperatorDereference"))
 
     Return, Operators
@@ -242,7 +242,7 @@ CodeParseOperatorArray(Tokens,ByRef Index,ByRef Errors,Operator)
 {
     global CodeTokenTypes, CodeOperatorTable
     Token := CodeParseToken(Tokens,Index) ;retrieve the token after the array begin token
-    If (Token.Type = CodeTokenTypes.OPERATOR && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "OBJECT_END") ;empty braces
+    If (Token.Type = CodeTokenTypes.OPERATOR && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "SUBSCRIPT_END") ;empty braces
     {
         CodeParseToken(Tokens,Index), Index ++ ;move past the closing brace token ;wip: handle errors
         Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier))
@@ -260,7 +260,7 @@ CodeParseOperatorArray(Tokens,ByRef Index,ByRef Errors,Operator)
         If (Token.Type != CodeTokenTypes.LINE_END && Token.Type != CodeTokenTypes.SEPARATOR) ;break the loop if there are no subexpressions left
             Break ;stop parsing subexpressions
     }
-    If !(Token.Type = CodeTokenTypes.OPERATOR && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "OBJECT_END") ;mismatched braces
+    If !(Token.Type = CodeTokenTypes.OPERATOR && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "SUBSCRIPT_END") ;mismatched braces
     {
         MsgBox Invalid array literal.
         Return, "ERROR: Invalid array literal." ;wip: better error handling
@@ -273,14 +273,14 @@ CodeParseOperatorObjectAccessDynamic(Tokens,ByRef Index,ByRef Errors,Operator,Le
     global CodeTokenTypes, CodeOperatorTable
     Token := CodeParseToken(Tokens,Index) ;retrieve the current token
     If (Token.Type = CodeTokenTypes.OPERATOR ;operator token
-        && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "OBJECT_END") ;object end operator token
+        && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "SUBSCRIPT_END") ;object end operator token
     {
         CodeParseToken(Tokens,Index), Index ++ ;move past the closing brace token ;wip: handle errors
         Return, "ERROR: Blank object access." ;wip: empty set of object braces should give an error
     }
     Key := CodeParseExpression(Tokens,Index,Errors,0)
     Token := CodeParseToken(Tokens,Index), Index ++ ;wip: handle errors
-    If !(Token.Type = CodeTokenTypes.OPERATOR && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "OBJECT_END") ;mismatched parentheses
+    If !(Token.Type = CodeTokenTypes.OPERATOR && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "SUBSCRIPT_END") ;mismatched parentheses
     {
         MsgBox Invalid object access.
         Return, "ERROR: Invalid object access." ;wip: better error handling
