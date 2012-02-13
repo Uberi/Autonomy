@@ -136,3 +136,5 @@ CodeRecordErrorTokens(ByRef Errors,Identifier,Level,Caret = 0,Highlight = 0)
         Position := 0, Length := 1
     CodeRecordError(Errors,Identifier,Level,File,Position,Length,ProcessedHighlight)
 }
+
+#Include Resources/Operators.ahk

@@ -52,12 +52,13 @@ conditional                     pops the value off of the stack and stores it.
                                 pops the potential jump target off of the stack and stores it.
                                 jumps to the stored potential jump target if the stored value is truthy.
 
+;wip: generated identifiers are not always unique
 ;wip: static tail call detection
 ;wip: distinct Array type using contiguous memory, faster than Object hash table implementation
 ;wip: dead/unreachable code elimination
 */
 
-/*
+;/*
 #Include Resources\Reconstruct.ahk
 #Include Lexer.ahk
 #Include Parser.ahk
@@ -68,6 +69,7 @@ Code =
 (
 1+2*3 . "hello"
 )
+Code := "2*{3}*4"
 
 If CodeInit()
 {
@@ -122,18 +124,20 @@ CodeBytecodeOperation(SyntaxTree,Padding)
     Result := ""
     While, Index > 1
         Result .= CodeBytecode(SyntaxTree[Index],Padding . "`t"), Index --
-    Result .= Padding . "call " . (MaxIndex - 1) . "`n"
+    Result .= Padding . "call " . (MaxIndex - 2) . "`n"
     Return, Result
 }
 
 CodeBytecodeBlock(SyntaxTree,Padding)
 {
     Index := ObjMaxIndex(SyntaxTree)
-    Result := Padding . "push {`n"
+    Symbol1 := ":label" . StrLen(Padding) . "_1"
+    Symbol2 := ":label" . StrLen(Padding) . "_2"
+    Result := Padding . "push " . Symbol2 . "`n" . Padding . "jump`n" . Padding . Symbol1 . "`n"
     While, Index > 1
     {
         Result .= CodeBytecode(SyntaxTree[Index],Padding . "`t")
         Index --
     }
-    Return, Result . Padding . "}`n"
+    Return, Result . Padding . Symbol2 . "`n"
 }

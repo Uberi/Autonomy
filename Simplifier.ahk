@@ -366,13 +366,7 @@ CodeSimplifyExponentiate(This,Node)
 
 CodeSimplifyEvaluate(This,Node)
 {
-    global CodeTreeTypes
     If (ObjMaxIndex(Node) = 3) ;evaluate operation has only one subexpression
-    {
-        Operand := Node[3]
-        If (Operand[1] = CodeTreeTypes.OPERATION
-            && Operand[2][2] = "EVALUATE")
-            Return, Node[3] ;return the subexpression
-    }
+        Return, Node[3] ;return the subexpression
     Return, Node
 }
