@@ -1,6 +1,6 @@
 Program            = Statement , { LineEnd , Statement }
 Statement          = ( ObjectAccess , Assign , { "," , Assign } ) | Expression
-Expression         = Assign , { "," , Assign }
+Expression         = Assign , { Whitespace } , { "," , Assign , { Whitespace } }
 Assign             = Ternary , { ( ":=" | "+=" | "-=" | "*=" | "/=" | "//=" | ".=" | "|=" | "&=" | "^=" | "<<=" | ">>=" | "||=" | "&&=" ) , Ternary }
 Ternary            = Or , [ "?" , Ternary , ":" , Ternary ]
 Or                 = And , { "||" , And }
