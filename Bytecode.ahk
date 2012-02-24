@@ -97,12 +97,14 @@ CodeBytecodeInit()
     
 }
 
-CodeBytecode(SyntaxTree,Padding = "")
+CodeBytecode(SyntaxTree,Padding = "",LabelTable = "")
 {
     global CodeTreeTypes
+    If !IsObject(LabelTable)
+        LabelTable := Object() ;wip: this isn't very efficient
     NodeType := SyntaxTree[1]
     If (NodeType = CodeTreeTypes.OPERATION)
-        Return, CodeBytecodeOperation(SyntaxTree,Padding)
+        Return, CodeBytecodeOperation(SyntaxTree,Padding,LabelTable)
     Else If (NodeType = CodeTreeTypes.NUMBER)
         Return, Padding . "push #" . SyntaxTree[2] . "`n"
     Else If (NodeType = CodeTreeTypes.STRING)
@@ -113,12 +115,12 @@ CodeBytecode(SyntaxTree,Padding = "")
         Return, Padding . "push '" . Result . "'`n"
     }
     Else If (NodeType = CodeTreeTypes.IDENTIFIER)
-        Return, Padding . "push $" . SyntaxTree[2] . "`n"
+        Return, Padding . "push :" . SyntaxTree[2] . "`n"
     Else If (NodeType = CodeTreeTypes.BLOCK)
-        Return, CodeBytecodeBlock(SyntaxTree,Padding)
+        Return, CodeBytecodeBlock(SyntaxTree,Padding,LabelTable)
 }
 
-CodeBytecodeOperation(SyntaxTree,Padding)
+CodeBytecodeOperation(SyntaxTree,Padding,LabelTable)
 {
     MaxIndex := ObjMaxIndex(SyntaxTree), Index := MaxIndex
     Result := ""
@@ -128,11 +130,11 @@ CodeBytecodeOperation(SyntaxTree,Padding)
     Return, Result
 }
 
-CodeBytecodeBlock(SyntaxTree,Padding)
+CodeBytecodeBlock(SyntaxTree,Padding,LabelTable)
 {
     Index := ObjMaxIndex(SyntaxTree)
-    Symbol1 := ":label" . StrLen(Padding) . "_1"
-    Symbol2 := ":label" . StrLen(Padding) . "_2"
+    Symbol1 := ":" . CodeBytecodeSymbol(LabelTable,"block")
+    Symbol2 := ":" . CodeBytecodeSymbol(LabelTable,"block")
     Result := Padding . "push " . Symbol2 . "`n" . Padding . "jump`n" . Padding . Symbol1 . "`n"
     While, Index > 1
     {
@@ -140,4 +142,13 @@ CodeBytecodeBlock(SyntaxTree,Padding)
         Index --
     }
     Return, Result . Padding . Symbol2 . "`n"
+}
+
+CodeBytecodeSymbol(LabelTable,Prefix)
+{
+    If !ObjHasKey(LabelTable,Prefix)
+        LabelTable[Prefix] := 1
+    Else
+        LabelTable[Prefix] ++
+    Return, Prefix . LabelTable[Prefix]
 }
