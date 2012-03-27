@@ -137,4 +137,4 @@ CodeRecordErrorTokens(ByRef Errors,Identifier,Level,Caret = 0,Highlight = 0)
     CodeRecordError(Errors,Identifier,Level,File,Position,Length,ProcessedHighlight)
 }
 
-#Include Resources/Operators.ahk
+#Include Resources/Operators.ahk ;wip: this has a dependency on the parser, probably should remove this file entirely

@@ -28,7 +28,9 @@ Bytecode format
 
 Stack based virtual machine implementing a few simple instructions:
 
-:LABEL                          label definition for a location in the bytecode
+#comment                        line comment.
+
+:label                          label definition for a location in the bytecode.
 
 push value                      pushes a value onto the stack.
 

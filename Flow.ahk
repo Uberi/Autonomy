@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 SetBatchLines, -1
 
-Code := "2*{3}*4"
+Code := "while test,{ test := 0 }"
 
 If CodeInit()
 {
@@ -55,17 +55,22 @@ MsgBox % Bytecode . "`n" . ShowObject(FlowGraph)
 ExitApp
 */
 
-CodeFlow(ByRef Bytecode,ByRef Errors)
+CodeFlow(ByRef Bytecode,ByRef Errors) ;wip: return annotated AST
 {
-    SymbolTable := Object() ;wip: not sure if this is needed
+    SymbolTable := Object("main",1), CurrentLabel := "main"
     FlowGraph := [], Index := 0, CurrentBlock := ""
     Loop, Parse, Bytecode, `n, %A_Space%%A_Tab%
     {
         ;parse bytecode line
-        If SubStr(A_LoopField,1,1) = ":" ;line is a label definition
+        If SubStr(A_LoopField,1,1) = "`;" ;line is a comment
+            CurrentBlock .= A_LoopField . "`n" ;add to output
+        Else If SubStr(A_LoopField,1,1) = ":" ;line is a label definition
         {
-            Index ++, ObjInsert(FlowGraph,Index,CurrentBlock)
-            CurrentBlock := ""
+            Index ++, FlowGraph[Index] := CurrentBlock ;insert the new block into the symbol table
+            CurrentBlock := "" ;reset the current block to blank
+
+            SymbolTable[CurrentLabel] := Index ;add an entry to the symbol table
+            CurrentLabel := SubStr(A_LoopField,2)
         }
         Else ;line is an instruction
         {
@@ -74,10 +79,22 @@ CodeFlow(ByRef Bytecode,ByRef Errors)
                 Instruction := SubStr(A_LoopField,1,Temp1 - 1), Parameter := SubStr(A_LoopField,Temp1 + 1)
             Else
                 Instruction := A_LoopField, Parameter := ""
-
             CurrentBlock .= A_LoopField . "`n"
         }
     }
-    Index ++, ObjInsert(FlowGraph,Index,CurrentBlock)
+
+    Index ++, FlowGraph[Index] := CurrentBlock ;insert the new block into the symbol table
+    SymbolTable[CurrentLabel] := Index ;add an entry to the symbol table
+
+    ;wip
+    For Index, Block In FlowGraph
+    {
+        FoundPos := 1, FoundPos1 := 1, Block1 := ""
+        While, FoundPos := RegExMatch(Block,"S):(\w+)",Match,FoundPos)
+            Block1 .= SubStr(Block,FoundPos1,FoundPos - FoundPos1) . ":" . SymbolTable[Match1], FoundPos += StrLen(Match), FoundPos1 := FoundPos
+        Block1 .= SubStr(Block,FoundPos1)
+        FlowGraph[Index] := Block1
+    }
+
     Return, FlowGraph
 }
