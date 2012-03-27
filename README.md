@@ -10,8 +10,8 @@ Progress
 | Lexer         | Working        |
 | Preprocessor  | On Hold        |
 | Parser        | Mostly Working |
-| Simplifier    | In Progress    |
-| Bytecode      | In Progress    |
+| Simplifier    | Working        |
+| Bytecode      | Mostly Working |
 | Interpreter   | Pending        |
 | Error Handler | Working        |
 
