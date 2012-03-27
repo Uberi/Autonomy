@@ -12,6 +12,7 @@ Progress
 | Parser        | Mostly Working |
 | Simplifier    | Working        |
 | Bytecode      | Mostly Working |
+| Flow Graph    | In Progress    |
 | Interpreter   | Pending        |
 | Error Handler | Working        |
 
