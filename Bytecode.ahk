@@ -28,6 +28,8 @@ Bytecode format
 
 Stack based virtual machine implementing a few simple instructions:
 
+:LABEL                          label definition for a location in the bytecode
+
 push value                      pushes a value onto the stack.
 
 call paramcount                 pops and stores the jump target.
@@ -58,7 +60,7 @@ conditional                     pops the value off of the stack and stores it.
 ;wip: dead/unreachable code elimination
 */
 
-;/*
+/*
 #Include Resources\Reconstruct.ahk
 #Include Lexer.ahk
 #Include Parser.ahk
@@ -135,13 +137,17 @@ CodeBytecodeBlock(SyntaxTree,Padding,LabelTable)
     Index := ObjMaxIndex(SyntaxTree)
     Symbol1 := ":" . CodeBytecodeSymbol(LabelTable,"block")
     Symbol2 := ":" . CodeBytecodeSymbol(LabelTable,"block")
-    Result := Padding . "push " . Symbol2 . "`n" . Padding . "jump`n" . Padding . Symbol1 . "`n"
+    Result := Padding . "push " . Symbol2
+              . "`n" . Padding . "jump`n"
+              . Padding . Symbol1 . "`n"
     While, Index > 1
     {
         Result .= CodeBytecode(SyntaxTree[Index],Padding . "`t")
         Index --
     }
-    Return, Result . Padding . Symbol2 . "`n"
+    Return, Result
+            . Padding . Symbol2
+            . "`n" . Padding . "push " . Symbol1 . "`n"
 }
 
 CodeBytecodeSymbol(LabelTable,Prefix)
