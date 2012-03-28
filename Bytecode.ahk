@@ -129,7 +129,7 @@ CodeBytecodeOperation(SyntaxTree,Padding,LabelTable)
     MaxIndex := ObjMaxIndex(SyntaxTree), Index := MaxIndex
     Result := ""
     While, Index > 1
-        Result .= CodeBytecode(SyntaxTree[Index],Padding . "`t"), Index --
+        Result .= CodeBytecode(SyntaxTree[Index],Padding . "`t",LabelTable), Index --
     Result .= Padding . "call " . (MaxIndex - 2) . "`n"
     Return, Result
 }
@@ -144,7 +144,7 @@ CodeBytecodeBlock(SyntaxTree,Padding,LabelTable)
               . Padding . Symbol1 . "`n"
     While, Index > 1
     {
-        Result .= CodeBytecode(SyntaxTree[Index],Padding . "`t")
+        Result .= CodeBytecode(SyntaxTree[Index],Padding . "`t",LabelTable)
         Index --
     }
     Return, Result
