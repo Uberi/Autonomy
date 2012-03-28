@@ -8,7 +8,6 @@ Progress
 | Module        | Status         |
 |:--------------|:---------------|
 | Lexer         | Working        |
-| Preprocessor  | On Hold        |
 | Parser        | Mostly Working |
 | Simplifier    | Working        |
 | Bytecode      | Mostly Working |
@@ -32,7 +31,6 @@ Modules
 |:--------------------------|:-------------------------------------------------------------|
 | Code.ahk                  | Initialization routines.                                     |
 | Lexer.ahk                 | Tokenizes source code, outputting a token stream.            |
-| Preprocessor.ahk          | Preprocesses a token stream.                                 |
 | Parser.ahk                | Parses a token stream into a syntax tree.                    |
 | Simplifier.ahk            | Simplifies a syntax tree.                                    |
 | Bytecode.ahk              | Converts a syntax tree to bytecode.                          |

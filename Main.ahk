@@ -63,7 +63,7 @@ Long term tasks:
 * Error messages should provide quick fixes for common causes of the issue
 * for-loops and try-catch-else-finally should have an Else clause that executes if the loop did not break or an exception was not thrown
 * Library in non-annotated parse tree format; allows libraries to avoid recompilation each time by using a linker. Libraries cannot be in bytecode because of the type inferencer, unless each function in the library is changed to allow any type of argument at all, and then it would not have very good type checking or performance
-* Multipass compilation by saving passes to file: Source files are *.ato, tokenized is *.att, parsed is *.ats, annotated is *.ata, bytecode is *.atc. this would also allow the preprocessor and etc. to not have to re-lex included files every time a script uses them
+* Multipass compilation by saving passes to file: Source files are *.ato, tokenized is *.att, parsed is *.ats, annotated is *.ata, bytecode is *.atc. this would also allow the parser and etc. to not have to re-lex included files every time a script uses them
 * Incremental parser and lexer for IDE use, have object mapping line numbers to token indexes, have parser save state at intervals, lex changed lines only, restore parser state to the saved state right before the token index of the changed token, keep parsing to the end of the file
 * Lua-like _global[] and _local[] and _parent[] (_G[] in Lua) mechanism to replace dynamic variables
 * "local" keyword works on current block, instead of current function, and can make block assume-local: If Something { local SomeVar := "Test" } ;SomeVar is freed after the If block goes out of scope
@@ -124,7 +124,6 @@ ExitApp
 
 #Include Code.ahk
 #Include Lexer.ahk
-#Include Preprocessor.ahk
 #Include Parser.ahk
 #Include Simplifier.ahk
 #Include Bytecode.ahk

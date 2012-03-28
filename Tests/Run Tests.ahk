@@ -90,7 +90,6 @@ ControlTimer := StopTimer(ControlTimer)
 
 TestIndex := 1
 Gosub, TestLexer
-Gosub, TestPreprocessor
 Gosub, TestParser
 Gosub, TestBytecode
 Gosub, TestInterpreter
@@ -144,44 +143,6 @@ Loop, %A_ScriptDir%\Lexer\*.txt
                 ShowOutput(TestName,0,Output)
         }
         Else If ((Output := CodeReconstructShowTokens(Tokens)) != TestTokenOutput)
-        {
-            ExtraInfo := "Output does not match expected output.", TestStatus := "Fail"
-            If Debug
-                ShowOutput(TestName,1,Output)
-        }
-        Else
-            ExtraInfo := "Executed in " . Temp1 . " milliseconds.", TestStatus := "Pass"
-    }
-    Else
-        ExtraInfo := "Invalid test.", TestStatus := "Fail"
-    LV_Add("",TestIndex,TestName,TestStatus,ExtraInfo), TestIndex ++
-}
-Return
-
-TestPreprocessor:
-TestPath := PathJoin(A_ScriptDir,"Preprocessor","Inclusion.txt")
-CodeSetScript(TestPath,Errors,Files) ;set the current script file
-CodePreprocessInit(Files)
-Loop, %A_ScriptDir%\Preprocessor\*.txt
-{
-    TestName := "Preprocessor - " . A_LoopFileName
-    FileRead(FileContents,A_LoopFileLongPath)
-    If RegExMatch(FileContents,"sS)^(?P<Tokens>.*?)\r?\n---\r?\n(?P<ErrorOutput>.*?)\r?\n---\r?\n(?P<TokenOutput>.*)$",Test)
-    {
-        TestTokens := ParseTokenDescription(TestTokens)
-        StringReplace, TestErrorOutput, TestErrorOutput, `r,, All
-        StringReplace, TestTokenOutput, TestTokenOutput, `r,, All
-        CodeSetScript(TestPath,Errors,Files) ;reset variables
-        Temp1 := StartTimer()
-        CodePreprocess(TestTokens,ProcessedTokens,Errors,Files)
-        Temp1 := StopTimer(Temp1) - ControlTimer
-        If ((Output := ShowObject(Errors)) != TestErrorOutput)
-        {
-            ExtraInfo := "Generated errors do not match expected errors.", TestStatus := "Fail"
-            If Debug
-                ShowOutput(TestName,0,Output)
-        }
-        Else If ((Output := CodeReconstructShowTokens(ProcessedTokens)) != TestTokenOutput)
         {
             ExtraInfo := "Output does not match expected output.", TestStatus := "Fail"
             If Debug
