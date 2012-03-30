@@ -24,9 +24,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;initializes resources that the lexer requires
 CodeLexInit()
 {
-    global CodeOperatorTable, CodeLexerConstants, CodeLexerStatementList, CodeLexerStatementLiteralList, CodeLexerOperatorMaxLength
+    global CodeOperatorTable, CodeLexerConstants, CodeLexerOperatorMaxLength
     CodeLexerConstants := Object("ESCAPE","``","SINGLE_LINE_COMMENT",";","MULTILINE_COMMENT_BEGIN","/*","MULTILINE_COMMENT_END","*/","SEPARATOR",",","IDENTIFIER","abcdefghijklmnopqrstuvwxyz_1234567890#")
-    CodeLexerStatementList := Object("#Include",1,"#Define",0,"#Undefine",0,"#If",0,"#Else",1,"#ElseIf",0,"#EndIf",1,"#Error",0,"local",0,"global",0,"static",0) ;a list of statements and whether they accept literal parameters
 
     CodeLexerOperatorMaxLength := 1 ;one is the maximum length of the other syntax elements - commas, parentheses, square brackets, and curly brackets
     For Temp1 In CodeOperatorTable.NullDenotation ;get the length of the longest null denotation operator
@@ -44,7 +43,6 @@ CodeLex(ByRef Code,ByRef Errors,ByRef FileIndex = 1)
     If (CurrentChar = "") ;past the end of the string
         Return, 0
     CodeLexLine(Code,Position,Tokens) ;move past whitespace and comment lines
-    CodeLexStatement(Code,Position,Tokens,FileIndex) ;check for statements
     Loop
     {
         CurrentChar := SubStr(Code,Position,1)
@@ -55,8 +53,7 @@ CodeLex(ByRef Code,ByRef Errors,ByRef FileIndex = 1)
         {
             Position1 := Position, Position ++ ;store the position, move past the newline character
             CodeLexLine(Code,Position,Tokens) ;move past whitespace and comment lines
-            ObjInsert(Tokens,Object("Type",CodeTokenTypes.LINE_END,"Value","","Position",Position1,"File",FileIndex)) ;add the statement end to the token array
-            CodeLexStatement(Code,Position,Tokens,FileIndex) ;check for statements
+            ObjInsert(Tokens,Object("Type",CodeTokenTypes.LINE_END,"Value","","Position",Position1,"File",FileIndex)) ;add the line end to the token array
         }
         Else If (CurrentChar = """") ;begin literal string
             CodeLexString(Code,Position,Tokens,Errors,FileIndex)
@@ -113,69 +110,6 @@ CodeLexLine(ByRef Code,ByRef Position,ByRef Tokens)
         Else ;normal line
             Break
     }
-}
-
-;lexes a statement to find control structures and directives
-CodeLexStatement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
-{ ;returns 1 if the line cannot be lexed as a statement, 0 otherwise
-    global CodeTokenTypes, CodeLexerConstants, CodeLexerStatementList
-
-    ;retrieve the candidate statement
-    Position1 := Position, Statement := ""
-    Loop
-    {
-        CurrentChar := SubStr(Code,Position,1)
-        If (CurrentChar = "" || !InStr(CodeLexerConstants.IDENTIFIER,CurrentChar))
-            Break
-        Statement .= CurrentChar, Position ++
-    }
-
-    ;determine whether the line should be processed as an expression instead of a statement
-    If !(((CurrentChar := SubStr(Code,Position,1)) = CodeLexerConstants.SEPARATOR || CurrentChar = "`r" || CurrentChar = "`n" || CurrentChar = " " || CurrentChar = "`t" || CurrentChar = "") ;current character is not a statement character
-       && ObjHasKey(CodeLexerStatementList,Statement)) ;current statement is not a valid statement
-    {
-        Position := Position1 ;move the position back to the beginning of the line, to allow it to be processed again as an expression
-        Return, 1
-    }
-
-    ObjInsert(Tokens,Object("Type",CodeTokenTypes.STATEMENT,"Value",Statement,"Position",Position1,"File",FileIndex)) ;add the statement to the token array
-
-    If CodeLexerStatementList[Statement] ;the current statement accepts literal parameters
-    {
-        ;move past whitespace and a separator character if present
-        While, ((CurrentChar := SubStr(Code,Position,1)) = " " || CurrentChar = "`t") ;skip over whitespace
-            Position ++
-        If (CurrentChar = CodeLexerConstants.SEPARATOR) ;separator found
-        {
-            Position ++ ;move past the separator
-            While, ((CurrentChar := SubStr(Code,Position,1)) = " " || CurrentChar = "`t") ;skip over any remaining whitespace
-                Position ++
-        }
-
-        ;extract statement parameters
-        Position1 := Position, Parameters := "" ;store the position and prepare to store the parameters
-        While, ((CurrentChar := SubStr(Code,Position,1)) != "`r" && CurrentChar != "`n" && CurrentChar != "") ;move to the end of the line
-        {
-            CurrentTwoChar := SubStr(Code,Position,2)
-            If (CurrentTwoChar = CodeLexerConstants.MULTILINE_COMMENT_BEGIN) ;begin multiline comment
-                CodeLexMultilineComment(Code,Position) ;skip over the comment block
-            Else If (CurrentTwoChar = CodeLexerConstants.MULTILINE_COMMENT_END) ;end multiline comment
-                Position += StrLen(CodeLexerConstants.MULTILINE_COMMENT_END) ;move past multiline comment end
-            Else If (CurrentChar = CodeLexerConstants.SINGLE_LINE_COMMENT) ;single line comment
-                CodeLexSingleLineComment(Code,Position) ;skip over comment
-            Else ;append the text to the parameter
-                Position ++, Parameters .= CurrentChar
-        }
-
-        ;trim trailing whitespace from parameters
-        Length := Position - Position1
-        While, ((CurrentChar := SubStr(Parameters,Length,1)) = " " || CurrentChar = "`t")
-            Length --
-        Parameters := SubStr(Parameters,1,Length)
-
-        ObjInsert(Tokens,Object("Type",CodeTokenTypes.STRING,"Value",Parameters,"Position",Position1,"File",FileIndex)) ;add the statement parameters to the token array
-    }
-    Return, 0
 }
 
 ;lexes a quoted string, handling escaped characters
