@@ -1,12 +1,10 @@
 File 1: IDENTIFIER (1):  'Something'
 File 1: OPERATOR   (10): '++'
 File 1: OPERATOR   (12): '-'
-File 1: OPERATOR   (13): '++'
-File 1: IDENTIFIER (15): 'Something1'
+File 1: IDENTIFIER (13): 'Something1'
 ---
 
 ---
 (EVALUATE 
 	(SUBTRACT 
-		(INCREMENT Something) 
-		(INCREMENT Something1)))
+		(INCREMENT Something) Something1))
