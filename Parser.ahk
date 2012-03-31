@@ -90,9 +90,9 @@ CodeParse(Tokens,ByRef Errors)
     Loop ;loop through one subexpression at a time
     {
         If (Token.Type = CodeTokenTypes.LINE_END || Index = 1) ;beginning of a line
-            ObjInsert(Operands,CodeParseLine(Tokens,Index,Errors)) ;parse a line and add it to the operand array
+            Operands.Insert(CodeParseLine(Tokens,Index,Errors)) ;parse a line and add it to the operand array
         Else
-            ObjInsert(Operands,CodeParseExpression(Tokens,Index,Errors,0)) ;parse an expression and add it to the operand array
+            Operands.Insert(CodeParseExpression(Tokens,Index,Errors,0)) ;parse an expression and add it to the operand array
         Try Token := CodeParseToken(Tokens,Index)
         Catch ;end of token stream
             Break
@@ -104,7 +104,7 @@ CodeParse(Tokens,ByRef Errors)
         Index ++
     }
 
-    If (Index <= ObjMaxIndex(Tokens)) ;did not reach the end of the token stream
+    If (Index <= Tokens.MaxIndex()) ;did not reach the end of the token stream
     {
         ;wip: better error handling
     }
@@ -117,7 +117,7 @@ CodeParseLine(Tokens,ByRef Index,ByRef Errors,RightBindingPower = 0) ;wip: handl
     global CodeTokenTypes, CodeOperatorTable
     ;check whether the line is a statement or not
     Statement := Tokens[Index]
-    If ObjHasKey(Tokens,Index + 1) ;no tokens remain
+    If Tokens.HasKey(Index + 1) ;no tokens remain
     {
         NextToken := Tokens[Index + 1] ;wip: check for token stream end
         If (Statement.Type = CodeTokenTypes.IDENTIFIER ;current token is an identifier
@@ -125,7 +125,7 @@ CodeParseLine(Tokens,ByRef Index,ByRef Errors,RightBindingPower = 0) ;wip: handl
                 || NextToken.Type = CodeTokenTypes.STRING ;next token is a string
                 || NextToken.Type = CodeTokenTypes.IDENTIFIER ;next token is an identifier
                 || (NextToken.Type = CodeTokenTypes.OPERATOR ;next token is an operator
-                    && !ObjHasKey(CodeOperatorTable.LeftDenotation,NextToken.Value)))) ;operator does not have a left denotation
+                    && !CodeOperatorTable.LeftDenotation.HasKey(NextToken.Value)))) ;operator does not have a left denotation
             Return, CodeParseStatement(Tokens,Index,Errors)
     }
     Return, CodeParseExpression(Tokens,Index,Errors,RightBindingPower)
@@ -211,7 +211,7 @@ CodeParseDispatchLeftDenotation(Tokens,ByRef Index,ByRef Errors,Token,LeftSide)
 CodeParseOperatorLeftBindingPower(Token)
 {
     global CodeOperatorTable
-    If ObjHasKey(CodeOperatorTable.LeftDenotation,Token.Value)
+    If CodeOperatorTable.LeftDenotation.HasKey(Token.Value)
         Return, CodeOperatorTable.LeftDenotation[Token.Value].LeftBindingPower
     Return, CodeOperatorTable.NullDenotation[Token.Value].LeftBindingPower
 }
@@ -219,7 +219,7 @@ CodeParseOperatorLeftBindingPower(Token)
 CodeParseOperatorNullDenotation(Tokens,ByRef Index,ByRef Errors,Token)
 {
     global CodeOperatorTable
-    If ObjHasKey(CodeOperatorTable.NullDenotation,Token.Value)
+    If CodeOperatorTable.NullDenotation.HasKey(Token.Value)
     {
         Operator := CodeOperatorTable.NullDenotation[Token.Value] ;retrieve operator object
         Return, Operator.Handler.(Tokens,Index,Errors,Operator) ;dispatch the null denotation handler for the operator ;wip: function reference call
@@ -231,7 +231,7 @@ CodeParseOperatorNullDenotation(Tokens,ByRef Index,ByRef Errors,Token)
 CodeParseOperatorLeftDenotation(Tokens,ByRef Index,ByRef Errors,Token,LeftSide)
 {
     global CodeTokenTypes, CodeOperatorTable
-    If !ObjHasKey(CodeOperatorTable.LeftDenotation,Token.Value)
+    If !CodeOperatorTable.LeftDenotation.HasKey(Token.Value)
     {
         MsgBox Invalid operator usage.
         Return, "ERROR: Invalid operator usage." ;wip: better error handling
@@ -261,7 +261,7 @@ CodeParseOperatorPostfix(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
 ;get the next token
 CodeParseToken(Tokens,ByRef Index)
 {
-    If (Index > ObjMaxIndex(Tokens))
+    If (Index > Tokens.MaxIndex())
         Throw Exception("Token stream end.",-1)
     Return, Tokens[Index]
 }

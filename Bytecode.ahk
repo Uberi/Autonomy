@@ -126,7 +126,7 @@ CodeBytecode(SyntaxTree,Padding = "",LabelTable = "")
 
 CodeBytecodeOperation(SyntaxTree,Padding,LabelTable)
 {
-    MaxIndex := ObjMaxIndex(SyntaxTree), Index := MaxIndex
+    MaxIndex := SyntaxTree.MaxIndex(), Index := MaxIndex
     Result := ""
     While, Index > 1
         Result .= CodeBytecode(SyntaxTree[Index],Padding . "`t",LabelTable), Index --
@@ -136,7 +136,7 @@ CodeBytecodeOperation(SyntaxTree,Padding,LabelTable)
 
 CodeBytecodeBlock(SyntaxTree,Padding,LabelTable)
 {
-    Index := ObjMaxIndex(SyntaxTree)
+    Index := SyntaxTree.MaxIndex()
     Symbol1 := ":" . CodeBytecodeSymbol(LabelTable,"block")
     Symbol2 := ":" . CodeBytecodeSymbol(LabelTable,"block")
     Result := Padding . "push " . Symbol2
@@ -154,7 +154,7 @@ CodeBytecodeBlock(SyntaxTree,Padding,LabelTable)
 
 CodeBytecodeSymbol(LabelTable,Prefix)
 {
-    If !ObjHasKey(LabelTable,Prefix)
+    If !LabelTable.HasKey(Prefix)
         LabelTable[Prefix] := 1
     Else
         LabelTable[Prefix] ++

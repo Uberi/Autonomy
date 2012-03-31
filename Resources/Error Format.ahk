@@ -128,7 +128,7 @@ CodeErrorFormat(ByRef Code,ByRef Errors,ByRef Files)
         CodeGetErrorPosition(Code,Caret,Line,Column)
         CodeGetErrorPosition(Code,CaretPosition,Line,Column)
         Temp1 := CurrentError.Identifier
-        If ObjHasKey(CodeErrorMessages,Temp1)
+        If CodeErrorMessages.HasKey(Temp1)
             Message := CodeErrorMessages[Temp1] ;get the error message
         Else
             Message := "Unknown error."

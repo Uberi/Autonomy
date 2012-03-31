@@ -92,7 +92,10 @@ CodeFlow(ByRef Bytecode,ByRef Errors) ;wip: return annotated AST
     {
         FoundPos := 1, FoundPos1 := 1, Block1 := ""
         While, FoundPos := RegExMatch(Block,"S):(\w+)",Match,FoundPos)
-            Block1 .= SubStr(Block,FoundPos1,FoundPos - FoundPos1) . ":" . (ObjHasKey(SymbolTable,Match1) ? SymbolTable[Match1] : Match1), FoundPos += StrLen(Match), FoundPos1 := FoundPos
+        {
+            Block1 .= SubStr(Block,FoundPos1,FoundPos - FoundPos1) . ":" . (SymbolTable.HasKey(Match1) ? SymbolTable[Match1] : Match1)
+            FoundPos += StrLen(Match), FoundPos1 := FoundPos
+        }
         Block1 .= SubStr(Block,FoundPos1)
         FlowGraph[Index] := Block1
     }

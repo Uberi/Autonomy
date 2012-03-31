@@ -112,15 +112,15 @@ CodeSimplify(SyntaxTree)
         Result := [CodeTreeTypes.OPERATION,Operation]
 
         Index := 3
-        Loop, % ObjMaxIndex(SyntaxTree) - 2
-            ObjInsert(Result,CodeSimplify(SyntaxTree[Index])), Index ++
+        Loop, % SyntaxTree.MaxIndex() - 2
+            Result.Insert(CodeSimplify(SyntaxTree[Index])), Index ++
 
-        If ObjHasKey(SimplifyOperations,Operation[2])
+        If SimplifyOperations.HasKey(Operation[2])
             Return, SimplifyOperations[Operation[2]](Result)
         Return, Result
     }
     Else If (SyntaxTree[1] = CodeTreeTypes.BLOCK ;node is a block
-            && ObjMaxIndex(SyntaxTree) = 2 ;node contains only one subnode
+            && SyntaxTree.MaxIndex() = 2 ;node contains only one subnode
             && SyntaxTree[2][1] = CodeTreeTypes.BLOCK) ;subnode is a block
         Return, CodeSimplify(SyntaxTree[2]) ;directly return the inner block
 
@@ -366,7 +366,7 @@ CodeSimplifyExponentiate(This,Node)
 
 CodeSimplifyEvaluate(This,Node)
 {
-    If (ObjMaxIndex(Node) = 3) ;evaluate operation has only one subexpression
+    If (Node.MaxIndex() = 3) ;evaluate operation has only one subexpression
         Return, Node[3] ;return the subexpression
     Return, Node
 }

@@ -105,7 +105,7 @@ CodeSetScript(ByRef Path = "",ByRef Errors = "",ByRef Files = "") ;wip: remove t
 CodeRecordError(ByRef Errors,Identifier,Level,File,Caret = 0,CaretLength = 1,Highlight = 0)
 {
     ErrorRecord := Object("Identifier",Identifier,"Level",Level,"Highlight",Highlight,"Caret",Object("Position",Caret,"Length",CaretLength),"File",File)
-    ObjInsert(Errors,ErrorRecord) ;add an error to the error log
+    Errors.Insert(ErrorRecord) ;add an error to the error log
 }
 
 ;an alternative, convenient way to record errors by passing tokens to the function instead of positions and lengths
@@ -115,7 +115,7 @@ CodeRecordErrorTokens(ByRef Errors,Identifier,Level,Caret = 0,Highlight = 0)
     {
         File := Highlight.1.File, ProcessedHighlight := []
         For Index, Token In Highlight
-            ObjInsert(ProcessedHighlight,Object("Position",Token.Position,"Length",StrLen(Token.Value)))
+            ProcessedHighlight.Insert(Object("Position",Token.Position,"Length",StrLen(Token.Value)))
     }
     Else
         ProcessedHighlight := 0
