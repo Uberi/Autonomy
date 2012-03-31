@@ -26,7 +26,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 CodeLexInit()
 {
     global CodeOperatorTable, CodeLexerConstants, CodeLexerOperatorMaxLength
-    CodeLexerConstants := Object("ESCAPE","``","SINGLE_LINE_COMMENT",";","MULTILINE_COMMENT_BEGIN","/*","MULTILINE_COMMENT_END","*/","SEPARATOR",",","IDENTIFIER","abcdefghijklmnopqrstuvwxyz_1234567890#")
+    CodeLexerConstants := Object("ESCAPE",                  "``"
+                                ,"SINGLE_LINE_COMMENT",     ";"
+                                ,"MULTILINE_COMMENT_BEGIN", "/*"
+                                ,"MULTILINE_COMMENT_END",   "*/"
+                                ,"SEPARATOR",               ","
+                                ,"IDENTIFIER",              "abcdefghijklmnopqrstuvwxyz_1234567890#")
 
     CodeLexerOperatorMaxLength := 1 ;one is the maximum length of the other syntax elements - commas, parentheses, square brackets, and curly brackets
     For Temp1 In CodeOperatorTable.NullDenotation ;get the length of the longest null denotation operator
@@ -93,7 +98,7 @@ CodeLex(ByRef Code,ByRef Errors,ByRef FileIndex = 1)
 ;lexes lines with comments or whitespace
 CodeLexLine(ByRef Code,ByRef Position,ByRef Tokens)
 {
-    global CodeTokenTypes, CodeLexerConstants
+    global CodeLexerConstants
     Loop
     {
         If ((CurrentChar := SubStr(Code,Position,1)) = "`r" || CurrentChar = "`n" || CurrentChar = " " || CurrentChar = "`t") ;whitespace character
@@ -116,7 +121,7 @@ CodeLexLine(ByRef Code,ByRef Position,ByRef Tokens)
 ;lexes a quoted string, handling escaped characters
 CodeLexString(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef FileIndex)
 { ;returns 1 if the quotation mark was unmatched, 0 otherwise
-    global CodeTokenTypes, CodeLexerConstants
+    global CodeLexerConstants
     Position1 := Position, Output := "", Position ++ ;move to after the opening quotation mark
     Loop
     {
@@ -183,7 +188,7 @@ CodeLexMultilineComment(ByRef Code,ByRef Position)
 ;lexes a object access operator, which can be either a concatenation operator or an object access operator depending on the surrounding whitespace
 CodeLexObjectAccessOperator(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,FileIndex)
 { ;returns 1 on invalid operator usage, 0 otherwise
-    global CodeTokenTypes, CodeLexerConstants
+    global CodeLexerConstants
     Position ++, NextChar := SubStr(Code,Position,1) ;store the surrounding characters
     If InStr(CodeLexerConstants.IDENTIFIER,NextChar) ;object access (lexer handling ensures that Var.123.456 will have the purely numerical keys interpreted as identifiers instead of numbers)
     {
@@ -201,7 +206,7 @@ CodeLexObjectAccessOperator(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,
 ;lexes operators and syntax elements
 CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
 { ;returns 1 if no syntax element was found, 0 otherwise
-    global CodeTokenTypes, CodeOperatorTable, CodeLexerConstants, CodeLexerOperatorMaxLength
+    global CodeOperatorTable, CodeLexerConstants, CodeLexerOperatorMaxLength
     Temp1 := CodeLexerOperatorMaxLength, Position1 := Position
     Loop, %CodeLexerOperatorMaxLength% ;loop until a valid token is found
     {
@@ -227,7 +232,8 @@ CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
 ;lexes a number, and if it is not a valid number, notify that it may be an identifier
 CodeLexNumber(ByRef Code,ByRef Position,ByRef Tokens,FileIndex)
 { ;returns 1 if the input could not be lexed as a number, 0 otherwise
-    global CodeTokenTypes, CodeLexerConstants
+    global CodeLexerConstants
+    global CodeLexerConstants
     Output := "", Position1 := Position, NumberChars := "1234567890", DecimalUsed := 0
     If (SubStr(Code,Position,2) = "0x") ;hexadecimal number
         DecimalUsed := 1, Position += 2, Output .= "0x", NumberChars .= "abcdefABCDEF" ;prevent the usage of decimals in hexadecimal numbers, skip over the identifying characters, append them to the number, and expand the valid number characters set
@@ -263,7 +269,7 @@ CodeLexNumber(ByRef Code,ByRef Position,ByRef Tokens,FileIndex)
 ;lexes an identifier
 CodeLexIdentifier(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
 {
-    global CodeTokenTypes, CodeLexerConstants
+    global CodeLexerConstants
     Output := SubStr(Code,Position,1), Position1 := Position, Position ++
     Loop
     {
