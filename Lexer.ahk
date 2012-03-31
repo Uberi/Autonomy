@@ -54,7 +54,7 @@ CodeLex(ByRef Code,ByRef Errors,ByRef FileIndex = 1)
         {
             Position1 := Position, Position ++ ;store the position, move past the newline character
             CodeLexLine(Code,Position,Tokens) ;move past whitespace and comment lines
-            ObjInsert(Tokens,Object("Type",CodeTokenTypes.LINE_END,"Value","","Position",Position1,"File",FileIndex)) ;add the line end to the token array
+            Tokens.Insert(CodeTokenLineEnd(Position1,FileIndex)) ;add the line end to the token array
         }
         Else If (CurrentChar = """") ;begin literal string
             CodeLexString(Code,Position,Tokens,Errors,FileIndex)
@@ -147,7 +147,7 @@ CodeLexString(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,ByRef FileInde
             Output .= CurrentChar, Position ++ ;append the character to the output
     }
     Position ++ ;move to after the closing quotation mark
-    ObjInsert(Tokens,Object("Type",CodeTokenTypes.STRING,"Value",Output,"Position",Position1,"File",FileIndex)) ;add the string literal to the token array
+    Tokens.Insert(CodeTokenString(Output,Position1,FileIndex)) ;add the string literal to the token array
     Return, 0
 }
 
@@ -187,7 +187,7 @@ CodeLexObjectAccessOperator(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,
     Position ++, NextChar := SubStr(Code,Position,1) ;store the surrounding characters
     If InStr(CodeLexerConstants.IDENTIFIER,NextChar) ;object access (lexer handling ensures that Var.123.456 will have the purely numerical keys interpreted as identifiers instead of numbers)
     {
-        ObjInsert(Tokens,Object("Type",CodeTokenTypes.OPERATOR,"Value",".","Position",Position - 1,"File",FileIndex)) ;add an object access token to the token array
+        Tokens.Insert(CodeTokenOperator(".",Position - 1,FileIndex)) ;add an object access token to the token array
         CodeLexIdentifier(Code,Position,Tokens,FileIndex) ;lex identifier
     }
     Else ;object access was not followed by an identifier
@@ -205,20 +205,19 @@ CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
     Temp1 := CodeLexerOperatorMaxLength, Position1 := Position
     Loop, %CodeLexerOperatorMaxLength% ;loop until a valid token is found
     {
-        SyntaxElement := SubStr(Code,Position,Temp1), Value := ""
+        SyntaxElement := SubStr(Code,Position,Temp1)
         If (SyntaxElement = CodeLexerConstants.SEPARATOR) ;found separator
-            TokenType := CodeTokenTypes.SEPARATOR
+            Tokens.Insert(CodeTokenSeparator(Position1,FileIndex)) ;add separator to the token array
         Else If ((ObjHasKey(CodeOperatorTable.NullDenotation,SyntaxElement) || ObjHasKey(CodeOperatorTable.LeftDenotation,SyntaxElement)) ;found operator in null or left denotation of the operator table
                 && !(InStr(CodeLexerConstants.IDENTIFIER,SubStr(SyntaxElement,0)) ;last character of the operator is an identifier character
                 && (CurrentChar := SubStr(Code,Position + Temp1,1)) != "" ;operator is not at the end of the source file
                 && InStr(CodeLexerConstants.IDENTIFIER,CurrentChar))) ;character after the operator is an identifier character
-            TokenType := CodeTokenTypes.OPERATOR, Value := SyntaxElement
+            Tokens.Insert(CodeTokenOperator(SyntaxElement,Position1,FileIndex)) ;add the operator to the token array
         Else
         {
             Temp1 -- ;reduce the length of the input to be checked
             Continue
         }
-        ObjInsert(Tokens,Object("Type",TokenType,"Value",Value,"Position",Position1,"File",FileIndex)) ;add the found syntax element to the token array
         Position += StrLen(SyntaxElement) ;move past the syntax element, making sure the position is not past the end of the file
         Return, 0
     }
@@ -257,7 +256,7 @@ CodeLexNumber(ByRef Code,ByRef Position,ByRef Tokens,FileIndex)
             Break
         Position ++
     }
-    ObjInsert(Tokens,Object("Type",CodeTokenTypes.NUMBER,"Value",Output,"Position",Position1,"File",FileIndex)) ;add the number literal to the token array
+    Tokens.Insert(CodeTokenNumber(Output,Position1,FileIndex)) ;add the number literal to the token array
     Return, 0
 }
 
@@ -273,5 +272,5 @@ CodeLexIdentifier(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
             Break
         Output .= CurrentChar, Position ++
     }
-    ObjInsert(Tokens,Object("Type",CodeTokenTypes.IDENTIFIER,"Value",Output,"Position",Position1,"File",FileIndex)) ;add the identifier to the token array
+    Tokens.Insert(CodeTokenIdentifier(Output,Position1,FileIndex)) ;add the identifier to the token array
 }
