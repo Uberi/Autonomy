@@ -43,7 +43,7 @@ CodeLexInit()
 ;lexes plain source code, including all syntax
 CodeLex(ByRef Code,ByRef Errors,ByRef FileIndex = 1)
 { ;returns 1 on error, 0 otherwise
-    global CodeTokenTypes, CodeLexerConstants
+    global CodeLexerConstants
     Tokens := [], Position := 1 ;initialize variables
     CurrentChar := SubStr(Code,Position,1)
     If (CurrentChar = "") ;past the end of the string
@@ -89,9 +89,6 @@ CodeLex(ByRef Code,ByRef Errors,ByRef FileIndex = 1)
             Position ++ ;move past the character
         }
     }
-    Temp1 := ObjMaxIndex(Tokens) ;get the highest token index
-    If (Tokens[Temp1].Type = CodeTokenTypes.LINE_END) ;last token is a newline
-        ObjRemove(Tokens,Temp1,"") ;remove the last token
     Return, Tokens
 }
 
