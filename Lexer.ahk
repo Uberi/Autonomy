@@ -1,6 +1,7 @@
 #NoEnv
 
 #Include Code.ahk
+#Include Resources/Token.ahk
 
 /*
 Copyright 2011-2012 Anthony Zhang <azhang9@gmail.com>
@@ -63,8 +64,8 @@ CodeLex(ByRef Code,ByRef Errors,ByRef FileIndex = 1)
             CodeLexMultilineComment(Code,Position) ;skip over the comment block
         Else If (CurrentTwoChar = CodeLexerConstants.MULTILINE_COMMENT_END) ;end multiline comment
             Position += StrLen(CodeLexerConstants.MULTILINE_COMMENT_END) ;move past multiline comment end
-        Else If (CurrentChar = ".") ;concatenation operator or object access
-            CodeLexPeriodOperator(Code,Position,Tokens,Errors,FileIndex)
+        Else If (CurrentChar = "." && SubStr(Code,Position + 1,1) != ".") ;object access
+            CodeLexObjectAccessOperator(Code,Position,Tokens,Errors,FileIndex)
         Else If (CurrentChar = " " || CurrentChar = "`t") ;whitespace
             Position ++ ;skip to the next character
         Else If !CodeLexSyntaxElement(Code,Position,Tokens,FileIndex) ;input is a syntax element
@@ -179,29 +180,19 @@ CodeLexMultilineComment(ByRef Code,ByRef Position)
     Position += StrLen(CodeLexerConstants.MULTILINE_COMMENT_END) - 1 ;skip over the closing comment
 }
 
-;lexes a period operator, which can be either a concatenation operator or an object access operator depending on the surrounding whitespace
-CodeLexPeriodOperator(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,FileIndex)
+;lexes a object access operator, which can be either a concatenation operator or an object access operator depending on the surrounding whitespace
+CodeLexObjectAccessOperator(ByRef Code,ByRef Position,ByRef Tokens,ByRef Errors,FileIndex)
 { ;returns 1 on invalid operator usage, 0 otherwise
     global CodeTokenTypes, CodeLexerConstants
-    Position1 := Position, Position ++, NextChar := SubStr(Code,Position,1) ;store the surrounding characters
-    If (NextChar = " " || NextChar = "`t") ;concatenation operator
-    {
-        If ((PreviousChar := SubStr(Code,Position - 2,1)) = " " || PreviousChar = "`t" || PreviousChar = "`r" || PreviousChar = "`n") ;concatenation operator must have whitespace precede it
-            ObjInsert(Tokens,Object("Type",CodeTokenTypes.OPERATOR,"Value"," . ","Position",Position - 1,"File",FileIndex)) ;add a concatenation token to the token array
-        Else
-        {
-            CodeRecordError(Errors,"INVALID_CONCATENATION",3,FileIndex,Position - 1,1,[Object("Position",Position1,"Length",1),Object("Position",Position,"Length",1)])
-            Return, 1
-        }
-    }
-    Else If InStr(CodeLexerConstants.IDENTIFIER,NextChar) ;object access (lexer handling ensures that Var.123.456 will have the purely numerical keys interpreted as identifiers instead of numbers)
+    Position ++, NextChar := SubStr(Code,Position,1) ;store the surrounding characters
+    If InStr(CodeLexerConstants.IDENTIFIER,NextChar) ;object access (lexer handling ensures that Var.123.456 will have the purely numerical keys interpreted as identifiers instead of numbers)
     {
         ObjInsert(Tokens,Object("Type",CodeTokenTypes.OPERATOR,"Value",".","Position",Position - 1,"File",FileIndex)) ;add an object access token to the token array
         CodeLexIdentifier(Code,Position,Tokens,FileIndex) ;lex identifier
     }
     Else ;object access was not followed by an identifier
     {
-        CodeRecordError(Errors,"INVALID_OBJECT_ACCESS",3,FileIndex,Position1,1,[Object("Position",Position,"Length",1)])
+        CodeRecordError(Errors,"INVALID_OBJECT_ACCESS",3,FileIndex,Position - 1,1,[Object("Position",Position,"Length",1)])
         Return, 1
     }
     Return, 0
@@ -227,8 +218,8 @@ CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
             Temp1 -- ;reduce the length of the input to be checked
             Continue
         }
-        Position += StrLen(SyntaxElement) ;move past the syntax element, making sure the position is not past the end of the file
         ObjInsert(Tokens,Object("Type",TokenType,"Value",Value,"Position",Position1,"File",FileIndex)) ;add the found syntax element to the token array
+        Position += StrLen(SyntaxElement) ;move past the syntax element, making sure the position is not past the end of the file
         Return, 0
     }
     Return, 1 ;not a syntax element

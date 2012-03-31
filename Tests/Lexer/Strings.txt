@@ -1,5 +1,5 @@
 "This quote is unmatched
-"Hello, World!" . "`"This string `n contains `" escaped `t characters `""
+"Hello, World!" .. "`"This string `n contains `" escaped `t characters `""
 "This is also unmatched
 "This string spans`
 multiple lines"
@@ -19,19 +19,19 @@ multiple lines"
 2: 
 	Caret: 
 		Length: 1
-		Position: 125
+		Position: 126
 	File: 1
 	Highlight: 
 		1: 
 			Length: 23
-			Position: 102
+			Position: 103
 	Identifier: UNMATCHED_QUOTE
 	Level: 3
 ---
 File 1: LINE_END (25):  ''
 File 1: STRING   (27):  'Hello, World!'
-File 1: OPERATOR (43):  ' . '
-File 1: STRING   (45):  '`"This string `n contains `" escaped `t characters `"'
-File 1: LINE_END (100): ''
-File 1: LINE_END (125): ''
-File 1: STRING   (127): 'This string spans`nmultiple lines'
+File 1: OPERATOR (43):  '..'
+File 1: STRING   (46):  '`"This string `n contains `" escaped `t characters `"'
+File 1: LINE_END (101): ''
+File 1: LINE_END (126): ''
+File 1: STRING   (128): 'This string spans`nmultiple lines'

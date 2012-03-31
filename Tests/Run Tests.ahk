@@ -74,12 +74,8 @@ GuiControl, Focus, Button1
 Gui, +Resize +MinSize320x200
 Gosub, GuiSize
 
-If CodeInit("..\Resources")
-{
-    MsgBox, Error: Could not initialize code tools.
-    ExitApp
-}
-
+CodeInit()
+CodeTokenInit()
 CodeTreeInit()
 
 FileName := PathJoin(A_ScriptDir,"Run Tests.ahk") ;set the file name of the current file
@@ -106,7 +102,6 @@ Return
 
 #Include ..\
 #Include Resources\Reconstruct.ahk
-#Include Resources\Syntax Tree.ahk
 
 #Include Code.ahk
 #Include Lexer.ahk

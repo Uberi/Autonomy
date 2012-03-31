@@ -30,6 +30,7 @@ TODO
 
 Short term tasks:
 
+* Make parser drive the lexer
 * Give each bitwise operator its own precedence level, like in python
 * Remove prefix ++ operator and make the postfix version behave as the prefix does does now
 * Comparisons can be chained arbitrarily, e.g., x < y <= z is equivalent to x < y and y <= z, except that y is evaluated only once (but in both cases z is not evaluated at all when x < y is found to be false). Formally, if a, b, c, ..., y, z are expressions and op1, op2, ..., opN are comparison operators, then a op1 b op2 c ... y opN z is equivalent to a op1 b and b op2 c and ... y opN z, except that each expression is evaluated at most once.
@@ -85,24 +86,18 @@ def param1 + sin 45
 !ghi + 5 * jkl 123, 456
 )
 
-If CodeInit()
-{
-    Display("Error initializing code tools.`n") ;display error at standard output
-    ExitApp ;fatal error
-}
+CodeInit()
+CodeTokenInit()
+CodeTreeInit()
 
 CodeSetScript(FileName,Errors,Files) ;set the current script file
 
 CodeLexInit()
 Tokens := CodeLex(Code,Errors)
 MsgBox % Clipboard := CodeReconstructShowTokens(Tokens)
-
-CodePreprocessInit(Files)
-CodePreprocess(Tokens,ProcessedTokens,Errors,Files)
 ;MsgBox % Clipboard := CodeErrorFormat(Code,Errors,Files)
 
-CodeTreeInit()
-SyntaxTree := CodeParse(ProcessedTokens,Errors)
+SyntaxTree := CodeParse(Tokens,Errors)
 MsgBox % Clipboard := CodeReconstructShowSyntaxTree(SyntaxTree)
 
 SimplifiedSyntaxTree := CodeSimplify(SyntaxTree)

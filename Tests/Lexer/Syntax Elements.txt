@@ -1,4 +1,4 @@
-Var .	"Something"
+Var .."Something"
 Variable.Value
 Var1 .Var2
 Var3. Var4
@@ -11,15 +11,12 @@ Var3. Var4
 	Highlight: 
 		1: 
 			Length: 1
-			Position: 52
-		2: 
-			Length: 1
 			Position: 53
-	Identifier: INVALID_CONCATENATION
+	Identifier: INVALID_OBJECT_ACCESS
 	Level: 3
 ---
 File 1: IDENTIFIER (1):  'Var'
-File 1: OPERATOR   (5):  ' . '
+File 1: OPERATOR   (5):  '..'
 File 1: STRING     (7):  'Something'
 File 1: LINE_END   (18): ''
 File 1: IDENTIFIER (20): 'Variable'

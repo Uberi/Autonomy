@@ -87,21 +87,10 @@ Example
 */
 
 ;initializes resources that will be required by other modules
-CodeInit(ResourcesPath = "Resources")
-{ ;returns 1 on failure, 0 otherwise
-    global CodeOperatorTable, CodeTokenTypes
-
+CodeInit()
+{
+    global CodeOperatorTable
     CodeOperatorTable := CodeCreateOperatorTable() ;create the table of operators
-
-    ;set up token stream type enumeration
-    CodeTokenTypes := Object("OPERATOR",0
-                            ,"NUMBER",1
-                            ,"STRING",2
-                            ,"IDENTIFIER",3
-                            ,"SEPARATOR",4
-                            ,"STATEMENT",5
-                            ,"LINE_END",6)
-    Return, 0
 }
 
 ;initializes or resets resources that are needed by other modules each time they work on a different input
