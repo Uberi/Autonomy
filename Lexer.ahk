@@ -1,6 +1,5 @@
 #NoEnv
 
-#Include Code.ahk
 #Include Resources/Token.ahk
 
 /*
@@ -22,22 +21,177 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-;initializes resources that the lexer requires
-CodeLexInit()
-{
-    global CodeOperatorTable, CodeLexerConstants, CodeLexerOperatorMaxLength
-    CodeLexerConstants := Object("ESCAPE",                  "``"
-                                ,"SINGLE_LINE_COMMENT",     ";"
-                                ,"MULTILINE_COMMENT_BEGIN", "/*"
-                                ,"MULTILINE_COMMENT_END",   "*/"
-                                ,"SEPARATOR",               ","
-                                ,"IDENTIFIER",              "abcdefghijklmnopqrstuvwxyz_1234567890#")
+;wip: add length field to tokens
 
-    CodeLexerOperatorMaxLength := 1 ;one is the maximum length of the other syntax elements - commas, parentheses, square brackets, and curly brackets
-    For Temp1 In CodeOperatorTable.NullDenotation ;get the length of the longest null denotation operator
-        Temp2 := StrLen(Temp1), (Temp2 > CodeLexerOperatorMaxLength) ? (CodeLexerOperatorMaxLength := Temp2) : ""
-    For Temp1 In CodeOperatorTable.LeftDenotation ;get the length of the longest left denotation operator
-        Temp2 := StrLen(Temp1), (Temp2 > CodeLexerOperatorMaxLength) ? (CodeLexerOperatorMaxLength := Temp2) : ""
+class Lexer
+{
+    static MaxOperatorLength := Code.Lexer.GetMaxOperatorLength() ;wip: calculate this on the fly
+
+    GetMaxOperatorLength()
+    {
+        MaxLength := 0
+        For Operator In CodeOperatorTable.NullDenotation ;get the length of the longest null denotation operator
+            Length := StrLen(Operator), (Length > MaxLength) ? (MaxLength := Length) : ""
+        For Operator In CodeOperatorTable.LeftDenotation ;get the length of the longest left denotation operator
+            Length := StrLen(Operator), (Length > MaxLength) ? (MaxLength := Length) : ""
+        Return, MaxLength
+    }
+
+    __New(Text)
+    {
+        this.Text := Text
+        this.Position := 1
+    }
+
+    class Token
+    {
+        class Operator
+        {
+            __New(Value,Position)
+            {
+                this.Type := "Operator"
+                this.Value := Value
+                this.Position := Position
+            }
+        }
+
+        class String
+        {
+            __New(Value,Position)
+            {
+                this.Type := "String"
+                this.Value := Value
+                this.Position := Position
+            }
+        }
+
+        class Identifier
+        {
+            __New(Value,Position)
+            {
+                this.Type := "Identifier"
+                this.Value := Value
+                this.Position := Position
+            }
+        }
+
+        class Number
+        {
+            __New(Value,Position)
+            {
+                this.Type := "Number"
+                this.Value := Value
+                this.Position := Position
+            }
+        }
+    }
+
+    Next()
+    {
+        Result := []
+        For Index, Token In this.Ignore()
+            Result.Insert(Token)
+        If this.Position > StrLen(this.Text) ;past end of text
+            Return, [] ;wip: not sure if this is the right value to return
+
+        try For Index, Token In this.Operator()
+            Result.Insert(Token)
+        catch e
+        try For Index, Token In this.String()
+            Result.Insert(Token)
+        catch e
+        try For Index, Token In this.Identifier()
+            Result.Insert(Token)
+        catch e
+        try For Index, Token In this.Number()
+            Result.Insert(Token)
+        catch e
+            throw Exception("Invalid token.","Next",this.Position)
+    }
+
+    Ignore()
+    {
+        Result := []
+        Loop
+        {
+            try For Index, Token In this.Whitespace()
+                Result.Insert(Token)
+            catch e
+            try For Index, Token In this.Comment()
+                Result.Insert(Token)
+            catch e
+                Break
+        }
+        Return, Result
+    }
+
+    Operator() ;wip: lexer doesn't have the Operators property yet, this is broken
+    {
+        Position := this.Position
+        Length := this.MaxOperatorLength
+        While, Length > 0
+        {
+            Output := SubStr(this.Text,Position,Length), Length --
+            If this.Operators.NullDenotation.HasKey(Output)
+            || this.Operators.LeftDenotation.HasKey(Output)
+            {
+                this.Position += StrLen(Output)
+                Return, [new this.Token.Operator(Output,Position)]
+            }
+        }
+        throw Exception("Invalid operator.","Operator",Position)
+    }
+
+    String()
+    {
+        Position := this.Position
+        If !RegExMatch(this.Text,"AS)""(?:``(?:\n|\r\n?)|[^\r\n])*""",Output,Position)
+            throw Exception("Invalid string.","String",Position)
+        this.Position += StrLen(Output)
+        StringReplace, Output, Output, `r,, All ;remove carriage returns from the output
+        Return, [new this.Token.String(Output,Position)]
+    }
+
+    Identifier()
+    {
+        Position := this.Position
+        If !RegExMatch(this.Text,"AS)[a-zA-Z_][a-zA-Z0-9_]*",Output,Position)
+            throw Exception("Invalid identifier.","Identifier",Position)
+        this.Position += StrLen(Output)
+        Return, [new this.Token.Identifier(Output,Position)]
+    }
+
+    Number()
+    {
+        Position := this.Position
+        If !RegExMatch(this.Text,"AS)""(?:``(?:\n|\r\n?)|[^\r\n])*""",Output,Position)
+            throw Exception("Invalid number.","Number",Position)
+        this.Position += StrLen(Output)
+        Return, [new this.Token.Number(Output,Position)]
+    }
+
+    Whitespace()
+    {
+        If !RegExMatch(this.Text,"AS)[ \t\r\n]+",Output,this.Position)
+            throw Exception("Invalid whitespace.","Whitespace",this.Position)
+        this.Position += StrLen(Output)
+        Return, []
+    }
+
+    Comment()
+    {
+        If RegExMatch(this.Text,"AS);[^\r\n]*[\r\n]?",Output,this.Position) ;single line comment
+        {
+            this.Position += StrLen(Output)
+            Return, []
+        }
+        Else If RegExMatch(this.Text,"AsS)/\*.*?\*/",Output,this.Position) ;multiline comment ;wip: does not support nested comments
+        {
+            this.Position += StrLen(Output)
+            Return, []
+        }
+        throw Exception("Invalid comment.","Comment",this.Position)
+    }
 }
 
 ;lexes plain source code, including all syntax

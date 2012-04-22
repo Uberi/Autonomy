@@ -86,12 +86,32 @@ Example
 [Wikipedia]: http://en.wikipedia.org/wiki/Extended_Backus-Naur_Form
 */
 
-;initializes resources that will be required by other modules
-CodeInit()
-{
-    global CodeOperatorTable
-    CodeOperatorTable := CodeCreateOperatorTable() ;create the table of operators
+;#Include Parser.ahk
+#Include Resources/Syntax Tree.ahk
+
+;wip
+CodeParseToken(x*){
 }
+CodeParseExpression(x*){
+}
+CodeParseLine(x*){
+}
+
+class Code
+{
+    static Operators := Code.CreateOperatorTable()
+
+    __New(Text)
+    {
+        this.Lexer := new Code.Lexer(Text) ;wip: text could potentially be quite large
+    }
+
+    #Include Lexer.ahk
+
+    #Include Resources/Operators.ahk
+}
+
+MsgBox % ShowObject(Code)
 
 ;initializes or resets resources that are needed by other modules each time they work on a different input
 CodeSetScript(ByRef Path = "",ByRef Errors = "",ByRef Files = "") ;wip: remove this function? might be needed by the error handler
@@ -125,5 +145,3 @@ CodeRecordErrorTokens(ByRef Errors,Identifier,Level,Caret = 0,Highlight = 0)
         Position := 0, Length := 1
     CodeRecordError(Errors,Identifier,Level,File,Position,Length,ProcessedHighlight)
 }
-
-#Include Resources/Operators.ahk ;wip: this has a dependency on the parser, probably should remove this file entirely
