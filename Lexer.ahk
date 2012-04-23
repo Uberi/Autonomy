@@ -89,10 +89,12 @@ class Lexer
     Next()
     {
         Result := []
+
+        If this.Position > StrLen(this.Text) ;past end of text
+            Return, Result
+
         For Index, Token In this.Ignore()
             Result.Insert(Token)
-        If this.Position > StrLen(this.Text) ;past end of text
-            Return, [] ;wip: not sure if this is the right value to return
 
         try For Index, Token In this.Operator()
             Result.Insert(Token)
@@ -106,7 +108,9 @@ class Lexer
         try For Index, Token In this.Number()
             Result.Insert(Token)
         catch e
-            throw Exception("Invalid token.","Next",this.Position)
+            throw Exception("Invalid token.","Next",e.Extra)
+
+        Return, Result
     }
 
     Ignore()
