@@ -2,9 +2,9 @@
 
 #Include Resources/Token.ahk
 
-Code = _1
+Code = 0x123.456e5
 l := new Lexer(Code)
-MsgBox % l.Identifier()[1].Value
+MsgBox % l.Number()[1].Value
 ExitApp
 
 /*
@@ -95,7 +95,7 @@ class Lexer
     {
         Result := []
 
-        If this.Position > StrLen(this.Text) ;past end of text
+        If SubStr(this.Text,this.Position,1) = "" ;past end of text
             Return, Result
 
         For Index, Token In this.Ignore()
@@ -214,12 +214,71 @@ class Lexer
         Return, [new this.Token.Identifier(Output,Position)]
     }
 
-    Number()
+    Number() ;wip: directly process number
     {
         Position := this.Position
-        If !RegExMatch(this.Text,"AS)-?(?:0[xXbB])?\d(?:\.\d+)?(?:[eE]-?\d+)",Output,Position)
+
+        Output := SubStr(this.Text,Position,1)
+        If !InStr("0123456789",Output) ;check for numerical digits
             throw Exception("Invalid number.","Number",Position)
-        this.Position += StrLen(Output)
+        Position ++ ;move past the first digit
+
+        NumberBase := 10, CharSet := "0123456789"
+        If Output = 0 ;starting digit is 0
+        {
+            CurrentChar := SubStr(this.Text,Position,1)
+            If (CurrentChar = "x") ;hexidecimal base
+            {
+                Output .= "x", Position ++
+                NumberBase := 16, CharSet := "0123456789ABCDEF"
+            }
+            Else If (CurrentChar = "b") ;binary base
+            {
+                Output .= "b", Position ++
+                NumberBase := 2, CharSet := "01"
+            }
+        }
+
+        ;handle integer digits of number
+        While, (CurrentChar := SubStr(this.Text,Position,1)) != "" && InStr(CharSet,CurrentChar)
+            Output .= CurrentChar, Position ++
+
+        ;handle decimal point if present, disambiguating the decimal point from the object access operator
+        If (NumberBase = 10 && SubStr(this.Text,Position,1) = ".") ;period found
+        {
+            If (CurrentChar := SubStr(this.Text,Position + 1,1)) != "" && InStr(CharSet,CurrentChar) ;character after period is numerical
+            {
+                Output .= ".", Position ++
+
+                ;handle decimal digits of number
+                While, (CurrentChar := SubStr(this.Text,Position,1)) != "" && InStr(CharSet,CurrentChar)
+                    Output .= CurrentChar, Position ++
+            }
+            Else
+                Return, [new this.Token.Number(Output,Position)]
+        }
+
+        ;handle exponent if present
+        If SubStr(this.Text,Position,1) = "e" ;exponent found
+        {
+            Output .= "e", Position ++
+            CurrentChar := SubStr(this.Text,Position,1)
+
+            If (CurrentChar = "-") ;exponent is negative
+            {
+                Output .= "-", Position ++
+                CurrentChar := SubStr(this.Text,Position,1)
+            }
+
+            If !InStr("0123456789",CurrentChar) ;check for numeric exponent
+                throw Exception("Invalid exponent.","Number",Position) ;wip: nonfatal error
+
+            ;handle digits of the exponent
+            While, (CurrentChar := SubStr(this.Text,Position,1)) != "" && InStr("0123456789",CurrentChar)
+                Output .= CurrentChar, Position ++
+        }
+
+        this.Position := Position
         Return, [new this.Token.Number(Output,Position)]
     }
 
