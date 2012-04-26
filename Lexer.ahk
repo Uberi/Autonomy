@@ -28,15 +28,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class Lexer
 {
-    static MaxOperatorLength := Code.Lexer.GetMaxOperatorLength() ;wip: calculate this on the fly
+    static Operators := Object("LeftDenotation",Object("and","")) ;wip: debug
+    ;static MaxOperatorLength := Code.Lexer.GetMaxOperatorLength() ;wip: calculate this on the fly
+    static MaxOperatorLength := Lexer.GetMaxOperatorLength() ;wip: calculate this on the fly
 
     GetMaxOperatorLength()
     {
         MaxLength := 0
-        For Operator In CodeOperatorTable.NullDenotation ;get the length of the longest null denotation operator
+        For Operator In this.Operators.NullDenotation ;get the length of the longest null denotation operator
             Length := StrLen(Operator), (Length > MaxLength) ? (MaxLength := Length) : ""
-        For Operator In CodeOperatorTable.LeftDenotation ;get the length of the longest left denotation operator
+        For Operator In this.Operators.LeftDenotation ;get the length of the longest left denotation operator
+        {
             Length := StrLen(Operator), (Length > MaxLength) ? (MaxLength := Length) : ""
+        }
         Return, MaxLength
     }
 
@@ -160,18 +164,23 @@ class Lexer
         Return, Result
     }
 
-    Operator() ;wip: lexer doesn't have the Operators property yet, this is broken
+    Operator()
     {
         Position := this.Position
         Length := this.MaxOperatorLength
         While, Length > 0
         {
             Output := SubStr(this.Text,Position,Length)
-            If this.Operators.NullDenotation.HasKey(Output)
-                || this.Operators.LeftDenotation.HasKey(Output)
+            If (this.Operators.NullDenotation.HasKey(Output)
+                || this.Operators.LeftDenotation.HasKey(Output))
             {
-                this.Position += StrLen(Output)
-                Return, [new this.Token.Operator(Output,Position,Length)]
+                If !(InStr("abcdefghijklmnopqrstuvwxyz0123456789",SubStr(Output,0))
+                    && (NextChar := SubStr(this.Text,Position + Length,1)) != ""
+                    && InStr("abcdefghijklmnopqrstuvwxyz0123456789",NextChar))
+                {
+                    this.Position += StrLen(Output)
+                    Return, [new this.Token.Operator(Output,Position,Length)]
+                }
             }
             Length --
         }
@@ -328,6 +337,7 @@ class Lexer
 
     Whitespace()
     {
+        CurrentChar := SubStr(this.Text,this.Position,1)
         If (CurrentChar != " " && CurrentChar != "`t")
             throw Exception("Invalid whitespace.","Whitespace",this.Position)
         this.Position ++ ;move past whitespace character
@@ -381,30 +391,4 @@ class Lexer
         }
         throw Exception("Invalid comment.","Comment",this.Position)
     }
-}
-
-;lexes operators and syntax elements
-CodeLexSyntaxElement(ByRef Code,ByRef Position,ByRef Tokens,ByRef FileIndex)
-{ ;returns 1 if no syntax element was found, 0 otherwise
-    global CodeOperatorTable, CodeLexerConstants, CodeLexerOperatorMaxLength
-    Temp1 := CodeLexerOperatorMaxLength, Position1 := Position
-    Loop, %CodeLexerOperatorMaxLength% ;loop until a valid token is found
-    {
-        SyntaxElement := SubStr(Code,Position,Temp1)
-        If (SyntaxElement = CodeLexerConstants.SEPARATOR) ;found separator
-            Tokens.Insert(CodeTokenSeparator(Position1,FileIndex)) ;add separator to the token array
-        Else If ((ObjHasKey(CodeOperatorTable.NullDenotation,SyntaxElement) || ObjHasKey(CodeOperatorTable.LeftDenotation,SyntaxElement)) ;found operator in null or left denotation of the operator table
-                && !(InStr(CodeLexerConstants.IDENTIFIER,SubStr(SyntaxElement,0)) ;last character of the operator is an identifier character
-                && (CurrentChar := SubStr(Code,Position + Temp1,1)) != "" ;operator is not at the end of the source file
-                && InStr(CodeLexerConstants.IDENTIFIER,CurrentChar))) ;character after the operator is an identifier character
-            Tokens.Insert(CodeTokenOperator(SyntaxElement,Position1,FileIndex)) ;add the operator to the token array
-        Else
-        {
-            Temp1 -- ;reduce the length of the input to be checked
-            Continue
-        }
-        Position += StrLen(SyntaxElement) ;move past the syntax element, making sure the position is not past the end of the file
-        Return, 0
-    }
-    Return, 1 ;not a syntax element
 }
