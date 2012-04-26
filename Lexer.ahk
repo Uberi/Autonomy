@@ -91,6 +91,17 @@ class Lexer
                 this.Length := Length
             }
         }
+
+        class Line
+        {
+            __New(Position,Length)
+            {
+                this.Type := "Line"
+                this.Value := ""
+                this.Position := Position
+                this.Length := Length
+            }
+        }
     }
 
     Next()
@@ -100,8 +111,12 @@ class Lexer
         If SubStr(this.Text,this.Position,1) = "" ;past end of text
             Return, Result
 
-        For Index, Token In this.Ignore()
+        try For Index, Token In this.Ignore()
             Result.Insert(Token)
+        catch e
+        {
+            
+        }
 
         try For Index, Token In this.Operator()
             Result.Insert(Token)
@@ -123,6 +138,15 @@ class Lexer
     Ignore()
     {
         Result := []
+
+        try For Index, Token In this.Whitespace()
+            Result.Insert(Token)
+        catch e
+        try For Index, Token In this.Comment()
+            Result.Insert(Token)
+        catch e
+            throw Exception("Invalid ignore.","Ignore",this.Position)
+
         Loop
         {
             try For Index, Token In this.Whitespace()
@@ -304,15 +328,43 @@ class Lexer
 
     Whitespace()
     {
-        If (CurrentChar != " " && CurrentChar != "`t" && CurrentChar != "`r" && CurrentChar != "`n")
+        If (CurrentChar != " " && CurrentChar != "`t")
             throw Exception("Invalid whitespace.","Whitespace",this.Position)
         this.Position ++ ;move past whitespace character
 
         ;move past any remaining whitespace characters
-        While, (CurrentChar := SubStr(this.Text,this.Position,1)) != "" && CurrentChar != " " && CurrentChar != "`t" && CurrentChar != "`r" && CurrentChar != "`n"
+        While, (CurrentChar := SubStr(this.Text,this.Position,1)) = " " || CurrentChar = "`t"
             this.Position ++
 
         Return, []
+    }
+
+    Line()
+    {
+        Result := []
+        Position := this.Position
+
+        ;check for line end characters
+        CurrentChar := SubStr(this.Text,this.Position,1)
+        If (CurrentChar != "`r" && CurrentChar != "`n")
+            throw Exception("Invalid line.","Line",Position)
+        this.Position ++ ;move past the line end character
+
+        Loop
+        {
+            ;move past line end characters
+            While, (CurrentChar := SubStr(this.Text,this.Position,1)) = "`r" || CurrentChar = "`n"
+                this.Position ++
+
+            ;handle input that should be ignored
+            try For Index, Token In this.Ignore()
+                Result.Insert(Token)
+            catch e
+                Break
+        }
+
+        Length := this.Position - Position
+        Return, [new this.Token.Line(Position,Length)]
     }
 
     Comment()
@@ -322,7 +374,7 @@ class Lexer
             this.Position += StrLen(Output)
             Return, []
         }
-        Else If RegExMatch(this.Text,"AsS)/\*.*?\*/",Output,this.Position) ;multiline comment ;wip: does not support nested comments
+        If RegExMatch(this.Text,"AsS)/\*.*?\*/",Output,this.Position) ;multiline comment ;wip: does not support nested comments
         {
             this.Position += StrLen(Output)
             Return, []
