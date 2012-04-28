@@ -75,6 +75,63 @@ MsgBox % TimerAfter . " ms`n`n" . Clipboard := CodeReconstructShowSyntaxTree(Syn
 ExitApp
 */
 
+class Parser
+{
+    __New(Tokens)
+    {
+        this.Tokens := Tokens
+        this.Index := 1
+    }
+
+    Expression(RightBindingPower)
+    {
+        ;retrieve the current token
+        If this.Tokens.HasKey(this.Index)
+            Token := this.Tokens[this.Index], this.Index ++
+        Else
+        {
+            ;wip: error recovery
+            throw Exception("Missing token.","Expression",this.Index)
+        }
+
+        LeftSide := this.NullDenotation(Token)
+
+        ;retrieve the next token
+        If this.Tokens.HasKey(this.Index)
+            NextToken := this.Tokens[this.Index]
+        Else
+            Return, LeftSide
+
+        While, RightBindingPower < this.LeftBindingPower(NextToken)
+        {
+            Token := NextToken
+            NextToken := this.Tokens[this.Index], this.Index ++
+            LeftSide := this.LeftDenotation(Token,LeftSide)
+
+            If this.Tokens.HasKey(this.Index)
+                NextToken := this.Tokens[this.Index]
+            Else
+                Break
+        }
+        Return, LeftSide
+    }
+
+    LeftBindingPower(Token)
+    {
+        
+    }
+
+    NullDenotation(Token)
+    {
+        
+    }
+
+    LeftDenotation(Token,LeftSide)
+    {
+        
+    }
+}
+
 ;parses a token stream
 CodeParse(Tokens,ByRef Errors)
 { ;returns 1 on parsing error, 0 otherwise
