@@ -125,6 +125,9 @@ class Lexer
         try For Index, Token In this.Operator()
             Result.Insert(Token)
         catch e
+        try For Index, Token In this.Line()
+            Result.Insert(Token)
+        catch e
         try For Index, Token In this.String()
             Result.Insert(Token)
         catch e
@@ -195,7 +198,7 @@ class Lexer
         Position ++ ;move past the opening quote
 
         Output := ""
-        While, (CurrentChar := SubStr(this.Text,Position,1)) != "" && CurrentChar != "`r" && CurrentChar != "`n" ;loop through certain characters
+        While, (CurrentChar := SubStr(this.Text,Position,1)) != "" && CurrentChar != "`r" && CurrentChar != "`n" ;loop through string contents
         {
             If (CurrentChar = """") ;check for closing quote
             {
@@ -207,7 +210,7 @@ class Lexer
             If (CurrentChar = "``") ;check for escape character
             {
                 Position ++ ;move past the escape character
-                NextChar := SubStr(this.Text,Position,1) ;obtain the character after the escape character
+                NextChar := SubStr(this.Text,Position,1) ;obtain the escaped character
                 If (NextChar = "`n") ;newline escaped
                     Output .= "`n"
                 Else If (NextChar = "`r") ;carriage return escaped
@@ -246,7 +249,7 @@ class Lexer
             throw Exception("Invalid identifier.","Identifier",Position)
         Position ++ ;move past the first character of the identifier
 
-        ;obtain the rest of the characters
+        ;obtain the rest of the identifier
         While, (CurrentChar := SubStr(this.Text,Position,1)) != "" && InStr("abcdefghijklmnopqrstuvwxyz_0123456789",CurrentChar)
             Output .= CurrentChar, Position ++
 
@@ -291,7 +294,7 @@ class Lexer
         {
             If (NumberBase = 10 ;decimal points only available in decimal numbers
                 && (CurrentChar := SubStr(this.Text,Position + 1,1)) != "" ;not past end of the input
-                && InStr(CharSet,CurrentChar)) ;character after period is numerical
+                && InStr(CharSet,CurrentChar)) ;character after period is numeric
             {
                 Position ++
 
@@ -340,9 +343,9 @@ class Lexer
         CurrentChar := SubStr(this.Text,this.Position,1)
         If (CurrentChar != " " && CurrentChar != "`t")
             throw Exception("Invalid whitespace.","Whitespace",this.Position)
-        this.Position ++ ;move past whitespace character
+        this.Position ++ ;move past whitespace
 
-        ;move past any remaining whitespace characters
+        ;move past any remaining whitespace
         While, (CurrentChar := SubStr(this.Text,this.Position,1)) = " " || CurrentChar = "`t"
             this.Position ++
 
@@ -354,15 +357,15 @@ class Lexer
         Result := []
         Position := this.Position
 
-        ;check for line end characters
+        ;check for line end
         CurrentChar := SubStr(this.Text,this.Position,1)
         If (CurrentChar != "`r" && CurrentChar != "`n")
             throw Exception("Invalid line.","Line",Position)
-        this.Position ++ ;move past the line end character
+        this.Position ++ ;move past the line end
 
         Loop
         {
-            ;move past line end characters
+            ;move past line end
             While, (CurrentChar := SubStr(this.Text,this.Position,1)) = "`r" || CurrentChar = "`n"
                 this.Position ++
 
@@ -377,16 +380,35 @@ class Lexer
         Return, [new this.Token.Line(Position,Length)]
     }
 
-    Comment()
+    Comment() ;wip: maybe should return comment tokens as well
     {
-        If RegExMatch(this.Text,"AS);[^\r\n]*[\r\n]?",Output,this.Position) ;single line comment
+        If SubStr(this.Text,this.Position,1) = ";"
         {
-            this.Position += StrLen(Output)
+            this.Position ++ ;move past comment marker
+            While, (CurrentChar := SubStr(this.Text,this.Position,1)) != "" && CurrentChar != "`r" && CurrentChar != "`n"
+                this.Position ++
             Return, []
         }
-        If RegExMatch(this.Text,"AsS)/\*.*?\*/",Output,this.Position) ;multiline comment ;wip: does not support nested comments
+        If SubStr(this.Text,this.Position,2) = "/*"
         {
-            this.Position += StrLen(Output)
+            this.Position += 2 ;move past the comment start
+            CommentLevel := 1
+            Loop
+            {
+                CurrentChar := SubStr(this.Text,this.Position,2)
+                If (CurrentChar = "") ;past end of input
+                    Break
+                If (CurrentChar = "/*") ;comment start
+                    CommentLevel ++
+                Else If (CurrentChar = "*/") ;comment end
+                {
+                    CommentLevel --
+                    If CommentLevel = 0 ;original comment end
+                        Break
+                }
+                this.Position ++
+            }
+            this.Position += 2 ;move past the comment end
             Return, []
         }
         throw Exception("Invalid comment.","Comment",this.Position)
