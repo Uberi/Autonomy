@@ -36,14 +36,14 @@ Short term tasks:
 * Support a command syntax, that is translated to a function call on load: Math.Mod 100, 5 or Web["HTTP"] "google.ca", "search". Also allow this for function definitions and anywhere parens can be used
 * Operations in syntax tree do not have position or length or file info
 * Duplicate LINE_END tokens can be present if there was an error that spanned an entire line. see Strings.txt unit test for example. see if this can be avoided
-* Escaping the end of a line with a backtick may result in an incorrect length for the token. need to add a length field for each token
-* Hex and unicode escapes: "`cNN" or "`c[NN]" or `c[NNNN] or `c[NNNNNNNN], where N is a hex digit representing a unicode offset
-* Unescape escape sequences in the lexer
 * Warn if Return, Break, Continue, Goto are not the last statements in a block
 * Unit tests for error handler
 
 Long term tasks:
 
+* to make an object, use Object.new() or ClassName.new() or just ClassName.new
+* named parameter "key" for functions such as [].max(), [].min(), [].sort(), etc. that allows the user to specify a function that specifies the key to use in place of the actual key
+* named parameter "function" for the same purposes above, that allow things like custom sorting functions
 * "ensure" or "assert" statements allow code to be statically verified
 * "switch" statement, without fallthrough, but allowing multiple possible arbitrary expressions per case, possibly comma separated?
 * "with" statement to do patterns like opening, reading, then closing a file
@@ -53,7 +53,7 @@ Long term tasks:
 * Base object should not be enumerable or findable by ObjHasKey()
 * "is" operator that checks current class and recursively checks base classes
 * Primitive type methods through augmentation: String.Trim := Trim OR "".base.Trim := Trim ... "  test  ".Trim()
-* Function objects should have an apply() method that applies a given array as the arguments, and allows specifying the "this" object
+* Function objects should have an call() method that applies a given array as the arguments, and allows specifying the "this" object
 * Functions should create a new scope object every execution, so that closures are possible
 * Script that converts AutoHotkey code to or from Autonomy
 * Function definitions are variables holding function references (implemented as function pointers, and utilising reference counting), so variables and functions are in the same namespace

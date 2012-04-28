@@ -3,8 +3,10 @@
 #Include Resources/Token.ahk
 
 Code = 0x123.456e5
+Code = "string``""
 l := new Lexer(Code)
-MsgBox % l.Number()[1].Value
+;MsgBox % l.Number()[1].Value
+MsgBox % l.String()[1].Value
 ExitApp
 
 /*
@@ -192,53 +194,26 @@ class Lexer
 
     String()
     {
-        Position := this.Position
-        If SubStr(this.Text,Position,1) != """" ;check for opening quote
-            throw Exception("Invalid string.","String",Position)
-        Position ++ ;move past the opening quote
+        Position1 := this.Position
+        If SubStr(this.Text,Position1,1) != """" ;check for opening quote
+            throw Exception("Invalid string.","String",Position1)
+        this.Position ++ ;move past the opening quote
 
         Output := ""
-        While, (CurrentChar := SubStr(this.Text,Position,1)) != "" && CurrentChar != "`r" && CurrentChar != "`n" ;loop through string contents
+        While, (CurrentChar := SubStr(this.Text,this.Position,1)) != "" && CurrentChar != "`r" && CurrentChar != "`n" ;loop through string contents
         {
             If (CurrentChar = """") ;check for closing quote
             {
-                Position ++
-                Length := Position - this.Position
-                this.Position := Position
-                Return, [new this.Token.String(Output,Position,Length)]
+                this.Position ++ ;move past closing quote
+                Length := this.Position - Position1
+                Return, [new this.Token.String(Output,Position1,Length)]
             }
-            If (CurrentChar = "``") ;check for escape character
-            {
-                Position ++ ;move past the escape character
-                NextChar := SubStr(this.Text,Position,1) ;obtain the escaped character
-                If (NextChar = "`n") ;newline escaped
-                    Output .= "`n"
-                Else If (NextChar = "`r") ;carriage return escaped
-                {
-                    If SubStr(this.Text,Position + 1,1) = "`n" ;check for newline and ignore if present
-                        Position ++
-                    Output .= "`n"
-                }
-                Else If (NextChar = "``") ;literal backtick
-                    Output .= "``"
-                Else If (NextChar = """") ;literal quote
-                    Output .= """"
-                Else If (NextChar = "r") ;literal carriage return
-                    Output .= "`r"
-                Else If (NextChar = "n") ;literal newline
-                    Output .= "`n"
-                Else If (NextChar = "t") ;literal tab
-                    Output .= "`t"
-                Else
-                {
-                    ;wip: nonfatal error goes here
-                }
-            }
-            Else
-                Output .= CurrentChar ;add character to output
-            Position ++ ;move past the character
+            try Output .= this.Escape() ;check for escape sequence
+            catch e
+                Output .= CurrentChar, this.Position ++
         }
-        throw Exception("Invalid string.","String",this.Position)
+        this.Position := Position1
+        throw Exception("Invalid string.","String",Position1)
     }
 
     Identifier()
@@ -404,13 +379,80 @@ class Lexer
                 {
                     CommentLevel --
                     If CommentLevel = 0 ;original comment end
+                    {
+                        this.Position += 2 ;move past the comment end
                         Break
+                    }
                 }
                 this.Position ++
             }
-            this.Position += 2 ;move past the comment end
             Return, []
         }
         throw Exception("Invalid comment.","Comment",this.Position)
+    }
+
+    Escape()
+    {
+        Position := this.Position
+        If SubStr(this.Text,Position,1) != "``" ;check for escape character
+            throw Exception("Invalid escape.","Escape",Position)
+        Position ++ ;move past escape character
+
+        CurrentChar := SubStr(this.Text,Position,1) ;obtain the escaped character
+        If (CurrentChar = "`n") ;newline escaped
+            Output .= "`n", Position ++
+        Else If (CurrentChar = "`r") ;carriage return escaped
+        {
+            If SubStr(this.Text,Position + 1,1) = "`n" ;check for newline and ignore if present
+                Position ++
+            Output .= "`n", Position ++
+        }
+        Else If (CurrentChar = "``") ;literal backtick
+            Output .= "``", Position ++
+        Else If (CurrentChar = """") ;literal quote
+            Output .= """", Position ++
+        Else If (CurrentChar = "r") ;literal carriage return
+            Output .= "`r", Position ++
+        Else If (CurrentChar = "n") ;literal newline
+            Output .= "`n", Position ++
+        Else If (CurrentChar = "t") ;literal tab
+            Output .= "`t", Position ++
+        Else If (CurrentChar = "c") ;character code
+        {
+            Position ++ ;move past the character code marker
+
+            If SubStr(this.Text,Position,1) = "[" ;character code start
+                Position ++ ;move past opening square bracket
+            Else
+            {
+                ;wip: nonfatal error
+            }
+
+            CharacterCode := SubStr(this.Text,Position,1)
+            If (CharacterCode != "" && InStr("0123456789",CharacterCode)) ;character is numeric
+            {
+                Position ++ ;move past first digit of character code
+                While, (CurrentChar := SubStr(this.Text,Position,1)) != "" && InStr("0123456789",CharacterCode) ;character is numeric
+                    CharacterCode .= CurrentChar, Position ++
+                If (CurrentChar = "]") ;character code end
+                    Position ++ ;move past closign square bracket
+                Else
+                {
+                    ;wip: nonfatal error
+                }
+                Output .= Chr(CharacterCode)
+            }
+            Else
+            {
+                ;wip: nonfatal error
+            }
+        }
+        Else
+        {
+            ;wip: nonfatal error goes here
+            Position ++
+        }
+        this.Position := Position
+        Return, Output
     }
 }
