@@ -171,25 +171,25 @@ class Lexer
 
     Operator()
     {
-        Position := this.Position
         Length := this.MaxOperatorLength
         While, Length > 0
         {
-            Output := SubStr(this.Text,Position,Length)
+            Output := SubStr(this.Text,this.Position,Length)
             If (this.Operators.NullDenotation.HasKey(Output)
                 || this.Operators.LeftDenotation.HasKey(Output))
             {
                 If !(InStr("abcdefghijklmnopqrstuvwxyz0123456789",SubStr(Output,0))
-                    && (NextChar := SubStr(this.Text,Position + Length,1)) != ""
+                    && (NextChar := SubStr(this.Text,this.Position + Length,1)) != ""
                     && InStr("abcdefghijklmnopqrstuvwxyz0123456789",NextChar))
                 {
+                    Position1 := this.Position
                     this.Position += StrLen(Output)
-                    Return, [new this.Token.Operator(Output,Position,Length)]
+                    Return, [new this.Token.Operator(Output,Position1,Length)]
                 }
             }
             Length --
         }
-        throw Exception("Invalid operator.","Operator",Position)
+        throw Exception("Invalid operator.","Operator",this.Position)
     }
 
     String()
@@ -218,89 +218,89 @@ class Lexer
 
     Identifier()
     {
-        Output := SubStr(this.Text,this.Position,1)
-        Position := this.Position
+        Position1 := this.Position
+        Output := SubStr(this.Text,Position1,1)
         If !InStr("abcdefghijklmnopqrstuvwxyz_",Output) ;check first character against valid identifier characters
-            throw Exception("Invalid identifier.","Identifier",Position)
-        Position ++ ;move past the first character of the identifier
+            throw Exception("Invalid identifier.","Identifier",Position1)
+        this.Position ++ ;move past the first character of the identifier
 
         ;obtain the rest of the identifier
-        While, (CurrentChar := SubStr(this.Text,Position,1)) != "" && InStr("abcdefghijklmnopqrstuvwxyz_0123456789",CurrentChar)
-            Output .= CurrentChar, Position ++
+        While, (CurrentChar := SubStr(this.Text,this.Position,1)) != "" && InStr("abcdefghijklmnopqrstuvwxyz_0123456789",CurrentChar)
+            Output .= CurrentChar, this.Position ++
 
-        Length := Position - this.Position
-        this.Position := Position
-        Return, [new this.Token.Identifier(Output,Position,Length)]
+        Length := this.Position - Position1
+        Return, [new this.Token.Identifier(Output,Position1,Length)]
     }
 
     Number()
     {
-        Position := this.Position
-
-        Output := SubStr(this.Text,Position,1)
+        Position1 := this.Position
+        Output := SubStr(this.Text,Position1,1)
         If !InStr("0123456789",Output) ;check for numerical digits
-            throw Exception("Invalid number.","Number",Position)
-        Position ++ ;move past the first digit
+            throw Exception("Invalid number.","Number",Position1)
+        this.Position ++ ;move past the first digit
 
         Exponent := 0
         NumberBase := 10, CharSet := "0123456789"
         If Output = 0 ;starting digit is 0
         {
-            CurrentChar := SubStr(this.Text,Position,1)
+            CurrentChar := SubStr(this.Text,this.Position,1)
             If (CurrentChar = "x") ;hexidecimal base
             {
-                Position ++
+                this.Position ++
                 NumberBase := 16, CharSet := "0123456789ABCDEF"
             }
             Else If (CurrentChar = "b") ;binary base
             {
-                Position ++
+                this.Position ++
                 NumberBase := 2, CharSet := "01"
             }
         }
 
         ;handle integer digits of number
-        While, (CurrentChar := SubStr(this.Text,Position,1)) != "" ;not past the end of the input
+        While, (CurrentChar := SubStr(this.Text,this.Position,1)) != "" ;not past the end of the input
             && (Value := InStr(CharSet,CurrentChar)) ;character is numeric
-            Output := (Output * NumberBase) + (Value - 1), Position ++
+            Output := (Output * NumberBase) + (Value - 1), this.Position ++
 
         ;handle decimal point if present, disambiguating the decimal point from the object access operator
-        If SubStr(this.Text,Position,1) = "." ;period found
+        If SubStr(this.Text,this.Position,1) = "." ;period found
         {
             If (NumberBase = 10 ;decimal points only available in decimal numbers
-                && (CurrentChar := SubStr(this.Text,Position + 1,1)) != "" ;not past end of the input
+                && (CurrentChar := SubStr(this.Text,this.Position + 1,1)) != "" ;not past end of the input
                 && InStr(CharSet,CurrentChar)) ;character after period is numeric
             {
-                Position ++
+                this.Position ++
 
                 ;handle decimal digits of number
-                While, (CurrentChar := SubStr(this.Text,Position,1)) != "" ;not past the end of the input
+                While, (CurrentChar := SubStr(this.Text,this.Position,1)) != "" ;not past the end of the input
                     && (Value := InStr(CharSet,CurrentChar)) ;character is numeric
-                    Output := (Output * NumberBase) + (Value - 1), Position ++, Exponent --
+                    Output := (Output * NumberBase) + (Value - 1), this.Position ++, Exponent --
             }
             Else ;object access operator
             {
-                Length := Position - this.Position
-                this.Position := Position
-                Return, [new this.Token.Number(Output,Position,Length)]
+                Length := this.Position - Position1
+                Return, [new this.Token.Number(Output,Position1,Length)]
             }
         }
 
-        If SubStr(this.Text,Position,1) = "e" ;exponent found
+        If SubStr(this.Text,this.Position,1) = "e" ;exponent found
         {
-            Position ++
+            this.Position ++
 
             If (CurrentChar = "-") ;exponent is negative
-                Sign := -1, Position ++
+                Sign := -1, this.Position ++
             Else
                 Sign := 1
 
-            If !InStr("0123456789",SubStr(this.Text,Position,1)) ;check for numeric exponent
-                throw Exception("Invalid exponent.","Number",Position) ;wip: nonfatal error
+            If !InStr("0123456789",SubStr(this.Text,this.Position,1)) ;check for numeric exponent
+            {
+                this.Position := Position1
+                throw Exception("Invalid exponent.","Number",this.Position) ;wip: nonfatal error
+            }
 
             ;handle digits of the exponent
-            While, (CurrentChar := SubStr(this.Text,Position,1)) != "" && InStr("0123456789",CurrentChar)
-                Value := (Value * 10) + CurrentChar, Position ++
+            While, (CurrentChar := SubStr(this.Text,this.Position,1)) != "" && InStr("0123456789",CurrentChar)
+                Value := (Value * 10) + CurrentChar, this.Position ++
 
             Exponent += Value * Sign
         }
@@ -308,9 +308,8 @@ class Lexer
         ;apply exponent
         Output *= NumberBase ** Exponent
 
-        Length := Position - this.Position
-        this.Position := Position
-        Return, [new this.Token.Number(Output,Position,Length)]
+        Length := this.Position - Position1
+        Return, [new this.Token.Number(Output,Position1,Length)]
     }
 
     Whitespace()
@@ -330,12 +329,12 @@ class Lexer
     Line()
     {
         Result := []
-        Position := this.Position
+        Position1 := this.Position
 
         ;check for line end
         CurrentChar := SubStr(this.Text,this.Position,1)
         If (CurrentChar != "`r" && CurrentChar != "`n")
-            throw Exception("Invalid line.","Line",Position)
+            throw Exception("Invalid line.","Line",Position1)
         this.Position ++ ;move past the line end
 
         Loop
@@ -351,8 +350,8 @@ class Lexer
                 Break
         }
 
-        Length := this.Position - Position
-        Return, [new this.Token.Line(Position,Length)]
+        Length := this.Position - Position1
+        Return, [new this.Token.Line(Position1,Length)]
     }
 
     Comment() ;wip: maybe should return comment tokens as well
@@ -393,49 +392,49 @@ class Lexer
 
     Escape()
     {
-        Position := this.Position
-        If SubStr(this.Text,Position,1) != "``" ;check for escape character
-            throw Exception("Invalid escape.","Escape",Position)
-        Position ++ ;move past escape character
+        Position1 := this.Position
+        If SubStr(this.Text,Position1,1) != "``" ;check for escape character
+            throw Exception("Invalid escape.","Escape",Position1)
+        this.Position ++ ;move past escape character
 
-        CurrentChar := SubStr(this.Text,Position,1) ;obtain the escaped character
+        CurrentChar := SubStr(this.Text,this.Position,1) ;obtain the escaped character
         If (CurrentChar = "`n") ;newline escaped
-            Output .= "`n", Position ++
+            Output .= "`n", this.Position ++
         Else If (CurrentChar = "`r") ;carriage return escaped
         {
-            If SubStr(this.Text,Position + 1,1) = "`n" ;check for newline and ignore if present
-                Position ++
-            Output .= "`n", Position ++
+            If SubStr(this.Text,this.Position + 1,1) = "`n" ;check for newline and ignore if present
+                this.Position ++
+            Output .= "`n", this.Position ++
         }
         Else If (CurrentChar = "``") ;literal backtick
-            Output .= "``", Position ++
+            Output .= "``", this.Position ++
         Else If (CurrentChar = """") ;literal quote
-            Output .= """", Position ++
+            Output .= """", this.Position ++
         Else If (CurrentChar = "r") ;literal carriage return
-            Output .= "`r", Position ++
+            Output .= "`r", this.Position ++
         Else If (CurrentChar = "n") ;literal newline
-            Output .= "`n", Position ++
+            Output .= "`n", this.Position ++
         Else If (CurrentChar = "t") ;literal tab
-            Output .= "`t", Position ++
+            Output .= "`t", this.Position ++
         Else If (CurrentChar = "c") ;character code
         {
-            Position ++ ;move past the character code marker
+            this.Position ++ ;move past the character code marker
 
-            If SubStr(this.Text,Position,1) = "[" ;character code start
-                Position ++ ;move past opening square bracket
+            If SubStr(this.Text,this.Position,1) = "[" ;character code start
+                this.Position ++ ;move past opening square bracket
             Else
             {
                 ;wip: nonfatal error
             }
 
-            CharacterCode := SubStr(this.Text,Position,1)
+            CharacterCode := SubStr(this.Text,this.Position,1)
             If (CharacterCode != "" && InStr("0123456789",CharacterCode)) ;character is numeric
             {
-                Position ++ ;move past first digit of character code
-                While, (CurrentChar := SubStr(this.Text,Position,1)) != "" && InStr("0123456789",CharacterCode) ;character is numeric
-                    CharacterCode .= CurrentChar, Position ++
+                this.Position ++ ;move past first digit of character code
+                While, (CurrentChar := SubStr(this.Text,this.Position,1)) != "" && InStr("0123456789",CharacterCode) ;character is numeric
+                    CharacterCode .= CurrentChar, this.Position ++
                 If (CurrentChar = "]") ;character code end
-                    Position ++ ;move past closign square bracket
+                    this.Position ++ ;move past closign square bracket
                 Else
                 {
                     ;wip: nonfatal error
@@ -450,9 +449,8 @@ class Lexer
         Else
         {
             ;wip: nonfatal error goes here
-            Position ++
+            this.Position ++
         }
-        this.Position := Position
         Return, Output
     }
 }
