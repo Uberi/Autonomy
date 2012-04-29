@@ -29,14 +29,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;wip: unit test for blocks and statements
 ;wip: handle skipped parameters: Function(Param,,Param)
 
-/*
+;/*
 #Warn All
 #Warn LocalSameAsGlobal, Off
 
+#Include Resources\Functions.ahk
 #Include Resources\Reconstruct.ahk
 #Include Lexer.ahk
-
-SetBatchLines, -1
 
 Code = 
 (
@@ -49,50 +48,93 @@ Code =
 a ? b : c
 d && e || f
 )
+Code = abc 123
 
-If CodeInit()
-{
-    Display("Error initializing code tools.`n") ;display error at standard output
-    ExitApp ;fatal error
-}
+l := new Lexer(Code)
+p := new Parser(l)
 
-FileName := A_ScriptFullPath
-CodeSetScript(FileName,Errors,Files) ;set the current script file
+MsgBox % ShowObject(p.Statement())
+ExitApp
 
-CodeLexInit()
-Tokens := CodeLex(Code,Errors)
-
-TimerBefore := 0, DllCall("QueryPerformanceCounter","Int64*",TimerBefore)
-
-CodeTreeInit()
-
-SyntaxTree := CodeParse(Tokens,Errors)
-
-TimerAfter := 0, DllCall("QueryPerformanceCounter","Int64*",TimerAfter)
-TickFrequency := 0, DllCall("QueryPerformanceFrequency","Int64*",TickFrequency)
-TimerAfter := (TimerAfter - TimerBefore) / (TickFrequency / 1000)
-MsgBox % TimerAfter . " ms`n`n" . Clipboard := CodeReconstructShowSyntaxTree(SyntaxTree)
+MsgBox % Clipboard := CodeReconstructShowSyntaxTree(SyntaxTree)
 ExitApp
 */
 
 class Parser
 {
-    __New(Tokens)
+    __New(Lexer)
     {
-        this.Tokens := Tokens
-        this.Index := 1
+        this.Lexer := Lexer
+    }
+
+    class Node
+    {
+        class Operation
+        {
+            __New(Value,Parameters,Position,Length)
+            {
+                this.Type := "Operation"
+                this.Value := Value
+                this.Parameters := Parameters
+                this.Position := Position
+                this.Length := Length
+            }
+        }
+
+        class String
+        {
+            __New(Value,Position,Length)
+            {
+                this.Type := "String"
+                this.Value := Value
+                this.Position := Position
+            }
+        }
+
+        class Identifier
+        {
+            __New(Value,Position,Length)
+            {
+                this.Type := "Identifier"
+                this.Value := Value
+                this.Position := Position
+                this.Length := Length
+            }
+        }
+
+        class Number
+        {
+            __New(Value,Position,Length)
+            {
+                this.Type := "Number"
+                this.Value := Value
+                this.Position := Position
+                this.Length := Length
+            }
+        }
+    }
+
+    Statement(RightBindingPower)
+    {
+        Result := this.Expression(RightBindingPower) ;parse either the expression or the beginning of the statement
+
+        Tokens := this.Lexer.Peek() ;retrieve the following tokens
+
+        If !Tokens.MaxIndex() ;no tokens remain
+            || Tokens[1].Type = "Line" ;next token is a line
+            Return, Result ;not a statement
+
+        ;parse the statement parameters ;wip: support multiple parameters
+        Parameters := this.Expression(RightBindingPower)
+        Return, new this.Node.Operation(Result,Parameters,Tokens[1].Position,0) ;wip: position and length
     }
 
     Expression(RightBindingPower)
     {
         ;retrieve the current token
-        If this.Tokens.HasKey(this.Index)
-            Token := this.Tokens[this.Index], this.Index ++
-        Else
-        {
-            ;wip: error recovery
+        If !this.Tokens.HasKey(this.Index)
             throw Exception("Missing token.","Expression",this.Index)
-        }
+        Token := this.Tokens[this.Index], this.Index ++
 
         LeftSide := this.NullDenotation(Token)
 
