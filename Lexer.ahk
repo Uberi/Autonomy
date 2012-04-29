@@ -1,5 +1,6 @@
 #NoEnv
 
+/*
 #Warn All
 #Warn LocalSameAsGlobal, Off
 
@@ -7,13 +8,14 @@
 Code = 123.456e5
 l := new Lexer(Code)
 t := l.Number()[1]
-MsgBox % "Position: " . t.Position . "`nLength: " . t.Length . "`n""" . t.Value . """"
+MsgBox % "Position: " . t.Position . "`nLength: " . t.Length . "`n""" . t.Value . """`n" . l.Position
 
 Code = "s````tri``c[123]ng``""
 l := new Lexer(Code)
 t := l.String()[1]
-MsgBox % "Position: " . t.Position . "`nLength: " . t.Length . "`n""" . t.Value . """"
+MsgBox % "Position: " . t.Position . "`nLength: " . t.Length . "`n""" . t.Value . """`n" . l.Position
 ExitApp
+*/
 
 /*
 Copyright 2011-2012 Anthony Zhang <azhang9@gmail.com>
@@ -71,6 +73,17 @@ class Lexer
             }
         }
 
+        class Line
+        {
+            __New(Position,Length)
+            {
+                this.Type := "Line"
+                this.Value := ""
+                this.Position := Position
+                this.Length := Length
+            }
+        }
+
         class String
         {
             __New(Value,Position,Length)
@@ -103,17 +116,14 @@ class Lexer
                 this.Length := Length
             }
         }
+    }
 
-        class Line
-        {
-            __New(Position,Length)
-            {
-                this.Type := "Line"
-                this.Value := ""
-                this.Position := Position
-                this.Length := Length
-            }
-        }
+    Peek()
+    {
+        Position1 := this.Position
+        Result := this.Next()
+        this.Position := Position1
+        Return, Result
     }
 
     Next()
@@ -145,7 +155,7 @@ class Lexer
         try For Index, Token In this.Number()
             Result.Insert(Token)
         catch e
-            throw Exception("Invalid token.","Next",e.Extra)
+            throw Exception("Invalid token.",A_ThisFunc,this.Position)
 
         Return, Result
     }
@@ -160,7 +170,7 @@ class Lexer
         try For Index, Token In this.Comment()
             Result.Insert(Token)
         catch e
-            throw Exception("Invalid ignore.","Ignore",this.Position)
+            throw Exception("Invalid ignore.",A_ThisFunc,this.Position)
 
         Loop
         {
@@ -195,7 +205,7 @@ class Lexer
             }
             Length --
         }
-        throw Exception("Invalid operator.","Operator",this.Position)
+        throw Exception("Invalid operator.",A_ThisFunc,this.Position)
     }
 
     String()
@@ -219,7 +229,7 @@ class Lexer
                 Output .= CurrentChar, this.Position ++
         }
         this.Position := Position1
-        throw Exception("Invalid string.","String",Position1)
+        throw Exception("Invalid string.",A_ThisFunc,Position1)
     }
 
     Identifier()
@@ -227,7 +237,7 @@ class Lexer
         Position1 := this.Position
         Output := SubStr(this.Text,Position1,1)
         If !InStr("abcdefghijklmnopqrstuvwxyz_",Output) ;check first character against valid identifier characters
-            throw Exception("Invalid identifier.","Identifier",Position1)
+            throw Exception("Invalid identifier.",A_ThisFunc,Position1)
         this.Position ++ ;move past the first character of the identifier
 
         ;obtain the rest of the identifier
@@ -243,7 +253,7 @@ class Lexer
         Position1 := this.Position
         Output := SubStr(this.Text,Position1,1)
         If !InStr("0123456789",Output) ;check for numerical digits
-            throw Exception("Invalid number.","Number",Position1)
+            throw Exception("Invalid number.",A_ThisFunc,Position1)
         this.Position ++ ;move past the first digit
 
         Exponent := 0
@@ -301,7 +311,7 @@ class Lexer
             If !InStr("0123456789",SubStr(this.Text,this.Position,1)) ;check for numeric exponent
             {
                 this.Position := Position1
-                throw Exception("Invalid exponent.","Number",this.Position) ;wip: nonfatal error
+                throw Exception("Invalid exponent.",A_ThisFunc,this.Position) ;wip: nonfatal error
             }
 
             ;handle digits of the exponent
@@ -322,7 +332,7 @@ class Lexer
     {
         CurrentChar := SubStr(this.Text,this.Position,1)
         If (CurrentChar != " " && CurrentChar != "`t")
-            throw Exception("Invalid whitespace.","Whitespace",this.Position)
+            throw Exception("Invalid whitespace.",A_ThisFunc,this.Position)
         this.Position ++ ;move past whitespace
 
         ;move past any remaining whitespace
@@ -340,7 +350,7 @@ class Lexer
         ;check for line end
         CurrentChar := SubStr(this.Text,this.Position,1)
         If (CurrentChar != "`r" && CurrentChar != "`n")
-            throw Exception("Invalid line.","Line",Position1)
+            throw Exception("Invalid line.",A_ThisFunc,Position1)
         this.Position ++ ;move past the line end
 
         Loop
@@ -393,14 +403,14 @@ class Lexer
             }
             Return, []
         }
-        throw Exception("Invalid comment.","Comment",this.Position)
+        throw Exception("Invalid comment.",A_ThisFunc,this.Position)
     }
 
     Escape()
     {
         Position1 := this.Position
         If SubStr(this.Text,Position1,1) != "``" ;check for escape character
-            throw Exception("Invalid escape.","Escape",Position1)
+            throw Exception("Invalid escape.",A_ThisFunc,Position1)
         this.Position ++ ;move past escape character
 
         CurrentChar := SubStr(this.Text,this.Position,1) ;obtain the escaped character
