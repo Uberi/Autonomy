@@ -78,7 +78,6 @@ class Lexer
             __New(Position,Length)
             {
                 this.Type := "Line"
-                this.Value := ""
                 this.Position := Position
                 this.Length := Length
             }
