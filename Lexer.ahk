@@ -1,12 +1,18 @@
 #NoEnv
 
-#Include Resources/Token.ahk
+#Warn All
+#Warn LocalSameAsGlobal, Off
 
-Code = 0x123.456e5
-Code = "string``""
+;Code = 0x123.4
+Code = 123.456e5
 l := new Lexer(Code)
-;MsgBox % l.Number()[1].Value
-MsgBox % l.String()[1].Value
+t := l.Number()[1]
+MsgBox % "Position: " . t.Position . "`nLength: " . t.Length . "`n""" . t.Value . """"
+
+Code = "s````tri``c[123]ng``""
+l := new Lexer(Code)
+t := l.String()[1]
+MsgBox % "Position: " . t.Position . "`nLength: " . t.Length . "`n""" . t.Value . """"
 ExitApp
 
 /*
@@ -399,23 +405,23 @@ class Lexer
 
         CurrentChar := SubStr(this.Text,this.Position,1) ;obtain the escaped character
         If (CurrentChar = "`n") ;newline escaped
-            Output .= "`n", this.Position ++
+            Output := "`n", this.Position ++
         Else If (CurrentChar = "`r") ;carriage return escaped
         {
             If SubStr(this.Text,this.Position + 1,1) = "`n" ;check for newline and ignore if present
                 this.Position ++
-            Output .= "`n", this.Position ++
+            Output := "`n", this.Position ++
         }
         Else If (CurrentChar = "``") ;literal backtick
-            Output .= "``", this.Position ++
+            Output := "``", this.Position ++
         Else If (CurrentChar = """") ;literal quote
-            Output .= """", this.Position ++
+            Output := """", this.Position ++
         Else If (CurrentChar = "r") ;literal carriage return
-            Output .= "`r", this.Position ++
+            Output := "`r", this.Position ++
         Else If (CurrentChar = "n") ;literal newline
-            Output .= "`n", this.Position ++
+            Output := "`n", this.Position ++
         Else If (CurrentChar = "t") ;literal tab
-            Output .= "`t", this.Position ++
+            Output := "`t", this.Position ++
         Else If (CurrentChar = "c") ;character code
         {
             this.Position ++ ;move past the character code marker
@@ -439,7 +445,7 @@ class Lexer
                 {
                     ;wip: nonfatal error
                 }
-                Output .= Chr(CharacterCode)
+                Output := Chr(CharacterCode)
             }
             Else
             {
