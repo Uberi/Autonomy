@@ -7,12 +7,12 @@
 ;Code = 0x123.4
 Code = 123.456e5
 l := new Lexer(Code)
-t := l.Number()[1]
+t := l.Number()
 MsgBox % "Position: " . t.Position . "`nLength: " . t.Length . "`n""" . t.Value . """`n" . l.Position
 
 Code = "s````tri``c[123]ng``""
 l := new Lexer(Code)
-t := l.String()[1]
+t := l.String()
 MsgBox % "Position: " . t.Position . "`nLength: " . t.Length . "`n""" . t.Value . """`n" . l.Position
 ExitApp
 */
@@ -115,6 +115,17 @@ class Lexer
                 this.Length := Length
             }
         }
+
+        class Comment
+        {
+            __New(Value,Position,Length)
+            {
+                this.Type := "Comment"
+                this.Value := Value
+                this.Position := Position
+                this.Length := Length
+            }
+        }
     }
 
     Peek()
@@ -127,60 +138,29 @@ class Lexer
 
     Next()
     {
-        Result := []
-
         If SubStr(this.Text,this.Position,1) = "" ;past end of text
-            Return, Result
+            throw Exception("End of input.",A_ThisFunc,this.Position) ;wip: not sure if this is the correct way to denote end of input
 
-        try For Index, Token In this.Ignore()
-            Result.Insert(Token)
+        try this.Whitespace()
         catch e
         {
             
         }
 
-        try For Index, Token In this.Operator()
-            Result.Insert(Token)
+        try Result := this.Operator()
         catch e
-        try For Index, Token In this.Line()
-            Result.Insert(Token)
+        try Result := this.Line()
         catch e
-        try For Index, Token In this.String()
-            Result.Insert(Token)
+        try Result := this.String()
         catch e
-        try For Index, Token In this.Identifier()
-            Result.Insert(Token)
+        try Result := this.Identifier()
         catch e
-        try For Index, Token In this.Number()
-            Result.Insert(Token)
+        try Result := this.Number()
+        catch e
+        try Result := this.Comment()
         catch e
             throw Exception("Invalid token.",A_ThisFunc,this.Position)
 
-        Return, Result
-    }
-
-    Ignore()
-    {
-        Result := []
-
-        try For Index, Token In this.Whitespace()
-            Result.Insert(Token)
-        catch e
-        try For Index, Token In this.Comment()
-            Result.Insert(Token)
-        catch e
-            throw Exception("Invalid ignore.",A_ThisFunc,this.Position)
-
-        Loop
-        {
-            try For Index, Token In this.Whitespace()
-                Result.Insert(Token)
-            catch e
-            try For Index, Token In this.Comment()
-                Result.Insert(Token)
-            catch e
-                Break
-        }
         Return, Result
     }
 
@@ -199,7 +179,7 @@ class Lexer
                 {
                     Position1 := this.Position
                     this.Position += StrLen(Output)
-                    Return, [new this.Token.Operator(Output,Position1,Length)]
+                    Return, new this.Token.Operator(Output,Position1,Length)
                 }
             }
             Length --
@@ -221,7 +201,7 @@ class Lexer
             {
                 this.Position ++ ;move past closing quote
                 Length := this.Position - Position1
-                Return, [new this.Token.String(Output,Position1,Length)]
+                Return, new this.Token.String(Output,Position1,Length)
             }
             try Output .= this.Escape() ;check for escape sequence
             catch e
@@ -244,7 +224,7 @@ class Lexer
             Output .= CurrentChar, this.Position ++
 
         Length := this.Position - Position1
-        Return, [new this.Token.Identifier(Output,Position1,Length)]
+        Return, new this.Token.Identifier(Output,Position1,Length)
     }
 
     Number()
@@ -294,7 +274,7 @@ class Lexer
             Else ;object access operator
             {
                 Length := this.Position - Position1
-                Return, [new this.Token.Number(Output,Position1,Length)]
+                Return, new this.Token.Number(Output,Position1,Length)
             }
         }
 
@@ -324,21 +304,7 @@ class Lexer
         Output *= NumberBase ** Exponent
 
         Length := this.Position - Position1
-        Return, [new this.Token.Number(Output,Position1,Length)]
-    }
-
-    Whitespace()
-    {
-        CurrentChar := SubStr(this.Text,this.Position,1)
-        If (CurrentChar != " " && CurrentChar != "`t")
-            throw Exception("Invalid whitespace.",A_ThisFunc,this.Position)
-        this.Position ++ ;move past whitespace
-
-        ;move past any remaining whitespace
-        While, (CurrentChar := SubStr(this.Text,this.Position,1)) = " " || CurrentChar = "`t"
-            this.Position ++
-
-        Return, []
+        Return, new this.Token.Number(Output,Position1,Length)
     }
 
     Line()
@@ -366,20 +332,25 @@ class Lexer
         }
 
         Length := this.Position - Position1
-        Return, [new this.Token.Line(Position1,Length)]
+        Return, new this.Token.Line(Position1,Length)
     }
 
-    Comment() ;wip: maybe should return comment tokens as well
+    Comment()
     {
         If SubStr(this.Text,this.Position,1) = ";"
         {
+            Output := ""
+            Position1 := this.Position
             this.Position ++ ;move past comment marker
             While, (CurrentChar := SubStr(this.Text,this.Position,1)) != "" && CurrentChar != "`r" && CurrentChar != "`n"
-                this.Position ++
-            Return, []
+                Output .= CurrentChar, this.Position ++
+            Length := this.Position - Position1
+            Return, new this.Token.Comment(Output,Position1,Length)
         }
         If SubStr(this.Text,this.Position,2) = "/*"
         {
+            Output := ""
+            Position1 := this.Position
             this.Position += 2 ;move past the comment start
             CommentLevel := 1
             Loop
@@ -398,11 +369,24 @@ class Lexer
                         Break
                     }
                 }
-                this.Position ++
+                Output .= SubStr(CurrentChar,1,1), this.Position ++
             }
-            Return, []
+            Length := this.Position - Position1
+            Return, new this.Token.Comment(Output,Position1,Length)
         }
-        throw Exception("Invalid comment.",A_ThisFunc,this.Position)
+        throw Exception("Invalid comment.",A_ThisFunc,Position1)
+    }
+
+    Whitespace()
+    {
+        CurrentChar := SubStr(this.Text,this.Position,1)
+        If (CurrentChar != " " && CurrentChar != "`t")
+            throw Exception("Invalid whitespace.",A_ThisFunc,this.Position)
+        this.Position ++ ;move past whitespace
+
+        ;move past any remaining whitespace
+        While, (CurrentChar := SubStr(this.Text,this.Position,1)) = " " || CurrentChar = "`t"
+            this.Position ++
     }
 
     Escape()
