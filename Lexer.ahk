@@ -142,23 +142,23 @@ class Lexer
             throw Exception("End of input.",A_ThisFunc,this.Position) ;wip: not sure if this is the correct way to denote end of input
 
         try this.Whitespace()
-        catch e
+        catch
         {
             
         }
 
         try Result := this.Operator()
-        catch e
+        catch
         try Result := this.Line()
-        catch e
+        catch
         try Result := this.String()
-        catch e
+        catch
         try Result := this.Identifier()
-        catch e
+        catch
         try Result := this.Number()
-        catch e
+        catch
         try Result := this.Comment()
-        catch e
+        catch
             throw Exception("Invalid token.",A_ThisFunc,this.Position)
 
         Return, Result
@@ -204,7 +204,7 @@ class Lexer
                 Return, new this.Token.String(Output,Position1,Length)
             }
             try Output .= this.Escape() ;check for escape sequence
-            catch e
+            catch
                 Output .= CurrentChar, this.Position ++
         }
         this.Position := Position1
@@ -327,7 +327,7 @@ class Lexer
             ;handle input that should be ignored
             try For Index, Token In this.Ignore()
                 Result.Insert(Token)
-            catch e
+            catch
                 Break
         }
 
