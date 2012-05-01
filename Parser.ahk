@@ -118,36 +118,40 @@ class Parser
     {
         Result := this.Expression(RightBindingPower) ;parse either the expression or the beginning of the statement
 
-        Tokens := this.Lexer.Peek() ;retrieve the following tokens
+        this.Ignore()
 
-        If !Tokens.MaxIndex() ;no tokens remain
-            || Tokens[1].Type = "Line" ;next token is a line
+        ;check for line end or end of input
+        try Token := this.Lexer.Line()
+        catch
             Return, Result ;not a statement
 
         ;parse the statement parameters ;wip: support multiple parameters
         Parameters := this.Expression(RightBindingPower)
-        Return, new this.Node.Operation(Result,Parameters,Tokens[1].Position,0) ;wip: position and length
+        Return, new this.Node.Operation(Result,Parameters,Token.Position,0) ;wip: position and length
     }
 
     Expression(RightBindingPower)
     {
         ;retrieve the current token
-        If !this.Tokens.HasKey(this.Index)
-            throw Exception("Missing token.","Expression",this.Index)
-        Token := this.Tokens[this.Index], this.Index ++
+        try Token := this.Lexer.Next()
+        catch
+            throw Exception("Missing token.","Expression",this.Lexer.Position)
 
         LeftSide := this.NullDenotation(Token)
 
         ;retrieve the next token
-        If this.Tokens.HasKey(this.Index)
-            NextToken := this.Tokens[this.Index]
-        Else
+        try NextToken := this.Lexer.Next()
+        catch
             Return, LeftSide
 
         While, RightBindingPower < this.LeftBindingPower(NextToken)
         {
             Token := NextToken
-            NextToken := this.Tokens[this.Index], this.Index ++
+
+            try this.Lexer.Next()
+            catch
+                Break
+
             LeftSide := this.LeftDenotation(Token,LeftSide)
 
             If this.Tokens.HasKey(this.Index)
@@ -171,6 +175,23 @@ class Parser
     LeftDenotation(Token,LeftSide)
     {
         
+    }
+
+    Ignore()
+    {
+        Loop
+        {
+            try this.Lexer.Whitespace()
+            catch
+            try this.Lexer.Comment()
+            catch
+                Break
+        }
+        try this.Lexer.Whitespace()
+        catch
+        {
+            
+        }
     }
 }
 
@@ -245,7 +266,7 @@ CodeParseExpression(Tokens,ByRef Index,ByRef Errors,RightBindingPower)
         Return, LeftSide
     While, (RightBindingPower < CodeParseDispatchLeftBindingPower(NextToken)) ;loop while the current right binding power is less than that of the left binding power of the next token
     {
-        CurrentToken := NextToken, NextToken := CodeParseToken(Tokens,Index), Index ++ ;store the token and move to the next one
+        CurrentToken := NextToken, Index ++ ;store the token and move to the next one
         LeftSide := CodeParseDispatchLeftDenotation(Tokens,Index,Errors,CurrentToken,LeftSide) ;handle the left denotation - the token requires tokens to its left
         Try NextToken := CodeParseToken(Tokens,Index) ;retrieve the next token
         Catch
