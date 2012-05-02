@@ -313,7 +313,7 @@ class Lexer
         Position1 := this.Position
 
         ;check for line end
-        CurrentChar := SubStr(this.Text,this.Position,1)
+        CurrentChar := SubStr(this.Text,Position1,1)
         If (CurrentChar != "`r" && CurrentChar != "`n")
             throw Exception("Invalid line.",A_ThisFunc,Position1)
         this.Position ++ ;move past the line end

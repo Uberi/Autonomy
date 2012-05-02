@@ -43,9 +43,9 @@ Long term tasks:
 
 * to make an object, use Object.new() or ClassName.new() or just ClassName.new
 * named parameter "key" for functions such as [].max(), [].min(), [].sort(), etc. that allows the user to specify a function that specifies the key to use in place of the actual key
+* "with" statement that sets an object as a scope (needs internal support)
 * named parameter "function" for the same purposes above, that allow things like custom sorting functions
 * "ensure" or "assert" statements allow code to be statically verified
-* "switch" statement, without fallthrough, but allowing multiple possible arbitrary expressions per case, possibly comma separated?
 * "with" statement to do patterns like opening, reading, then closing a file
 * Exceptions with try/catch/throw and "break" in catch blocks
 * Dynamic default values for optional function parameters: SomeFunction(Param: 2 * 8 + GlobalVar) { Function body here }
