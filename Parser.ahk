@@ -133,30 +133,31 @@ class Parser
     Expression(RightBindingPower)
     {
         ;retrieve the current token
+        Position1 := this.Lexer.Position
         try Token := this.Lexer.Next()
         catch
-            throw Exception("Missing token.","Expression",this.Lexer.Position)
+        {
+            this.Lexer.Position := Position1
+            throw Exception("Missing token.",A_ThisFunc,Position1)
+        }
 
         LeftSide := this.NullDenotation(Token)
 
         ;retrieve the next token
-        try NextToken := this.Lexer.Next()
+        try Token := this.Lexer.Next()
         catch
             Return, LeftSide
 
-        While, RightBindingPower < this.LeftBindingPower(NextToken)
+        While, RightBindingPower < this.LeftBindingPower(Token)
         {
-            Token := NextToken
-
             try this.Lexer.Next()
             catch
                 Break
 
             LeftSide := this.LeftDenotation(Token,LeftSide)
 
-            If this.Tokens.HasKey(this.Index)
-                NextToken := this.Tokens[this.Index]
-            Else
+            try Token := this.Lexer.Next() ;wip: should get the token before this one
+            catch
                 Break
         }
         Return, LeftSide
@@ -164,17 +165,51 @@ class Parser
 
     LeftBindingPower(Token)
     {
-        
+        If Token.Type = "Operator"
+            Return, 0 ;wip
+        If Token.Type = "Line"
+        {
+            ;wip
+        }
+        If Token.Type = "String"
+            Return, 0
+        If Token.Type = "Identifier"
+            Return, 0
+        If Token.Type = "Number"
+            Return, 0
+        If Token.Type = "Comment"
+        {
+            ;wip
+        }
+        throw Exception("Invalid token.",A_ThisFunc,Token.Position)
     }
 
     NullDenotation(Token)
     {
-        
+        If Token.Type = "Operator"
+            Return, this.Node.Operation(Token.Value,Parameters,Token.Position,Token.Length) ;wip
+        If Token.Type = "Line"
+        {
+            ;wip
+        }
+        If Token.Type = "String"
+            Return, this.Node.String(Token.Value,Token.Position,Token.Length)
+        If Token.Type = "Identifier"
+            Return, this.Node.Identifier(Token.Value,Token.Position,Token.Length)
+        If Token.Type = "Number"
+            Return, this.Node.Number(Token.Value,Token.Position,Token.Length)
+        If Token.Type = "Comment"
+        {
+            ;wip
+        }
+        throw Exception("Invalid token.",A_ThisFunc,Token.Position)
     }
 
     LeftDenotation(Token,LeftSide)
     {
-        
+        If Token.Type = "Operator"
+            Return, this.Node.Operation(Token.Value,Parameters,Token.Position,Token.Length) ;wip
+        throw Exception("Invalid operator.",A_ThisFunc,Token.Position)
     }
 
     Ignore()
@@ -318,14 +353,8 @@ CodeParseDispatchLeftDenotation(Tokens,ByRef Index,ByRef Errors,Token,LeftSide)
     TokenType := Token.Type
     If (TokenType = CodeTokenTypes.OPERATOR) ;operator token
         Return, CodeParseOperatorLeftDenotation(Tokens,Index,Errors,Token,LeftSide)
-    If (TokenType = CodeTokenTypes.NUMBER ;integer token
-        || TokenType = CodeTokenTypes.STRING ;string token
-        || TokenType = CodeTokenTypes.IDENTIFIER ;identifier token
-        || TokenType = CodeTokenTypes.LINE_END) ;line end token ;wip: identifiers should allow for the command syntax
-    {
-        MsgBox Missing operator.
-        Return, "ERROR: Missing operator." ;wip: better error handling
-    }
+    MsgBox Missing operator.
+    Return, "ERROR: Missing operator." ;wip: better error handling
 }
 
 CodeParseOperatorLeftBindingPower(Token)
