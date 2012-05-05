@@ -86,17 +86,6 @@ Example
 [Wikipedia]: http://en.wikipedia.org/wiki/Extended_Backus-Naur_Form
 */
 
-;#Include Parser.ahk
-#Include Resources/Syntax Tree.ahk
-
-;wip
-CodeParseToken(x*){
-}
-CodeParseExpression(x*){
-}
-CodeParseLine(x*){
-}
-
 class Code
 {
     static Operators := Code.CreateOperatorTable()
@@ -104,44 +93,13 @@ class Code
     __New(Text)
     {
         this.Lexer := new Code.Lexer(Text) ;wip: text could potentially be quite large
+        this.Parser := new Code.Parser(this.Lexer)
     }
 
     #Include Lexer.ahk
+    #Include Parser.ahk
 
     #Include Resources/Operators.ahk
 }
 
 MsgBox % ShowObject(Code)
-
-;initializes or resets resources that are needed by other modules each time they work on a different input
-CodeSetScript(ByRef Path = "",ByRef Errors = "",ByRef Files = "") ;wip: remove this function? might be needed by the error handler
-{
-    If (Path != "")
-        Files := [PathExpand(Path)] ;create an array to store the path of each script
-    Errors := []
-}
-
-;records an error containing information about the nature, severity, and location of the issue
-CodeRecordError(ByRef Errors,Identifier,Level,File,Caret = 0,CaretLength = 1,Highlight = 0)
-{
-    ErrorRecord := Object("Identifier",Identifier,"Level",Level,"Highlight",Highlight,"Caret",Object("Position",Caret,"Length",CaretLength),"File",File)
-    Errors.Insert(ErrorRecord) ;add an error to the error log
-}
-
-;an alternative, convenient way to record errors by passing tokens to the function instead of positions and lengths
-CodeRecordErrorTokens(ByRef Errors,Identifier,Level,Caret = 0,Highlight = 0)
-{
-    If (Highlight != 0)
-    {
-        File := Highlight.1.File, ProcessedHighlight := []
-        For Index, Token In Highlight
-            ProcessedHighlight.Insert(Object("Position",Token.Position,"Length",StrLen(Token.Value)))
-    }
-    Else
-        ProcessedHighlight := 0
-    If IsObject(Caret)
-        File := Caret.File, Position := Caret.Position, Length := StrLen(Caret.Value)
-    Else
-        Position := 0, Length := 1
-    CodeRecordError(Errors,Identifier,Level,File,Position,Length,ProcessedHighlight)
-}
