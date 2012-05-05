@@ -141,16 +141,9 @@ class Parser
 
     Expression(RightBindingPower)
     {
-        ;retrieve the current token
-        Position1 := this.Lexer.Position
-        try Token := this.Lexer.Next()
+        try LeftSide := this.NullDenotation(Token)
         catch
-        {
-            this.Lexer.Position := Position1
-            throw Exception("Missing token.",A_ThisFunc,Position1)
-        }
-
-        LeftSide := this.NullDenotation(Token)
+            throw Exception("Missing token.",A_ThisFunc,this.Lexer.Position)
 
         ;retrieve the next token
         try Token := this.Lexer.Next()
@@ -159,10 +152,6 @@ class Parser
 
         While, RightBindingPower < this.LeftBindingPower(Token)
         {
-            try this.Lexer.Next()
-            catch
-                Break
-
             LeftSide := this.LeftDenotation(Token,LeftSide)
 
             try Token := this.Lexer.Peek() ;wip: should get the token before this one
@@ -193,32 +182,55 @@ class Parser
         throw Exception("Invalid token.",A_ThisFunc,Token.Position)
     }
 
-    NullDenotation(Token)
+    NullDenotation()
     {
-        If Token.Type = "Operator"
-            Return, this.OperatorPrefix(Token)
-        If Token.Type = "Line"
+        try
         {
+            Token := this.Lexer.OperatorNull()
+            Return, this.OperatorPrefix(Token)
+        }
+        catch
+        try
+        {
+            Token := this.Lexer.Line()
             ;wip
         }
-        If Token.Type = "String"
-            Return, new this.Node.String(Token.Value,Token.Position,Token.Length)
-        If Token.Type = "Identifier"
-            Return, new this.Node.Identifier(Token.Value,Token.Position,Token.Length)
-        If Token.Type = "Number"
-            Return, new this.Node.Number(Token.Value,Token.Position,Token.Length)
-        If Token.Type = "Comment"
+        catch
+        try
         {
+            Token := this.Lexer.String()
+            Return, new this.Node.String(Token.Value,Token.Position,Token.Length)
+        }
+        catch
+        try
+        {
+            Token := this.Lexer.Identifier()
+            Return, new this.Node.Identifier(Token.Value,Token.Position,Token.Length)
+        }
+        catch
+        try
+        {
+            Token := this.Lexer.Number()
+            Return, new this.Node.Number(Token.Value,Token.Position,Token.Length)
+        }
+        catch
+        try
+        {
+            Token := this.Lexer.Comment()
             ;wip
         }
         throw Exception("Invalid token.",A_ThisFunc,Token.Position)
     }
 
-    LeftDenotation(Token,LeftSide)
+    LeftDenotation(LeftSide)
     {
-        If Token.Type = "Operator"
-            Return, new this.Node.Operation(Token.Value,Parameters,Token.Position,Token.Length) ;wip
-        throw Exception("Invalid operator.",A_ThisFunc,Token.Position)
+        try
+        {
+            Token := this.Lexer.OperatorLeft()
+            Return, new this.Node.Operation(Token.Value,Parameters,Token.Position,Token.Length) ;wip: parameters
+        }
+        catch
+            throw Exception("Invalid token.",A_ThisFunc,Token.Position)
     }
 
     OperatorPrefix(Token)
@@ -244,7 +256,9 @@ class Parser
 
     OperatorEvaluate(Token)
     {
-        
+        Token := this.Lexer.OperatorNull()
+        If Token.Value != "evaluate"
+            throw Exception("Invalid evaluation.",A_ThisFunc,Token.Position)
     }
 
     OperatorBlock(Token)

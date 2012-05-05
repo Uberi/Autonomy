@@ -39,18 +39,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class Lexer
 {
     static Operators := Object("LeftDenotation",Object("and","")) ;wip: debug
-    ;static MaxOperatorLength := Code.Lexer.GetMaxOperatorLength() ;wip: calculate this on the fly
-    static MaxOperatorLength := Lexer.GetMaxOperatorLength() ;wip: calculate this on the fly
+    static MaxOperatorNullLength := Lexer.GetMaxOperatorNullLength() ;wip: calculate this on the fly
+    static MaxOperatorLeftLength := Lexer.GetMaxOperatorLeftLength() ;wip: calculate this on the fly
 
-    GetMaxOperatorLength()
+    GetMaxOperatorNullLength()
     {
         MaxLength := 0
         For Operator In this.Operators.NullDenotation ;get the length of the longest null denotation operator
             Length := StrLen(Operator), (Length > MaxLength) ? (MaxLength := Length) : ""
+        Return, MaxLength
+    }
+
+    GetMaxOperatorNullLength()
+    {
+        MaxLength := 0
         For Operator In this.Operators.LeftDenotation ;get the length of the longest left denotation operator
-        {
             Length := StrLen(Operator), (Length > MaxLength) ? (MaxLength := Length) : ""
-        }
         Return, MaxLength
     }
 
@@ -62,11 +66,22 @@ class Lexer
 
     class Token
     {
-        class Operator
+        class OperatorNull
         {
             __New(Value,Position,Length)
             {
-                this.Type := "Operator"
+                this.Type := "OperatorNull"
+                this.Value := Value
+                this.Position := Position
+                this.Length := Length
+            }
+        }
+
+        class OperatorLeft
+        {
+            __New(Value,Position,Length)
+            {
+                this.Type := "OperatorLeft"
                 this.Value := Value
                 this.Position := Position
                 this.Length := Length
@@ -147,7 +162,9 @@ class Lexer
             
         }
 
-        try Result := this.Operator()
+        try Result := this.OperatorNull()
+        catch
+        try Result := this.OperatorLeft()
         catch
         try Result := this.Line()
         catch
@@ -164,15 +181,15 @@ class Lexer
         Return, Result
     }
 
-    Operator()
+    OperatorNull()
     {
-        Length := this.MaxOperatorLength
+        Length := this.MaxOperatorNullLength
         While, Length > 0
         {
             Output := SubStr(this.Text,this.Position,Length)
-            If (this.Operators.NullDenotation.HasKey(Output)
-                || this.Operators.LeftDenotation.HasKey(Output))
+            If this.Operators.NullDenotation.HasKey(Output) ;operator found
             {
+                ;if the operator ends in an identifier character, ensure that the ending is not an identifier
                 If !(InStr("abcdefghijklmnopqrstuvwxyz0123456789",SubStr(Output,0))
                     && (NextChar := SubStr(this.Text,this.Position + Length,1)) != ""
                     && InStr("abcdefghijklmnopqrstuvwxyz0123456789",NextChar))
@@ -184,7 +201,30 @@ class Lexer
             }
             Length --
         }
-        throw Exception("Invalid operator.",A_ThisFunc,this.Position)
+        throw Exception("Invalid null denotation operator.",A_ThisFunc,this.Position)
+    }
+
+    OperatorLeft()
+    {
+        Length := this.MaxOperatorLeftLength
+        While, Length > 0
+        {
+            Output := SubStr(this.Text,this.Position,Length)
+            If this.Operators.LeftDenotation.HasKey(Output) ;operator found
+            {
+                ;if the operator ends in an identifier character, ensure that the ending is not an identifier
+                If !(InStr("abcdefghijklmnopqrstuvwxyz0123456789",SubStr(Output,0))
+                    && (NextChar := SubStr(this.Text,this.Position + Length,1)) != ""
+                    && InStr("abcdefghijklmnopqrstuvwxyz0123456789",NextChar))
+                {
+                    Position1 := this.Position
+                    this.Position += StrLen(Output)
+                    Return, new this.Token.Operator(Output,Position1,Length)
+                }
+            }
+            Length --
+        }
+        throw Exception("Invalid left denotation operator.",A_ThisFunc,this.Position)
     }
 
     String()
