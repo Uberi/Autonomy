@@ -53,7 +53,7 @@ Code = abc 123
 l := new Lexer(Code)
 p := new Parser(l)
 
-MsgBox % ShowObject(p.Statement())
+MsgBox % ShowObject(p.Expression(0))
 ExitApp
 
 MsgBox % Clipboard := CodeReconstructShowSyntaxTree(SyntaxTree)
@@ -69,13 +69,22 @@ class Parser
 
     class Node
     {
-        class Operation
+        class Operation ;wip: add position and length according to the position and length of the operator
         {
-            __New(Value,Parameters,Position,Length)
+            __New(Value,Parameters)
             {
                 this.Type := "Operation"
                 this.Value := Value
                 this.Parameters := Parameters
+            }
+        }
+
+        class Block
+        {
+            __New(Value,Position,Length)
+            {
+                this.Type := "Block"
+                this.Value := Value
                 this.Position := Position
                 this.Length := Length
             }
@@ -156,7 +165,7 @@ class Parser
 
             LeftSide := this.LeftDenotation(Token,LeftSide)
 
-            try Token := this.Lexer.Next() ;wip: should get the token before this one
+            try Token := this.Lexer.Peek() ;wip: should get the token before this one
             catch
                 Break
         }
@@ -187,17 +196,17 @@ class Parser
     NullDenotation(Token)
     {
         If Token.Type = "Operator"
-            Return, this.Node.Operation(Token.Value,Parameters,Token.Position,Token.Length) ;wip
+            Return, this.OperatorPrefix(Token)
         If Token.Type = "Line"
         {
             ;wip
         }
         If Token.Type = "String"
-            Return, this.Node.String(Token.Value,Token.Position,Token.Length)
+            Return, new this.Node.String(Token.Value,Token.Position,Token.Length)
         If Token.Type = "Identifier"
-            Return, this.Node.Identifier(Token.Value,Token.Position,Token.Length)
+            Return, new this.Node.Identifier(Token.Value,Token.Position,Token.Length)
         If Token.Type = "Number"
-            Return, this.Node.Number(Token.Value,Token.Position,Token.Length)
+            Return, new this.Node.Number(Token.Value,Token.Position,Token.Length)
         If Token.Type = "Comment"
         {
             ;wip
@@ -208,8 +217,59 @@ class Parser
     LeftDenotation(Token,LeftSide)
     {
         If Token.Type = "Operator"
-            Return, this.Node.Operation(Token.Value,Parameters,Token.Position,Token.Length) ;wip
+            Return, new this.Node.Operation(Token.Value,Parameters,Token.Position,Token.Length) ;wip
         throw Exception("Invalid operator.",A_ThisFunc,Token.Position)
+    }
+
+    OperatorPrefix(Token)
+    {
+        Operation := new this.Node.Identifier(Token.Value,Token.Position,Token.Length)
+        Parameters := [this.Expression(RightBindingPower)]
+        Return, new this.Node.Operation(Operation,Parameters)
+    }
+
+    OperatorInfix(Token,LeftSide)
+    {
+        Operation := new this.Node.Identifier(Token.Value,Token.Position,Token.Length)
+        Parameters := [LeftSide,this.Expression(RightBindingPower)]
+        Return, new this.Node.Operation(Operation,Parameters)
+    }
+
+    OperatorPostfix(Token,LeftSide)
+    {
+        Operation := new this.Node.Identifier(Token.Value,Token.Position,Token.Length)
+        Parameters := [LeftSide]
+        Return, new this.Node.Operation(Operation,Parameters)
+    }
+
+    OperatorEvaluate(Token)
+    {
+        
+    }
+
+    OperatorBlock(Token)
+    {
+        
+    }
+
+    OperatorArray(Token)
+    {
+        
+    }
+
+    OperatorTernary(Token,LeftSide)
+    {
+        
+    }
+
+    OperatorCall(Token,LeftSide)
+    {
+        
+    }
+
+    OperatorSubscript(Token,LeftSide)
+    {
+        
     }
 
     Ignore()
@@ -310,22 +370,6 @@ CodeParseExpression(Tokens,ByRef Index,ByRef Errors,RightBindingPower)
     Return, LeftSide
 }
 
-;dispatches the retrieval of the left binding power of a given token
-CodeParseDispatchLeftBindingPower(Token)
-{ ;returns the left binding power of the given token
-    global CodeTokenTypes
-    TokenType := Token.Type
-    If (TokenType = CodeTokenTypes.OPERATOR) ;operator token
-        Return, CodeParseOperatorLeftBindingPower(Token)
-    If (TokenType = CodeTokenTypes.NUMBER ;integer token
-        || TokenType = CodeTokenTypes.STRING ;string token
-        || TokenType = CodeTokenTypes.IDENTIFIER ;identifier token
-        || TokenType = CodeTokenTypes.LINE_END) ;line end token
-        Return, 0
-    If (TokenType = CodeTokenTypes.SEPARATOR) ;separator token
-        Return, 0
-}
-
 ;dispatches the invocation of the null denotation handler of a given token
 CodeParseDispatchNullDenotation(Tokens,ByRef Index,ByRef Errors,Token)
 {
@@ -344,17 +388,6 @@ CodeParseDispatchNullDenotation(Tokens,ByRef Index,ByRef Errors,Token)
         Token := CodeParseToken(Tokens,Index), Index ++ ;retrieve the token after the line end token
         Return, CodeParseDispatchNullDenotation(Tokens,Index,Errors,Token) ;dispatch the null denotation handler of the next token
     }
-}
-
-;dispatches the invocation of the left denotation handler of a given token
-CodeParseDispatchLeftDenotation(Tokens,ByRef Index,ByRef Errors,Token,LeftSide)
-{
-    global CodeTokenTypes
-    TokenType := Token.Type
-    If (TokenType = CodeTokenTypes.OPERATOR) ;operator token
-        Return, CodeParseOperatorLeftDenotation(Tokens,Index,Errors,Token,LeftSide)
-    MsgBox Missing operator.
-    Return, "ERROR: Missing operator." ;wip: better error handling
 }
 
 CodeParseOperatorLeftBindingPower(Token)
@@ -387,24 +420,6 @@ CodeParseOperatorLeftDenotation(Tokens,ByRef Index,ByRef Errors,Token,LeftSide)
     }
     Operator := CodeOperatorTable.LeftDenotation[Token.Value] ;retrieve operator object
     Return, Operator.Handler.(Tokens,Index,Errors,Operator,LeftSide) ;dispatch the left denotation handler for the operator ;wip: function reference call
-}
-
-CodeParseOperatorPrefix(Tokens,ByRef Index,ByRef Errors,Operator)
-{
-    Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier)
-                ,[CodeParseLine(Tokens,Index,Errors,Operator.RightBindingPower)])
-}
-
-CodeParseOperatorInfix(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
-{
-    Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier)
-                ,[LeftSide,CodeParseLine(Tokens,Index,Errors,Operator.RightBindingPower)])
-}
-
-CodeParseOperatorPostfix(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
-{
-    Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier)
-                ,[LeftSide])
 }
 
 ;get the next token
