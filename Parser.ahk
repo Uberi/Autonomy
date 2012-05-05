@@ -152,7 +152,9 @@ class Parser
 
         While, RightBindingPower < this.LeftBindingPower(Token)
         {
-            LeftSide := this.LeftDenotation(Token,LeftSide)
+            try LeftSide := this.LeftDenotation(Token,LeftSide) ;wip: there may be errors other than the lack of tokens
+            catch
+                Break
 
             try Token := this.Lexer.Peek() ;wip: should get the token before this one
             catch
@@ -230,7 +232,7 @@ class Parser
             Return, new this.Node.Operation(Token.Value,Parameters,Token.Position,Token.Length) ;wip: parameters
         }
         catch
-            throw Exception("Invalid token.",A_ThisFunc,Token.Position)
+            throw Exception("Invalid operator.",A_ThisFunc,Token.Position)
     }
 
     OperatorPrefix(Token)
@@ -259,6 +261,7 @@ class Parser
         Token := this.Lexer.OperatorNull()
         If Token.Value != "evaluate"
             throw Exception("Invalid evaluation.",A_ThisFunc,Token.Position)
+        
     }
 
     OperatorBlock(Token)
