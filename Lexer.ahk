@@ -1,20 +1,46 @@
 #NoEnv
 
-/*
+;/*
 #Warn All
 #Warn LocalSameAsGlobal, Off
+
+Code = +=
+l := new Lexer(Code)
+t := l.OperatorLeft()
+MsgBox % "Position: " . t.Position . "`nLength: " . t.Length . "`nNext: " . l.Position . "`n`n" . ShowObject(t.Value)
 
 ;Code = 0x123.4
 Code = 123.456e5
 l := new Lexer(Code)
 t := l.Number()
-MsgBox % "Position: " . t.Position . "`nLength: " . t.Length . "`n""" . t.Value . """`n" . l.Position
+MsgBox % "Position: " . t.Position . "`nLength: " . t.Length . "`nNext: " . l.Position . "`n`n" . t.Value
 
 Code = "s````tri``c[123]ng``""
 l := new Lexer(Code)
 t := l.String()
-MsgBox % "Position: " . t.Position . "`nLength: " . t.Length . "`n""" . t.Value . """`n" . l.Position
+MsgBox % "Position: " . t.Position . "`nLength: " . t.Length . "`nNext: " . l.Position . "`n`n" . t.Value
 ExitApp
+
+ShowObject(ShowObject,Padding = "")
+{
+    ListLines, Off
+    If !IsObject(ShowObject)
+    {
+        ListLines, On
+        Return, ShowObject
+    }
+    ObjectContents := ""
+    For Key, Value In ShowObject
+    {
+        If IsObject(Value)
+            Value := "`n" . ShowObject(Value,Padding . A_Tab)
+        ObjectContents .= Padding . Key . ": " . Value . "`n"
+    }
+    ObjectContents := SubStr(ObjectContents,1,-1)
+    If (Padding = "")
+        ListLines, On
+    Return, ObjectContents
+}
 */
 
 /*
@@ -38,24 +64,97 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class Lexer
 {
-    static Operators := Object("LeftDenotation",Object("and","")) ;wip: debug
-    static MaxOperatorNullLength := Lexer.GetMaxOperatorNullLength() ;wip: calculate this on the fly
-    static MaxOperatorLeftLength := Lexer.GetMaxOperatorLeftLength() ;wip: calculate this on the fly
+    static Operators := Lexer.GetOperatorTable()
 
-    GetMaxOperatorNullLength()
+    class Operator
     {
-        MaxLength := 0
-        For Operator In this.Operators.NullDenotation ;get the length of the longest null denotation operator
-            Length := StrLen(Operator), (Length > MaxLength) ? (MaxLength := Length) : ""
-        Return, MaxLength
+        __New(Identifier,LeftBindingPower,RightBindingPower)
+        {
+            this.Identifier := Identifier
+            this.LeftBindingPower := LeftBindingPower
+            this.RightBindingPower := RightBindingPower
+        }
     }
 
-    GetMaxOperatorNullLength()
+    GetOperatorTable()
     {
-        MaxLength := 0
-        For Operator In this.Operators.LeftDenotation ;get the length of the longest left denotation operator
-            Length := StrLen(Operator), (Length > MaxLength) ? (MaxLength := Length) : ""
-        Return, MaxLength
+        Operators := Object()
+        Operators.NullDenotation := Object()
+        Operators.LeftDenotation := Object()
+
+        Operators.LeftDenotation[":="]  := new Lexer.Operator("assign"                     ,170 ,9)
+        Operators.LeftDenotation["+="]  := new Lexer.Operator("assign_add"                 ,170 ,9)
+        Operators.LeftDenotation["-="]  := new Lexer.Operator("assign_subtract"            ,170 ,9)
+        Operators.LeftDenotation["*="]  := new Lexer.Operator("assign_multiply"            ,170 ,9)
+        Operators.LeftDenotation["/="]  := new Lexer.Operator("assign_divide"              ,170 ,9)
+        Operators.LeftDenotation["//="] := new Lexer.Operator("assign_divide_floor"        ,170 ,9)
+        Operators.LeftDenotation["%="]  := new Lexer.Operator("assign_modulo"              ,170 ,9)
+        Operators.LeftDenotation["**="] := new Lexer.Operator("assign_exponentiate"        ,170 ,9)
+        Operators.LeftDenotation[".="]  := new Lexer.Operator("assign_concatenate"         ,170 ,9)
+        Operators.LeftDenotation["|="]  := new Lexer.Operator("assign_bitwise_or"          ,170 ,9)
+        Operators.LeftDenotation["&="]  := new Lexer.Operator("assign_bitwise_and"         ,170 ,9)
+        Operators.LeftDenotation["^="]  := new Lexer.Operator("assign_bitwise_xor"         ,170 ,9)
+        Operators.LeftDenotation["<<="] := new Lexer.Operator("assign_bitwise_shift_left"  ,170 ,9)
+        Operators.LeftDenotation[">>="] := new Lexer.Operator("assign_bitwise_shift_right" ,170 ,9)
+        Operators.LeftDenotation["||="] := new Lexer.Operator("assign_or"                  ,170 ,9)
+        Operators.LeftDenotation["&&="] := new Lexer.Operator("assign_and"                 ,170 ,9)
+        Operators.LeftDenotation["?"]   := new Lexer.Operator("if"                         ,20  ,19)
+        Operators.LeftDenotation[":"]   := new Lexer.Operator("else"                       ,0   ,0) ;wip: colon operator, not ternary
+        Operators.LeftDenotation["||"]  := new Lexer.Operator("or"                         ,40  ,40)
+        Operators.LeftDenotation["&&"]  := new Lexer.Operator("and"                        ,50  ,50)
+        Operators.LeftDenotation["="]   := new Lexer.Operator("equals_strict"              ,70  ,70)
+        Operators.LeftDenotation["=="]  := new Lexer.Operator("equals"                     ,70  ,70)
+        Operators.LeftDenotation["!="]  := new Lexer.Operator("not_equals"                 ,70  ,70)
+        Operators.LeftDenotation["!=="] := new Lexer.Operator("not_equals_strict"          ,70  ,70)
+        Operators.LeftDenotation[">"]   := new Lexer.Operator("greater_than"               ,80  ,80)
+        Operators.LeftDenotation["<"]   := new Lexer.Operator("less_than"                  ,80  ,80)
+        Operators.LeftDenotation[">="]  := new Lexer.Operator("greater_than_or_equal"      ,80  ,80)
+        Operators.LeftDenotation["<="]  := new Lexer.Operator("less_than_or_equal"         ,80  ,80)
+        Operators.LeftDenotation[".."]  := new Lexer.Operator("concatenate"                ,90  ,90)
+        Operators.LeftDenotation["|"]   := new Lexer.Operator("bitwise_or"                 ,100 ,100)
+        Operators.LeftDenotation["^"]   := new Lexer.Operator("bitwise_exclusive_or"       ,110 ,110)
+        Operators.LeftDenotation["&"]   := new Lexer.Operator("bitwise_and"                ,120 ,120)
+        Operators.LeftDenotation["<<"]  := new Lexer.Operator("bitwise_shift_left"         ,130 ,130)
+        Operators.LeftDenotation[">>"]  := new Lexer.Operator("bitwise_shift_right"        ,130 ,130)
+        Operators.LeftDenotation["+"]   := new Lexer.Operator("add"                        ,140 ,140)
+        Operators.LeftDenotation["-"]   := new Lexer.Operator("subtract"                   ,140 ,140)
+        Operators.LeftDenotation["*"]   := new Lexer.Operator("multiply"                   ,150 ,150)
+        Operators.LeftDenotation["/"]   := new Lexer.Operator("divide"                     ,150 ,150)
+        Operators.LeftDenotation["//"]  := new Lexer.Operator("divide_floor"               ,150 ,150)
+        Operators.LeftDenotation["%"]   := new Lexer.Operator("modulo"                     ,150 ,150) ;wip: also should be the format string operator
+        Operators.NullDenotation["!"]   := new Lexer.Operator("not"                        ,0   ,160)
+        Operators.NullDenotation["-"]   := new Lexer.Operator("invert"                     ,0   ,160)
+        Operators.NullDenotation["~"]   := new Lexer.Operator("bitwise_not"                ,0   ,160)
+        Operators.NullDenotation["&"]   := new Lexer.Operator("address"                    ,0   ,160)
+        Operators.LeftDenotation["**"]  := new Lexer.Operator("exponentiate"               ,170 ,169)
+        Operators.LeftDenotation["++"]  := new Lexer.Operator("increment"                  ,180 ,0)
+        Operators.LeftDenotation["--"]  := new Lexer.Operator("decrement"                  ,180 ,0)
+
+        Operators.NullDenotation["("]   := new Lexer.Operator("evaluate"                   ,0   ,0)
+        Operators.LeftDenotation["("]   := new Lexer.Operator("call"                       ,190 ,0)
+        Operators.LeftDenotation[")"]   := new Lexer.Operator("group_end"                  ,0   ,0)
+
+        Operators.NullDenotation["{"]   := new Lexer.Operator("block"                      ,0   ,0)
+        Operators.LeftDenotation["{"]   := new Lexer.Operator("block"                      ,0   ,0)
+        Operators.LeftDenotation["}"]   := new Lexer.Operator("block_end"                  ,0   ,0)
+
+        Operators.NullDenotation["["]   := new Lexer.Operator("array"                      ,0   ,0)
+        Operators.LeftDenotation["["]   := new Lexer.Operator("subscript"                  ,200 ,0)
+        Operators.LeftDenotation["]"]   := new Lexer.Operator("subscript_end"              ,0   ,0)
+
+        Operators.LeftDenotation["."]   := new Lexer.Operator("subscript_identifier"       ,200 ,200)
+
+        ;obtain the length of the longest null denotation operator
+        Operators.MaxNullLength :=  := 0
+        For Operator In Operators.NullDenotation
+            Length := StrLen(Operator), (Length > Operators.MaxNullLength) ? (Operators.MaxNullLength := Length) : ""
+
+        ;obtain the length of the longest left denotation operator
+        Operators.MaxLeftLength := 0
+        For Operator In Operators.LeftDenotation
+            Length := StrLen(Operator), (Length > Operators.MaxLeftLength) ? (Operators.MaxLeftLength := Length) : ""
+
+        Return, Operators
     }
 
     __New(Text)
@@ -157,10 +256,6 @@ class Lexer
             throw Exception("End of input.",A_ThisFunc,this.Position) ;wip: not sure if this is the correct way to denote end of input
 
         try this.Whitespace()
-        catch
-        {
-            
-        }
 
         try Result := this.OperatorNull()
         catch
@@ -183,7 +278,7 @@ class Lexer
 
     OperatorNull()
     {
-        Length := this.MaxOperatorNullLength
+        Length := this.Operators.MaxNullLength
         While, Length > 0
         {
             Output := SubStr(this.Text,this.Position,Length)
@@ -196,7 +291,8 @@ class Lexer
                 {
                     Position1 := this.Position
                     this.Position += StrLen(Output)
-                    Return, new this.Token.Operator(Output,Position1,Length)
+                    Operator := this.Operators.NullDenotation[Output]
+                    Return, new this.Token.OperatorNull(Operator,Position1,Length)
                 }
             }
             Length --
@@ -206,7 +302,7 @@ class Lexer
 
     OperatorLeft()
     {
-        Length := this.MaxOperatorLeftLength
+        Length := this.Operators.MaxLeftLength
         While, Length > 0
         {
             Output := SubStr(this.Text,this.Position,Length)
@@ -219,7 +315,8 @@ class Lexer
                 {
                     Position1 := this.Position
                     this.Position += StrLen(Output)
-                    Return, new this.Token.Operator(Output,Position1,Length)
+                    Operator := this.Operators.LeftDenotation[Output]
+                    Return, new this.Token.OperatorLeft(Operator,Position1,Length)
                 }
             }
             Length --
