@@ -45,12 +45,11 @@ a ? b : c
 d && e || f
 )
 Code = abc 123
-Code = 2 + 3 * 4
 
 l := new Lexer(Code)
 p := new Parser(l)
 
-MsgBox % ShowObject(p.Expression(0))
+MsgBox % ShowObject(p.Statement(0))
 ExitApp
 
 MsgBox % Clipboard := CodeReconstructShowSyntaxTree(SyntaxTree)
@@ -120,7 +119,7 @@ class Parser
         }
     }
 
-    Statement(RightBindingPower)
+    Statement(RightBindingPower = 0)
     {
         Result := this.Expression(RightBindingPower) ;parse either the expression or the beginning of the statement
 
@@ -129,14 +128,21 @@ class Parser
         ;check for line end or end of input
         try Token := this.Lexer.Line()
         catch
-            Return, Result ;not a statement
-
-        ;parse the statement parameters ;wip: support multiple parameters
-        Parameters := this.Expression(RightBindingPower)
-        Return, new this.Node.Operation(Result,Parameters,Token.Position,0) ;wip: position and length
+        {
+            ;wip: support multiple parameters
+            Parameters := []
+            ;Loop
+            {
+                Node := this.Statement(RightBindingPower)
+                
+                Parameters.Insert(Node)
+            }
+            Return, new this.Node.Operation(Result,Parameters,this.Lever.Position,0) ;wip: position and length
+        }
+        Return, Result ;not a statement
     }
 
-    Expression(RightBindingPower)
+    Expression(RightBindingPower = 0)
     {
         try LeftSide := this.NullDenotation(Token)
         catch
@@ -219,10 +225,7 @@ class Parser
 
     LeftDenotation(LeftSide)
     {
-        try
-        {
-            Return this.OperatorInfix(LeftSide)
-        }
+        try Return this.OperatorInfix(LeftSide)
         catch
             throw Exception("Invalid operator.",A_ThisFunc,this.Lexer.Position)
     }
