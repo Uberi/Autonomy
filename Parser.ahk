@@ -45,6 +45,7 @@ a ? b : c
 d && e || f
 )
 Code = abc 123
+Code = 2 + 3 * 4
 
 l := new Lexer(Code)
 p := new Parser(l)
@@ -142,17 +143,15 @@ class Parser
             throw Exception("Missing token.",A_ThisFunc,this.Lexer.Position)
 
         ;retrieve the next token
-        try Token := this.Lexer.Next()
+        try Token := this.Lexer.Peek() ;wip
         catch
             Return, LeftSide
 
         While, RightBindingPower < this.LeftBindingPower(Token)
         {
-            try LeftSide := this.LeftDenotation(Token,LeftSide) ;wip: there may be errors other than the lack of tokens
-            catch
-                Break
+            this.Ignore()
 
-            try Token := this.Lexer.Peek() ;wip: maybe should get the token before this one, or maybe this isn't needed at all
+            try LeftSide := this.LeftDenotation(LeftSide)
             catch
                 Break
         }
@@ -161,7 +160,9 @@ class Parser
 
     LeftBindingPower(Token)
     {
-        If Token.Type = "Operator"
+        If Token.Type = "OperatorNull"
+            Return, Token.Value.LeftBindingPower
+        If Token.Type = "OperatorLeft"
             Return, Token.Value.LeftBindingPower
         If Token.Type = "Line"
         {
@@ -217,7 +218,7 @@ class Parser
             Token := this.Lexer.Comment()
             ;wip
         }
-        throw Exception("Invalid token.",A_ThisFunc,Token.Position)
+        throw Exception("Invalid token.",A_ThisFunc,this.Lexer.Position)
     }
 
     LeftDenotation(LeftSide)
@@ -225,10 +226,15 @@ class Parser
         try
         {
             Token := this.Lexer.OperatorLeft()
-            Return, new this.Node.Operation(Token.Value,Parameters,Token.Position,Token.Length) ;wip: parameters
+
+            this.Ignore()
+            RightSide := this.Expression(Token.RightBindingPower)
+
+            Parameters := [LeftSide,RightSide] ;wip
+            Return, new this.Node.Operation(Token.Value,Parameters,Token.Position,Token.Length)
         }
         catch
-            throw Exception("Invalid operator.",A_ThisFunc,Token.Position)
+            throw Exception("Invalid operator.",A_ThisFunc,this.Lexer.Position)
     }
 
     OperatorPrefix(Token)

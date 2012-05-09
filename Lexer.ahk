@@ -1,6 +1,6 @@
 #NoEnv
 
-;/*
+/*
 #Warn All
 #Warn LocalSameAsGlobal, Off
 
@@ -20,27 +20,6 @@ l := new Lexer(Code)
 t := l.String()
 MsgBox % "Position: " . t.Position . "`nLength: " . t.Length . "`nNext: " . l.Position . "`n`n" . t.Value
 ExitApp
-
-ShowObject(ShowObject,Padding = "")
-{
-    ListLines, Off
-    If !IsObject(ShowObject)
-    {
-        ListLines, On
-        Return, ShowObject
-    }
-    ObjectContents := ""
-    For Key, Value In ShowObject
-    {
-        If IsObject(Value)
-            Value := "`n" . ShowObject(Value,Padding . A_Tab)
-        ObjectContents .= Padding . Key . ": " . Value . "`n"
-    }
-    ObjectContents := SubStr(ObjectContents,1,-1)
-    If (Padding = "")
-        ListLines, On
-    Return, ObjectContents
-}
 */
 
 /*
@@ -474,10 +453,10 @@ class Lexer
 
     Comment()
     {
+        Position1 := this.Position
         If SubStr(this.Text,this.Position,1) = ";"
         {
             Output := ""
-            Position1 := this.Position
             this.Position ++ ;move past comment marker
             While, (CurrentChar := SubStr(this.Text,this.Position,1)) != "" && CurrentChar != "`r" && CurrentChar != "`n"
                 Output .= CurrentChar, this.Position ++
@@ -487,7 +466,6 @@ class Lexer
         If SubStr(this.Text,this.Position,2) = "/*"
         {
             Output := ""
-            Position1 := this.Position
             this.Position += 2 ;move past the comment start
             CommentLevel := 1
             Loop
