@@ -174,6 +174,16 @@ class Lexer
             }
         }
 
+        class Separator
+        {
+            __New(Position,Length)
+            {
+                this.Type := "Separator"
+                this.Position := Position
+                this.Length := Length
+            }
+        }
+
         class String
         {
             __New(Value,Position,Length)
@@ -239,6 +249,8 @@ class Lexer
         try Result := this.OperatorLeft()
         catch
         try Result := this.Line()
+        catch
+        try Result := this.Separator()
         catch
         try Result := this.String()
         catch
@@ -423,7 +435,6 @@ class Lexer
 
     Line()
     {
-        Result := []
         Position1 := this.Position
 
         ;check for line end
@@ -432,21 +443,24 @@ class Lexer
             throw Exception("Invalid line.",A_ThisFunc,Position1)
         this.Position ++ ;move past the line end
 
-        Loop
-        {
-            ;move past line end
-            While, (CurrentChar := SubStr(this.Text,this.Position,1)) = "`r" || CurrentChar = "`n"
-                this.Position ++
-
-            ;handle input that should be ignored
-            try For Index, Token In this.Ignore()
-                Result.Insert(Token)
-            catch
-                Break
-        }
+        ;move past any remaining line end characters
+        While, (CurrentChar := SubStr(this.Text,this.Position,1)) = "`r" || CurrentChar = "`n"
+            this.Position ++
 
         Length := this.Position - Position1
         Return, new this.Token.Line(Position1,Length)
+    }
+
+    Separator()
+    {
+        Position1 := this.Position
+
+        ;check for line end
+        If (SubStr(this.Text,Position1,1) != ",")
+            throw Exception("Invalid separator.",A_ThisFunc,Position1)
+
+        this.Position ++ ;move past the separator
+        Return, new this.Token.Separator(Position1,1)
     }
 
     Comment()
