@@ -44,7 +44,7 @@ Code =
 a ? b : c
 d && e || f
 )
-Code = abc 123
+Code = abc 123, 456
 
 l := new Lexer(Code)
 p := new Parser(l)
@@ -121,23 +121,24 @@ class Parser
 
     Statement(RightBindingPower = 0)
     {
-        Result := this.Expression(RightBindingPower) ;parse either the expression or the beginning of the statement
-
+        Value := this.Expression(RightBindingPower) ;parse either the expression or the beginning of the statement
         this.Ignore()
 
         ;check for line end or end of input
         try Token := this.Lexer.Line()
-        catch
+        catch ;wip: should ignore end of input as statement call
         {
-            ;wip: support multiple parameters
             Parameters := []
-            ;Loop
+            Loop
             {
-                Node := this.Statement(RightBindingPower)
-                
-                Parameters.Insert(Node)
+                this.Ignore()
+                Parameters.Insert(this.Expression(RightBindingPower)) ;wip: should use this.Statement, but can't right now because of infinite recursion
+                this.Ignore()
+                try this.Lexer.Separator()
+                catch
+                    Break
             }
-            Return, new this.Node.Operation(Result,Parameters,this.Lever.Position,0) ;wip: position and length
+            Return, new this.Node.Operation(Value,Parameters,this.Lever.Position,0) ;wip: position and length
         }
         Return, Result ;not a statement
     }
@@ -157,6 +158,7 @@ class Parser
         {
             this.Ignore()
 
+            ;parse the left denotation operation
             try LeftSide := this.LeftDenotation(LeftSide)
             catch
                 Break
@@ -174,6 +176,8 @@ class Parser
         {
             ;wip
         }
+        If Token.Type = "Separator"
+            Return, 0
         If Token.Type = "String"
             Return, 0
         If Token.Type = "Identifier"
