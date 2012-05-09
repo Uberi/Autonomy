@@ -106,8 +106,6 @@ class Lexer
         Operators.NullDenotation["~"]   := new Lexer.Operator("bitwise_not"                ,0   ,160)
         Operators.NullDenotation["&"]   := new Lexer.Operator("address"                    ,0   ,160)
         Operators.LeftDenotation["**"]  := new Lexer.Operator("exponentiate"               ,170 ,169)
-        Operators.LeftDenotation["++"]  := new Lexer.Operator("increment"                  ,180 ,0)
-        Operators.LeftDenotation["--"]  := new Lexer.Operator("decrement"                  ,180 ,0)
 
         Operators.NullDenotation["("]   := new Lexer.Operator("evaluate"                   ,0   ,0)
         Operators.LeftDenotation["("]   := new Lexer.Operator("call"                       ,190 ,0)

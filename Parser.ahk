@@ -66,7 +66,7 @@ class Parser
 
     class Node
     {
-        class Operation ;wip: add position and length according to the position and length of the operator
+        class Operation
         {
             __New(Value,Parameters)
             {
@@ -183,11 +183,7 @@ class Parser
 
     NullDenotation()
     {
-        try
-        {
-            Token := this.Lexer.OperatorNull()
-            Return, this.OperatorPrefix(Token)
-        }
+        try Return, this.OperatorPrefix()
         catch
         try
         {
@@ -225,37 +221,32 @@ class Parser
     {
         try
         {
-            Token := this.Lexer.OperatorLeft()
-
-            this.Ignore()
-            RightSide := this.Expression(Token.RightBindingPower)
-
-            Parameters := [LeftSide,RightSide] ;wip
-            Return, new this.Node.Operation(Token.Value,Parameters,Token.Position,Token.Length)
+            Return this.OperatorInfix(LeftSide)
         }
         catch
             throw Exception("Invalid operator.",A_ThisFunc,this.Lexer.Position)
     }
 
-    OperatorPrefix(Token)
+    OperatorPrefix()
     {
+        Token := this.Lexer.OperatorNull()
+        this.Ignore()
+        RightSide := this.Expression(Token.Value.RightBindingPower)
+
         Operation := new this.Node.Identifier(Token.Value.Identifier,Token.Position,Token.Length)
-        Parameters := [this.Expression(Token.Value.RightBindingPower)]
+        Parameters := [RightSide]
         Return, new this.Node.Operation(Operation,Parameters)
     }
 
-    OperatorInfix(Token,LeftSide)
+    OperatorInfix(LeftSide)
     {
+        Token := this.Lexer.OperatorLeft()
+        this.Ignore()
+        RightSide := this.Expression(Token.Value.RightBindingPower)
+        
         Operation := new this.Node.Identifier(Token.Value.Identifier,Token.Position,Token.Length)
-        Parameters := [LeftSide,this.Expression(Token.Value.RightBindingPower)]
-        Return, new this.Node.Operation(Operation,Parameters)
-    }
-
-    OperatorPostfix(Token,LeftSide)
-    {
-        Operation := new this.Node.Identifier(Token.Value.Identifier,Token.Position,Token.Length)
-        Parameters := [LeftSide]
-        Return, new this.Node.Operation(Operation,Parameters)
+        Parameters := [LeftSide,RightSide]
+        Return, new this.Node.Operation(Operation,Parameters,Token.Position,Token.Length)
     }
 
     OperatorEvaluate(Token)
