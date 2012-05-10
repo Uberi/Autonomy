@@ -141,29 +141,25 @@ class Parser
         Return, Result ;not a statement
     }
 
-    Expression(RightBindingPower = 0) ;wip: utility functions that wrap the lexer. for example, this.OperatorLeft() that can accept a minimum left binding power
+    Expression(RightBindingPower = 0)
     {
         try LeftSide := this.NullDenotation()
         catch
             throw Exception("Missing token.",A_ThisFunc,this.Lexer.Position)
 
-        ;obtain the following operator and return if not present
-        this.Ignore()
-        Position1 := this.Lexer.Position
-        try Operator := this.Lexer.OperatorLeft()
-        catch
-            Return, LeftSide
-
-        While, RightBindingPower < Operator.Value.LeftBindingPower
+        Loop
         {
-            this.Ignore()
-            LeftSide := this.OperatorInfix(Operator,LeftSide)
-
             this.Ignore()
             Position1 := this.Lexer.Position
             try Operator := this.Lexer.OperatorLeft()
             catch
                 Break
+
+            If Operator.Value.LeftBindingPower <= RightBindingPower
+                Break
+
+            this.Ignore()
+            LeftSide := this.OperatorInfix(Operator,LeftSide)
         }
         this.Lexer.Position := Position1
         Return, LeftSide
@@ -222,7 +218,7 @@ class Parser
     OperatorInfix(Operator,LeftSide)
     {
         RightSide := this.Expression(Operator.Value.RightBindingPower)
-        
+
         Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
         Parameters := [LeftSide,RightSide]
         Return, new this.Node.Operation(Operation,Parameters)
@@ -230,9 +226,13 @@ class Parser
 
     OperatorEvaluate(Token)
     {
+        Position1 := this.Lexer.Position
         Token := this.Lexer.OperatorNull()
         If Token.Value != "evaluate"
+        {
+            this.Lexer.Position := Position1
             throw Exception("Invalid evaluation.",A_ThisFunc,Token.Position)
+        }
         Parameters := []
         Loop
         {
