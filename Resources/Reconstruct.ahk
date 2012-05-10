@@ -19,75 +19,47 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-CodeReconstructShowSyntaxTree(SyntaxTree,Padding = "",Operation = 1)
+class Reconstruct
 {
-    global CodeTreeTypes
-    NodeType := SyntaxTree[1]
-    If (NodeType = CodeTreeTypes.OPERATION)
+    Token(Value)
     {
-        Result := (Operation ? "" : ("`n" . Padding)) . "(", Index := 2
-        Loop, % ObjMaxIndex(SyntaxTree) - 1
-            Result .= CodeReconstructShowSyntaxTree(SyntaxTree[Index],Padding . "`t",Index = 2) . " ", Index ++
-        Return, SubStr(Result,1,-1) . ")"
-    }
-    Else If (NodeType = CodeTreeTypes.STRING)
-        Return, """" . SyntaxTree[2] . """"
-    Else If (NodeType = CodeTreeTypes.BLOCK)
-    {
-        If Operation
-            Result := "{"
-        Else
-            Result := "`n" . Padding . "{"
-        Index := 2
-        Loop, % ObjMaxIndex(SyntaxTree) - 1
-            Result .= CodeReconstructShowSyntaxTree(SyntaxTree[Index],Padding . "`t",Index = 2) . " ", Index ++
-        Return, SubStr(Result,1,-1) . "}"
-    }
-    Else
-        Return, SyntaxTree[2]
-}
-
-CodeReconstructShowTokens(TokenStream)
-{
-    global CodeTokenTypes
-    ;find the maximum lengths of each field
-    MaxFileLength := 0, MaxIdentifierLength := 0, MaxPositionLength := 0
-    For Index, Token In TokenStream
-    {
-        Temp1 := StrLen(Token.File), (Temp1 > MaxFileLength) ? (MaxFileLength := Temp1)
-        Temp1 := StrLen(SearchObject(CodeTokenTypes,Token.Type)), (Temp1 > MaxIdentifierLength) ? (MaxIdentifierLength := Temp1)
-        Temp1 := StrLen(Token.Position), (Temp1 > MaxPositionLength) ? (MaxPositionLength := Temp1)
+        If Value.Type = "OperatorNull"
+            Return, Value.Position . ":" . Value.Length . "`t" . Value.Type . "`t" . Value.Value
+        If Value.Type = "OperatorLeft"
+            Return, Value.Position . ":" . Value.Length . "`t" . Value.Type . "`t" . Value.Value
+        If Value.Type = "Line"
+            Return, Value.Position . ":" . Value.Length . "`t" . Value.Type
+        If Value.Type = "Separator"
+            Return, Value.Position . ":" . Value.Length . "`t" . Value.Type
+        If Value.Type = "String"
+            Return, Value.Position . ":" . Value.Length . "`t" . Value.Type . "`t""" . Value.Value . """"
+        If Value.Type = "Identifier"
+            Return, Value.Position . ":" . Value.Length . "`t" . Value.Type . "`t" . Value.Value
+        If Value.Type = "Number"
+            Return, Value.Position . ":" . Value.Length . "`t" . Value.Type . "`t" . Value.Value
+        If Value.Type = "Comment"
+            Return, Value.Position . ":" . Value.Length . "`t" . Value.Type . "`t""" . Value.Value . """"
     }
 
-    ;build up the result string
-    Result := ""
-    For Index, Token In TokenStream
+    Tree(Value)
     {
-        TypeIdentifier := SearchObject(CodeTokenTypes,Token.Type)
-        Result .= "File " . Token.File . ": " . Pad(MaxFileLength - StrLen(Token.File)) . TypeIdentifier . Pad(MaxIdentifierLength - StrLen(TypeIdentifier)) . " (" . Token.Position . "): " . Pad(MaxPositionLength - StrLen(Token.Position)) . "'" . Token.Value . "'`n"
+        If Value.Type = "Operation"
+        {
+            Result := "(" . this.Tree(Value.Value)
+            For Index, Parameter In Value.Parameters
+                Result .= " " . this.Tree(Parameter)
+            Return, Result . ")"
+        }
+        If Value.Type = "Block"
+            Return, "{" . this.Tree(Value.Value) . "}"
+        If Value.Type = "String"
+            Return, """" . Value.Value . """"
+        If Value.Type = "Identifier"
+            Return, Value.Value
+        If Value.Type = "Number"
+            Return, Value.Value
+        Return, "UNKNOWN_VALUE"
     }
-    Return, SubStr(Result,1,-1)
-}
-
-CodeReconstructTokens(Tokens)
-{
-    global CodeTokenTypes
-    Code := ""
-    For Index, Token In Tokens
-    {
-        TokenType := Token.Type, TokenValue := Token.Value
-        If (TokenType = CodeTokenTypes.STRING) ;add quotes around a literal string
-            Code .= """" . TokenValue . """"
-        Else If (TokenType = CodeTokenTypes.SEPARATOR) ;add the separator character
-            Code .= ","
-        Else If (TokenType = CodeTokenTypes.STATEMENT) ;add delimiter in a statement
-            Code .= TokenValue . " "
-        Else If (TokenType = CodeTokenTypes.LINE_END) ;add a new line
-            Code .= "`r`n"
-        Else ;can be appended to code directly
-            Code .= TokenValue
-    }
-    Return, Code
 }
 
 CodeRecontructSyntaxTree(SyntaxTree) ;wip
