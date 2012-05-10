@@ -45,14 +45,12 @@ a ? b : c
 d && e || f
 )
 Code = abc 123, 456
+Code = 1 - 2 * 3 + 5 ** 3
 
 l := new Lexer(Code)
 p := new Parser(l)
 
-MsgBox % ShowObject(p.Statement(0))
-ExitApp
-
-MsgBox % Clipboard := CodeReconstructShowSyntaxTree(SyntaxTree)
+MsgBox % Reconstruct.Tree(p.Expression())
 ExitApp
 */
 
@@ -143,57 +141,42 @@ class Parser
         Return, Result ;not a statement
     }
 
-    Expression(RightBindingPower = 0)
+    Expression(RightBindingPower = 0) ;wip: utility functions that wrap the lexer. for example, this.OperatorLeft() that can accept a minimum left binding power
     {
-        try LeftSide := this.NullDenotation(Token)
+        try LeftSide := this.NullDenotation()
         catch
             throw Exception("Missing token.",A_ThisFunc,this.Lexer.Position)
 
-        ;retrieve the next token
-        try Token := this.Lexer.Peek() ;wip
+        ;obtain the following operator and return if not present
+        this.Ignore()
+        Position1 := this.Lexer.Position
+        try Operator := this.Lexer.OperatorLeft()
         catch
             Return, LeftSide
 
-        While, RightBindingPower < this.LeftBindingPower(Token)
+        While, RightBindingPower < Operator.Value.LeftBindingPower
         {
             this.Ignore()
+            LeftSide := this.OperatorInfix(Operator,LeftSide)
 
-            ;parse the left denotation operation
-            try LeftSide := this.LeftDenotation(LeftSide)
+            this.Ignore()
+            Position1 := this.Lexer.Position
+            try Operator := this.Lexer.OperatorLeft()
             catch
                 Break
         }
+        this.Lexer.Position := Position1
         Return, LeftSide
-    }
-
-    LeftBindingPower(Token)
-    {
-        If Token.Type = "OperatorNull"
-            Return, Token.Value.LeftBindingPower
-        If Token.Type = "OperatorLeft"
-            Return, Token.Value.LeftBindingPower
-        If Token.Type = "Line"
-        {
-            ;wip
-        }
-        If Token.Type = "Separator"
-            Return, 0
-        If Token.Type = "String"
-            Return, 0
-        If Token.Type = "Identifier"
-            Return, 0
-        If Token.Type = "Number"
-            Return, 0
-        If Token.Type = "Comment"
-        {
-            ;wip
-        }
-        throw Exception("Invalid token.",A_ThisFunc,Token.Position)
     }
 
     NullDenotation()
     {
-        try Return, this.OperatorPrefix()
+        this.Ignore()
+        try
+        {
+            Operator := this.Lexer.OperatorLeft()
+            Return, this.OperatorPrefix(Operator)
+        }
         catch
         try
         {
@@ -227,33 +210,22 @@ class Parser
         throw Exception("Invalid token.",A_ThisFunc,this.Lexer.Position)
     }
 
-    LeftDenotation(LeftSide)
+    OperatorPrefix(Operator)
     {
-        try Return this.OperatorInfix(LeftSide)
-        catch
-            throw Exception("Invalid operator.",A_ThisFunc,this.Lexer.Position)
-    }
+        RightSide := this.Expression(Operator.Value.RightBindingPower)
 
-    OperatorPrefix()
-    {
-        Token := this.Lexer.OperatorNull()
-        this.Ignore()
-        RightSide := this.Expression(Token.Value.RightBindingPower)
-
-        Operation := new this.Node.Identifier(Token.Value.Identifier,Token.Position,Token.Length)
+        Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
         Parameters := [RightSide]
         Return, new this.Node.Operation(Operation,Parameters)
     }
 
-    OperatorInfix(LeftSide)
+    OperatorInfix(Operator,LeftSide)
     {
-        Token := this.Lexer.OperatorLeft()
-        this.Ignore()
-        RightSide := this.Expression(Token.Value.RightBindingPower)
+        RightSide := this.Expression(Operator.Value.RightBindingPower)
         
-        Operation := new this.Node.Identifier(Token.Value.Identifier,Token.Position,Token.Length)
+        Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
         Parameters := [LeftSide,RightSide]
-        Return, new this.Node.Operation(Operation,Parameters,Token.Position,Token.Length)
+        Return, new this.Node.Operation(Operation,Parameters)
     }
 
     OperatorEvaluate(Token)
