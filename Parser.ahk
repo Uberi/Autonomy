@@ -19,11 +19,8 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-;wip: position info for operation nodes
-;wip: check for recursion depth terminating the expression by checking to make sure the token is the last one before returning, otherwise skip over close paren and keep parsing
-;wip: type verification (possibly implement in type analyser module). need to add type information to operator table
-;wip: unit test for blocks and statements
 ;wip: handle skipped parameters: Function(Param,,Param)
+;wip: return a falsy value on failure to parse and use idioms like "this.Statement() || this.Expression()" and "this.Identifier() && this.Expression()", needs support for returning the actual value (coming in AHKv2)
 
 ;/*
 #Warn All
@@ -46,6 +43,7 @@ d && e || f
 )
 Code = abc 123, 456
 Code = 1 - 2 * 3 + 5 ** 3
+Code = (1 + 2)
 
 l := new Lexer(Code)
 p := new Parser(l)
@@ -159,7 +157,7 @@ class Parser
                 Break
 
             this.Ignore()
-            LeftSide := this.OperatorInfix(Operator,LeftSide)
+            LeftSide := this.OperatorLeft(Operator,LeftSide)
         }
         this.Lexer.Position := Position1
         Return, LeftSide
@@ -170,8 +168,8 @@ class Parser
         this.Ignore()
         try
         {
-            Operator := this.Lexer.OperatorLeft()
-            Return, this.OperatorPrefix(Operator)
+            Operator := this.Lexer.OperatorNull()
+            Return, this.OperatorNull(Operator)
         }
         catch
         try
@@ -206,16 +204,20 @@ class Parser
         throw Exception("Invalid token.",A_ThisFunc,this.Lexer.Position)
     }
 
-    OperatorPrefix(Operator)
+    OperatorNull(Operator)
     {
-        RightSide := this.Expression(Operator.Value.RightBindingPower)
+        try Return, this.OperatorEvaluate(Operator)
+        catch
+        {
+            RightSide := this.Expression(Operator.Value.RightBindingPower)
 
-        Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
-        Parameters := [RightSide]
-        Return, new this.Node.Operation(Operation,Parameters)
+            Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
+            Parameters := [RightSide]
+            Return, new this.Node.Operation(Operation,Parameters)
+        }
     }
 
-    OperatorInfix(Operator,LeftSide)
+    OperatorLeft(Operator,LeftSide)
     {
         RightSide := this.Expression(Operator.Value.RightBindingPower)
 
@@ -224,21 +226,36 @@ class Parser
         Return, new this.Node.Operation(Operation,Parameters)
     }
 
-    OperatorEvaluate(Token)
+    OperatorEvaluate(Operator)
     {
-        Position1 := this.Lexer.Position
-        Token := this.Lexer.OperatorNull()
-        If Token.Value != "evaluate"
-        {
-            this.Lexer.Position := Position1
+        If Operator.Value.Identifier != "evaluate"
             throw Exception("Invalid evaluation.",A_ThisFunc,Token.Position)
-        }
         Parameters := []
         Loop
         {
-            ;wip
+            ;Parameters.Insert(this.Statement())
+            Parameters.Insert(this.Expression())
+
+            Position1 := this.Lexer.Position
+            try this.Lexer.Separator()
+            catch
+            try this.Lexer.Line()
+            catch
+            try
+            {
+                Token := this.Lexer.OperatorLeft()
+                If Token.Value.Identifier = "end"
+                    Break
+                throw
+            }
+            catch
+            {
+                this.Lexer.Position := Position1
+                throw Exception("Invalid operator.")
+            }
         }
-        Return, new this.Node.Operation(Token.Value,Parameters)
+        Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
+        Return, new this.Node.Operation(Operation,Parameters)
     }
 
     OperatorBlock(Token)

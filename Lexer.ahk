@@ -109,7 +109,7 @@ class Lexer
 
         Operators.NullDenotation["("]   := new Lexer.Operator("evaluate"                   ,0   ,0)
         Operators.LeftDenotation["("]   := new Lexer.Operator("call"                       ,190 ,0)
-        Operators.LeftDenotation[")"]   := new Lexer.Operator("group_end"                  ,0   ,0)
+        Operators.LeftDenotation[")"]   := new Lexer.Operator("end"                  ,0   ,0)
 
         Operators.NullDenotation["{"]   := new Lexer.Operator("block"                      ,0   ,0)
         Operators.LeftDenotation["{"]   := new Lexer.Operator("block"                      ,0   ,0)
