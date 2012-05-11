@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 ;wip: handle skipped parameters: Function(Param,,Param)
-;wip: return a falsy value on failure to parse and use idioms like "this.Statement() || this.Expression()" and "this.Identifier() && this.Expression()", needs support for returning the actual value (coming in AHKv2)
+;wip: when AHKv2 gets the new behavior for logical AND and OR (returns matched value on success), use idioms like "this.Statement() || this.Expression()" and "this.Identifier() && this.Expression()"
 
 ;/*
 #Warn All
@@ -42,8 +42,7 @@ a ? b : c
 d && e || f
 )
 Code = abc 123, 456
-Code = 1 - 2 * 3 + 5 ** 3
-Code = (1 + 2)
+Code = 1 - 2 * (3 + 5) ** 3
 
 l := new Lexer(Code)
 p := new Parser(l)
@@ -120,9 +119,9 @@ class Parser
         Value := this.Expression(RightBindingPower) ;parse either the expression or the beginning of the statement
         this.Ignore()
 
+        ;wip: should ignore end of input as statement call
         ;check for line end or end of input
-        try Token := this.Lexer.Line()
-        catch ;wip: should ignore end of input as statement call
+        If !this.Lexer.Line()
         {
             Parameters := []
             Loop
@@ -130,8 +129,7 @@ class Parser
                 this.Ignore()
                 Parameters.Insert(this.Expression(RightBindingPower)) ;wip: should use this.Statement, but can't right now because of infinite recursion
                 this.Ignore()
-                try this.Lexer.Separator()
-                catch
+                If !this.Lexer.Separator()
                     Break
             }
             Return, new this.Node.Operation(Value,Parameters,this.Lever.Position,0) ;wip: position and length
@@ -149,10 +147,10 @@ class Parser
         {
             this.Ignore()
             Position1 := this.Lexer.Position
-            try Operator := this.Lexer.OperatorLeft()
-            catch
-                Break
+            Operator := this.Lexer.OperatorLeft()
 
+            If !Operator
+                Break
             If Operator.Value.LeftBindingPower <= RightBindingPower
                 Break
 
@@ -166,61 +164,48 @@ class Parser
     NullDenotation()
     {
         this.Ignore()
-        try
-        {
-            Operator := this.Lexer.OperatorNull()
-            Return, this.OperatorNull(Operator)
-        }
-        catch
-        try
-        {
-            Token := this.Lexer.Line()
-            ;wip
-        }
-        catch
-        try
-        {
-            Token := this.Lexer.String()
+
+        Token := this.Lexer.OperatorNull()
+        If Token
+            Return, this.OperatorNull(Token)
+
+        Token := this.Lexer.Line()
+        If Token
+            Return ;wip
+
+        Token := this.Lexer.String()
+        If Token
             Return, new this.Node.String(Token.Value,Token.Position,Token.Length)
-        }
-        catch
-        try
-        {
-            Token := this.Lexer.Identifier()
+
+        Token := this.Lexer.Identifier()
+        If Token
             Return, new this.Node.Identifier(Token.Value,Token.Position,Token.Length)
-        }
-        catch
-        try
-        {
-            Token := this.Lexer.Number()
+
+        Token := this.Lexer.Number()
             Return, new this.Node.Number(Token.Value,Token.Position,Token.Length)
-        }
-        catch
-        try
-        {
-            Token := this.Lexer.Comment()
-            ;wip
-        }
+
+        Token := this.Lexer.Comment()
+        If Token
+            Return ;wip
+
         throw Exception("Invalid token.",A_ThisFunc,this.Lexer.Position)
     }
 
     OperatorNull(Operator)
     {
-        try Return, this.OperatorEvaluate(Operator)
-        catch
-        {
-            RightSide := this.Expression(Operator.Value.RightBindingPower)
+        Result := this.OperatorEvaluate(Operator)
+        If Result
+            Return, Result
 
-            Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
-            Parameters := [RightSide]
-            Return, new this.Node.Operation(Operation,Parameters)
-        }
+        RightSide := this.Expression(Operator.Value.RightBindingPower)
+        Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
+        Parameters := [RightSide]
+        Return, new this.Node.Operation(Operation,Parameters)
     }
 
     OperatorLeft(Operator,LeftSide)
     {
         RightSide := this.Expression(Operator.Value.RightBindingPower)
-
         Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
         Parameters := [LeftSide,RightSide]
         Return, new this.Node.Operation(Operation,Parameters)
@@ -229,7 +214,7 @@ class Parser
     OperatorEvaluate(Operator)
     {
         If Operator.Value.Identifier != "evaluate"
-            throw Exception("Invalid evaluation.",A_ThisFunc,Token.Position)
+            Return, False
         Parameters := []
         Loop
         {
@@ -237,19 +222,12 @@ class Parser
             Parameters.Insert(this.Expression())
 
             Position1 := this.Lexer.Position
-            try this.Lexer.Separator()
-            catch
-            try this.Lexer.Line()
-            catch
-            try
+            If !(this.Lexer.Separator()
+                || this.Lexer.Line())
             {
                 Token := this.Lexer.OperatorLeft()
-                If Token.Value.Identifier = "end"
+                If Token && Token.Value.Identifier = "end"
                     Break
-                throw
-            }
-            catch
-            {
                 this.Lexer.Position := Position1
                 throw Exception("Invalid operator.")
             }
@@ -287,16 +265,10 @@ class Parser
     {
         Loop
         {
-            try this.Lexer.Whitespace()
-            catch
-            try this.Lexer.Comment()
-            catch
+            If !(this.Lexer.Whitespace()
+                || this.Lexer.Comment())
                 Break
         }
-        try this.Lexer.Whitespace()
-        catch
-        {
-            
-        }
+        this.Lexer.Whitespace()
     }
 }

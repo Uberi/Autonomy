@@ -242,27 +242,15 @@ class Lexer
         If SubStr(this.Text,this.Position,1) = "" ;past end of text
             throw Exception("End of input.",A_ThisFunc,this.Position) ;wip: not sure if this is the correct way to denote end of input
 
-        try this.Whitespace()
+        this.Whitespace()
 
-        try Result := this.OperatorNull()
-        catch
-        try Result := this.OperatorLeft()
-        catch
-        try Result := this.Line()
-        catch
-        try Result := this.Separator()
-        catch
-        try Result := this.String()
-        catch
-        try Result := this.Identifier()
-        catch
-        try Result := this.Number()
-        catch
-        try Result := this.Comment()
-        catch
-            throw Exception("Invalid token.",A_ThisFunc,this.Position)
-
-        Return, Result
+        For Index, Function In [this.OperatorNull,this.OperatorLeft,this.Line,this.Separator,this.String,this.Identifier,this.Number,this.Comment]
+        {
+            Result := Function.()
+            If Result
+                Return, Result
+        }
+        throw Exception("Invalid token.",A_ThisFunc,this.Position)
     }
 
     OperatorNull()
@@ -271,7 +259,8 @@ class Lexer
         While, Length > 0
         {
             Output := SubStr(this.Text,this.Position,Length)
-            If this.Operators.NullDenotation.HasKey(Output) ;operator found
+            If StrLen(Output) = Length ;operator is not truncated at the end of input
+                && this.Operators.NullDenotation.HasKey(Output) ;operator found
             {
                 ;if the operator ends in an identifier character, ensure that the ending is not an identifier
                 If !(InStr("abcdefghijklmnopqrstuvwxyz0123456789",SubStr(Output,0))
@@ -279,14 +268,14 @@ class Lexer
                     && InStr("abcdefghijklmnopqrstuvwxyz0123456789",NextChar))
                 {
                     Position1 := this.Position
-                    this.Position += StrLen(Output)
+                    this.Position += Length
                     Operator := this.Operators.NullDenotation[Output]
                     Return, new this.Token.OperatorNull(Operator,Position1,Length)
                 }
             }
             Length --
         }
-        throw Exception("Invalid null denotation operator.",A_ThisFunc,this.Position)
+        Return, False
     }
 
     OperatorLeft()
@@ -295,7 +284,8 @@ class Lexer
         While, Length > 0
         {
             Output := SubStr(this.Text,this.Position,Length)
-            If this.Operators.LeftDenotation.HasKey(Output) ;operator found
+            If StrLen(Output) = Length ;operator is not truncated at the end of input
+                && this.Operators.LeftDenotation.HasKey(Output) ;operator found
             {
                 ;if the operator ends in an identifier character, ensure that the ending is not an identifier
                 If !(InStr("abcdefghijklmnopqrstuvwxyz0123456789",SubStr(Output,0))
@@ -303,21 +293,21 @@ class Lexer
                     && InStr("abcdefghijklmnopqrstuvwxyz0123456789",NextChar))
                 {
                     Position1 := this.Position
-                    this.Position += StrLen(Output)
+                    this.Position += Length
                     Operator := this.Operators.LeftDenotation[Output]
                     Return, new this.Token.OperatorLeft(Operator,Position1,Length)
                 }
             }
             Length --
         }
-        throw Exception("Invalid left denotation operator.",A_ThisFunc,this.Position)
+        Return, False
     }
 
     String()
     {
         Position1 := this.Position
         If SubStr(this.Text,Position1,1) != """" ;check for opening quote
-            throw Exception("Invalid string.","String",Position1)
+            Return, False
         this.Position ++ ;move past the opening quote
 
         Output := ""
@@ -329,12 +319,13 @@ class Lexer
                 Length := this.Position - Position1
                 Return, new this.Token.String(Output,Position1,Length)
             }
-            try Output .= this.Escape() ;check for escape sequence
-            catch
+            
+            Output .= this.Escape() ;check for escape sequence
+            If !Output
                 Output .= CurrentChar, this.Position ++
         }
         this.Position := Position1
-        throw Exception("Invalid string.",A_ThisFunc,Position1)
+        Return, False
     }
 
     Identifier()
@@ -342,7 +333,7 @@ class Lexer
         Position1 := this.Position
         Output := SubStr(this.Text,Position1,1)
         If !InStr("abcdefghijklmnopqrstuvwxyz_",Output) ;check first character against valid identifier characters
-            throw Exception("Invalid identifier.",A_ThisFunc,Position1)
+            Return, False
         this.Position ++ ;move past the first character of the identifier
 
         ;obtain the rest of the identifier
@@ -358,7 +349,7 @@ class Lexer
         Position1 := this.Position
         Output := SubStr(this.Text,Position1,1)
         If !InStr("0123456789",Output) ;check for numerical digits
-            throw Exception("Invalid number.",A_ThisFunc,Position1)
+            Return, False
         this.Position ++ ;move past the first digit
 
         Exponent := 0
@@ -416,7 +407,7 @@ class Lexer
             If !InStr("0123456789",SubStr(this.Text,this.Position,1)) ;check for numeric exponent
             {
                 this.Position := Position1
-                throw Exception("Invalid exponent.",A_ThisFunc,this.Position) ;wip: nonfatal error
+                Return, False
             }
 
             ;handle digits of the exponent
@@ -440,7 +431,7 @@ class Lexer
         ;check for line end
         CurrentChar := SubStr(this.Text,Position1,1)
         If (CurrentChar != "`r" && CurrentChar != "`n")
-            throw Exception("Invalid line.",A_ThisFunc,Position1)
+            Return, False
         this.Position ++ ;move past the line end
 
         ;move past any remaining line end characters
@@ -457,7 +448,7 @@ class Lexer
 
         ;check for line end
         If (SubStr(this.Text,Position1,1) != ",")
-            throw Exception("Invalid separator.",A_ThisFunc,Position1)
+            Return, False
 
         this.Position ++ ;move past the separator
         Return, new this.Token.Separator(Position1,1)
@@ -501,26 +492,27 @@ class Lexer
             Length := this.Position - Position1
             Return, new this.Token.Comment(Output,Position1,Length)
         }
-        throw Exception("Invalid comment.",A_ThisFunc,Position1)
+        Return, False
     }
 
     Whitespace()
     {
         CurrentChar := SubStr(this.Text,this.Position,1)
         If (CurrentChar != " " && CurrentChar != "`t")
-            throw Exception("Invalid whitespace.",A_ThisFunc,this.Position)
+            Return, False
         this.Position ++ ;move past whitespace
 
         ;move past any remaining whitespace
         While, (CurrentChar := SubStr(this.Text,this.Position,1)) = " " || CurrentChar = "`t"
             this.Position ++
+        Return, True
     }
 
     Escape()
     {
         Position1 := this.Position
         If SubStr(this.Text,Position1,1) != "``" ;check for escape character
-            throw Exception("Invalid escape.",A_ThisFunc,Position1)
+            Return, False
         this.Position ++ ;move past escape character
 
         CurrentChar := SubStr(this.Text,this.Position,1) ;obtain the escaped character
