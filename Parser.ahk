@@ -41,9 +41,9 @@ Code =
 a ? b : c
 d && e || f
 )
-Code = 1 + sin x
-Code = sin x + 1, y
-;Code = 1 - 2 * (3 + 5, 6e3) ** 3
+;Code = 1 + sin x, y
+;Code = sin x + 1, y
+Code = 1 - 2 * (3 + 5, 6e3) ** 3
 
 l := new Lexer(Code)
 p := new Parser(l)
@@ -120,12 +120,12 @@ class Parser
     {
         Value := this.Expression(RightBindingPower) ;parse either the expression or the beginning of the statement
 
-        ;check for line end or end of input
+        ;check for line end
         this.Ignore()
         Position1 := this.Lexer.Position
-        If this.Lexer.Line() || this.Lexer.Separator() ;statement not found
+        If this.Lexer.Line() || this.Lexer.Separator() || this.Lexer.OperatorLeft() ;statement not found
         {
-            this.Lexer.Position := Position1
+            this.Lexer.Position := Position1 ;move back to before the line of separator
             Return, Value
         }
 
