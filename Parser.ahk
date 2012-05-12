@@ -184,10 +184,6 @@ class Parser
         Token := this.Lexer.Number()
             Return, new this.Node.Number(Token.Value,Token.Position,Token.Length)
 
-        Token := this.Lexer.Comment()
-        If Token
-            Return ;wip
-
         throw Exception("Invalid token.",A_ThisFunc,this.Lexer.Position)
     }
 
