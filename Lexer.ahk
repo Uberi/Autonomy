@@ -112,7 +112,6 @@ class Lexer
         Operators.LeftDenotation[")"]   := new Lexer.Operator("end"                  ,0   ,0)
 
         Operators.NullDenotation["{"]   := new Lexer.Operator("block"                      ,0   ,0)
-        Operators.LeftDenotation["{"]   := new Lexer.Operator("block"                      ,0   ,0)
         Operators.LeftDenotation["}"]   := new Lexer.Operator("block_end"                  ,0   ,0)
 
         Operators.NullDenotation["["]   := new Lexer.Operator("array"                      ,0   ,0)
@@ -134,10 +133,10 @@ class Lexer
         Return, Operators
     }
 
-    __New(Text)
+    __New(Text,Position = 1)
     {
         this.Text := Text
-        this.Position := 1
+        this.Position := Position
     }
 
     class Token
@@ -229,27 +228,45 @@ class Lexer
         }
     }
 
-    Peek()
-    {
-        Position1 := this.Position
-        Result := this.Next()
-        this.Position := Position1
-        Return, Result
-    }
-
     Next()
     {
         If SubStr(this.Text,this.Position,1) = "" ;past end of text
-            throw Exception("End of input.",A_ThisFunc,this.Position) ;wip: not sure if this is the correct way to denote end of input
+            Return, False
 
         this.Whitespace()
 
-        For Index, Function In [this.OperatorNull,this.OperatorLeft,this.Line,this.Separator,this.String,this.Identifier,this.Number,this.Comment]
-        {
-            Result := Function.()
-            If Result
-                Return, Result
-        }
+        Token := this.OperatorNull()
+        If Token
+            Return, Token
+
+        Token := this.OperatorLeft()
+        If Token
+            Return, Token
+
+        Token := this.Line()
+        If Token
+            Return, Token
+
+        Token := this.Separator()
+        If Token
+            Return, Token
+
+        Token := this.String()
+        If Token
+            Return, Token
+
+        Token := this.Identifier()
+        If Token
+            Return, Token
+
+        Token := this.Number()
+        If Token
+            Return, Token
+
+        Token := this.Comment()
+        If Token
+            Return, Token
+
         throw Exception("Invalid token.",A_ThisFunc,this.Position)
     }
 
@@ -332,7 +349,7 @@ class Lexer
     {
         Position1 := this.Position
         Output := SubStr(this.Text,Position1,1)
-        If !InStr("abcdefghijklmnopqrstuvwxyz_",Output) ;check first character against valid identifier characters
+        If (Output = "" || !InStr("abcdefghijklmnopqrstuvwxyz_",Output)) ;check first character against valid identifier characters
             Return, False
         this.Position ++ ;move past the first character of the identifier
 
@@ -348,7 +365,7 @@ class Lexer
     {
         Position1 := this.Position
         Output := SubStr(this.Text,Position1,1)
-        If !InStr("0123456789",Output) ;check for numerical digits
+        If (Output = "" || !InStr("0123456789",Output)) ;check for numerical digits
             Return, False
         this.Position ++ ;move past the first digit
 
@@ -404,11 +421,13 @@ class Lexer
             Else
                 Sign := 1
 
-            If !InStr("0123456789",SubStr(this.Text,this.Position,1)) ;check for numeric exponent
+            Value := SubStr(this.Text,this.Position,1)
+            If (Value = "" || !InStr("0123456789",Value)) ;check for numeric exponent
             {
-                this.Position := Position1
-                Return, False
+                ;wip: nonfatal error
+                throw Exception("Invalid exponent.",A_ThisFunc,Position1)
             }
+            this.Position ++ ;move past the first character of the exponent
 
             ;handle digits of the exponent
             While, (CurrentChar := SubStr(this.Text,this.Position,1)) != "" && InStr("0123456789",CurrentChar)
