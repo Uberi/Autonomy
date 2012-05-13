@@ -74,10 +74,10 @@ class Parser
 
         class Block
         {
-            __New(Value,Position,Length)
+            __New(Contents,Position,Length)
             {
                 this.Type := "Block"
-                this.Value := Value
+                this.Contents := Contents
                 this.Position := Position
                 this.Length := Length
             }
@@ -256,8 +256,19 @@ class Parser
         If Operator.Value.Identifier != "block"
             Return, False
 
-        Position1 := this.Lexer.Position
         Contents := []
+
+        ;check for empty block
+        this.Ignore()
+        Position1 := this.Lexer.Position
+        Token := this.Lexer.OperatorLeft()
+        If Token && Token.Value.Identifier = "block_end"
+        {
+            Length := this.Lexer.Position - Position1
+            Return, new this.Node.Block(Contents,Position1,Length)
+        }
+        this.Lexer.Position := Position1
+
         Loop
         {
             Contents.Insert(this.Statement())
@@ -283,6 +294,18 @@ class Parser
             Return, False
 
         Parameters := []
+
+        ;check for empty array
+        this.Ignore()
+        Position1 := this.Lexer.Position
+        Token := this.Lexer.OperatorLeft()
+        If Token && Token.Value.Identifier = "subscript_end"
+        {
+            Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
+            Return, new this.Node.Operation(Operation,Parameters)
+        }
+        this.Lexer.Position := Position1
+
         Loop
         {
             Parameters.Insert(this.Statement())
@@ -292,7 +315,7 @@ class Parser
             {
                 Position1 := this.Lexer.Position
                 Token := this.Lexer.OperatorLeft()
-                If Token && Token.Value.Identifier = "end"
+                If Token && Token.Value.Identifier = "subscript_end"
                     Break
                 throw Exception("Invalid operator.",A_ThisFunc,Position1)
             }
