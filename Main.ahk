@@ -30,25 +30,23 @@ TODO
 
 Short term tasks:
 
-* Make parser drive the lexer
 * Comparisons can be chained arbitrarily, e.g., x < y <= z is equivalent to x < y and y <= z, except that y is evaluated only once (but in both cases z is not evaluated at all when x < y is found to be false). Formally, if a, b, c, ..., y, z are expressions and op1, op2, ..., opN are comparison operators, then a op1 b op2 c ... y opN z is equivalent to a op1 b and b op2 c and ... y opN z, except that each expression is evaluated at most once.
+* use underscores to denote every operator identifier: 4._add instead of 4.add
 * Allow backticks inline in code to represent literal versions of themselves in the code
-* Support a command syntax, that is translated to a function call on load: Math.Mod 100, 5 or Web["HTTP"] "google.ca", "search". Also allow this for function definitions and anywhere parens can be used
 * Operations in syntax tree do not have position or length or file info
 * Duplicate LINE_END tokens can be present if there was an error that spanned an entire line. see Strings.txt unit test for example. see if this can be avoided
-* Warn if Return, Break, Continue, Goto are not the last statements in a block
 * Unit tests for error handler
 
 Long term tasks:
 
+* return, break, continue, etc. should be methods of "this", and "this" should be a continuation
+* implement exceptions using this.caller.context
 * to make an object, use Object.new() or ClassName.new() or just ClassName.new
-* named parameter "key" for functions such as [].max(), [].min(), [].sort(), etc. that allows the user to specify a function that specifies the key to use in place of the actual key
+* named parameter "key" for functions such as [].max(), [].min(), [].sort(), etc. that allows the user to specify a function that specifies the key to use in place of the actual key, together with a custon comparison function
 * "with" statement that sets an object as a scope (needs internal support)
 * named parameter "function" for the same purposes above, that allow things like custom sorting functions
 * "ensure" or "assert" statements allow code to be statically verified
-* "with" statement to do patterns like opening, reading, then closing a file
-* Exceptions with try/catch/throw and "break" in catch blocks
-* Dynamic default values for optional function parameters: SomeFunction(Param: 2 * 8 + GlobalVar) { Function body here }
+* Dynamic default values for optional function parameters: SomeFunction(Param: 2 * 8 + VarInParentScope) { Function body here }
 * macro { some compile-time related code } syntax and compile time defined type system
 * Base object should not be enumerable or findable by ObjHasKey()
 * "is" operator that checks current class and recursively checks base classes
@@ -64,7 +62,7 @@ Long term tasks:
 * Library in non-annotated parse tree format; allows libraries to avoid recompilation each time by using a linker. Libraries cannot be in bytecode because of the type inferencer, unless each function in the library is changed to allow any type of argument at all, and then it would not have very good type checking or performance
 * Multipass compilation by saving passes to file: Source files are *.ato, tokenized is *.att, parsed is *.ats, annotated is *.ata, bytecode is *.atc. this would also allow the parser and etc. to not have to re-lex included files every time a script uses them
 * Incremental parser and lexer for IDE use, have object mapping line numbers to token indexes, have parser save state at intervals, lex changed lines only, restore parser state to the saved state right before the token index of the changed token, keep parsing to the end of the file
-* Lua-like _global[] and _local[] and _parent[] (_G[] in Lua) mechanism to replace dynamic variables
+* Lua-like this.locals[] mechanism to replace dynamic variables, parent scope can be accessed as this.caller.locals[]
 * "local" keyword works on current block, instead of current function, and can make block assume-local: If Something { local SomeVar := "Test" } ;SomeVar is freed after the If block goes out of scope
 */
 
@@ -84,39 +82,36 @@ def param1 + sin 45
 !ghi + 5 * jkl 123, 456
 )
 
-CodeInit()
-CodeTokenInit()
-CodeTreeInit()
+;l := new Code.Lexer(Code)
+l := new Lexer(Code)
+Tokens := []
+While, Token := l.Next()
+    Tokens.Insert(Token)
+Result := ""
+For Index, Token In Tokens
+    Result .= Reconstruct.Token(Token) . "`n"
+MsgBox % Clipboard := Result
 
-CodeSetScript(FileName,Errors,Files) ;set the current script file
+;p := new Code.Parser(l)
+p := new Parser(l)
+SyntaxTree := p.Parse()
+MsgBox % Clipboard := Reconstruct.Tree(SyntaxTree)
 
-CodeLexInit()
-Tokens := CodeLex(Code,Errors)
-MsgBox % Clipboard := CodeReconstructShowTokens(Tokens)
-;MsgBox % Clipboard := CodeErrorFormat(Code,Errors,Files)
-
-SyntaxTree := CodeParse(Tokens,Errors)
-MsgBox % Clipboard := CodeReconstructShowSyntaxTree(SyntaxTree)
-
+/*
 SimplifiedSyntaxTree := CodeSimplify(SyntaxTree)
-MsgBox % Clipboard := CodeReconstructShowSyntaxTree(SimplifiedSyntaxTree)
+MsgBox % Clipboard := Reconstruct.Tree(SimplifiedSyntaxTree)
 
 Bytecode := CodeBytecode(SimplifiedSyntaxTree)
 MsgBox % Clipboard := Bytecode
-
-If (ObjMaxIndex(Errors) != "")
-    Display(CodeErrorFormat(Code,Errors,Files)) ;display error at standard output
-
-;DisplayObject(SyntaxTree)
-;MsgBox % CodeRecontructSyntaxTree(SyntaxTree)
+*/
 
 ExitApp
 
 #Include Resources\Error Format.ahk
 #Include Resources\Reconstruct.ahk
 
-#Include Code.ahk
+;#Include Code.ahk
 #Include Lexer.ahk
 #Include Parser.ahk
-#Include Simplifier.ahk
-#Include Bytecode.ahk
+;#Include Simplifier.ahk
+;#Include Bytecode.ahk

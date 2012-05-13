@@ -25,81 +25,60 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Operator Table Format
 ---------------------
 
-* _[Symbol]_:            symbol representing the operator _[Object]_
+* _[Symbol]_:            symbol representing the operator _[String]_
     * LeftBindingPower:  left token binding power         _[Integer]_
-    * RightBindingPower: right token binding power        _[String: "L" or "R"]_
-    * Identifier:        identifier of the operator       _[Integer]_
+    * RightBindingPower: right token binding power        _[Integer]_
+    * Identifier:        identifier of the operator       _[String]_
 
 Token Stream Format
 -------------------
 
-* _[Index]_:    index of the token                         _[Object]_
-    * Type:     enumerated type of the token               _[Integer]_
-    * Value:    value of the token                         _[String]_
-    * Position: position of token within the file          _[Integer]_
-    * File:     file index the current token is located in _[Integer]_
+* _[Index]_:    index of the token                    _[Integer]_
+    * Type:     enumerated type of the token          _[String]_
+    * Value:    value of the token                    _[String or Object]_
+    * Position: position of the token within the file _[Integer]_
+    * Length:   length of the token                   _[Integer]_
 
 Example Token Stream
 --------------------
 
     2:
-        Type: 9
+        Type: "Identifier"
         Value: SomeVariable
         Position: 15
-        File: 3
+        Length: 12
 
 Syntax Tree Format
 ------------------
 
-* _[Index]_:            index of the tree node                                       _[Object]_
-    * 1:                type of the tree node                                        _[Integer]_
-    * 2:                the operation to perform, if applicable                      _[Object]_
-        * _[Subtree]_:  a subtree resulting in an operation identifer                _[Object]_
-    * _[2 + Index]_:    parameter or parameters of the operation                     _[Object]_
-        * 1:            type of the parameter                                        _[Integer]_
-        * 2:            value of the parameter                                       _[Object or String]_
+* _[Index]_:            index of the tree node                        _[Object]_
+    * 1:                type of the tree node                         _[String]_
+    * 2:                the operation to perform, if applicable       _[Object]_
+        * _[Subtree]_:  a subtree resulting in an operation identifer _[Object]_
+    * _[2 + Index]_:    parameter or parameters of the operation      _[Object]_
+        * 1:            type of the parameter                         _[String]_
+        * 2:            value of the parameter                        _[Object or String]_
 
 Example
 -------
 
 (2 * 3.1) + 8 -> (+ (* 2 3) 8)
 
-    1: 2
-    2:
-        1: 6
-        2: +
-    3:
-        1: 2
-        2: 
-            1: 6
-            2: *
-        3:
-            1: 3
-            2: 2
-        4:
-            1: 4
-            2: 3.1
-    4:
-        1: 3
-        2: 8
+    ["Operation",
+        ["Identifier", "+"],
+        ["Operation",
+            ["Identifier", "*"],
+            ["Number", 2],
+            ["Number", 3.1]],
+        ["Number", 8]]
 
 [Wikipedia]: http://en.wikipedia.org/wiki/Extended_Backus-Naur_Form
 */
 
 class Code
 {
-    static Operators := Code.CreateOperatorTable()
-
-    __New(Text)
-    {
-        this.Lexer := new Code.Lexer(Text) ;wip: text could potentially be quite large
-        this.Parser := new Code.Parser(this.Lexer)
-    }
-
     #Include Lexer.ahk
     #Include Parser.ahk
 
     #Include Resources/Operators.ahk
 }
-
-MsgBox % ShowObject(Code)
