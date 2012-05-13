@@ -182,11 +182,11 @@ class Lexer
             }
         }
 
-        class Define
+        class Map
         {
             __New(Position,Length)
             {
-                this.Type := "Separator"
+                this.Type := "Map"
                 this.Position := Position
                 this.Length := Length
             }
@@ -260,7 +260,7 @@ class Lexer
         If Token
             Return, Token
 
-        Token := this.Define()
+        Token := this.Map()
         If Token
             Return, Token
 
@@ -489,16 +489,16 @@ class Lexer
         Return, new this.Token.Separator(Position1,1)
     }
 
-    Define()
+    Map()
     {
         Position1 := this.Position
 
-        ;check for define
+        ;check for map
         If (SubStr(this.Text,Position1,1) != ":")
             Return, False
 
-        this.Position ++ ;move past the define
-        Return, new this.Token.Define(Position1,1)
+        this.Position ++ ;move past the map
+        Return, new this.Token.Map(Position1,1)
     }
 
     Comment()

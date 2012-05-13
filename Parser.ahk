@@ -127,7 +127,7 @@ class Parser
         ;check for line end
         this.Ignore()
         Position1 := this.Lexer.Position
-        If this.Lexer.Line() || this.Lexer.Separator() || this.Lexer.Define() || this.Lexer.OperatorLeft() ;statement not found
+        If this.Lexer.Line() || this.Lexer.Separator() || this.Lexer.Map() || this.Lexer.OperatorLeft() ;statement not found
         {
             this.Lexer.Position := Position1 ;move back to before the line of separator
             Return, Value
@@ -386,7 +386,7 @@ class Parser
             Return, False
 
         Branch := this.Statement(Operator.RightBindingPower)
-        If !this.Lexer.Define()
+        If !this.Lexer.Map()
         {
             ;wip: binary ternary operator
             throw Exception("Invalid ternary else.",A_ThisFunc,Position1)
