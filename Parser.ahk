@@ -232,6 +232,9 @@ class Parser
         Result := this.Ternary(Operator,LeftSide)
         If Result
             Return, Result
+        Result := this.BooleanShortCircuit(Operator,LeftSide)
+        If Result
+            Return, Result
 
         RightSide := this.Statement(Operator.Value.RightBindingPower)
 
@@ -393,8 +396,26 @@ class Parser
         }
         Alternative := this.Statement(Operator.RightBindingPower)
 
+        Branch := new this.Node.Block([Branch],0,0)
+        Alternative := new this.Node.Block([Alternative],0,0)
+
         Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
         Parameters := [LeftSide,Branch,Alternative]
+        Return, new this.Node.Operation(Operation,Parameters)
+    }
+
+    BooleanShortCircuit(Operator,LeftSide)
+    {
+        If Operator.Value.Identifier != "or" && Operator.Value.Identifier != "and"
+            Return, False
+
+        RightSide := this.Statement(Operator.Value.RightBindingPower)
+
+        LeftSide := new this.Node.Block([LeftSide],0,0)
+        RightSide := new this.Node.Block([RightSide],0,0)
+
+        Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
+        Parameters := [LeftSide,RightSide]
         Return, new this.Node.Operation(Operation,Parameters)
     }
 
