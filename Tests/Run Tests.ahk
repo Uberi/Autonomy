@@ -256,7 +256,7 @@ class AutonomyTests
             Test_Blank()
             {
                 l := new Lexer("")
-                If !Equal(l.Identifier(),False)
+                If !Equal(l.Number(),False)
                     throw "Invalid output."
                 If l.Position != 1
                     throw "Invalid position."
@@ -265,9 +265,54 @@ class AutonomyTests
             Test_Invalid()
             {
                 l := new Lexer("@")
-                If !Equal(l.Identifier(),False)
+                If !Equal(l.Number(),False)
                     throw "Invalid output."
                 If l.Position != 1
+                    throw "Invalid position."
+            }
+
+            Test_Simple()
+            {
+                l := new Lexer("123")
+                If !Equal(l.Number(),new Lexer.Token.Number(123,1,3))
+                    throw "Invalid output."
+                If l.Position != 4
+                    throw "Invalid position."
+            }
+
+            Test_Base()
+            {
+                l := new Lexer("0x123")
+                If !Equal(l.Number(),new Lexer.Token.Number(0x123,1,5))
+                    throw "Invalid output."
+                If l.Position != 6
+                    throw "Invalid position."
+            }
+
+            Test_BaseDecimal()
+            {
+                l := new Lexer("0x123.456")
+                If !Equal(l.Number(),new Lexer.Token.Number(0x123,1,5))
+                    throw "Invalid output."
+                If l.Position != 6
+                    throw "Invalid position."
+            }
+
+            Test_ObjectAccess()
+            {
+                l := new Lexer("123.property")
+                If !Equal(l.Number(),new Lexer.Token.Number(123,1,3))
+                    throw "Invalid output."
+                If l.Position != 4
+                    throw "Invalid position."
+            }
+
+            Test_Decimal()
+            {
+                l := new Lexer("123.456")
+                If !Equal(l.Number(),new Lexer.Token.Number(123.456,1,7))
+                    throw "Invalid output."
+                If l.Position != 8
                     throw "Invalid position."
             }
         }
@@ -276,6 +321,17 @@ class AutonomyTests
     class Category_Parser
     {
         
+    }
+}
+
+class TestFunctions
+{
+    LexerTest(Lexer,Result,Value,Position)
+    {
+        If !Equal(Result,Value)
+            throw "Invalid output."
+        If Lexer.Position != Position
+            throw "Invalid position."
     }
 }
 
