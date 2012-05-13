@@ -524,17 +524,24 @@ class Lexer
                 If (CurrentChar = "") ;past end of input
                     Break
                 If (CurrentChar = "/*") ;comment start
+                {
                     CommentLevel ++
+                    this.Position += 2 ;move past the comment start
+                    Output .= CurrentChar
+                }
                 Else If (CurrentChar = "*/") ;comment end
                 {
                     CommentLevel --
+                    this.Position += 2 ;move past the comment end
                     If CommentLevel = 0 ;original comment end
-                    {
-                        this.Position += 2 ;move past the comment end
                         Break
-                    }
+                    Output .= CurrentChar
                 }
-                Output .= SubStr(CurrentChar,1,1), this.Position ++
+                Else
+                {
+                    this.Position ++
+                    Output .= SubStr(CurrentChar,1,1)
+                }
             }
             Length := this.Position - Position1
             Return, new this.Token.Comment(Output,Position1,Length)
