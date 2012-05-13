@@ -114,9 +114,18 @@ class AutonomyTests
                     throw "Invalid position."
             }
 
-            Test_Unclosed()
+            Test_InputEnd()
             {
                 l := new Lexer("""Hello, world!")
+                If !Equal(l.String(),False)
+                    throw "Invalid output."
+                If l.Position != 1
+                    throw "Invalid position."
+            }
+
+            Test_Unclosed()
+            {
+                l := new Lexer("""Hello, world!`nmore text")
                 If !Equal(l.String(),False)
                     throw "Invalid output."
                 If l.Position != 1
