@@ -45,7 +45,8 @@ d && e || f
 ;Code = sin x + 1, y
 ;Code = 1 - 2 * 3 + 5 ** 3
 ;Code = 1 - 2 * (3 + 5, 6e3) ** 3
-Code = a[b][c]
+;Code = a[b][c]
+Code = a(b)(c,d)(e)
 
 l := new Lexer(Code)
 p := new Parser(l)
@@ -221,7 +222,13 @@ class Parser
 
     OperatorLeft(Operator,LeftSide)
     {
+        Result := this.Call(Operator,LeftSide)
+        If Result
+            Return, Result
         Result := this.Subscript(Operator,LeftSide)
+        If Result
+            Return, Result
+        Result := this.Ternary(Operator,LeftSide)
         If Result
             Return, Result
 
@@ -331,6 +338,29 @@ class Parser
         Return, new this.Node.Operation(Operation,Parameters)
     }
 
+    Call(Operator,LeftSide)
+    {
+        If Operator.Value.Identifier != "call"
+            Return, False
+
+        Parameters := []
+        Loop
+        {
+            Parameters.Insert(this.Statement())
+
+            If !this.Lexer.Separator()
+            {
+                Position1 := this.Lexer.Position
+                Token := this.Lexer.OperatorLeft()
+                If Token && Token.Value.Identifier = "end"
+                    Break
+                throw Exception("Invalid call end.",A_ThisFunc,Position1)
+            }
+        }
+
+        Return, new this.Node.Operation(LeftSide,Parameters)
+    }
+
     Subscript(Operator,LeftSide)
     {
         If Operator.Value.Identifier != "subscript"
@@ -349,19 +379,10 @@ class Parser
         throw Exception("Invalid subscript end.",A_ThisFunc,Position1)
     }
 
-    OperatorTernary(Token,LeftSide)
+    Ternary(Operator,LeftSide)
     {
-        ;wip
-    }
-
-    OperatorCall(Token,LeftSide)
-    {
-        ;wip
-    }
-
-    OperatorSubscript(Token,LeftSide)
-    {
-        
+        FirstBranch := this.Statement(Operator.RightBindingPower)
+        Parameters := [LeftSide,]
     }
 
     Ignore()

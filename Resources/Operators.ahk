@@ -25,38 +25,6 @@ CodeParseBooleanShortCircuit(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
                 ,[CodeTreeBlock([LeftSide]),CodeTreeBlock([CodeParseLine(Tokens,Index,Errors,Operator.RightBindingPower)])])
 }
 
-CodeParseOperatorCall(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
-{
-    global CodeTokenTypes, CodeOperatorTable
-    Token := CodeParseToken(Tokens,Index) ;retrieve the current token ;wip: check for stream end
-    If (Token.Type = CodeTokenTypes.OPERATOR ;operator token
-        && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "GROUP_END") ;closing parenthesis operator token
-    {
-        CodeParseToken(Tokens,Index), Index ++ ;move past the closing parenthesis token ;wip: handle errors
-        Return, CodeTreeOperation(LeftSide)
-    }
-    Operands := []
-    Loop ;loop through one argument at a time
-    {
-        If (Token.Type = CodeTokenTypes.LINE_END || A_Index = 1) ;beginning of a line
-            Operands.Insert(CodeParseLine(Tokens,Index,Errors)) ;parse a line and add it to the operand array
-        Else
-            Operands.Insert(CodeParseExpression(Tokens,Index,Errors,0)) ;parse the argument
-        Try Token := CodeParseToken(Tokens,Index), Index ++
-        Catch ;end of token stream
-            Break
-        If (Token.Type != CodeTokenTypes.LINE_END && Token.Type != CodeTokenTypes.SEPARATOR) ;break the loop if there are no subexpressions left
-            Break ;stop parsing parameters
-    }
-    If !(Token.Type = CodeTokenTypes.OPERATOR ;operator token
-        && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "GROUP_END") ;closing parenthesis operator token
-    {
-        MsgBox Unmatched parenthesis.
-        Return, "ERROR: Unmatched parenthesis." ;wip: better error handling
-    }
-    Return, CodeTreeOperation(LeftSide,Operands)
-}
-
 CodeParseOperatorTernaryIf(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
 {
     global CodeTokenTypes, CodeOperatorTable
