@@ -108,7 +108,7 @@ class Lexer
 
         Operators.NullDenotation["("]   := new Lexer.Operator("evaluate"                   ,0   ,0)
         Operators.LeftDenotation["("]   := new Lexer.Operator("call"                       ,190 ,0)
-        Operators.LeftDenotation[")"]   := new Lexer.Operator("end"                  ,0   ,0)
+        Operators.LeftDenotation[")"]   := new Lexer.Operator("end"                        ,0   ,0)
 
         Operators.NullDenotation["{"]   := new Lexer.Operator("block"                      ,0   ,0)
         Operators.LeftDenotation["}"]   := new Lexer.Operator("block_end"                  ,0   ,0)
@@ -350,8 +350,10 @@ class Lexer
                 Return, new this.Token.String(Output,Position1,Length)
             }
             
-            Output .= this.Escape() ;check for escape sequence
-            If !Output
+            Value := this.Escape() ;check for escape sequence
+            If Value
+                Output .= Value
+            Else
                 Output .= CurrentChar, this.Position ++
         }
         this.Position := Position1
