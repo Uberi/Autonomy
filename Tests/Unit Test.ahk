@@ -1,7 +1,5 @@
 #NoEnv
 
-;wip: text based reports to stdout, clipboard, and file
-
 class UnitTest
 {
     Initialize()
@@ -56,26 +54,37 @@ class UnitTest
             {
                 If RegExMatch(Key,"iS)" . TestPrefix . "\K[\w_]+",TestName)
                 {
+                    ;run the test
                     Result := True
                     ;try TestResult := Value() ;wip
                     try TestResult := Object("Value",Value).Value()
                     catch e
+                    {
+                        CurrentStatus := False
                         Result := False
-                    If Result
+                        TestResult := e
+                    }
+
+                    ;update the interface
+                    If Result ;test passed
                     {
                         State.Passed ++
                         hChildNode := TV_Add(TestName,hNode,"Icon2 Sort")
-                        If (TestResult != "")
-                            TV_Add(TestResult,hChildNode,"Icon3")
                     }
-                    Else
+                    Else ;test failed
                     {
-                        CurrentStatus := False
                         State.Failed ++
                         hChildNode := TV_Add(TestName,hNode,"Icon1 Sort")
-                        If (e != "")
-                            TV_Add(e,hChildNode,"Icon3")
                     }
+                    If (TestResult != "") ;additional information
+                        TV_Add(TestResult,hChildNode,"Icon3")
+
+                    ;update the status bar
+                    If State.Failed ;tests failed
+                        SB_SetIcon("imageres.dll",101) ;red shield with cross sign
+                    Else ;all tests passed
+                        SB_SetIcon("imageres.dll",102) ;green shield with checkmark
+                    SB_SetText(State.Passed . " of " . (State.Passed + State.Failed) . " tests passed.")
                 }
             }
             Else If IsObject(Value)
@@ -90,15 +99,6 @@ class UnitTest
                     }
                 }
             }
-            Else
-                Continue
-
-            ;update the status bar
-            If State.Failed ;tests failed
-                SB_SetIcon("imageres.dll",101) ;red shield with cross sign
-            Else ;all tests in the category passed
-                SB_SetIcon("imageres.dll",102) ;green shield with checkmark
-            SB_SetText(State.Passed . " of " . (State.Passed + State.Failed) . " tests passed.")
         }
 
         Return, CurrentStatus
