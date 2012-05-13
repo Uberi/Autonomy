@@ -409,7 +409,7 @@ class Lexer
         ;handle decimal point if present, disambiguating the decimal point from the object access operator
         If SubStr(this.Text,this.Position,1) = "." ;period found
         {
-            If (NumberBase = 10 ;decimal points only available in decimal numbers
+            If (NumberBase != 16 ;decimals should not be available in hexadecimal numbers
                 && (CurrentChar := SubStr(this.Text,this.Position + 1,1)) != "" ;not past end of the input
                 && InStr(CharSet,CurrentChar)) ;character after period is numeric
             {
@@ -427,7 +427,8 @@ class Lexer
             }
         }
 
-        If SubStr(this.Text,this.Position,1) = "e" ;exponent found
+        If (NumberBase != 16 ;exponents should not be available in hexadecimal numbers
+            && SubStr(this.Text,this.Position,1) = "e") ;exponent found
         {
             this.Position ++
 
