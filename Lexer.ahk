@@ -78,7 +78,6 @@ class Lexer
         Operators.LeftDenotation["||="] := new Lexer.Operator("assign_or"                  ,170 ,9)
         Operators.LeftDenotation["&&="] := new Lexer.Operator("assign_and"                 ,170 ,9)
         Operators.LeftDenotation["?"]   := new Lexer.Operator("if"                         ,20  ,19)
-        Operators.LeftDenotation[":"]   := new Lexer.Operator("else"                       ,0   ,0) ;wip: colon operator, not ternary
         Operators.LeftDenotation["||"]  := new Lexer.Operator("or"                         ,40  ,40)
         Operators.LeftDenotation["&&"]  := new Lexer.Operator("and"                        ,50  ,50)
         Operators.LeftDenotation["="]   := new Lexer.Operator("equals_strict"              ,70  ,70)
@@ -183,6 +182,16 @@ class Lexer
             }
         }
 
+        class Define
+        {
+            __New(Position,Length)
+            {
+                this.Type := "Separator"
+                this.Position := Position
+                this.Length := Length
+            }
+        }
+
         class String
         {
             __New(Value,Position,Length)
@@ -248,6 +257,10 @@ class Lexer
             Return, Token
 
         Token := this.Separator()
+        If Token
+            Return, Token
+
+        Token := this.Define()
         If Token
             Return, Token
 
@@ -465,12 +478,24 @@ class Lexer
     {
         Position1 := this.Position
 
-        ;check for line end
+        ;check for separator
         If (SubStr(this.Text,Position1,1) != ",")
             Return, False
 
         this.Position ++ ;move past the separator
         Return, new this.Token.Separator(Position1,1)
+    }
+
+    Define()
+    {
+        Position1 := this.Position
+
+        ;check for define
+        If (SubStr(this.Text,Position1,1) != ":")
+            Return, False
+
+        this.Position ++ ;move past the define
+        Return, new this.Token.Define(Position1,1)
     }
 
     Comment()

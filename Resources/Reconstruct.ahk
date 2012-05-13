@@ -31,6 +31,8 @@ class Reconstruct
             Return, Value.Position . ":" . Value.Length . "`t" . Value.Type
         If Value.Type = "Separator"
             Return, Value.Position . ":" . Value.Length . "`t" . Value.Type
+        If Value.Type = "Define"
+            Return, Value.Position . ":" . Value.Length . "`t" . Value.Type
         If Value.Type = "String"
             Return, Value.Position . ":" . Value.Length . "`t" . Value.Type . "`t""" . Value.Value . """"
         If Value.Type = "Identifier"
