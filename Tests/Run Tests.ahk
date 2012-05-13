@@ -207,28 +207,52 @@ class AutonomyTests
                 TestFunctions.LexerTest(l,l.Number(),new Lexer.Token.Number(123,1,3),4)
             }
 
-            Test_Base()
-            {
-                l := new Lexer("0x123")
-                TestFunctions.LexerTest(l,l.Number(),new Lexer.Token.Number(0x123,1,5),6)
-            }
-
-            Test_BaseDecimal()
-            {
-                l := new Lexer("0x123.456")
-                TestFunctions.LexerTest(l,l.Number(),new Lexer.Token.Number(0x123,1,5),6)
-            }
-
             Test_ObjectAccess()
             {
                 l := new Lexer("123.property")
                 TestFunctions.LexerTest(l,l.Number(),new Lexer.Token.Number(123,1,3),4)
             }
 
+            Test_Base()
+            {
+                l := new Lexer("0xBE4")
+                TestFunctions.LexerTest(l,l.Number(),new Lexer.Token.Number(0xBE4,1,5),6)
+            }
+
             Test_Decimal()
             {
                 l := new Lexer("123.456")
                 TestFunctions.LexerTest(l,l.Number(),new Lexer.Token.Number(123.456,1,7),8)
+            }
+
+            Test_Exponent()
+            {
+                l := new Lexer("123e4")
+                TestFunctions.LexerTest(l,l.Number(),new Lexer.Token.Number(1230000,1,5),6)
+            }
+
+            Test_BaseDecimal()
+            {
+                l := new Lexer("0b101.011")
+                TestFunctions.LexerTest(l,l.Number(),new Lexer.Token.Number(5.375,1,9),10)
+            }
+
+            Test_ExponentDecimal()
+            {
+                l := new Lexer("123.456e4")
+                TestFunctions.LexerTest(l,l.Number(),new Lexer.Token.Number(1234560,1,9),10)
+            }
+
+            Test_BaseExponent()
+            {
+                l := new Lexer("0b1e4")
+                TestFunctions.LexerTest(l,l.Number(),new Lexer.Token.Number(16,1,5),6)
+            }
+
+            Test_BaseExponentDecimal()
+            {
+                l := new Lexer("0b101.011e4")
+                TestFunctions.LexerTest(l,l.Number(),new Lexer.Token.Number(86,1,11),12)
             }
         }
     }
