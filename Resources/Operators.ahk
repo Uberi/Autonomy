@@ -57,27 +57,6 @@ CodeParseOperatorCall(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
     Return, CodeTreeOperation(LeftSide,Operands)
 }
 
-CodeParseOperatorObjectAccessDynamic(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
-{
-    global CodeTokenTypes, CodeOperatorTable
-    Token := CodeParseToken(Tokens,Index) ;retrieve the current token
-    If (Token.Type = CodeTokenTypes.OPERATOR ;operator token
-        && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "SUBSCRIPT_END") ;object end operator token
-    {
-        CodeParseToken(Tokens,Index), Index ++ ;move past the closing brace token ;wip: handle errors
-        Return, "ERROR: Blank object access." ;wip: empty set of object braces should give an error
-    }
-    Key := CodeParseExpression(Tokens,Index,Errors,0)
-    Token := CodeParseToken(Tokens,Index), Index ++ ;wip: handle errors
-    If !(Token.Type = CodeTokenTypes.OPERATOR && CodeOperatorTable.LeftDenotation[Token.Value].IDENTIFIER = "SUBSCRIPT_END") ;mismatched parentheses
-    {
-        MsgBox Invalid object access.
-        Return, "ERROR: Invalid object access." ;wip: better error handling
-    }
-    Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier)
-                                 ,[LeftSide,Key])
-}
-
 CodeParseOperatorTernaryIf(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
 {
     global CodeTokenTypes, CodeOperatorTable

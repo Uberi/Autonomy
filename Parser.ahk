@@ -43,7 +43,9 @@ d && e || f
 )
 ;Code = 1 + sin x, y
 ;Code = sin x + 1, y
-Code = 1 - 2 * (3 + 5, 6e3) ** 3
+;Code = 1 - 2 * 3 + 5 ** 3
+;Code = 1 - 2 * (3 + 5, 6e3) ** 3
+Code = a[b][c]
 
 l := new Lexer(Code)
 p := new Parser(l)
@@ -219,6 +221,10 @@ class Parser
 
     OperatorLeft(Operator,LeftSide)
     {
+        Result := this.Subscript(Operator,LeftSide)
+        If Result
+            Return, Result
+
         RightSide := this.Statement(Operator.Value.RightBindingPower)
 
         Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
@@ -243,7 +249,7 @@ class Parser
                 Token := this.Lexer.OperatorLeft()
                 If Token && Token.Value.Identifier = "end"
                     Break
-                throw Exception("Invalid operator.",A_ThisFunc,Position1)
+                throw Exception("Invalid evaluation end.",A_ThisFunc,Position1)
             }
         }
 
@@ -280,7 +286,7 @@ class Parser
                 Token := this.Lexer.OperatorLeft()
                 If Token && Token.Value.Identifier = "block_end"
                     Break
-                throw Exception("Invalid operator.",A_ThisFunc,Position1)
+                throw Exception("Invalid block end.",A_ThisFunc,Position1)
             }
         }
 
@@ -317,12 +323,30 @@ class Parser
                 Token := this.Lexer.OperatorLeft()
                 If Token && Token.Value.Identifier = "subscript_end"
                     Break
-                throw Exception("Invalid operator.",A_ThisFunc,Position1)
+                throw Exception("Invalid array end.",A_ThisFunc,Position1)
             }
         }
 
         Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
         Return, new this.Node.Operation(Operation,Parameters)
+    }
+
+    Subscript(Operator,LeftSide)
+    {
+        If Operator.Value.Identifier != "subscript"
+            Return, False
+
+        RightSide := this.Statement()
+
+        Position1 := this.Lexer.Position
+        Token := this.Lexer.OperatorLeft()
+        If Token && Token.Value.Identifier = "subscript_end"
+        {
+            Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
+            Parameters := [LeftSide,RightSide]
+            Return, new this.Node.Operation(Operation,Parameters)
+        }
+        throw Exception("Invalid subscript end.",A_ThisFunc,Position1)
     }
 
     OperatorTernary(Token,LeftSide)
