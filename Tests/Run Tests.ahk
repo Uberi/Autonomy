@@ -255,6 +255,138 @@ class AutonomyTests
                 TestFunctions.LexerTest(l,l.Number(),new Lexer.Token.Number(86,1,11),12)
             }
         }
+
+        class Category_Line
+        {
+            Test_Blank()
+            {
+                l := new Lexer("")
+                TestFunctions.LexerTest(l,l.Line(),False,1)
+            }
+
+            Test_Invalid()
+            {
+                l := new Lexer("@")
+                TestFunctions.LexerTest(l,l.Line(),False,1)
+            }
+
+            Test_InputEnd()
+            {
+                l := new Lexer("`r`n")
+                TestFunctions.LexerTest(l,l.Line(),new Lexer.Token.Line(1,2),3)
+            }
+
+            Test_Simple()
+            {
+                l := new Lexer("`r`nabc")
+                TestFunctions.LexerTest(l,l.Line(),new Lexer.Token.Line(1,2),3)
+            }
+        }
+
+        class Category_Separator
+        {
+            Test_Blank()
+            {
+                l := new Lexer("")
+                TestFunctions.LexerTest(l,l.Separator(),False,1)
+            }
+
+            Test_Invalid()
+            {
+                l := new Lexer("@")
+                TestFunctions.LexerTest(l,l.Separator(),False,1)
+            }
+
+            Test_InputEnd()
+            {
+                l := new Lexer(",")
+                TestFunctions.LexerTest(l,l.Separator(),new Lexer.Token.Separator(1,1),2)
+            }
+
+            Test_Simple()
+            {
+                l := new Lexer(",`n")
+                TestFunctions.LexerTest(l,l.Separator(),new Lexer.Token.Separator(1,1),2)
+            }
+        }
+
+        class Category_Map
+        {
+            Test_Blank()
+            {
+                l := new Lexer("")
+                TestFunctions.LexerTest(l,l.Map(),False,1)
+            }
+
+            Test_Invalid()
+            {
+                l := new Lexer("@")
+                TestFunctions.LexerTest(l,l.Map(),False,1)
+            }
+
+            Test_InputEnd()
+            {
+                l := new Lexer(":")
+                TestFunctions.LexerTest(l,l.Map(),new Lexer.Token.Map(1,1),2)
+            }
+
+            Test_Simple()
+            {
+                l := new Lexer(":`n")
+                TestFunctions.LexerTest(l,l.Map(),new Lexer.Token.Map(1,1),2)
+            }
+        }
+
+        class Category_Comment
+        {
+            Test_Blank()
+            {
+                l := new Lexer("")
+                TestFunctions.LexerTest(l,l.Comment(),False,1)
+            }
+
+            Test_Invalid()
+            {
+                l := new Lexer("@")
+                TestFunctions.LexerTest(l,l.Comment(),False,1)
+            }
+
+            class Category_SingleLine
+            {
+                Test_InputEnd()
+                {
+                    l := new Lexer(";test")
+                    TestFunctions.LexerTest(l,l.Comment(),new Lexer.Token.Comment("test",1,5),6)
+                }
+
+                Test_Simple()
+                {
+                    l := new Lexer(";test`n")
+                    TestFunctions.LexerTest(l,l.Comment(),new Lexer.Token.Comment("test",1,5),6)
+                }
+            }
+
+            class Category_Multiline
+            {
+                Test_InputEnd()
+                {
+                    l := new Lexer("/*test")
+                    TestFunctions.LexerTest(l,l.Comment(),new Lexer.Token.Comment("test",1,6),7)
+                }
+
+                Test_Simple()
+                {
+                    l := new Lexer("/*test*/")
+                    TestFunctions.LexerTest(l,l.Comment(),new Lexer.Token.Comment("test",1,8),9)
+                }
+
+                Test_Nested()
+                {
+                    l := new Lexer("/*/**/*/")
+                    TestFunctions.LexerTest(l,l.Comment(),new Lexer.Token.Comment("/**/",1,8),9)
+                }
+            }
+        }
     }
 
     class Category_Parser
