@@ -52,11 +52,19 @@ class AutonomyTests
                     throw "Invalid position."
             }
 
-            Test_Valid()
+            Test_InputEnd()
             {
                 l := new Lexer("!")
-                If !Equal(l.OperatorNull()
-                    ,new Lexer.Token.OperatorNull(Object("Identifier","not","LeftBindingPower",0,"RightBindingPower",160),1,1))
+                If !Equal(l.OperatorNull(),new Lexer.Token.OperatorNull(Lexer.Operators.NullDenotation["!"],1,1))
+                    throw "Invalid output."
+                If l.Position != 2
+                    throw "Invalid position."
+            }
+
+            Test_Simple()
+            {
+                l := new Lexer("!`n")
+                If !Equal(l.OperatorNull(),new Lexer.Token.OperatorNull(Lexer.Operators.NullDenotation["!"],1,1))
                     throw "Invalid output."
                 If l.Position != 2
                     throw "Invalid position."
@@ -76,20 +84,28 @@ class AutonomyTests
 
             Test_Invalid()
             {
-                l := new Lexer("$")
+                l := new Lexer("@")
                 If !Equal(l.OperatorLeft(),False)
                     throw "Invalid output."
                 If l.Position != 1
                     throw "Invalid position."
             }
 
-            Test_Valid()
+            Test_InputEnd()
             {
-                l := new Lexer(":=")
-                If !Equal(l.OperatorLeft()
-                    ,new Lexer.Token.OperatorLeft(Object("Identifier","assign","LeftBindingPower",170,"RightBindingPower",9),1,2))
+                l := new Lexer("+")
+                If !Equal(l.OperatorLeft(),new Lexer.Token.OperatorLeft(Lexer.Operators.LeftDenotation["+"],1,1))
                     throw "Invalid output."
-                If l.Position != 3
+                If l.Position != 2
+                    throw "Invalid position."
+            }
+
+            Test_Simple()
+            {
+                l := new Lexer("+`n")
+                If !Equal(l.OperatorLeft(),new Lexer.Token.OperatorLeft(Lexer.Operators.LeftDenotation["+"],1,1))
+                    throw "Invalid output."
+                If l.Position != 2
                     throw "Invalid position."
             }
         }
@@ -193,6 +209,66 @@ class AutonomyTests
                     If l.Position != 34
                         throw "Invalid position."
                 }
+            }
+        }
+
+        class Category_Identifier
+        {
+            Test_Blank()
+            {
+                l := new Lexer("")
+                If !Equal(l.Identifier(),False)
+                    throw "Invalid output."
+                If l.Position != 1
+                    throw "Invalid position."
+            }
+
+            Test_Invalid()
+            {
+                l := new Lexer("@")
+                If !Equal(l.Identifier(),False)
+                    throw "Invalid output."
+                If l.Position != 1
+                    throw "Invalid position."
+            }
+
+            Test_InputEnd()
+            {
+                l := new Lexer("abc")
+                If !Equal(l.Identifier(),new Lexer.Token.Identifier("abc",1,3))
+                    throw "Invalid output."
+                If l.Position != 4
+                    throw "Invalid position."
+            }
+
+            Test_Simple()
+            {
+                l := new Lexer("abc`n")
+                If !Equal(l.Identifier(),new Lexer.Token.Identifier("abc",1,3))
+                    throw "Invalid output."
+                If l.Position != 4
+                    throw "Invalid position."
+            }
+        }
+
+        class Category_Number
+        {
+            Test_Blank()
+            {
+                l := new Lexer("")
+                If !Equal(l.Identifier(),False)
+                    throw "Invalid output."
+                If l.Position != 1
+                    throw "Invalid position."
+            }
+
+            Test_Invalid()
+            {
+                l := new Lexer("@")
+                If !Equal(l.Identifier(),False)
+                    throw "Invalid output."
+                If l.Position != 1
+                    throw "Invalid position."
             }
         }
     }
