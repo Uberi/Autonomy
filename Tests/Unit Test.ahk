@@ -37,69 +37,70 @@ class UnitTest
         ExitApp
     }
 
-    Test(Tests,hNode = 0)
+    Test(Tests,hNode = 0,State = "")
     {
-        TestPrefix := "Test_"
-        CategoryPrefix := "Category_"
+        static TestPrefix := "Test_"
+        static CategoryPrefix := "Category_"
 
-        Passed := 0
-        Failed := 0
-        Total := 0
+        If !IsObject(State)
+        {
+            State := Object()
+            State.Passed := 0
+            State.Failed := 0
+        }
 
+        CurrentStatus := True
         For Key, Value In Tests
         {
             If IsFunc(Value)
             {
-                If !RegExMatch(Key,"iS)" . TestPrefix . "\K[\w_]+",TestName)
-                    Continue
-    
-                Total ++
-                ;try TestResult := Value() ;wip
-                try TestResult := Object("Value",Value).Value()
-                catch e
+                If RegExMatch(Key,"iS)" . TestPrefix . "\K[\w_]+",TestName)
                 {
-                    Failed ++
-                    hChildNode := TV_Add(TestName,hNode,"Icon1 Sort")
-                    If (e != "")
-                        TV_Add(e,hChildNode,"Icon3")
-                    Continue
+                    Result := True
+                    ;try TestResult := Value() ;wip
+                    try TestResult := Object("Value",Value).Value()
+                    catch e
+                        Result := False
+                    If Result
+                    {
+                        State.Passed ++
+                        hChildNode := TV_Add(TestName,hNode,"Icon2 Sort")
+                        If (TestResult != "")
+                            TV_Add(TestResult,hChildNode,"Icon3")
+                    }
+                    Else
+                    {
+                        CurrentStatus := False
+                        State.Failed ++
+                        hChildNode := TV_Add(TestName,hNode,"Icon1 Sort")
+                        If (e != "")
+                            TV_Add(e,hChildNode,"Icon3")
+                    }
                 }
-                Passed ++
-                hChildNode := TV_Add(TestName,hNode,"Icon2 Sort")
-                If (TestResult != "")
-                    TV_Add(TestResult,hChildNode,"Icon3")
             }
             Else If IsObject(Value)
             {
-                If !RegExMatch(Key,"iS)" . CategoryPrefix . "\K[\w_]+",CategoryName)
-                    Continue
-
-                hChildNode := TV_Add(CategoryName,hNode,"Icon2 Expand Bold Sort")
-
-                CategoryResult := UnitTest.Test(Value,hChildNode) ;test category
-
-                Passed += CategoryResult.Passed
-                Failed += CategoryResult.Failed
-                Total += CategoryResult.Total
-
-                If CategoryResult.Failed ;tests in the category failed
-                    TV_Modify(hChildNode,"Icon1")
+                If RegExMatch(Key,"iS)" . CategoryPrefix . "\K[\w_]+",CategoryName)
+                {
+                    hChildNode := TV_Add(CategoryName,hNode,"Icon2 Expand Bold Sort")
+                    If !UnitTest.Test(Value,hChildNode,State) ;test category
+                    {
+                        CurrentStatus := False
+                        TV_Modify(hChildNode,"Icon1")
+                    }
+                }
             }
-        }
+            Else
+                Continue
 
-        If hNode = 0 ;root node
-        {
-            If Failed ;tests failed
+            ;update the status bar
+            If State.Failed ;tests failed
                 SB_SetIcon("imageres.dll",101) ;red shield with cross sign
             Else ;all tests in the category passed
                 SB_SetIcon("imageres.dll",102) ;green shield with checkmark
-            SB_SetText(Passed . " of " . Total . " tests passed.")
+            SB_SetText(State.Passed . " of " . (State.Passed + State.Failed) . " tests passed.")
         }
 
-        Result := Object()
-        Result.Passed := Passed
-        Result.Failed := Failed
-        Result.Total := Total
-        Return, Result
+        Return, CurrentStatus
     }
 }
