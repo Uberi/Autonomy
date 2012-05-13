@@ -46,7 +46,8 @@ d && e || f
 ;Code = 1 - 2 * 3 + 5 ** 3
 ;Code = 1 - 2 * (3 + 5, 6e3) ** 3
 ;Code = a[b][c]
-Code = a(b)(c,d)(e)
+;Code = a(b)(c,d)(e)
+Code = a ? b := 2 : c := 3
 
 l := new Lexer(Code)
 p := new Parser(l)
@@ -126,7 +127,7 @@ class Parser
         ;check for line end
         this.Ignore()
         Position1 := this.Lexer.Position
-        If this.Lexer.Line() || this.Lexer.Separator() || this.Lexer.OperatorLeft() ;statement not found
+        If this.Lexer.Line() || this.Lexer.Separator() || this.Lexer.Define() || this.Lexer.OperatorLeft() ;statement not found
         {
             this.Lexer.Position := Position1 ;move back to before the line of separator
             Return, Value
@@ -381,8 +382,20 @@ class Parser
 
     Ternary(Operator,LeftSide)
     {
-        FirstBranch := this.Statement(Operator.RightBindingPower)
-        Parameters := [LeftSide,]
+        If Operator.Value.Identifier != "if"
+            Return, False
+
+        Branch := this.Statement(Operator.RightBindingPower)
+        If !this.Lexer.Define()
+        {
+            ;wip: binary ternary operator
+            throw Exception("Invalid ternary else.",A_ThisFunc,Position1)
+        }
+        Alternative := this.Statement(Operator.RightBindingPower)
+
+        Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
+        Parameters := [LeftSide,Branch,Alternative]
+        Return, new this.Node.Operation(Operation,Parameters)
     }
 
     Ignore()

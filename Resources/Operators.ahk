@@ -24,19 +24,3 @@ CodeParseBooleanShortCircuit(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
     Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier)
                 ,[CodeTreeBlock([LeftSide]),CodeTreeBlock([CodeParseLine(Tokens,Index,Errors,Operator.RightBindingPower)])])
 }
-
-CodeParseOperatorTernaryIf(Tokens,ByRef Index,ByRef Errors,Operator,LeftSide)
-{
-    global CodeTokenTypes, CodeOperatorTable
-    ;wip: handle first branch being blank
-    FirstBranch := CodeTreeBlock([CodeParseExpression(Tokens,Index,Errors,Operator.RightBindingPower)]) ;parse the first branch
-    Token := CodeParseToken(Tokens,Index) ;retrieve the current token
-    If !(Token.Type = CodeTokenTypes.OPERATOR ;operator token
-        && CodeOperatorTable.LeftDenotation[Token.Value].Identifier = "ELSE") ;ternary else operator token
-        Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier)
-                                 ,[LeftSide,FirstBranch])
-    Index ++ ;move to the next token
-    SecondBranch := CodeTreeBlock([CodeParseExpression(Tokens,Index,Errors,Operator.RightBindingPower)]) ;parse the second branch
-    Return, CodeTreeOperation(CodeTreeIdentifier(Operator.Identifier)
-                                 ,[LeftSide,FirstBranch,SecondBranch])
-}
