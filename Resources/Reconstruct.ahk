@@ -51,7 +51,12 @@ class Reconstruct
             Return, Result . ")"
         }
         If Value.Type = "Block"
-            Return, "{" . this.Tree(Value.Value) . "}"
+        {
+            Result := ""
+            For Index, Content In Value.Contents
+                Result .= this.Tree(Content) . " "
+            Return, "{" . SubStr(Result,1,-1) . "}"
+        }
         If Value.Type = "String"
             Return, """" . Value.Value . """"
         If Value.Type = "Identifier"
