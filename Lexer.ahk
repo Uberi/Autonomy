@@ -349,7 +349,7 @@ class Lexer
                 Length := this.Position - Position1
                 Return, new this.Token.String(Output,Position1,Length)
             }
-            
+
             Value := this.Escape() ;check for escape sequence
             If Value
                 Output .= Value
@@ -595,7 +595,7 @@ class Lexer
             If (CharacterCode != "" && InStr("0123456789",CharacterCode)) ;character is numeric
             {
                 this.Position ++ ;move past first digit of character code
-                While, (CurrentChar := SubStr(this.Text,this.Position,1)) != "" && InStr("0123456789",CharacterCode) ;character is numeric
+                While, (CurrentChar := SubStr(this.Text,this.Position,1)) != "" && InStr("0123456789",CurrentChar) ;character is numeric
                     CharacterCode .= CurrentChar, this.Position ++
                 If (CurrentChar = "]") ;character code end
                     this.Position ++ ;move past closign square bracket
