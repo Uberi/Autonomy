@@ -1,9 +1,0 @@
-File 1: IDENTIFIER (1):  'Something'
-File 1: OPERATOR   (10): '('
-File 1: IDENTIFIER (11): 'Parameter'
-File 1: OPERATOR   (20): ')'
----
-
----
-(EVALUATE 
-	(Something Parameter))
