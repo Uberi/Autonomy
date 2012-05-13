@@ -37,37 +37,25 @@ class AutonomyTests
             Test_Blank()
             {
                 l := new Lexer("")
-                If !Equal(l.OperatorNull(),False)
-                    throw "Invalid output."
-                If l.Position != 1
-                    throw "Invalid position."
+                TestFunctions.LexerTest(l,l.OperatorNull(),False,1)
             }
 
             Test_Invalid()
             {
                 l := new Lexer("@")
-                If !Equal(l.OperatorNull(),False)
-                    throw "Invalid output."
-                If l.Position != 1
-                    throw "Invalid position."
+                TestFunctions.LexerTest(l,l.OperatorNull(),False,1)
             }
 
             Test_InputEnd()
             {
                 l := new Lexer("!")
-                If !Equal(l.OperatorNull(),new Lexer.Token.OperatorNull(Lexer.Operators.NullDenotation["!"],1,1))
-                    throw "Invalid output."
-                If l.Position != 2
-                    throw "Invalid position."
+                TestFunctions.LexerTest(l,l.OperatorNull(),new Lexer.Token.OperatorNull(Lexer.Operators.NullDenotation["!"],1,1),2)
             }
 
             Test_Simple()
             {
                 l := new Lexer("!`n")
-                If !Equal(l.OperatorNull(),new Lexer.Token.OperatorNull(Lexer.Operators.NullDenotation["!"],1,1))
-                    throw "Invalid output."
-                If l.Position != 2
-                    throw "Invalid position."
+                TestFunctions.LexerTest(l,l.OperatorNull(),new Lexer.Token.OperatorNull(Lexer.Operators.NullDenotation["!"],1,1),2)
             }
         }
 
@@ -76,37 +64,25 @@ class AutonomyTests
             Test_Blank()
             {
                 l := new Lexer("")
-                If !Equal(l.OperatorLeft(),False)
-                    throw "Invalid output."
-                If l.Position != 1
-                    throw "Invalid position."
+                TestFunctions.LexerTest(l,l.OperatorLeft(),False,1)
             }
 
             Test_Invalid()
             {
                 l := new Lexer("@")
-                If !Equal(l.OperatorLeft(),False)
-                    throw "Invalid output."
-                If l.Position != 1
-                    throw "Invalid position."
+                TestFunctions.LexerTest(l,l.OperatorLeft(),False,1)
             }
 
             Test_InputEnd()
             {
                 l := new Lexer("+")
-                If !Equal(l.OperatorLeft(),new Lexer.Token.OperatorLeft(Lexer.Operators.LeftDenotation["+"],1,1))
-                    throw "Invalid output."
-                If l.Position != 2
-                    throw "Invalid position."
+                TestFunctions.LexerTest(l,l.OperatorLeft(),new Lexer.Token.OperatorLeft(Lexer.Operators.LeftDenotation["+"],1,1),2)
             }
 
             Test_Simple()
             {
                 l := new Lexer("+`n")
-                If !Equal(l.OperatorLeft(),new Lexer.Token.OperatorLeft(Lexer.Operators.LeftDenotation["+"],1,1))
-                    throw "Invalid output."
-                If l.Position != 2
-                    throw "Invalid position."
+                TestFunctions.LexerTest(l,l.OperatorLeft(),new Lexer.Token.OperatorLeft(Lexer.Operators.LeftDenotation["+"],1,1),2)
             }
         }
 
@@ -115,57 +91,37 @@ class AutonomyTests
             Test_Blank()
             {
                 l := new Lexer("")
-                If !Equal(l.String(),False)
-                    throw "Invalid output."
-                If l.Position != 1
-                    throw "Invalid position."
+                TestFunctions.LexerTest(l,l.String(),False,1)
             }
 
             Test_Invalid()
             {
                 l := new Lexer("$")
-                If !Equal(l.String(),False)
-                    throw "Invalid output."
-                If l.Position != 1
-                    throw "Invalid position."
+                TestFunctions.LexerTest(l,l.String(),False,1)
             }
 
             Test_InputEnd()
             {
                 l := new Lexer("""Hello, world!")
-                If !Equal(l.String(),False)
-                    throw "Invalid output."
-                If l.Position != 1
-                    throw "Invalid position."
+                TestFunctions.LexerTest(l,l.String(),False,1)
             }
 
             Test_Unclosed()
             {
                 l := new Lexer("""Hello, world!`nmore text")
-                If !Equal(l.String(),False)
-                    throw "Invalid output."
-                If l.Position != 1
-                    throw "Invalid position."
+                TestFunctions.LexerTest(l,l.String(),False,1)
             }
 
             Test_Empty()
             {
                 l := new Lexer("""""")
-                If !Equal(l.String()
-                    ,new Lexer.Token.String("",1,2))
-                    throw "Invalid output."
-                If l.Position != 3
-                    throw "Invalid position."
+                TestFunctions.LexerTest(l,l.String(),new Lexer.Token.String("",1,2),3)
             }
 
             Test_Simple()
             {
                 l := new Lexer("""Hello, world!""")
-                If !Equal(l.String()
-                    ,new Lexer.Token.String("Hello, world!",1,15))
-                    throw "Invalid output."
-                If l.Position != 16
-                    throw "Invalid position."
+                TestFunctions.LexerTest(l,l.String(),new Lexer.Token.String("Hello, world!",1,15),16)
             }
 
             class Category_Escape
@@ -183,31 +139,19 @@ class AutonomyTests
                 Test_Character()
                 {
                     l := new Lexer("""escaped```` ``""quote``"" and``ttab``n""")
-                    If !Equal(l.String()
-                        ,new Lexer.Token.String("escaped`` ""quote"" and`ttab`n",1,32))
-                        throw "Invalid output."
-                    If l.Position != 33
-                        throw "Invalid position."
+                    TestFunctions.LexerTest(l,l.String(),new Lexer.Token.String("escaped`` ""quote"" and`ttab`n",1,32),33)
                 }
 
                 Test_Code()
                 {
                     l := new Lexer("""``c[32]``c[97]123``c[102]""")
-                    If !Equal(l.String()
-                        ,new Lexer.Token.String(" a123f",1,24))
-                        throw "Invalid output."
-                    If l.Position != 25
-                        throw "Invalid position."
+                    TestFunctions.LexerTest(l,l.String(),new Lexer.Token.String(" a123f",1,24),25)
                 }
 
                 Test_Newline()
                 {
                     l := new Lexer("""line 1```r`nline 2```rline 3```nline 4""")
-                    If !Equal(l.String()
-                        ,new Lexer.Token.String("line 1`nline 2`nline 3`nline 4",1,33))
-                        throw "Invalid output."
-                    If l.Position != 34
-                        throw "Invalid position."
+                    TestFunctions.LexerTest(l,l.String(),new Lexer.Token.String("line 1`nline 2`nline 3`nline 4",1,33),34)
                 }
             }
         }
@@ -217,37 +161,25 @@ class AutonomyTests
             Test_Blank()
             {
                 l := new Lexer("")
-                If !Equal(l.Identifier(),False)
-                    throw "Invalid output."
-                If l.Position != 1
-                    throw "Invalid position."
+                TestFunctions.LexerTest(l,l.Identifier(),False,1)
             }
 
             Test_Invalid()
             {
                 l := new Lexer("@")
-                If !Equal(l.Identifier(),False)
-                    throw "Invalid output."
-                If l.Position != 1
-                    throw "Invalid position."
+                TestFunctions.LexerTest(l,l.Identifier(),False,1)
             }
 
             Test_InputEnd()
             {
                 l := new Lexer("abc")
-                If !Equal(l.Identifier(),new Lexer.Token.Identifier("abc",1,3))
-                    throw "Invalid output."
-                If l.Position != 4
-                    throw "Invalid position."
+                TestFunctions.LexerTest(l,l.Identifier(),new Lexer.Token.Identifier("abc",1,3),4)
             }
 
             Test_Simple()
             {
                 l := new Lexer("abc`n")
-                If !Equal(l.Identifier(),new Lexer.Token.Identifier("abc",1,3))
-                    throw "Invalid output."
-                If l.Position != 4
-                    throw "Invalid position."
+                TestFunctions.LexerTest(l,l.Identifier(),new Lexer.Token.Identifier("abc",1,3),4)
             }
         }
 
@@ -256,10 +188,7 @@ class AutonomyTests
             Test_Blank()
             {
                 l := new Lexer("")
-                If !Equal(l.Number(),False)
-                    throw "Invalid output."
-                If l.Position != 1
-                    throw "Invalid position."
+                TestFunctions.LexerTest(l,l.Number(),False,1)
             }
 
             Test_Invalid()
@@ -269,51 +198,37 @@ class AutonomyTests
                     throw "Invalid output."
                 If l.Position != 1
                     throw "Invalid position."
+                TestFunctions.LexerTest(l,l.Number(),False,1)
             }
 
             Test_Simple()
             {
                 l := new Lexer("123")
-                If !Equal(l.Number(),new Lexer.Token.Number(123,1,3))
-                    throw "Invalid output."
-                If l.Position != 4
-                    throw "Invalid position."
+                TestFunctions.LexerTest(l,l.Number(),new Lexer.Token.Number(123,1,3),4)
             }
 
             Test_Base()
             {
                 l := new Lexer("0x123")
-                If !Equal(l.Number(),new Lexer.Token.Number(0x123,1,5))
-                    throw "Invalid output."
-                If l.Position != 6
-                    throw "Invalid position."
+                TestFunctions.LexerTest(l,l.Number(),new Lexer.Token.Number(0x123,1,5),6)
             }
 
             Test_BaseDecimal()
             {
                 l := new Lexer("0x123.456")
-                If !Equal(l.Number(),new Lexer.Token.Number(0x123,1,5))
-                    throw "Invalid output."
-                If l.Position != 6
-                    throw "Invalid position."
+                TestFunctions.LexerTest(l,l.Number(),new Lexer.Token.Number(0x123,1,5),6)
             }
 
             Test_ObjectAccess()
             {
                 l := new Lexer("123.property")
-                If !Equal(l.Number(),new Lexer.Token.Number(123,1,3))
-                    throw "Invalid output."
-                If l.Position != 4
-                    throw "Invalid position."
+                TestFunctions.LexerTest(l,l.Number(),new Lexer.Token.Number(123,1,3),4)
             }
 
             Test_Decimal()
             {
                 l := new Lexer("123.456")
-                If !Equal(l.Number(),new Lexer.Token.Number(123.456,1,7))
-                    throw "Invalid output."
-                If l.Position != 8
-                    throw "Invalid position."
+                TestFunctions.LexerTest(l,l.Number(),new Lexer.Token.Number(123.456,1,7),8)
             }
         }
     }
