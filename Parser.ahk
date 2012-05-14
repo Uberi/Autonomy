@@ -127,9 +127,9 @@ class Parser
         ;check for line end
         this.Ignore()
         Position1 := this.Lexer.Position
-        If this.Lexer.Line() || this.Lexer.Separator() || this.Lexer.Map() || this.Lexer.OperatorLeft() ;statement not found
+        If this.Lexer.Line() || this.Lexer.Map() || this.Lexer.OperatorLeft() ;statement not found
         {
-            this.Lexer.Position := Position1 ;move back to before the line of separator
+            this.Lexer.Position := Position1 ;move back to before this token
             Return, Value
         }
 
@@ -253,8 +253,7 @@ class Parser
         {
             Parameters.Insert(this.Statement())
 
-            If !(this.Lexer.Separator()
-                || this.Lexer.Line())
+            If !this.Lexer.Line()
             {
                 Position1 := this.Lexer.Position
                 Token := this.Lexer.OperatorLeft()
@@ -290,8 +289,7 @@ class Parser
         {
             Contents.Insert(this.Statement())
 
-            If !(this.Lexer.Separator()
-                || this.Lexer.Line())
+            If !this.Lexer.Line()
             {
                 Position1 := this.Lexer.Position
                 Token := this.Lexer.OperatorLeft()
@@ -327,8 +325,7 @@ class Parser
         {
             Parameters.Insert(this.Statement())
 
-            If !(this.Lexer.Separator()
-                || this.Lexer.Line())
+            If !this.Lexer.Separator()
             {
                 Position1 := this.Lexer.Position
                 Token := this.Lexer.OperatorLeft()
