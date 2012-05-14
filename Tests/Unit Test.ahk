@@ -10,9 +10,9 @@ class UnitTest
         Gui, Add, Text, x0 y0 h30 vUnitTestTitle Center, Test Results:
 
         hImageList := IL_Create()
-        IL_Add(hImageList,"imageres.dll",101) ;red shield with cross sign icon
-        IL_Add(hImageList,"imageres.dll",102) ;green shield with checkmark icon
-        IL_Add(hImageList,"imageres.dll",189) ;document icon
+        IL_Add(hImageList,"shell32.dll",78) ;yellow triangle with exclamation mark
+        IL_Add(hImageList,"shell32.dll",138) ;green circle with arrow facing right
+        IL_Add(hImageList,"shell32.dll",135) ;two sheets of paper
         Gui, Font, s10
         Gui, Add, TreeView, x10 y30 vUnitTestEntries ImageList%hImageList%
 
@@ -81,9 +81,9 @@ class UnitTest
 
                     ;update the status bar
                     If State.Failed ;tests failed
-                        SB_SetIcon("imageres.dll",101) ;red shield with cross sign
+                        SB_SetIcon("shell32.dll",78) ;yellow triangle with exclamation mark
                     Else ;all tests passed
-                        SB_SetIcon("imageres.dll",102) ;green shield with checkmark
+                        SB_SetIcon("shell32.dll",138) ;green circle with arrow facing right
                     SB_SetText(State.Passed . " of " . (State.Passed + State.Failed) . " tests passed.")
                 }
             }
