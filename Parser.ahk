@@ -259,7 +259,7 @@ class Parser
 
     Evaluate(Operator)
     {
-        If Operator.Value.Identifier != "evaluate"
+        If Operator.Value.Identifier != "_evaluate"
             Return, False
 
         Parameters := []
@@ -271,7 +271,7 @@ class Parser
             {
                 Position1 := this.Lexer.Position
                 Token := this.Lexer.OperatorLeft()
-                If Token && Token.Value.Identifier = "end"
+                If Token && Token.Value.Identifier = "_end"
                     Break
                 throw Exception("Invalid evaluation end.",A_ThisFunc,Position1)
             }
