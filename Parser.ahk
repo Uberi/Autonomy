@@ -48,7 +48,8 @@ d && e || f
 ;Code = 1 - 2 * (3 + 5, 6e3) ** 3
 ;Code = a[b][c]
 ;Code = a(b)(c,d)(e)
-Code = a ? b := 2 : c := 3
+;Code = a ? b := 2 : c := 3
+Code = {}()
 
 l := new Lexer(Code)
 p := new Parser(l)
@@ -283,7 +284,7 @@ class Parser
 
     Block(Operator)
     {
-        If Operator.Value.Identifier != "block"
+        If Operator.Value.Identifier != "_block"
             Return, False
 
         Contents := []
@@ -292,7 +293,7 @@ class Parser
         this.Ignore()
         Position1 := this.Lexer.Position
         Token := this.Lexer.OperatorLeft()
-        If Token && Token.Value.Identifier = "block_end"
+        If Token && Token.Value.Identifier = "_block_end"
         {
             Length := this.Lexer.Position - Position1
             Return, new this.Node.Block(Contents,Position1,Length)
@@ -307,7 +308,7 @@ class Parser
             {
                 Position1 := this.Lexer.Position
                 Token := this.Lexer.OperatorLeft()
-                If Token && Token.Value.Identifier = "block_end"
+                If Token && Token.Value.Identifier = "_block_end"
                     Break
                 throw Exception("Invalid block end.",A_ThisFunc,Position1)
             }
@@ -319,7 +320,7 @@ class Parser
 
     Array(Operator)
     {
-        If Operator.Value.Identifier != "array"
+        If Operator.Value.Identifier != "_array"
             Return, False
 
         Parameters := []
@@ -328,7 +329,7 @@ class Parser
         this.Ignore()
         Position1 := this.Lexer.Position
         Token := this.Lexer.OperatorLeft()
-        If Token && Token.Value.Identifier = "subscript_end"
+        If Token && Token.Value.Identifier = "_subscript_end"
         {
             Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
             Length := this.Lexer.Position - Operator.Position
@@ -344,7 +345,7 @@ class Parser
             {
                 Position1 := this.Lexer.Position
                 Token := this.Lexer.OperatorLeft()
-                If Token && Token.Value.Identifier = "subscript_end"
+                If Token && Token.Value.Identifier = "_subscript_end"
                     Break
                 throw Exception("Invalid array end.",A_ThisFunc,Position1)
             }
@@ -357,10 +358,22 @@ class Parser
 
     Call(Operator,LeftSide)
     {
-        If Operator.Value.Identifier != "call"
+        If Operator.Value.Identifier != "_call"
             Return, False
 
         Parameters := []
+
+        ;check for empty parameter list
+        this.Ignore()
+        Position1 := this.Lexer.Position
+        Token := this.Lexer.OperatorLeft()
+        If Token && Token.Value.Identifier = "_end"
+        {
+            ;wip: position and length
+            Return, new this.Node.Operation(LeftSide,Parameters,0,0)
+        }
+        this.Lexer.Position := Position1
+
         Loop
         {
             Parameters.Insert(this.Statement())
@@ -369,7 +382,7 @@ class Parser
             {
                 Position1 := this.Lexer.Position
                 Token := this.Lexer.OperatorLeft()
-                If Token && Token.Value.Identifier = "end"
+                If Token && Token.Value.Identifier = "_end"
                     Break
                 throw Exception("Invalid call end.",A_ThisFunc,Position1)
             }
@@ -381,14 +394,14 @@ class Parser
 
     Subscript(Operator,LeftSide)
     {
-        If Operator.Value.Identifier != "subscript"
+        If Operator.Value.Identifier != "_subscript"
             Return, False
 
         RightSide := this.Statement()
 
         Position1 := this.Lexer.Position
         Token := this.Lexer.OperatorLeft()
-        If Token && Token.Value.Identifier = "subscript_end"
+        If Token && Token.Value.Identifier = "_subscript_end"
         {
             Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
             Parameters := [LeftSide,RightSide]
@@ -400,7 +413,7 @@ class Parser
 
     Ternary(Operator,LeftSide)
     {
-        If Operator.Value.Identifier != "if"
+        If Operator.Value.Identifier != "_if"
             Return, False
 
         Branch := this.Statement(Operator.RightBindingPower)
@@ -422,7 +435,7 @@ class Parser
 
     BooleanShortCircuit(Operator,LeftSide)
     {
-        If Operator.Value.Identifier != "or" && Operator.Value.Identifier != "and"
+        If Operator.Value.Identifier != "_or" && Operator.Value.Identifier != "_and"
             Return, False
 
         RightSide := this.Statement(Operator.Value.RightBindingPower)
