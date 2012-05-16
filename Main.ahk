@@ -30,17 +30,18 @@ TODO
 
 Short term tasks:
 
+* consider using => to do named parameters and array key-value mappings, and reassign :'s status back as an operator
+* invalid numbers like 123abc should give a lexer error rather than lexing as a number token and an identifier token, make sure it works after decimal points too and add unit tests for it
+* differentiate between decimal and integer numbers
 * Comparisons can be chained arbitrarily, e.g., x < y <= z is equivalent to x < y and y <= z, except that y is evaluated only once (but in both cases z is not evaluated at all when x < y is found to be false). Formally, if a, b, c, ..., y, z are expressions and op1, op2, ..., opN are comparison operators, then a op1 b op2 c ... y opN z is equivalent to a op1 b and b op2 c and ... y opN z, except that each expression is evaluated at most once.
-* use underscores to denote every operator identifier: 4._add instead of 4.add
 * Allow backticks inline in code to represent literal versions of themselves in the code
-* Operations in syntax tree do not have position or length or file info
-* Duplicate LINE_END tokens can be present if there was an error that spanned an entire line. see Strings.txt unit test for example. see if this can be avoided
 * Unit tests for error handler
 
 Long term tasks:
 
+* multiple catch clauses in exception handler, and each accepting a condition for catching: try {} catch e: e Is KeyboardInterrupt
 * return, break, continue, etc. should be methods of "this", and "this" should be a continuation
-* implement exceptions using this.caller.context
+* implement exceptions using this.caller
 * to make an object, use Object.new() or ClassName.new() or just ClassName.new
 * named parameter "key" for functions such as [].max(), [].min(), [].sort(), etc. that allows the user to specify a function that specifies the key to use in place of the actual key, together with a custon comparison function
 * "with" statement that sets an object as a scope (needs internal support)
@@ -55,7 +56,6 @@ Long term tasks:
 * Functions should create a new scope object every execution, so that closures are possible
 * Script that converts AutoHotkey code to or from Autonomy
 * Function definitions are variables holding function references (implemented as function pointers, and utilising reference counting), so variables and functions are in the same namespace
-* Make implementation self hosting
 * .= operator to append to an array
 * Error messages should provide quick fixes for common causes of the issue
 * for-loops and try-catch-else-finally should have an Else clause that executes if the loop did not break or an exception was not thrown

@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 ;wip: handle skipped parameters: Function(Param,,Param)
+;wip: handle named parameters, including dynamically calculated ones, in Call() and in Statement()
 ;wip: when AHKv2 gets the new behavior for logical AND and OR (returns matched value on success), use idioms like "this.Statement() || this.Expression()" and "this.Identifier() && this.Expression()"
 
 ;/*
@@ -68,11 +69,13 @@ class Parser
     {
         class Operation
         {
-            __New(Value,Parameters)
+            __New(Value,Parameters,Position,Length)
             {
                 this.Type := "Operation"
                 this.Value := Value
                 this.Parameters := Parameters
+                this.Position := Position
+                this.Length := Length
             }
         }
 
@@ -120,27 +123,34 @@ class Parser
         }
     }
 
+    Parse()
+    {
+        ;wip
+    }
+
     Statement(RightBindingPower = 0)
     {
+        Position1 := this.Lexer.Position
         Value := this.Expression(RightBindingPower) ;parse either the expression or the beginning of the statement
 
         ;check for line end
         this.Ignore()
-        Position1 := this.Lexer.Position
+        Position2 := this.Lexer.Position
         If this.Lexer.Line() || this.Lexer.Map() || this.Lexer.OperatorLeft() ;statement not found
         {
-            this.Lexer.Position := Position1 ;move back to before this token
+            this.Lexer.Position := Position2 ;move back to before this token
             Return, Value
         }
 
         ;wip: need a better way to check end of input
         ;check for end of input
-        Position1 := this.Lexer.Position
+        Position2 := this.Lexer.Position
         Token := this.Lexer.Next()
-        this.Lexer.Position := Position1
+        this.Lexer.Position := Position2
         If !Token ;statement not found
             Return, Value
 
+        ;parse the parameters
         Parameters := []
         Loop
         {
@@ -150,11 +160,14 @@ class Parser
             If !this.Lexer.Separator()
                 Break
         }
-        Return, new this.Node.Operation(Value,Parameters)
+
+        Length := this.Lexer.Position - Position1
+        Return, new this.Node.Operation(Value,Parameters,Position1,Length)
     }
 
     Expression(RightBindingPower = 0)
     {
+        this.Ignore()
         LeftSide := this.NullDenotation()
         Loop
         {
@@ -178,8 +191,6 @@ class Parser
 
     NullDenotation()
     {
-        this.Ignore()
-
         Token := this.Lexer.OperatorNull()
         If Token
             Return, this.OperatorNull(Token)
@@ -218,7 +229,8 @@ class Parser
 
         Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
         Parameters := [RightSide]
-        Return, new this.Node.Operation(Operation,Parameters)
+        Length := this.Lexer.Position - Operator.Position
+        Return, new this.Node.Operation(Operation,Parameters,Operator.Position,Length)
     }
 
     OperatorLeft(Operator,LeftSide)
@@ -240,7 +252,8 @@ class Parser
 
         Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
         Parameters := [LeftSide,RightSide]
-        Return, new this.Node.Operation(Operation,Parameters)
+        ;wip: length and position
+        Return, new this.Node.Operation(Operation,Parameters,0,0)
     }
 
     Evaluate(Operator)
@@ -264,7 +277,8 @@ class Parser
         }
 
         Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
-        Return, new this.Node.Operation(Operation,Parameters)
+        Length := this.Lexer.Position - Operator.Position
+        Return, new this.Node.Operation(Operation,Parameters,Operator.Position,Length)
     }
 
     Block(Operator)
@@ -317,7 +331,8 @@ class Parser
         If Token && Token.Value.Identifier = "subscript_end"
         {
             Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
-            Return, new this.Node.Operation(Operation,Parameters)
+            Length := this.Lexer.Position - Operator.Position
+            Return, new this.Node.Operation(Operation,Parameters,Operator.Position,Length)
         }
         this.Lexer.Position := Position1
 
@@ -336,7 +351,8 @@ class Parser
         }
 
         Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
-        Return, new this.Node.Operation(Operation,Parameters)
+        Length := this.Lexer.Position - Operator.Position
+        Return, new this.Node.Operation(Operation,Parameters,Operator.Position,Length)
     }
 
     Call(Operator,LeftSide)
@@ -359,7 +375,8 @@ class Parser
             }
         }
 
-        Return, new this.Node.Operation(LeftSide,Parameters)
+        ;wip: position and length
+        Return, new this.Node.Operation(LeftSide,Parameters,0,0)
     }
 
     Subscript(Operator,LeftSide)
@@ -375,7 +392,8 @@ class Parser
         {
             Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
             Parameters := [LeftSide,RightSide]
-            Return, new this.Node.Operation(Operation,Parameters)
+            ;wip: position and length
+            Return, new this.Node.Operation(Operation,Parameters,0,0)
         }
         throw Exception("Invalid subscript end.",A_ThisFunc,Position1)
     }
@@ -398,7 +416,8 @@ class Parser
 
         Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
         Parameters := [LeftSide,Branch,Alternative]
-        Return, new this.Node.Operation(Operation,Parameters)
+        ;wip: position and length
+        Return, new this.Node.Operation(Operation,Parameters,0,0)
     }
 
     BooleanShortCircuit(Operator,LeftSide)
@@ -413,7 +432,8 @@ class Parser
 
         Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
         Parameters := [LeftSide,RightSide]
-        Return, new this.Node.Operation(Operation,Parameters)
+        ;wip: position and length
+        Return, new this.Node.Operation(Operation,Parameters,0,0)
     }
 
     Ignore()
