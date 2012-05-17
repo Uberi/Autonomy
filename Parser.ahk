@@ -439,8 +439,6 @@ class Parser
             Return, False
 
         RightSide := this.Statement(Operator.Value.RightBindingPower)
-
-        LeftSide := new this.Node.Block([LeftSide],0,0)
         RightSide := new this.Node.Block([RightSide],0,0)
 
         Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
