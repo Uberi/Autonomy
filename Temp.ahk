@@ -2,6 +2,7 @@
 
 Code = {123}((1 + 3) * 2)
 Code = "hello" * 8
+Code =  2 || 3
 
 l := new Lexer(Code)
 p := new Parser(l)
@@ -70,6 +71,14 @@ class DefaultEnvironment
                 Result := Eval(Content,InnerEnvironment)
             Return, Result
         }
+
+        class _boolean
+        {
+            call(Current,Parameters)
+            {
+                Return, True
+            }
+        }
     }
 
     class String
@@ -81,6 +90,14 @@ class DefaultEnvironment
 
             v.Value := Value
             Return, v
+        }
+
+        class _boolean
+        {
+            call(Current,Parameters)
+            {
+                Return, Current.Value != ""
+            }
         }
 
         class _add
@@ -114,6 +131,14 @@ class DefaultEnvironment
             Return, v
         }
 
+        class _boolean
+        {
+            call(Current,Parameters)
+            {
+                Return, Current.Value != 0
+            }
+        }
+
         class _add
         {
             call(Current,Parameters)
@@ -128,6 +153,26 @@ class DefaultEnvironment
             {
                 Return, Current.new(Current.Value * Parameters[1].Value)
             }
+        }
+    }
+
+    class _or
+    {
+        call(Current,Parameters)
+        {
+            If Parameters[1]._boolean.call(Parameters[1],[])
+                Return, Parameters[1]
+            Return, Parameters[2].call(Parameters[2],[])
+        }
+    }
+
+    class _and
+    {
+        call(Current,Parameters)
+        {
+            If !Parameters[1]._boolean.call(Parameters[1],[])
+                Return, Parameters[1]
+            Return, Parameters[2].call(Parameters[2],[])
         }
     }
 
@@ -152,7 +197,10 @@ class DefaultEnvironment
         call(Current,Parameters)
         {
             ;return the last parameter
-            Return, Parameters[ObjMaxIndex(Parameters)]
+            If ObjMaxIndex(Parameters)
+                Return, Parameters[ObjMaxIndex(Parameters)]
+            ;Return, null ;wip
+            Return, 0
         }
     }
 }
