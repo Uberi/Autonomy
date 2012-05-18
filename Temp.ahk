@@ -3,6 +3,7 @@
 Code = "hello" * 8
 Code =  2 || 3
 Code = {123}((1 + 3) * 2)
+Code = {this["arguments"][1]}(4)
 
 l := new Lexer(Code)
 p := new Parser(l)
@@ -26,7 +27,7 @@ Eval(Tree,Environment)
             throw Exception("Callable not found.")
 
         Arguments := []
-        For Key, Value In Tree.Arguments
+        For Key, Value In Tree.Parameters
             Arguments[Key] := Eval(Value,Environment)
 
         Return, Callable.call(Callable,Arguments)
@@ -44,6 +45,34 @@ Eval(Tree,Environment)
 
 class DefaultEnvironment
 {
+    class Object
+    {
+        new()
+        {
+            v := Object()
+            v.base := this
+
+            v.Values := Object()
+            Return, v
+        }
+
+        class _boolean
+        {
+            call(Current,Arguments)
+            {
+                Return, !!ObjNewEnum(Current).Next(Key,Value)
+            }
+        }
+
+        class _subscript
+        {
+            call(Current,Arguments)
+            {
+                Return, Current.Values[Arguments[1].Value]
+            }
+        }
+    }
+
     class Block
     {
         new(Contents,Environment)
@@ -53,6 +82,7 @@ class DefaultEnvironment
 
             v.Contents := Contents
             v.Environment := Environment
+            v.Arguments := Object()
             Return, v
         }
 
@@ -63,9 +93,9 @@ class DefaultEnvironment
             InnerEnvironment.base := Current.Environment
             InnerEnvironment.this := Current
 
-            InnerEnvironment.this.arguments := Object()
+            Current.Arguments := Current.Environment.Object.new()
             For Key, Value In Arguments
-                InnerEnvironment.this.arguments[Key] := Value
+                Current.Arguments.values[Key] := Value
 
             ;evaluate the contents of the block
             ;Result := null ;wip
@@ -80,6 +110,16 @@ class DefaultEnvironment
             call(Current,Arguments)
             {
                 Return, True
+            }
+        }
+
+        class _subscript
+        {
+            call(Current,Arguments)
+            {
+                If Arguments[1].Value = "arguments"
+                    Return, Current.Arguments
+                throw Exception("Invalid property: " . Arguments[1].Value)
             }
         }
     }
@@ -119,6 +159,14 @@ class DefaultEnvironment
                 Loop, % Arguments[1].Value
                     Result .= Current.Value
                 Return, Current.new(Result)
+            }
+        }
+
+        class _subscript
+        {
+            call(Current,Arguments)
+            {
+                Return, SubStr(Current.Value,Arguments[1].Value,1)
             }
         }
     }
@@ -204,6 +252,14 @@ class DefaultEnvironment
                 Return, Arguments[ObjMaxIndex(Arguments)]
             ;Return, null ;wip
             Return, 0
+        }
+    }
+
+    class _subscript
+    {
+        call(Current,Arguments)
+        {
+            Return, Arguments[1]._subscript.call(Arguments[1],[Arguments[2]])
         }
     }
 }
