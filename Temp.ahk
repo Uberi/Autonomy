@@ -1,8 +1,8 @@
 #NoEnv
 
-Code = {123}((1 + 3) * 2)
 Code = "hello" * 8
 Code =  2 || 3
+Code = {123}((1 + 3) * 2)
 
 l := new Lexer(Code)
 p := new Parser(l)
@@ -25,11 +25,11 @@ Eval(Tree,Environment)
         If !IsFunc(Callable.call)
             throw Exception("Callable not found.")
 
-        Parameters := []
-        For Key, Value In Tree.Parameters
-            Parameters[Key] := Eval(Value,Environment)
+        Arguments := []
+        For Key, Value In Tree.Arguments
+            Arguments[Key] := Eval(Value,Environment)
 
-        Return, Callable.call(Callable,Parameters)
+        Return, Callable.call(Callable,Arguments)
     }
     If Tree.Type = "Block"
         Return, Environment.Block.new(Tree.Contents,Environment)
@@ -56,13 +56,16 @@ class DefaultEnvironment
             Return, v
         }
 
-        call(Current,Parameters)
+        call(Current,Arguments)
         {
-            ;set up an inner scope with the parameters
+            ;set up an inner scope with the Arguments
             InnerEnvironment := Object()
             InnerEnvironment.base := Current.Environment
-            For Key, Value In Parameters
-                InnerEnvironment[Key] := Value
+            InnerEnvironment.this := Current
+
+            InnerEnvironment.this.arguments := Object()
+            For Key, Value In Arguments
+                InnerEnvironment.this.arguments[Key] := Value
 
             ;evaluate the contents of the block
             ;Result := null ;wip
@@ -74,7 +77,7 @@ class DefaultEnvironment
 
         class _boolean
         {
-            call(Current,Parameters)
+            call(Current,Arguments)
             {
                 Return, True
             }
@@ -94,7 +97,7 @@ class DefaultEnvironment
 
         class _boolean
         {
-            call(Current,Parameters)
+            call(Current,Arguments)
             {
                 Return, Current.Value != ""
             }
@@ -102,18 +105,18 @@ class DefaultEnvironment
 
         class _add
         {
-            call(Current,Parameters)
+            call(Current,Arguments)
             {
-                Return, Current.new(Current.Value . Parameters[1].Value)
+                Return, Current.new(Current.Value . Arguments[1].Value)
             }
         }
 
         class _multiply
         {
-            call(Current,Parameters)
+            call(Current,Arguments)
             {
                 Result := ""
-                Loop, % Parameters[1].Value
+                Loop, % Arguments[1].Value
                     Result .= Current.Value
                 Return, Current.new(Result)
             }
@@ -133,7 +136,7 @@ class DefaultEnvironment
 
         class _boolean
         {
-            call(Current,Parameters)
+            call(Current,Arguments)
             {
                 Return, Current.Value != 0
             }
@@ -141,64 +144,64 @@ class DefaultEnvironment
 
         class _add
         {
-            call(Current,Parameters)
+            call(Current,Arguments)
             {
-                Return, Current.new(Current.Value + Parameters[1].Value)
+                Return, Current.new(Current.Value + Arguments[1].Value)
             }
         }
 
         class _multiply
         {
-            call(Current,Parameters)
+            call(Current,Arguments)
             {
-                Return, Current.new(Current.Value * Parameters[1].Value)
+                Return, Current.new(Current.Value * Arguments[1].Value)
             }
         }
     }
 
     class _or
     {
-        call(Current,Parameters)
+        call(Current,Arguments)
         {
-            If Parameters[1]._boolean.call(Parameters[1],[])
-                Return, Parameters[1]
-            Return, Parameters[2].call(Parameters[2],[])
+            If Arguments[1]._boolean.call(Arguments[1],[])
+                Return, Arguments[1]
+            Return, Arguments[2].call(Arguments[2],[])
         }
     }
 
     class _and
     {
-        call(Current,Parameters)
+        call(Current,Arguments)
         {
-            If !Parameters[1]._boolean.call(Parameters[1],[])
-                Return, Parameters[1]
-            Return, Parameters[2].call(Parameters[2],[])
+            If !Arguments[1]._boolean.call(Arguments[1],[])
+                Return, Arguments[1]
+            Return, Arguments[2].call(Arguments[2],[])
         }
     }
 
     class _add
     {
-        call(Current,Parameters)
+        call(Current,Arguments)
         {
-            Return, Parameters[1]._add.call(Parameters[1],[Parameters[2]])
+            Return, Arguments[1]._add.call(Arguments[1],[Arguments[2]])
         }
     }
 
     class _multiply
     {
-        call(Current,Parameters)
+        call(Current,Arguments)
         {
-            Return, Parameters[1]._multiply.call(Parameters[1],[Parameters[2]])
+            Return, Arguments[1]._multiply.call(Arguments[1],[Arguments[2]])
         }
     }
 
     class _evaluate
     {
-        call(Current,Parameters)
+        call(Current,Arguments)
         {
             ;return the last parameter
-            If ObjMaxIndex(Parameters)
-                Return, Parameters[ObjMaxIndex(Parameters)]
+            If ObjMaxIndex(Arguments)
+                Return, Arguments[ObjMaxIndex(Arguments)]
             ;Return, null ;wip
             Return, 0
         }
