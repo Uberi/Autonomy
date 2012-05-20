@@ -1,8 +1,5 @@
 #NoEnv
 
-#Include Code.ahk
-#Include Resources\Syntax Tree.ahk
-
 /*
 Copyright 2011-2012 Anthony Zhang <azhang9@gmail.com>
 
@@ -28,13 +25,11 @@ Bytecode format
 
 Stack based virtual machine implementing a few simple instructions:
 
-#comment                        line comment.
-
-:label                          label definition for a location in the bytecode.
+label value                     label definition for a location in the bytecode.
 
 push value                      pushes a value onto the stack.
 
-call paramcount                 pops and stores the jump target.
+call parameter_count            pops and stores the jump target.
                                 pushes the parameter count onto the stack.
                                 pushes the current stack base onto the stack.
                                 pushes the current instruction index onto the stack.
@@ -62,76 +57,162 @@ conditional                     pops the value off of the stack and stores it.
 ;wip: dead/unreachable code elimination
 */
 
-/*
-#Include Resources\Reconstruct.ahk
+;/*
+Code = 1 + 2
+
+l := new Lexer(Code)
+p := new Parser(l)
+
+Tree := p.Parse()
+
+b := new Bytecode(Tree)
+
+Result := b.Convert(Tree)
+
+MsgBox % ShowObject(Result)
+ExitApp
+
 #Include Lexer.ahk
 #Include Parser.ahk
-
-SetBatchLines, -1
-
-Code = 
-(
-1+2*3 . "hello"
-)
-Code := "2*{3}*4"
-
-If CodeInit()
-{
-    Display("Error initializing code tools.`n") ;display error at standard output
-    ExitApp ;fatal error
-}
-
-FileName := A_ScriptFullPath
-CodeSetScript(FileName,Errors,Files) ;set the current script file
-
-CodeTreeInit()
-
-CodeLexInit()
-Tokens := CodeLex(Code,Errors)
-
-SyntaxTree := CodeParse(Tokens,Errors)
-
-CodeBytecodeInit()
-MsgBox % Clipboard := CodeBytecode(SyntaxTree)
-ExitApp
 */
 
-CodeBytecodeInit()
+class Bytecode
 {
-    
-}
-
-CodeBytecode(SyntaxTree,Padding = "",LabelTable = "")
-{
-    global CodeTreeTypes
-    If !IsObject(LabelTable)
-        LabelTable := Object() ;wip: this isn't very efficient
-    NodeType := SyntaxTree[1]
-    If (NodeType = CodeTreeTypes.OPERATION)
-        Return, CodeBytecodeOperation(SyntaxTree,Padding,LabelTable)
-    Else If (NodeType = CodeTreeTypes.NUMBER)
-        Return, Padding . "push #" . SyntaxTree[2] . "`n"
-    Else If (NodeType = CodeTreeTypes.STRING)
+    class Code
     {
-        Result := SyntaxTree[2]
-        StringReplace, Result, Result, ``, ````, All
-        StringReplace, Result, Result, ', ``', All
-        Return, Padding . "push '" . Result . "'`n"
-    }
-    Else If (NodeType = CodeTreeTypes.IDENTIFIER)
-        Return, Padding . "push :" . SyntaxTree[2] . "`n"
-    Else If (NodeType = CodeTreeTypes.BLOCK)
-        Return, CodeBytecodeBlock(SyntaxTree,Padding,LabelTable)
-}
+        class Call
+        {
+            __New(ParameterCount,Position,Length)
+            {
+                this.Identifier := "call"
+                this.Value := ParameterCount
+                this.Position := Position
+                this.Length := Length
+            }
+        }
 
-CodeBytecodeOperation(SyntaxTree,Padding,LabelTable)
-{
-    MaxIndex := SyntaxTree.MaxIndex(), Index := MaxIndex
-    Result := ""
-    While, Index > 1
-        Result .= CodeBytecode(SyntaxTree[Index],Padding . "`t",LabelTable), Index --
-    Result .= Padding . "call " . (MaxIndex - 2) . "`n"
-    Return, Result
+        class PushLabel
+        {
+            __New(Label,Position,Length)
+            {
+                this.Identifier := "push_label"
+                this.Value := Label
+                this.Position := Position
+                this.Length := Length
+            }
+        }
+
+        class PushString
+        {
+            __New(String,Position,Length)
+            {
+                this.Identifier := "push_string"
+                this.Value := String
+                this.Position := Position
+                this.Length := Length
+            }
+        }
+
+        class PushIdentifier
+        {
+            __New(Identifier,Position,Length)
+            {
+                this.Identifier := "push_identifier"
+                this.Value := Identifier
+                this.Position := Position
+                this.Length := Length
+            }
+        }
+
+        class PushNumber
+        {
+            __New(Number,Position,Length)
+            {
+                this.Identifier := "push_number"
+                this.Value := Number
+                this.Position := Position
+                this.Length := Length
+            }
+        }
+    }
+
+    Convert(Tree,Labels = "")
+    {
+        If !IsObject(Labels)
+            Labels := []
+
+        Result := this.Operation(Tree)
+        If Result
+            Return, Result
+        Result := this.Block(Tree)
+        If Result
+            Return, Result
+        Result := this.String(Tree)
+        If Result
+            Return, Result
+        Result := this.Identifier(Tree)
+        If Result
+            Return, Result
+        Result := this.Number(Tree)
+        If Result
+            Return, Result
+
+        throw Exception("Unknown tree node type.",A_ThisFunc)
+    }
+
+    Operation(Tree)
+    {
+        If Tree.Type != "Operation"
+            Return, False
+
+        Result := []
+
+        ParameterCount := 0
+        For Index, Parameter In Tree.Parameters
+        {
+            ParameterCount ++
+            For Index, Node In this.Convert(Parameter)
+                Result.Insert(Node)
+        }
+
+        For Index, Node In this.Convert(Tree.Value)
+            Result.Insert(Node)
+
+        Result.Insert(new this.Code.Call(ParameterCount,Tree.Position,Tree.Length))
+        Return, Result
+    }
+
+    Block(Tree)
+    {
+        If Tree.Type != "Block"
+            Return, False
+
+        Result := []
+    }
+
+    String(Tree)
+    {
+        If Tree.Type != "String"
+            Return, False
+
+        Return, [new this.Code.PushString(Tree.Value,Tree.Position,Tree.Length)]
+    }
+
+    Identifier(Tree)
+    {
+        If Tree.Type != "Identifier"
+            Return, False
+
+        Return, [new this.Code.PushIdentifier(Tree.Value,Tree.Position,Tree.Length)]
+    }
+
+    Number(Tree)
+    {
+        If Tree.Type != "Number"
+            Return, False
+
+        Return, [new this.Code.PushNumber(Tree.Value,Tree.Position,Tree.Length)]
+    }
 }
 
 CodeBytecodeBlock(SyntaxTree,Padding,LabelTable)
