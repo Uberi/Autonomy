@@ -163,7 +163,7 @@ class Parser
         ;check for line end
         Position2 := this.Lexer.Position
         this.Ignore()
-        If this.Lexer.Line() || this.Lexer.Map() || this.Lexer.OperatorLeft() ;statement not found
+        If this.Lexer.Line() || this.Lexer.Separator() || this.Lexer.Map() || this.Lexer.OperatorLeft() ;statement not found
         {
             this.Lexer.Position := Position2 ;move back to before this token
             Return, Value
@@ -400,6 +400,7 @@ class Parser
 
         Loop
         {
+            ;parse a statement
             Parameters.Insert(this.Statement())
 
             If !this.Lexer.Separator()
