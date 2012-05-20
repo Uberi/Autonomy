@@ -44,6 +44,7 @@ d && e || f
 )
 ;Code = 1 + sin x, y
 ;Code = sin x + 1, y
+;Code = x !y
 ;Code = 1 - 2 * 3 + 5 ** 3
 ;Code = 1 - 2 * (3 + 5, 6e3) ** 3
 ;Code = a[b][c]
@@ -55,7 +56,8 @@ l := new Lexer(Code)
 p := new Parser(l)
 
 ;MsgBox % Reconstruct.Tree(p.Expression())
-MsgBox % Reconstruct.Tree(p.Statement())
+;MsgBox % Reconstruct.Tree(p.Statement())
+MsgBox % Reconstruct.Tree(p.Parse())
 ExitApp
 */
 
@@ -126,36 +128,57 @@ class Parser
 
     Parse()
     {
-        ;wip
+        Position1 := this.Lexer.Position
+        this.Ignore()
+
+        Parameters := []
+        Loop
+        {
+            ;parse a statement
+            Parameters.Insert(this.Statement())
+
+            ;ensure the statement is terminated by a
+            If !this.Lexer.Line()
+            {
+                ;check for end of input
+                Position2 := this.Lexer.Position
+                If !this.Lexer.Next()
+                    Break
+                this.Lexer.Position := Position2
+                throw Exception("Invalid statement end.",A_ThisFunc,Position1)
+            }
+        }
+
+        Operation := new this.Node.Identifier("_evaluate",Position1,0)
+        Length := this.Lexer.Position - Position1
+        Return, new this.Node.Operation(Operation,Parameters,Position1,Length)
     }
 
     Statement(RightBindingPower = 0)
     {
+        ;parse either the expression or the beginning of the statement
         Position1 := this.Lexer.Position
-        Value := this.Expression(RightBindingPower) ;parse either the expression or the beginning of the statement
+        Value := this.Expression(RightBindingPower)
 
         ;check for line end
-        this.Ignore()
         Position2 := this.Lexer.Position
+        this.Ignore()
         If this.Lexer.Line() || this.Lexer.Map() || this.Lexer.OperatorLeft() ;statement not found
         {
             this.Lexer.Position := Position2 ;move back to before this token
             Return, Value
         }
 
-        ;wip: need a better way to check end of input
         ;check for end of input
         Position2 := this.Lexer.Position
-        Token := this.Lexer.Next()
-        this.Lexer.Position := Position2
-        If !Token ;statement not found
+        If !this.Lexer.Next() ;statement not found
             Return, Value
+        this.Lexer.Position := Position2
 
         ;parse the parameters
         Parameters := []
         Loop
         {
-            this.Ignore()
             Parameters.Insert(this.Statement())
             this.Ignore()
             If !this.Lexer.Separator()
@@ -265,6 +288,7 @@ class Parser
         Parameters := []
         Loop
         {
+            ;parse a statement
             Parameters.Insert(this.Statement())
 
             If !this.Lexer.Line()
@@ -273,7 +297,7 @@ class Parser
                 Token := this.Lexer.OperatorLeft()
                 If Token && Token.Value.Identifier = "_end"
                     Break
-                throw Exception("Invalid evaluation end.",A_ThisFunc,Position1)
+                throw Exception("Invalid statement end.",A_ThisFunc,Position1)
             }
         }
 
