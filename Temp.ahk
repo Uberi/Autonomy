@@ -3,13 +3,12 @@
 Code = "hello" * 8
 Code =  2 || 3
 Code = {123}((1 + 3) * 2)
-Code = {this["arguments"][1]}(4)
+Code = {this["arguments"][1]}("First","Second","Third")
 
 l := new Lexer(Code)
 p := new Parser(l)
 
-;Tree := p.Parse() ;wip
-Tree := p.Expression()
+Tree := p.Parse()
 
 Environment := new DefaultEnvironment
 MsgBox % ShowObject(Eval(Tree,Environment))
