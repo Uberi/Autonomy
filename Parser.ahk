@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;wip: handle named parameters, including dynamically calculated ones, in Call() and in Statement()
 ;wip: when AHKv2 gets the new behavior for logical AND and OR (returns matched value on success), use idioms like "this.Statement() || this.Expression()" and "this.Identifier() && this.Expression()"
 
-;/*
+/*
 #Warn All
 #Warn LocalSameAsGlobal, Off
 
@@ -100,6 +100,7 @@ class Parser
                 this.Type := "String"
                 this.Value := Value
                 this.Position := Position
+                this.Length := Length
             }
         }
 
