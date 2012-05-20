@@ -102,7 +102,7 @@ class Lexer
         Operators.LeftDenotation["%"]   := new Lexer.Operator("_modulo"                 ,150 ,150) ;wip: also should be the format string operator
         Operators.NullDenotation["!"]   := new Lexer.Operator("_not"                    ,0   ,160)
         Operators.NullDenotation["-"]   := new Lexer.Operator("_invert"                 ,0   ,160)
-        Operators.NullDenotation["~"]   := new Lexer.Operator("_bitwise_not"            ,0   ,160)
+        Operators.NullDenotation["~"]   := new Lexer.Operator("_bit_not"            ,0   ,160)
         Operators.NullDenotation["&"]   := new Lexer.Operator("_address"                ,0   ,160)
         Operators.LeftDenotation["**"]  := new Lexer.Operator("_exponentiate"           ,170 ,169)
 

@@ -165,7 +165,7 @@ class DefaultEnvironment
         {
             call(Current,Arguments)
             {
-                Return, SubStr(Current.Value,Arguments[1].Value,1)
+                Return, Current.new(SubStr(Current.Value,Arguments[1].Value,1))
             }
         }
     }
@@ -203,6 +203,16 @@ class DefaultEnvironment
             {
                 Return, Current.new(Current.Value * Arguments[1].Value)
             }
+        }
+    }
+
+    class _if
+    {
+        call(Current,Arguments)
+        {
+            If Arguments[1]._boolean.call(Arguments[1],[])
+                Return, Arguments[2].call(Arguments[2],[])
+            Return, Arguments[3].call(Arguments[3],[])
         }
     }
 
