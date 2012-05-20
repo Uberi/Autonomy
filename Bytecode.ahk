@@ -78,8 +78,23 @@ ExitApp
 
 class Bytecode
 {
+    __New()
+    {
+        this.LabelCounter := 0
+    }
+
     class Code
     {
+        class DefineLabel
+        {
+            __New(Label,Position,Length)
+            {
+                this.Identifier := "label"
+                this.Position := Position
+                this.Length := Length
+            }
+        }
+
         class Call
         {
             __New(ParameterCount,Position,Length)
@@ -187,7 +202,17 @@ class Bytecode
         If Tree.Type != "Block"
             Return, False
 
-        Result := []
+        Result := [new this.Code.DefineLabel(this.LabelCounter,0,0)] ;wip: position and length
+        this.LabelCounter ++
+
+        For Index, Content In Tree.Contents
+        {
+            For Index, Node In this.Convert(Content)
+                Result.Insert(Node)
+        }
+
+        
+        Return, Result
     }
 
     String(Tree)
@@ -231,13 +256,4 @@ CodeBytecodeBlock(SyntaxTree,Padding,LabelTable)
     Return, Result
             . Padding . Symbol2
             . "`n" . Padding . "push " . Symbol1 . "`n"
-}
-
-CodeBytecodeSymbol(LabelTable,Prefix)
-{
-    If !LabelTable.HasKey(Prefix)
-        LabelTable[Prefix] := 1
-    Else
-        LabelTable[Prefix] ++
-    Return, Prefix . LabelTable[Prefix]
 }
