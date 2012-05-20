@@ -239,10 +239,15 @@ class Lexer
 
     Next()
     {
-        If SubStr(this.Text,this.Position,1) = "" ;past end of text
-            Return, False
+        Position1 := this.Position
 
         this.Whitespace()
+
+        If SubStr(this.Text,this.Position,1) = "" ;past end of text
+        {
+            this.Position := Position1
+            Return, False
+        }
 
         Token := this.OperatorNull()
         If Token
