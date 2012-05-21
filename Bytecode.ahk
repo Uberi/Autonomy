@@ -58,7 +58,7 @@ conditional                     pops the value off of the stack and stores it.
 */
 
 ;/*
-Code = 1 + 2
+Code = fn {1 + 2}
 
 l := new Lexer(Code)
 p := new Parser(l)
@@ -69,11 +69,13 @@ b := new Bytecode(Tree)
 
 Result := b.Convert(Tree)
 
-MsgBox % ShowObject(Result)
+MsgBox % Reconstruct.Bytecode(Result)
 ExitApp
 
 #Include Lexer.ahk
 #Include Parser.ahk
+
+#Include Resources/Reconstruct.ahk
 */
 
 class Bytecode
@@ -90,6 +92,17 @@ class Bytecode
             __New(Label,Position,Length)
             {
                 this.Identifier := "label"
+                this.Value := Label
+                this.Position := Position
+                this.Length := Length
+            }
+        }
+
+        class Jump
+        {
+            __New(Position,Length)
+            {
+                this.Identifier := "jump"
                 this.Position := Position
                 this.Length := Length
             }
@@ -202,8 +215,17 @@ class Bytecode
         If Tree.Type != "Block"
             Return, False
 
-        Result := [new this.Code.DefineLabel(this.LabelCounter,0,0)] ;wip: position and length
+        Result := []
+
+        BlockLabel := new this.Code.DefineLabel(this.LabelCounter,0,0) ;wip: position and length
         this.LabelCounter ++
+        TargetLabel := new this.Code.DefineLabel(this.LabelCounter,0,0) ;wip: position and length
+        this.LabelCounter ++
+
+        Result.Insert(new this.Code.PushLabel(TargetLabel.Value,0,0)) ;wip: position and length
+        Result.Insert(new this.Code.Jump(0,0)) ;wip: position and length
+
+        Result.Insert(BlockLabel)
 
         For Index, Content In Tree.Contents
         {
@@ -211,7 +233,10 @@ class Bytecode
                 Result.Insert(Node)
         }
 
-        
+        Result.Insert(TargetLabel)
+
+        Result.Insert(new this.Code.PushLabel(BlockLabel.Value,0,0)) ;wip: position and length
+
         Return, Result
     }
 
@@ -238,22 +263,4 @@ class Bytecode
 
         Return, [new this.Code.PushNumber(Tree.Value,Tree.Position,Tree.Length)]
     }
-}
-
-CodeBytecodeBlock(SyntaxTree,Padding,LabelTable)
-{
-    Index := SyntaxTree.MaxIndex()
-    Symbol1 := ":" . CodeBytecodeSymbol(LabelTable,"block")
-    Symbol2 := ":" . CodeBytecodeSymbol(LabelTable,"block")
-    Result := Padding . "push " . Symbol2
-              . "`n" . Padding . "jump`n"
-              . Padding . Symbol1 . "`n"
-    While, Index > 1
-    {
-        Result .= CodeBytecode(SyntaxTree[Index],Padding . "`t",LabelTable)
-        Index --
-    }
-    Return, Result
-            . Padding . Symbol2
-            . "`n" . Padding . "push " . Symbol1 . "`n"
 }
