@@ -67,6 +67,19 @@ class Reconstruct
             Return, Value.Value
         Return, "UNKNOWN_VALUE"
     }
+
+    Bytecode(Value)
+    {
+        Result := ""
+        For Index, Code In Value
+        {
+            Result .= Code.Identifier
+            If Code.HasKey("Value")
+                Result .= "`t" . Code.Value
+            Result .= "`n"
+        }
+        Return, SubStr(Result,1,-1)
+    }
 }
 
 CodeRecontructSyntaxTree(SyntaxTree) ;wip
