@@ -1,9 +1,12 @@
 #NoEnv
 
+;wip: pass environment rather than use Current.new
+
 Code = "hello" * 8
 Code =  2 || 3
 Code = {123}((1 + 3) * 2)
 Code = {this["arguments"][1]}("First","Second","Third")
+Code = 3 = 3
 
 l := new Lexer(Code)
 p := new Parser(l)
@@ -142,6 +145,22 @@ class DefaultEnvironment
             }
         }
 
+        class _equals
+        {
+            call(Current,Arguments)
+            {
+                Return, Current.Value = Arguments[1].Value
+            }
+        }
+
+        class _equals_strict
+        {
+            call(Current,Arguments)
+            {
+                Return, Current.Value == Arguments[1].Value
+            }
+        }
+
         class _add
         {
             call(Current,Arguments)
@@ -189,6 +208,22 @@ class DefaultEnvironment
             }
         }
 
+        class _equals
+        {
+            call(Current,Arguments)
+            {
+                Return, Current.Value = Arguments[1].Value
+            }
+        }
+
+        class _equals_strict
+        {
+            call(Current,Arguments)
+            {
+                Return, Current.Value == Arguments[1].Value
+            }
+        }
+
         class _add
         {
             call(Current,Arguments)
@@ -233,6 +268,22 @@ class DefaultEnvironment
             If !Arguments[1]._boolean.call(Arguments[1],[])
                 Return, Arguments[1]
             Return, Arguments[2].call(Arguments[2],[])
+        }
+    }
+
+    class _equals
+    {
+        call(Current,Arguments)
+        {
+            Return, Arguments[1]._equals.call(Arguments[1],[Arguments[2]])
+        }
+    }
+
+    class _equals_strict
+    {
+        call(Current,Arguments)
+        {
+            Return, Arguments[1]._equals_strict.call(Arguments[1],[Arguments[2]])
         }
     }
 
