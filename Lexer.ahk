@@ -102,7 +102,7 @@ class Lexer
         Operators.LeftDenotation["%"]   := new Lexer.Operator("_modulo"                 ,150 ,150) ;wip: also should be the format string operator
         Operators.NullDenotation["!"]   := new Lexer.Operator("_not"                    ,0   ,160)
         Operators.NullDenotation["-"]   := new Lexer.Operator("_invert"                 ,0   ,160)
-        Operators.NullDenotation["~"]   := new Lexer.Operator("_bit_not"            ,0   ,160)
+        Operators.NullDenotation["~"]   := new Lexer.Operator("_bit_not"                ,0   ,160)
         Operators.NullDenotation["&"]   := new Lexer.Operator("_address"                ,0   ,160)
         Operators.LeftDenotation["**"]  := new Lexer.Operator("_exponentiate"           ,170 ,169)
 
@@ -569,8 +569,7 @@ class Lexer
 
     Escape()
     {
-        Position1 := this.Position
-        If SubStr(this.Text,Position1,1) != "``" ;check for escape character
+        If SubStr(this.Text,this.Position,1) != "``" ;check for escape character
             Return, False
         this.Position ++ ;move past escape character
 

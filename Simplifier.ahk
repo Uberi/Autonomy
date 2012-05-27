@@ -84,27 +84,32 @@ MsgBox % Clipboard := CodeReconstructShowSyntaxTree(CodeSimplify(SyntaxTree))
 ExitApp
 */
 
+class Simplifier
+{
+    static Operations := Object("_if",              Func("CodeSimplifyTernaryIf")
+                               ,"_concatenate",     Func("CodeSimplifyConcatenate")
+                               ,"_bit_and",         Func("CodeSimplifyBitwiseAnd")
+                               ,"_bit_xor",         Func("CodeSimplifyBitwiseExclusiveOr")
+                               ,"_bit_or",          Func("CodeSimplifyBitwiseOr")
+                               ,"_bit_shift_left",  Func("CodeSimplifyBitwiseShiftLeft")
+                               ,"_bit_shift_right", Func("CodeSimplifyBitwiseShiftRight")
+                               ,"_add",             Func("CodeSimplifyAdd")
+                               ,"_subtract",        Func("CodeSimplifySubtract")
+                               ,"_multiply",        Func("CodeSimplifyMultiply")
+                               ,"_divide",          Func("CodeSimplifyDivide")
+                               ,"_divide_floor",    Func("CodeSimplifyDivideFloor")
+                               ,"_not",             Func("CodeSimplifyLogicalNot")
+                               ,"_invert",          Func("CodeSimplifyInvert")
+                               ,"_bit_not",         Func("CodeSimplifyBitwiseNot")
+                               ,"_exponentiate",    Func("CodeSimplifyExponentiate")
+                               ,"_evaluate",        Func("CodeSimplifyEvaluate"))
+}
+
 ;simplifies a syntax tree given as input
 CodeSimplify(SyntaxTree)
 {
     global CodeTreeTypes
-    static SimplifyOperations := Object("TERNARY_IF",Func("CodeSimplifyTernaryIf")
-                                       ,"CONCATENATE",Func("CodeSimplifyConcatenate")
-                                       ,"BITWISE_AND",Func("CodeSimplifyBitwiseAnd")
-                                       ,"BITWISE_EXCLUSIVE_OR",Func("CodeSimplifyBitwiseExclusiveOr")
-                                       ,"BITWISE_OR",Func("CodeSimplifyBitwiseOr")
-                                       ,"BITWISE_SHIFT_LEFT",Func("CodeSimplifyBitwiseShiftLeft")
-                                       ,"BITWISE_SHIFT_RIGHT",Func("CodeSimplifyBitwiseShiftRight")
-                                       ,"ADD",Func("CodeSimplifyAdd")
-                                       ,"SUBTRACT",Func("CodeSimplifySubtract")
-                                       ,"MULTIPLY",Func("CodeSimplifyMultiply")
-                                       ,"DIVIDE",Func("CodeSimplifyDivide")
-                                       ,"DIVIDE_FLOOR",Func("CodeSimplifyDivideFloor")
-                                       ,"LOGICAL_NOT",Func("CodeSimplifyLogicalNot")
-                                       ,"INVERT",Func("CodeSimplifyInvert")
-                                       ,"BITWISE_NOT",Func("CodeSimplifyBitwiseNot")
-                                       ,"EXPONENTIATE",Func("CodeSimplifyExponentiate")
-                                       ,"EVALUATE",Func("CodeSimplifyEvaluate"))
+    static SimplifyOperations := 
 
     If (SyntaxTree[1] = CodeTreeTypes.OPERATION) ;node is an operation
     {
