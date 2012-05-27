@@ -47,7 +47,7 @@ d && e || f
 ;Code = x !y
 ;Code = 1 - 2 * 3 + 5 ** 3
 ;Code = 1 - 2 * (3 + 5, 6e3) ** 3
-;Code = a[b][c]
+;Code = a.b[c].d.e[f]
 ;Code = a(b)(c,d)(e)
 ;Code = a ? b := 2 : c := 3
 ;Code = {}()
@@ -281,6 +281,9 @@ class Parser
         Result := this.Subscript(Operator,LeftSide)
         If Result
             Return, Result
+        Result := this.SubscriptIdentifier(Operator,LeftSide)
+        If Result
+            Return, Result
         Result := this.Ternary(Operator,LeftSide)
         If Result
             Return, Result
@@ -398,6 +401,9 @@ class Parser
 
     Symbol(Operator)
     {
+        If Operator.Value.Identifier != "_symbol"
+            Return, False
+
         RightSide := this.Statement(Operator.Value.RightBindingPower)
 
         Length := this.Lexer.Position - Operator.Position
@@ -458,6 +464,20 @@ class Parser
             Return, new this.Node.Operation(Operation,Parameters,0,0)
         }
         throw Exception("Invalid subscript end.",A_ThisFunc,Position1)
+    }
+
+    SubscriptIdentifier(Operator,LeftSide)
+    {
+        If Operator.Value.Identifier != "_subscript_identifier"
+            Return, False
+
+        RightSide := this.Statement(Operator.Value.RightBindingPower)
+        RightSide := new this.Node.Symbol(RightSide,0,0)
+
+        Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
+        Parameters := [LeftSide,RightSide]
+        ;wip: length and position
+        Return, new this.Node.Operation(Operation,Parameters,0,0)
     }
 
     Ternary(Operator,LeftSide)

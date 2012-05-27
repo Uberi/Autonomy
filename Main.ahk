@@ -30,9 +30,8 @@ TODO
 
 Short term tasks:
 
-* make subscript_identifier parse the right hand side as a symbol rather than an identifier
 * consider using => to do named parameters and array key-value mappings, and reassign :'s status back as an operator
-* invalid numbers like 123abc should give a lexer error rather than lexing as a number token and an identifier token, make sure it works after decimal points too and add unit tests for it
+* invalid numbers like 123abc should give a lexer error rather than lexing as a number token and an identifier token, make sure it works after decimal points too (1.2abc) and add unit tests for it
 * consider removing separator entirely from language?
 * Comparisons can be chained arbitrarily, e.g., x < y <= z is equivalent to x < y and y <= z, except that y is evaluated only once (but in both cases z is not evaluated at all when x < y is found to be false). Formally, if a, b, c, ..., y, z are expressions and op1, op2, ..., opN are comparison operators, then a op1 b op2 c ... y opN z is equivalent to a op1 b and b op2 c and ... y opN z, except that each expression is evaluated at most once.
 * Allow backticks inline in code to represent literal versions of themselves in the code
