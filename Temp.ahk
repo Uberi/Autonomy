@@ -36,6 +36,8 @@ Eval(Tree,Environment)
     }
     If Tree.Type = "Block"
         Return, Environment.Block.new(Tree.Contents,Environment)
+    If Tree.Type = "Symbol"
+        Return, Environment.Symbol.new(Tree.Value)
     If Tree.Type = "String"
         Return, Environment.String.new(Tree.Value)
     If Tree.Type = "Identifier"
@@ -122,6 +124,34 @@ class DefaultEnvironment
                 If Arguments[1].Value = "arguments"
                     Return, Current.Arguments
                 throw Exception("Invalid property: " . Arguments[1].Value)
+            }
+        }
+    }
+
+    class Symbol
+    {
+        new(Value)
+        {
+            v := Object()
+            v.base := this
+
+            v.Value := Value
+            Return, v
+        }
+
+        class _equals
+        {
+            call(Current,Arguments)
+            {
+                Return, Current.Value = Arguments[1].Value
+            }
+        }
+
+        class _equals_strict
+        {
+            call(Current,Arguments)
+            {
+                Return, Current.Value == Arguments[1].Value
             }
         }
     }

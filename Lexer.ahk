@@ -1,28 +1,6 @@
 #NoEnv
 
 /*
-#Warn All
-#Warn LocalSameAsGlobal, Off
-
-Code = +=
-l := new Lexer(Code)
-t := l.OperatorLeft()
-MsgBox % "Position: " . t.Position . "`nLength: " . t.Length . "`nNext: " . l.Position . "`n`n" . ShowObject(t.Value)
-
-;Code = 0x123.4
-Code = 123.456e5
-l := new Lexer(Code)
-t := l.Number()
-MsgBox % "Position: " . t.Position . "`nLength: " . t.Length . "`nNext: " . l.Position . "`n`n" . t.Value
-
-Code = "s````tri``c[123]ng``""
-l := new Lexer(Code)
-t := l.String()
-MsgBox % "Position: " . t.Position . "`nLength: " . t.Length . "`nNext: " . l.Position . "`n`n" . t.Value
-ExitApp
-*/
-
-/*
 Copyright 2011-2012 Anthony Zhang <azhang9@gmail.com>
 
 This file is part of Autonomy. Source code is available at <https://github.com/Uberi/Autonomy>.
@@ -39,6 +17,18 @@ GNU Affero General Public License for more details.
 
 You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/*
+#Warn All
+#Warn LocalSameAsGlobal, Off
+
+Code = +=
+l := new Lexer(Code)
+t := l.OperatorLeft()
+MsgBox % "Position: " . t.Position . "`nLength: " . t.Length . "`nNext: " . l.Position . "`n`n" . ShowObject(t.Value)
+
+ExitApp
 */
 
 class Lexer
@@ -118,9 +108,10 @@ class Lexer
         Operators.LeftDenotation["]"]   := new Lexer.Operator("_subscript_end"          ,0   ,0)
 
         Operators.LeftDenotation["."]   := new Lexer.Operator("_subscript_identifier"   ,200 ,200)
+        Operators.NullDenotation["'"]   := new Lexer.Operator("_symbol"                 ,0 ,210)
 
         ;obtain the length of the longest null denotation operator
-        Operators.MaxNullLength :=  := 0
+        Operators.MaxNullLength := 0
         For Operator In Operators.NullDenotation
             Length := StrLen(Operator), (Length > Operators.MaxNullLength) ? (Operators.MaxNullLength := Length) : ""
 

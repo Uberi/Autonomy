@@ -30,40 +30,44 @@ TODO
 
 Short term tasks:
 
+* make subscript_identifier parse the right hand side as a symbol rather than an identifier
 * consider using => to do named parameters and array key-value mappings, and reassign :'s status back as an operator
 * invalid numbers like 123abc should give a lexer error rather than lexing as a number token and an identifier token, make sure it works after decimal points too and add unit tests for it
-* differentiate between decimal and integer numbers
+* consider removing separator entirely from language?
 * Comparisons can be chained arbitrarily, e.g., x < y <= z is equivalent to x < y and y <= z, except that y is evaluated only once (but in both cases z is not evaluated at all when x < y is found to be false). Formally, if a, b, c, ..., y, z are expressions and op1, op2, ..., opN are comparison operators, then a op1 b op2 c ... y opN z is equivalent to a op1 b and b op2 c and ... y opN z, except that each expression is evaluated at most once.
 * Allow backticks inline in code to represent literal versions of themselves in the code
 * Unit tests for error handler
 
 Long term tasks:
 
-* multiple catch clauses in exception handler, and each accepting a condition for catching: try {} catch e: e Is KeyboardInterrupt
+* static tail recursion elimination (make sure cases like return a ? b() : c() are handled by checking if the following bytecode instruction after the call is either a return or one or more jumps that leads to a return)
+* have the .each method return the result: squares := [1, 2, 3].each(fn ('n) { n ** 2 })
+* create 3 address code IR instead of stack based to allow things like register based VM or LLVM support
+* array slicing: a[start:end:step]
+* fn function definition should allow multiple param lists bodies and patterns to match for each body: guard statements choose the correct function to call
+* have "this" and $ available at all times, which represent the object instance and the current object
+* multiple catch clauses in exception handler, and each accepting a condition for catching: try {} catch e: e Is KeyboardInterrupt {}
 * return, break, continue, etc. should be methods of "this", and "this" should be a continuation
 * implement exceptions using this.caller
 * to make an object, use Object.new() or ClassName.new() or just ClassName.new
 * named parameter "key" for functions such as [].max(), [].min(), [].sort(), etc. that allows the user to specify a function that specifies the key to use in place of the actual key, together with a custon comparison function
-* "with" statement that sets an object as a scope (needs internal support)
-* named parameter "function" for the same purposes above, that allow things like custom sorting functions
+* named parameter "compare" for the same purposes above, that allow things like custom sorting functions
+* "with" statement that sets an object as a scope (needs internal support), or possibly use "this" binding to rebind this: {}.bind(scope_object)
+* refinement pattern: matcher := with Patterns, { ["hello", "hi"] &[" ", "`t"] "world!" }) and: date := with Time, { next Friday + weeks * 2 }
+* quasi-literals: literals in source code that have their own parsers, allowing things like date or regex literals
 * "ensure" or "assert" statements allow code to be statically verified
 * Dynamic default values for optional function parameters: SomeFunction(Param: 2 * 8 + VarInParentScope) { Function body here }
 * macro { some compile-time related code } syntax and compile time defined type system
 * Base object should not be enumerable or findable by ObjHasKey()
 * "is" operator that checks current class and recursively checks base classes
 * Primitive type methods through augmentation: String.Trim := Trim OR "".base.Trim := Trim ... "  test  ".Trim()
-* Function objects should have an call() method that applies a given array as the arguments, and allows specifying the "this" object
-* Functions should create a new scope object every execution, so that closures are possible
-* Script that converts AutoHotkey code to or from Autonomy
-* Function definitions are variables holding function references (implemented as function pointers, and utilising reference counting), so variables and functions are in the same namespace
+* Function objects should have an call() method that applies a given array as the arguments, and allows specifying the "this" object, possibly as a named parameter
 * .= operator to append to an array
 * Error messages should provide quick fixes for common causes of the issue
 * for-loops and try-catch-else-finally should have an Else clause that executes if the loop did not break or an exception was not thrown
-* Library in non-annotated parse tree format; allows libraries to avoid recompilation each time by using a linker. Libraries cannot be in bytecode because of the type inferencer, unless each function in the library is changed to allow any type of argument at all, and then it would not have very good type checking or performance
-* Multipass compilation by saving passes to file: Source files are *.ato, tokenized is *.att, parsed is *.ats, annotated is *.ata, bytecode is *.atc. this would also allow the parser and etc. to not have to re-lex included files every time a script uses them
+* Library in bytecode format; allows libraries to avoid recompilation each time by using a linker
 * Incremental parser and lexer for IDE use, have object mapping line numbers to token indexes, have parser save state at intervals, lex changed lines only, restore parser state to the saved state right before the token index of the changed token, keep parsing to the end of the file
 * Lua-like this.locals[] mechanism to replace dynamic variables, parent scope can be accessed as this.caller.locals[]
-* "local" keyword works on current block, instead of current function, and can make block assume-local: If Something { local SomeVar := "Test" } ;SomeVar is freed after the If block goes out of scope
 */
 
 FileName := A_ScriptFullPath ;set the file name of the current file

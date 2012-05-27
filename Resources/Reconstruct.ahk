@@ -59,6 +59,8 @@ class Reconstruct
                 Result .= this.Tree(Content) . " "
             Return, "{" . SubStr(Result,1,-1) . "}"
         }
+        If Value.Type = "Symbol"
+            Return, "'" . this.Tree(Value.Value)
         If Value.Type = "String"
             Return, """" . Value.Value . """"
         If Value.Type = "Identifier"

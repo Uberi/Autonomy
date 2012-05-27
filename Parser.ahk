@@ -50,7 +50,8 @@ d && e || f
 ;Code = a[b][c]
 ;Code = a(b)(c,d)(e)
 ;Code = a ? b := 2 : c := 3
-Code = {}()
+;Code = {}()
+Code = x := 'name
 
 l := new Lexer(Code)
 p := new Parser(l)
@@ -88,6 +89,17 @@ class Parser
             {
                 this.Type := "Block"
                 this.Contents := Contents
+                this.Position := Position
+                this.Length := Length
+            }
+        }
+
+        class Symbol
+        {
+            __New(Value,Position,Length)
+            {
+                this.Type := "Symbol"
+                this.Value := Value
                 this.Position := Position
                 this.Length := Length
             }
@@ -249,6 +261,9 @@ class Parser
         Result := this.Array(Operator)
         If Result
             Return, Result
+        Result := this.Symbol(Operator)
+        If Result
+            Return, Result
 
         RightSide := this.Statement(Operator.Value.RightBindingPower)
 
@@ -379,6 +394,14 @@ class Parser
         Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
         Length := this.Lexer.Position - Operator.Position
         Return, new this.Node.Operation(Operation,Parameters,Operator.Position,Length)
+    }
+
+    Symbol(Operator)
+    {
+        RightSide := this.Statement(Operator.Value.RightBindingPower)
+
+        Length := this.Lexer.Position - Operator.Position
+        Return, new this.Node.Symbol(RightSide,Operator.Position,Length)
     }
 
     Call(Operator,LeftSide)
