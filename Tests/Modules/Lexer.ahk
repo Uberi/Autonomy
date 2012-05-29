@@ -93,6 +93,12 @@ class Category_Lexer
             l := new Lexer("'abc`n")
             Tests.LexerTest(l,l.Symbol(),new Lexer.Token.Symbol("abc",1,4),5)
         }
+
+        Test_Numeric()
+        {
+            l := new Lexer("'123abc`n")
+            Tests.LexerTest(l,l.Symbol(),new Lexer.Token.Symbol("123abc",1,7),8)
+        }
     }
 
     class Category_String
@@ -418,12 +424,12 @@ LexerTest(Lexer,Result,Value,Position)
         throw "Invalid position."
 }
 
-LexerTestException(Value,Message,Location,Position)
+LexerTestException(Result,Message,Location,Position)
 {
-    If Value.Message != Message
+    If Result.Message != Message
         throw "Invalid error message."
-    If Value.What != Location
+    If Result.What != Location
         throw "Invalid error location."
-    If Value.Extra != Position
+    If Result.Extra != Position
         throw "Invalid error position."
 }

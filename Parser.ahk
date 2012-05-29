@@ -462,7 +462,7 @@ class Parser
             Return, False
 
         RightSide := this.Statement(Operator.Value.RightBindingPower)
-        RightSide := new this.Node.Symbol(RightSide,0,0)
+        RightSide := new this.Node.Block(RightSide,0,0) ;wip: bind the block scope to the object on the left side
 
         Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
         Parameters := [LeftSide,RightSide]

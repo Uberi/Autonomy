@@ -58,7 +58,7 @@ conditional                     pops the value off of the stack and stores it.
 */
 
 ;/*
-Code = fn {1 + 2}
+Code = fn {1 + 2 * 'abc}
 
 l := new Lexer(Code)
 p := new Parser(l)
@@ -184,6 +184,9 @@ class Bytecode
         If Result
             Return, Result
         Result := this.Block(Tree)
+        If Result
+            Return, Result
+        Result := this.Symbol(Tree)
         If Result
             Return, Result
         Result := this.String(Tree)

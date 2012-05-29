@@ -12,3 +12,13 @@ ParserTest(Parser,Result,Value,Position)
     If Parser.Lexer.Position != Position
         throw "Invalid position."
 }
+
+ParserTestException(Result,Message,Location,Position)
+{
+    If Result.Message != Message
+        throw "Invalid error message."
+    If Result.What != Location
+        throw "Invalid error location."
+    If Result.Extra != Position
+        throw "Invalid error position."
+}
