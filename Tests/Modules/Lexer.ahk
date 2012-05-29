@@ -73,7 +73,13 @@ class Category_Lexer
         Test_InvalidChar()
         {
             l := new Lexer("'@")
-            Tests.LexerTest(l,l.Symbol(),False,1)
+            try l.Symbol()
+            catch e
+            {
+                Tests.LexerTestException(e,"Invalid symbol.","Lexer.Symbol",1)
+                Return
+            }
+            throw "Invalid error."
         }
 
         Test_InputEnd()
@@ -106,13 +112,25 @@ class Category_Lexer
         Test_InputEnd()
         {
             l := new Lexer("""Hello, world!")
-            Tests.LexerTest(l,l.String(),False,1)
+            try l.String()
+            catch e
+            {
+                Tests.LexerTestException(e,"Invalid string.","Lexer.String",1)
+                Return
+            }
+            throw "Invalid error."
         }
 
         Test_Unclosed()
         {
             l := new Lexer("""Hello, world!`nmore text")
-            Tests.LexerTest(l,l.String(),False,1)
+            try l.String()
+            catch e
+            {
+                Tests.LexerTestException(e,"Invalid string.","Lexer.String",1)
+                Return
+            }
+            throw "Invalid error."
         }
 
         Test_Empty()
@@ -398,4 +416,14 @@ LexerTest(Lexer,Result,Value,Position)
         throw "Invalid output."
     If Lexer.Position != Position
         throw "Invalid position."
+}
+
+LexerTestException(Value,Message,Location,Position)
+{
+    If Value.Message != Message
+        throw "Invalid error message."
+    If Value.What != Location
+        throw "Invalid error location."
+    If Value.Extra != Position
+        throw "Invalid error position."
 }
