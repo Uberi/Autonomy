@@ -108,7 +108,6 @@ class Lexer
         Operators.LeftDenotation["]"]   := new Lexer.Operator("_subscript_end"          ,0   ,0)
 
         Operators.LeftDenotation["."]   := new Lexer.Operator("_subscript_identifier"   ,200 ,200)
-        Operators.NullDenotation["'"]   := new Lexer.Operator("_symbol"                 ,0 ,210)
 
         ;obtain the length of the longest null denotation operator
         Operators.MaxNullLength := 0
@@ -178,6 +177,17 @@ class Lexer
             __New(Position,Length)
             {
                 this.Type := "Map"
+                this.Position := Position
+                this.Length := Length
+            }
+        }
+
+        class Symbol
+        {
+            __New(Value,Position,Length)
+            {
+                this.Type := "Symbol"
+                this.Value := Value
                 this.Position := Position
                 this.Length := Length
             }
@@ -260,6 +270,10 @@ class Lexer
         If Token
             Return, Token
 
+        Token := this.Symbol()
+        If Token
+            Return, Token
+
         Token := this.String()
         If Token
             Return, Token
@@ -329,6 +343,26 @@ class Lexer
         Return, False
     }
 
+    Symbol()
+    {
+        Position1 := this.Position
+        If SubStr(this.Text,Position1,1) != "'" ;check for symbol character
+            Return, False
+        this.Position ++
+
+        Output := SubStr(this.Text,this.Position,1)
+        If (Output = "" || !InStr("abcdefghijklmnopqrstuvwxyz_",Output)) ;check first character against valid identifier characters
+            throw Exception("Invalid symbol.",A_ThisFunc,Position1)
+        this.Position ++ ;move past the first character of the identifier
+
+        ;obtain the rest of the symbol identifier
+        While, (CurrentChar := SubStr(this.Text,this.Position,1)) != "" && InStr("abcdefghijklmnopqrstuvwxyz_0123456789",CurrentChar)
+            Output .= CurrentChar, this.Position ++
+
+        Length := this.Position - Position1
+        Return, new this.Token.Symbol(Output,Position1,Length)
+    }
+
     String()
     {
         Position1 := this.Position
@@ -352,8 +386,7 @@ class Lexer
             Else
                 Output .= CurrentChar, this.Position ++
         }
-        this.Position := Position1
-        Return, False
+        throw Exception("Invalid string.",A_ThisFunc,Position1)
     }
 
     Identifier()

@@ -130,6 +130,17 @@ class Bytecode
             }
         }
 
+        class PushSymbol
+        {
+            __New(Symbol,Position,Length)
+            {
+                this.Identifier := "push_symbol"
+                this.Value := Symbol
+                this.Position := Position
+                this.Length := Length
+            }
+        }
+
         class PushString
         {
             __New(String,Position,Length)
@@ -238,6 +249,14 @@ class Bytecode
         Result.Insert(new this.Code.PushLabel(BlockLabel.Value,0,0)) ;wip: position and length
 
         Return, Result
+    }
+
+    Symbol(Tree)
+    {
+        If Tree.Type != "Symbol"
+            Return, False
+
+        Return, [new this.Code.PushSymbol(Tree.Value,Tree.Position,Tree.Length)]
     }
 
     String(Tree)

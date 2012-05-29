@@ -56,6 +56,39 @@ class Category_Lexer
         }
     }
 
+    class Category_Symbol
+    {
+        Test_Blank()
+        {
+            l := new Lexer("")
+            Tests.LexerTest(l,l.Symbol(),False,1)
+        }
+
+        Test_Invalid()
+        {
+            l := new Lexer("@")
+            Tests.LexerTest(l,l.Symbol(),False,1)
+        }
+
+        Test_InvalidChar()
+        {
+            l := new Lexer("'@")
+            Tests.LexerTest(l,l.Symbol(),False,1)
+        }
+
+        Test_InputEnd()
+        {
+            l := new Lexer("'abc")
+            Tests.LexerTest(l,l.Symbol(),new Lexer.Token.Symbol("abc",1,4),5)
+        }
+
+        Test_Simple()
+        {
+            l := new Lexer("'abc`n")
+            Tests.LexerTest(l,l.Symbol(),new Lexer.Token.Symbol("abc",1,4),5)
+        }
+    }
+
     class Category_String
     {
         Test_Blank()

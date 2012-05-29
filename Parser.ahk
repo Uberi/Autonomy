@@ -235,6 +235,10 @@ class Parser
         If this.Lexer.Line()
             Return, this.NullDenotation()
 
+        Token := this.Lexer.Symbol()
+        If Token
+            Return, new this.Node.Symbol(Token.Value,Token.Position,Token.Length)
+
         Token := this.Lexer.String()
         If Token
             Return, new this.Node.String(Token.Value,Token.Position,Token.Length)
@@ -259,9 +263,6 @@ class Parser
         If Result
             Return, Result
         Result := this.Array(Operator)
-        If Result
-            Return, Result
-        Result := this.Symbol(Operator)
         If Result
             Return, Result
 
@@ -397,17 +398,6 @@ class Parser
         Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
         Length := this.Lexer.Position - Operator.Position
         Return, new this.Node.Operation(Operation,Parameters,Operator.Position,Length)
-    }
-
-    Symbol(Operator)
-    {
-        If Operator.Value.Identifier != "_symbol"
-            Return, False
-
-        RightSide := this.Statement(Operator.Value.RightBindingPower)
-
-        Length := this.Lexer.Position - Operator.Position
-        Return, new this.Node.Symbol(RightSide,Operator.Position,Length)
     }
 
     Call(Operator,LeftSide)
