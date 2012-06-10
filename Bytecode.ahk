@@ -67,15 +67,11 @@ p := new Parser(l)
 
 Tree := p.Parse()
 
-MsgBox % Convert(Tree)
-ExitApp
-
 b := new Bytecode(Tree)
-
 Result := b.Convert(Tree)
-ExitApp
 
-MsgBox % Reconstruct.Bytecode(Result)
+;MsgBox % Reconstruct.Bytecode(Result)
+MsgBox % ShowObject(Result) ;wip: use opcode objects
 ExitApp
 
 #Include Lexer.ahk
@@ -84,55 +80,59 @@ ExitApp
 #Include Resources/Reconstruct.ahk
 */
 
-Convert(Tree)
+class Bytecode ;register based bytecode generator
 {
-    If Tree.Type = "Operation"
+    __New()
     {
-        Parameters := Convert(Tree.Value)
-        Call := Name(0)
-        For Index, Parameter In Tree.Parameters
+        this.NameIndex := 1
+        this.LabelIndex := 1
+    }
+
+    Convert(Tree)
+    {
+        Result := []
+        If Tree.Type = "Operation"
         {
-            Parameters .= Convert(Parameter)
-            Call .= " " . Name(0)
+            Result := this.Convert(Tree.Value)
+            Operation := "@invoke $" . this.NameIndex
+            For Index, Parameter In Tree.Parameters
+            {
+                For Index, Value In this.Convert(Parameter)
+                    Result.Insert(Value)
+                Operation .= " $" . this.NameIndex
+            }
+            Operation := "$" . this.NameIndex . " = " . Operation, this.NameIndex ++
+            Result.Insert(Operation)
+            Return, Result
         }
-        Return, Parameters . Name() . " = " . Call . "`n"
+        Else If Tree.Type = "Block"
+        {
+            BlockLabel := ":" . this.LabelIndex, this.LabelIndex ++
+            TargetLabel := ":" . this.LabelIndex, this.LabelIndex ++
+
+            Result := ["@jump " . TargetLabel,"@label " . BlockLabel]
+            For Index, Node In Tree.Contents
+            {
+                For Index, Value In this.Convert(Node)
+                    Result.Insert(Value)
+            }
+            Result.Insert("@label " . TargetLabel)
+            Result.Insert("$" . this.NameIndex . " = " . BlockLabel), this.NameIndex ++
+        }
+        Else If Tree.Type = "Symbol"
+            Result := ["$" . this.NameIndex . " = '" . Tree.Value], this.NameIndex ++
+        Else If Tree.Type = "String"
+            Result := ["$" . this.NameIndex . " = """ . Tree.Value . """"], this.NameIndex ++ ;wip: do escaping
+        Else If Tree.Type = "Identifier"
+            Result := ["$" . this.NameIndex . " = $" . Tree.Value], this.NameIndex ++
+        Else If Tree.Type = "Number"
+            Result := ["$" . this.NameIndex . " = #" . Tree.Value], this.NameIndex ++
+        Return, Result
     }
-    Else If Tree.Type = "Block"
-    {
-        BlockLabel := Label()
-        TargetLabel := Label()
-
-        Contents := ""
-        For Index, Value In Tree.Contents
-            Contents .= Convert(Value)
-
-        Return, "@jump " . TargetLabel . "`n"
-            . BlockLabel . "`n"
-            . Contents
-            . TargetLabel . "`n"
-            . Name() . " = " . BlockLabel . "`n"
-    }
-    Else If Tree.Type = "Identifier"
-        Return, Name() . " = $" . Tree.Value . "`n"
-    Else If Tree.Type = "Number"
-        Return, Name() . " = #" . Tree.Value . "`n"
 }
 
-Name(Offset = 1)
-{
-    static Index := 0
-    Index += Offset
-    Return, "v" . Index
-}
-
-Label()
-{
-    static Index := 0
-    Index ++
-    Return, ":" . Index
-}
-
-class Bytecode
+/* ;wip: discard this if no longer needed
+class Bytecode ;stack based bytecode generator
 {
     __New()
     {
