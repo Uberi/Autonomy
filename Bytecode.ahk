@@ -60,14 +60,20 @@ conditional                     pops the value off of the stack and stores it.
 ;/*
 Code = fn {1 + 2 * 'abc}
 
+Code = 1 + {2}
+
 l := new Lexer(Code)
 p := new Parser(l)
 
 Tree := p.Parse()
 
+MsgBox % Convert(Tree)
+ExitApp
+
 b := new Bytecode(Tree)
 
 Result := b.Convert(Tree)
+ExitApp
 
 MsgBox % Reconstruct.Bytecode(Result)
 ExitApp
@@ -77,6 +83,54 @@ ExitApp
 
 #Include Resources/Reconstruct.ahk
 */
+
+Convert(Tree)
+{
+    If Tree.Type = "Operation"
+    {
+        Parameters := Convert(Tree.Value)
+        Call := Name(0)
+        For Index, Parameter In Tree.Parameters
+        {
+            Parameters .= Convert(Parameter)
+            Call .= " " . Name(0)
+        }
+        Return, Parameters . Name() . " = " . Call . "`n"
+    }
+    Else If Tree.Type = "Block"
+    {
+        BlockLabel := Label()
+        TargetLabel := Label()
+
+        Contents := ""
+        For Index, Value In Tree.Contents
+            Contents .= Convert(Value)
+
+        Return, "@jump " . TargetLabel . "`n"
+            . BlockLabel . "`n"
+            . Contents
+            . TargetLabel . "`n"
+            . Name() . " = " . BlockLabel . "`n"
+    }
+    Else If Tree.Type = "Identifier"
+        Return, Name() . " = $" . Tree.Value . "`n"
+    Else If Tree.Type = "Number"
+        Return, Name() . " = #" . Tree.Value . "`n"
+}
+
+Name(Offset = 1)
+{
+    static Index := 0
+    Index += Offset
+    Return, "v" . Index
+}
+
+Label()
+{
+    static Index := 0
+    Index ++
+    Return, ":" . Index
+}
 
 class Bytecode
 {
