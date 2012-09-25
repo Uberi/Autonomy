@@ -57,7 +57,8 @@ class Lexer
         Operators.LeftDenotation["*="]  := new Lexer.Operator("_assign_multiply"        ,170 ,9)
         Operators.LeftDenotation["/="]  := new Lexer.Operator("_assign_divide"          ,170 ,9)
         Operators.LeftDenotation["//="] := new Lexer.Operator("_assign_divide_floor"    ,170 ,9)
-        Operators.LeftDenotation["%="]  := new Lexer.Operator("_assign_modulo"          ,170 ,9)
+        Operators.LeftDenotation["%="]  := new Lexer.Operator("_assign_remainder"       ,170 ,9)
+        Operators.LeftDenotation["%%="] := new Lexer.Operator("_assign_modulo"          ,170 ,9)
         Operators.LeftDenotation["**="] := new Lexer.Operator("_assign_exponentiate"    ,170 ,9)
         Operators.LeftDenotation[".="]  := new Lexer.Operator("_assign_concatenate"     ,170 ,9)
         Operators.LeftDenotation["|="]  := new Lexer.Operator("_assign_bit_or"          ,170 ,9)
@@ -82,14 +83,16 @@ class Lexer
         Operators.LeftDenotation["|"]   := new Lexer.Operator("_bit_or"                 ,100 ,100)
         Operators.LeftDenotation["^"]   := new Lexer.Operator("_bit_exclusive_or"       ,110 ,110)
         Operators.LeftDenotation["&"]   := new Lexer.Operator("_bit_and"                ,120 ,120)
-        Operators.LeftDenotation["<<"]  := new Lexer.Operator("_bit_shift_left"         ,130 ,130)
-        Operators.LeftDenotation[">>"]  := new Lexer.Operator("_bit_shift_right"        ,130 ,130)
+        Operators.LeftDenotation["<<"]  := new Lexer.Operator("_shift_left"             ,130 ,130)
+        Operators.LeftDenotation[">>"]  := new Lexer.Operator("_shift_right"            ,130 ,130)
+        Operators.LeftDenotation[">>>"] := new Lexer.Operator("_shift_right_unsigned"   ,130 ,130)
         Operators.LeftDenotation["+"]   := new Lexer.Operator("_add"                    ,140 ,140)
         Operators.LeftDenotation["-"]   := new Lexer.Operator("_subtract"               ,140 ,140)
         Operators.LeftDenotation["*"]   := new Lexer.Operator("_multiply"               ,150 ,150)
         Operators.LeftDenotation["/"]   := new Lexer.Operator("_divide"                 ,150 ,150)
         Operators.LeftDenotation["//"]  := new Lexer.Operator("_divide_floor"           ,150 ,150)
-        Operators.LeftDenotation["%"]   := new Lexer.Operator("_modulo"                 ,150 ,150) ;wip: also should be the format string operator
+        Operators.LeftDenotation["%"]   := new Lexer.Operator("_remainder"              ,150 ,150) ;wip: also should be the format string operator
+        Operators.LeftDenotation["%%"]  := new Lexer.Operator("_modulo"                 ,150 ,150)
         Operators.NullDenotation["!"]   := new Lexer.Operator("_not"                    ,0   ,160)
         Operators.NullDenotation["-"]   := new Lexer.Operator("_invert"                 ,0   ,160)
         Operators.NullDenotation["~"]   := new Lexer.Operator("_bit_not"                ,0   ,160)
@@ -351,11 +354,14 @@ class Lexer
         this.Position ++
 
         Output := SubStr(this.Text,this.Position,1)
-        If (Output = "" || !InStr("abcdefghijklmnopqrstuvwxyz_0123456789",Output)) ;check first character against valid symbol characters
+        If (Output = "" || !InStr("abcdefghijklmnopqrstuvwxyz_",Output)) ;check first character against valid identifier characters
+        {
+            ;wip: nonfatal error
             throw Exception("Invalid symbol.",A_ThisFunc,Position1)
-        this.Position ++ ;move past the first character of the identifier
+        }
+        this.Position ++ ;move past the first character of the symbol
 
-        ;obtain the rest of the symbol characters
+        ;obtain the rest of the symbol
         While, (CurrentChar := SubStr(this.Text,this.Position,1)) != "" && InStr("abcdefghijklmnopqrstuvwxyz_0123456789",CurrentChar)
             Output .= CurrentChar, this.Position ++
 

@@ -33,40 +33,43 @@ Short term tasks:
 * consider using => to do named parameters and array key-value mappings, and reassign :'s status back as an operator
 * invalid numbers like 123abc should give a lexer error rather than lexing as a number token and an identifier token, make sure it works after decimal points too (1.2abc) and add unit tests for it
 * consider removing separator entirely from language?
+* consider using , to denote an array and [] to denote an object
 * Comparisons can be chained arbitrarily, e.g., x < y <= z is equivalent to x < y and y <= z, except that y is evaluated only once (but in both cases z is not evaluated at all when x < y is found to be false). Formally, if a, b, c, ..., y, z are expressions and op1, op2, ..., opN are comparison operators, then a op1 b op2 c ... y opN z is equivalent to a op1 b and b op2 c and ... y opN z, except that each expression is evaluated at most once.
 * Allow backticks inline in code to represent literal versions of themselves in the code
 * Unit tests for error handler
+* Error tolerance for parser by ignoring an operation like want.to.autocomplete.@ by simply returning the valid operands in the operator parser.
 
 Long term tasks:
 
+* async "promise" and green thread system with async exceptions
+* use OBJECT KEY for prototype/metatable: "base" object: obj[base]._get, etc. scope objects will always have the "base" property set to the "base" property of the enclosing scope, in order to give enclosing code access to the base of objects. inheritance is obj[base].get := fn ('key) { PARENT_OBJECT[key] }
+* do something about the enumerability of object bases; they should not be enumerable
+* "userdata"/"bytes" type like in lua/python: custom user-defined blocks of memory that have literals and having two variants: GC managed or explicitly managed
+* make a code formatter that can infer style settings from a code sample
+* destructured assignment: [a, b, c] := [c, b, a]
 * static tail recursion elimination (make sure cases like return a ? b() : c() are handled by checking if the following bytecode instruction after the call is either a return or one or more jumps that leads to a return)
-* have the .each method return the result: squares := [1, 2, 3].each(fn ('n) { n ** 2 })
-* create 3 address code IR instead of stack based to allow things like register based VM or LLVM support
+* have the .each method return the result: squares := [1, 2, 3].each (fn ('x) { x ** 2 })
 * array slicing: a[start:end:step]
 * fn function definition should allow multiple param lists bodies and patterns to match for each body: guard statements choose the correct function to call
-* have "this" and $ available at all times, which represent the object instance and the current object
+* FFI with libffi for DllCall-like functionality
+* have "self" and $ available at all times, which represent the object instance and the current object
 * multiple catch clauses in exception handler, and each accepting a condition for catching: try {} catch e: e Is KeyboardInterrupt {}
 * return, break, continue, etc. should be methods of "this", and "this" should be a continuation
-* implement exceptions using this.caller
-* to make an object, use Object.new() or ClassName.new() or just ClassName.new
+* implement all control flow and exceptions using continuations
+* to make an object, use ClassName.new() or just ClassName.new or ClassName()
 * named parameter "key" for functions such as [].max(), [].min(), [].sort(), etc. that allows the user to specify a function that specifies the key to use in place of the actual key, together with a custon comparison function
 * named parameter "compare" for the same purposes above, that allow things like custom sorting functions
 * "with" statement that sets an object as a scope (needs internal support), or possibly use "this" binding to rebind this: {}.bind(scope_object)
-* refinement pattern: matcher := with Patterns, { ["hello", "hi"] &[" ", "`t"] "world!" }) and: date := with Time, { next Friday + weeks * 2 }
-* quasi-literals: literals in source code that have their own parsers, allowing things like date or regex literals
+* refinement pattern: matcher := with Patterns, { ["hello", "hi"]..[" ", "`t"][1:Infinity].."world!" }) and: date := with Time, { next.friday + weeks * 2 }
 * "ensure" or "assert" statements allow code to be statically verified
 * Dynamic default values for optional function parameters: SomeFunction(Param: 2 * 8 + VarInParentScope) { Function body here }
 * macro { some compile-time related code } syntax and compile time defined type system
-* Base object should not be enumerable or findable by ObjHasKey()
 * "is" operator that checks current class and recursively checks base classes
-* Primitive type methods through augmentation: String.Trim := Trim OR "".base.Trim := Trim ... "  test  ".Trim()
+* "in" operator that checks for membership
 * Function objects should have an call() method that applies a given array as the arguments, and allows specifying the "this" object, possibly as a named parameter
 * .= operator to append to an array
-* Error messages should provide quick fixes for common causes of the issue
 * for-loops and try-catch-else-finally should have an Else clause that executes if the loop did not break or an exception was not thrown
 * Library in bytecode format; allows libraries to avoid recompilation each time by using a linker
-* Incremental parser and lexer for IDE use, have object mapping line numbers to token indexes, have parser save state at intervals, lex changed lines only, restore parser state to the saved state right before the token index of the changed token, keep parsing to the end of the file
-* Lua-like this.locals[] mechanism to replace dynamic variables, parent scope can be accessed as this.caller.locals[]
 */
 
 FileName := A_ScriptFullPath ;set the file name of the current file

@@ -51,7 +51,8 @@ d && e || f
 ;Code = a(b)(c,d)(e)
 ;Code = a ? b := 2 : c := 3
 ;Code = {}()
-Code = x := 'name
+;Code = x := 'name
+Code = x.y.z
 
 l := new Lexer(Code)
 p := new Parser(l)
@@ -461,12 +462,15 @@ class Parser
         If Operator.Value.Identifier != "_subscript_identifier"
             Return, False
 
-        RightSide := this.Statement(Operator.Value.RightBindingPower)
-        RightSide := new this.Node.Block(RightSide,0,0) ;wip: bind the block scope to the object on the left side
+        Position1 := this.Lexer.Position
+        Token := this.Lexer.Identifier()
+        If !Token
+            throw Exception("Invalid symbol.",A_ThisFunc,Position1)
+        RightSide := new this.Node.Symbol(Token.Value,Token.Position,Token.Length)
 
-        Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
+        Operation := new this.Node.Identifier("_subscript",Operator.Position,Operator.Length)
         Parameters := [LeftSide,RightSide]
-        ;wip: length and position
+        ;wip: position and length
         Return, new this.Node.Operation(Operation,Parameters,0,0)
     }
 
