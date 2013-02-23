@@ -19,21 +19,9 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*
-#Warn All
-#Warn LocalSameAsGlobal, Off
-
-Code = +=
-l := new Lexer(Code)
-t := l.OperatorLeft()
-MsgBox % "Position: " . t.Position . "`nLength: " . t.Length . "`nNext: " . l.Position . "`n`n" . ShowObject(t.Value)
-
-ExitApp
-*/
-
 class Lexer
 {
-    static Operators := Lexer.GetOperatorTable()
+    static Operators := Code.Lexer.GetOperatorTable()
 
     class Operator
     {
@@ -51,66 +39,66 @@ class Lexer
         Operators.NullDenotation := Object()
         Operators.LeftDenotation := Object()
 
-        Operators.LeftDenotation[":="]  := new Lexer.Operator("_assign"                 ,170 ,9)
-        Operators.LeftDenotation["+="]  := new Lexer.Operator("_assign_add"             ,170 ,9)
-        Operators.LeftDenotation["-="]  := new Lexer.Operator("_assign_subtract"        ,170 ,9)
-        Operators.LeftDenotation["*="]  := new Lexer.Operator("_assign_multiply"        ,170 ,9)
-        Operators.LeftDenotation["/="]  := new Lexer.Operator("_assign_divide"          ,170 ,9)
-        Operators.LeftDenotation["//="] := new Lexer.Operator("_assign_divide_floor"    ,170 ,9)
-        Operators.LeftDenotation["%="]  := new Lexer.Operator("_assign_remainder"       ,170 ,9)
-        Operators.LeftDenotation["%%="] := new Lexer.Operator("_assign_modulo"          ,170 ,9)
-        Operators.LeftDenotation["**="] := new Lexer.Operator("_assign_exponentiate"    ,170 ,9)
-        Operators.LeftDenotation[".="]  := new Lexer.Operator("_assign_concatenate"     ,170 ,9)
-        Operators.LeftDenotation["|="]  := new Lexer.Operator("_assign_bit_or"          ,170 ,9)
-        Operators.LeftDenotation["&="]  := new Lexer.Operator("_assign_bit_and"         ,170 ,9)
-        Operators.LeftDenotation["^="]  := new Lexer.Operator("_assign_bit_xor"         ,170 ,9)
-        Operators.LeftDenotation["<<="] := new Lexer.Operator("_assign_bit_shift_left"  ,170 ,9)
-        Operators.LeftDenotation[">>="] := new Lexer.Operator("_assign_bit_shift_right" ,170 ,9)
-        Operators.LeftDenotation["||="] := new Lexer.Operator("_assign_or"              ,170 ,9)
-        Operators.LeftDenotation["&&="] := new Lexer.Operator("_assign_and"             ,170 ,9)
-        Operators.LeftDenotation["?"]   := new Lexer.Operator("_if"                     ,20  ,19)
-        Operators.LeftDenotation["||"]  := new Lexer.Operator("_or"                     ,40  ,40)
-        Operators.LeftDenotation["&&"]  := new Lexer.Operator("_and"                    ,50  ,50)
-        Operators.LeftDenotation["="]   := new Lexer.Operator("_equals"                 ,70  ,70)
-        Operators.LeftDenotation["=="]  := new Lexer.Operator("_equals_strict"          ,70  ,70)
-        Operators.LeftDenotation["!="]  := new Lexer.Operator("_not_equals"             ,70  ,70)
-        Operators.LeftDenotation["!=="] := new Lexer.Operator("_not_equals_strict"      ,70  ,70)
-        Operators.LeftDenotation[">"]   := new Lexer.Operator("_greater_than"           ,80  ,80)
-        Operators.LeftDenotation["<"]   := new Lexer.Operator("_less_than"              ,80  ,80)
-        Operators.LeftDenotation[">="]  := new Lexer.Operator("_greater_than_or_equal"  ,80  ,80)
-        Operators.LeftDenotation["<="]  := new Lexer.Operator("_less_than_or_equal"     ,80  ,80)
-        Operators.LeftDenotation[".."]  := new Lexer.Operator("_concatenate"            ,90  ,90)
-        Operators.LeftDenotation["|"]   := new Lexer.Operator("_bit_or"                 ,100 ,100)
-        Operators.LeftDenotation["^"]   := new Lexer.Operator("_bit_exclusive_or"       ,110 ,110)
-        Operators.LeftDenotation["&"]   := new Lexer.Operator("_bit_and"                ,120 ,120)
-        Operators.LeftDenotation["<<"]  := new Lexer.Operator("_shift_left"             ,130 ,130)
-        Operators.LeftDenotation[">>"]  := new Lexer.Operator("_shift_right"            ,130 ,130)
-        Operators.LeftDenotation[">>>"] := new Lexer.Operator("_shift_right_unsigned"   ,130 ,130)
-        Operators.LeftDenotation["+"]   := new Lexer.Operator("_add"                    ,140 ,140)
-        Operators.LeftDenotation["-"]   := new Lexer.Operator("_subtract"               ,140 ,140)
-        Operators.LeftDenotation["*"]   := new Lexer.Operator("_multiply"               ,150 ,150)
-        Operators.LeftDenotation["/"]   := new Lexer.Operator("_divide"                 ,150 ,150)
-        Operators.LeftDenotation["//"]  := new Lexer.Operator("_divide_floor"           ,150 ,150)
-        Operators.LeftDenotation["%"]   := new Lexer.Operator("_remainder"              ,150 ,150) ;wip: also should be the format string operator
-        Operators.LeftDenotation["%%"]  := new Lexer.Operator("_modulo"                 ,150 ,150)
-        Operators.NullDenotation["!"]   := new Lexer.Operator("_not"                    ,0   ,160)
-        Operators.NullDenotation["-"]   := new Lexer.Operator("_invert"                 ,0   ,160)
-        Operators.NullDenotation["~"]   := new Lexer.Operator("_bit_not"                ,0   ,160)
-        Operators.NullDenotation["&"]   := new Lexer.Operator("_address"                ,0   ,160)
-        Operators.LeftDenotation["**"]  := new Lexer.Operator("_exponentiate"           ,170 ,169)
+        Operators.LeftDenotation[":="]  := new this.Operator("_assign"                 ,170 ,9)
+        Operators.LeftDenotation["+="]  := new this.Operator("_assign_add"             ,170 ,9)
+        Operators.LeftDenotation["-="]  := new this.Operator("_assign_subtract"        ,170 ,9)
+        Operators.LeftDenotation["*="]  := new this.Operator("_assign_multiply"        ,170 ,9)
+        Operators.LeftDenotation["/="]  := new this.Operator("_assign_divide"          ,170 ,9)
+        Operators.LeftDenotation["//="] := new this.Operator("_assign_divide_floor"    ,170 ,9)
+        Operators.LeftDenotation["%="]  := new this.Operator("_assign_remainder"       ,170 ,9)
+        Operators.LeftDenotation["%%="] := new this.Operator("_assign_modulo"          ,170 ,9)
+        Operators.LeftDenotation["**="] := new this.Operator("_assign_exponentiate"    ,170 ,9)
+        Operators.LeftDenotation[".="]  := new this.Operator("_assign_concatenate"     ,170 ,9)
+        Operators.LeftDenotation["|="]  := new this.Operator("_assign_bit_or"          ,170 ,9)
+        Operators.LeftDenotation["&="]  := new this.Operator("_assign_bit_and"         ,170 ,9)
+        Operators.LeftDenotation["^="]  := new this.Operator("_assign_bit_xor"         ,170 ,9)
+        Operators.LeftDenotation["<<="] := new this.Operator("_assign_bit_shift_left"  ,170 ,9)
+        Operators.LeftDenotation[">>="] := new this.Operator("_assign_bit_shift_right" ,170 ,9)
+        Operators.LeftDenotation["||="] := new this.Operator("_assign_or"              ,170 ,9)
+        Operators.LeftDenotation["&&="] := new this.Operator("_assign_and"             ,170 ,9)
+        Operators.LeftDenotation["?"]   := new this.Operator("_if"                     ,20  ,19)
+        Operators.LeftDenotation["||"]  := new this.Operator("_or"                     ,40  ,40)
+        Operators.LeftDenotation["&&"]  := new this.Operator("_and"                    ,50  ,50)
+        Operators.LeftDenotation["="]   := new this.Operator("_equals"                 ,70  ,70)
+        Operators.LeftDenotation["=="]  := new this.Operator("_equals_strict"          ,70  ,70)
+        Operators.LeftDenotation["!="]  := new this.Operator("_not_equals"             ,70  ,70)
+        Operators.LeftDenotation["!=="] := new this.Operator("_not_equals_strict"      ,70  ,70)
+        Operators.LeftDenotation[">"]   := new this.Operator("_greater_than"           ,80  ,80)
+        Operators.LeftDenotation["<"]   := new this.Operator("_less_than"              ,80  ,80)
+        Operators.LeftDenotation[">="]  := new this.Operator("_greater_than_or_equal"  ,80  ,80)
+        Operators.LeftDenotation["<="]  := new this.Operator("_less_than_or_equal"     ,80  ,80)
+        Operators.LeftDenotation[".."]  := new this.Operator("_concatenate"            ,90  ,90)
+        Operators.LeftDenotation["|"]   := new this.Operator("_bit_or"                 ,100 ,100)
+        Operators.LeftDenotation["^"]   := new this.Operator("_bit_exclusive_or"       ,110 ,110)
+        Operators.LeftDenotation["&"]   := new this.Operator("_bit_and"                ,120 ,120)
+        Operators.LeftDenotation["<<"]  := new this.Operator("_shift_left"             ,130 ,130)
+        Operators.LeftDenotation[">>"]  := new this.Operator("_shift_right"            ,130 ,130)
+        Operators.LeftDenotation[">>>"] := new this.Operator("_shift_right_unsigned"   ,130 ,130)
+        Operators.LeftDenotation["+"]   := new this.Operator("_add"                    ,140 ,140)
+        Operators.LeftDenotation["-"]   := new this.Operator("_subtract"               ,140 ,140)
+        Operators.LeftDenotation["*"]   := new this.Operator("_multiply"               ,150 ,150)
+        Operators.LeftDenotation["/"]   := new this.Operator("_divide"                 ,150 ,150)
+        Operators.LeftDenotation["//"]  := new this.Operator("_divide_floor"           ,150 ,150)
+        Operators.LeftDenotation["%"]   := new this.Operator("_remainder"              ,150 ,150)
+        Operators.LeftDenotation["%%"]  := new this.Operator("_modulo"                 ,150 ,150)
+        Operators.NullDenotation["!"]   := new this.Operator("_not"                    ,0   ,160)
+        Operators.NullDenotation["-"]   := new this.Operator("_invert"                 ,0   ,160)
+        Operators.NullDenotation["~"]   := new this.Operator("_bit_not"                ,0   ,160)
+        Operators.NullDenotation["&"]   := new this.Operator("_address"                ,0   ,160)
+        Operators.LeftDenotation["**"]  := new this.Operator("_exponentiate"           ,170 ,169)
 
-        Operators.NullDenotation["("]   := new Lexer.Operator("_evaluate"               ,0   ,0)
-        Operators.LeftDenotation["("]   := new Lexer.Operator("_call"                   ,190 ,0)
-        Operators.LeftDenotation[")"]   := new Lexer.Operator("_end"                    ,0   ,0)
+        Operators.NullDenotation["("]   := new this.Operator("_evaluate"               ,0   ,0)
+        Operators.LeftDenotation["("]   := new this.Operator("_call"                   ,190 ,0)
+        Operators.LeftDenotation[")"]   := new this.Operator("_end"                    ,0   ,0)
 
-        Operators.NullDenotation["{"]   := new Lexer.Operator("_block"                  ,0   ,0)
-        Operators.LeftDenotation["}"]   := new Lexer.Operator("_block_end"              ,0   ,0)
+        Operators.NullDenotation["{"]   := new this.Operator("_block"                  ,0   ,0)
+        Operators.LeftDenotation["}"]   := new this.Operator("_block_end"              ,0   ,0)
 
-        Operators.NullDenotation["["]   := new Lexer.Operator("_array"                  ,0   ,0)
-        Operators.LeftDenotation["["]   := new Lexer.Operator("_subscript"              ,200 ,0)
-        Operators.LeftDenotation["]"]   := new Lexer.Operator("_subscript_end"          ,0   ,0)
+        Operators.NullDenotation["["]   := new this.Operator("_array"                  ,0   ,0)
+        Operators.LeftDenotation["["]   := new this.Operator("_subscript"              ,200 ,0)
+        Operators.LeftDenotation["]"]   := new this.Operator("_subscript_end"          ,0   ,0)
 
-        Operators.LeftDenotation["."]   := new Lexer.Operator("_subscript_identifier"   ,200 ,200)
+        Operators.LeftDenotation["."]   := new this.Operator("_subscript_identifier"   ,200 ,200)
 
         ;obtain the length of the longest null denotation operator
         Operators.MaxNullLength := 0
@@ -485,6 +473,14 @@ class Lexer
                 Value := (Value * 10) + CurrentChar, this.Position ++
 
             Exponent += Value * Sign
+        }
+
+        ;check for invalid identifier
+        CurrentChar := SubStr(this.Text,this.Position,1)
+        If (CurrentChar != "" && InStr("abcdefghijklmnopqrstuvwxyz_",CurrentChar))
+        {
+            ;wip: nonfatal error
+            throw Exception("Invalid identifier.",A_ThisFunc,this.Position)
         }
 
         ;apply exponent

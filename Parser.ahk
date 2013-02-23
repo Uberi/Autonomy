@@ -23,46 +23,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;wip: handle named parameters, including dynamically calculated ones, in Call() and in Statement()
 ;wip: when AHKv2 gets the new behavior for logical AND and OR (returns matched value on success), use idioms like "this.Statement() || this.Expression()" and "this.Identifier() && this.Expression()"
 
-/*
-#Warn All
-#Warn LocalSameAsGlobal, Off
-
-#Include Resources\Functions.ahk
-#Include Resources\Reconstruct.ahk
-#Include Lexer.ahk
-
-Code = 
-(
-Something a, b, c
-4+5
-Test 1, 2, 3
-)
-Code = 
-(
-a ? b : c
-d && e || f
-)
-;Code = 1 + sin x, y
-;Code = sin x + 1, y
-;Code = x !y
-;Code = 1 - 2 * 3 + 5 ** 3
-;Code = 1 - 2 * (3 + 5, 6e3) ** 3
-;Code = a.b[c].d.e[f]
-;Code = a(b)(c,d)(e)
-;Code = a ? b := 2 : c := 3
-;Code = {}()
-;Code = x := 'name
-Code = x.y.z
-
-l := new Lexer(Code)
-p := new Parser(l)
-
-;MsgBox % Reconstruct.Tree(p.Expression())
-;MsgBox % Reconstruct.Tree(p.Statement())
-MsgBox % Reconstruct.Tree(p.Parse())
-ExitApp
-*/
-
 class Parser
 {
     __New(Lexer)

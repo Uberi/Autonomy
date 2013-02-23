@@ -79,6 +79,4 @@ class Code
 {
     #Include Lexer.ahk
     #Include Parser.ahk
-
-    #Include Resources/Operators.ahk
 }
