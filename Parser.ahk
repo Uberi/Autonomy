@@ -19,7 +19,6 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-;wip: handle skipped parameters: Function(Param,,Param)
 ;wip: handle named parameters, including dynamically calculated ones, in Call() and in Statement()
 ;wip: when AHKv2 gets the new behavior for logical AND and OR (returns matched value on success), use idioms like "this.Statement() || this.Expression()" and "this.Identifier() && this.Expression()"
 
@@ -368,8 +367,9 @@ class Parser
 
         Parameters := []
 
-        ;check for empty parameter list
         this.Ignore()
+
+        ;check for empty parameter list
         Position1 := this.Lexer.Position
         Token := this.Lexer.OperatorLeft()
         If Token && Token.Value.Identifier = "_end"
@@ -384,8 +384,19 @@ class Parser
             ;parse a statement
             Parameters.Insert(this.Statement())
 
-            If !this.Lexer.Separator()
+            If this.Lexer.Separator() ;statements remain
             {
+                ;check for skipped parameters (e.g., f(x,,y))
+                Position1 := this.Lexer.Position
+                this.Ignore()
+                If this.Lexer.Separator() ;skipped parameter found
+                {
+                    ;wip: add a placeholder representing the skipped parameter here (i.e., equivalent of nil)
+                }
+            }
+            Else ;end of statements
+            {
+                ;check ending parenthesis is present
                 Position1 := this.Lexer.Position
                 Token := this.Lexer.OperatorLeft()
                 If Token && Token.Value.Identifier = "_end"
@@ -440,18 +451,17 @@ class Parser
             Return, False
 
         Branch := this.Statement(Operator.RightBindingPower)
-        If !this.Lexer.Map()
-        {
-            ;wip: binary ternary operator
-            throw Exception("Invalid ternary else.",A_ThisFunc,Position1)
-        }
-        Alternative := this.Statement(Operator.RightBindingPower)
-
         Branch := new this.Node.Block([Branch],0,0)
-        Alternative := new this.Node.Block([Alternative],0,0)
+
+        Parameters := [LeftSide,Branch]
+        If this.Lexer.Map() ;ternary expression
+        {
+            Alternative := this.Statement(Operator.RightBindingPower)
+            Alternative := new this.Node.Block([Alternative],0,0)
+            Parameters.Insert(Alternative)
+        }
 
         Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
-        Parameters := [LeftSide,Branch,Alternative]
         ;wip: position and length
         Return, new this.Node.Operation(Operation,Parameters,0,0)
     }
