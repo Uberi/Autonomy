@@ -21,26 +21,31 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class Reconstruct
 {
-    Token(Value)
+    Tokens(Value)
     {
-        If Value.Type = "OperatorNull"
-            Return, Value.Position . ":" . Value.Length . "`t" . Value.Type . "`t" . Value.Value
-        If Value.Type = "OperatorLeft"
-            Return, Value.Position . ":" . Value.Length . "`t" . Value.Type . "`t" . Value.Value
-        If Value.Type = "Line"
-            Return, Value.Position . ":" . Value.Length . "`t" . Value.Type
-        If Value.Type = "Separator"
-            Return, Value.Position . ":" . Value.Length . "`t" . Value.Type
-        If Value.Type = "Map"
-            Return, Value.Position . ":" . Value.Length . "`t" . Value.Type
-        If Value.Type = "String"
-            Return, Value.Position . ":" . Value.Length . "`t" . Value.Type . "`t""" . Value.Value . """"
-        If Value.Type = "Identifier"
-            Return, Value.Position . ":" . Value.Length . "`t" . Value.Type . "`t" . Value.Value
-        If Value.Type = "Number"
-            Return, Value.Position . ":" . Value.Length . "`t" . Value.Type . "`t" . Value.Value
-        If Value.Type = "Comment"
-            Return, Value.Position . ":" . Value.Length . "`t" . Value.Type . "`t""" . Value.Value . """"
+        Result := ""
+        For Index, Token In Value
+        {
+            If Token.Type = "OperatorNull"
+                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`t" . Token.Value . "`n"
+            If Token.Type = "OperatorLeft"
+                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`t" . Token.Value . "`n"
+            If Token.Type = "Line"
+                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`n"
+            If Token.Type = "Separator"
+                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`n"
+            If Token.Type = "Map"
+                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`n"
+            If Token.Type = "String"
+                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`t""" . Token.Value . """`n"
+            If Token.Type = "Identifier"
+                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`t" . Token.Value . "`n"
+            If Token.Type = "Number"
+                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`t" . Token.Value . "`n"
+            If Token.Type = "Comment"
+                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`t""" . Token.Value . """`n"
+        }
+        Return, SubStr(Result,1,-1)
     }
 
     Tree(Value)
@@ -74,12 +79,7 @@ class Reconstruct
     {
         Result := ""
         For Index, Code In Value
-        {
-            Result .= Code.Identifier
-            If Code.HasKey("Value")
-                Result .= "`t" . Code.Value
-            Result .= "`n"
-        }
+            Result .= Code . "`n"
         Return, SubStr(Result,1,-1)
     }
 }

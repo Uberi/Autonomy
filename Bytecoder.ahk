@@ -57,30 +57,7 @@ conditional                     pops the value off of the stack and stores it.
 ;wip: dead/unreachable code elimination
 */
 
-;/*
-Code = fn {1 + 2 * 'abc}
-
-Code = 1 + {2}
-
-l := new Lexer(Code)
-p := new Parser(l)
-
-Tree := p.Parse()
-
-b := new Bytecode(Tree)
-Result := b.Convert(Tree)
-
-;MsgBox % Reconstruct.Bytecode(Result)
-MsgBox % ShowObject(Result) ;wip: use opcode objects
-ExitApp
-
-#Include Lexer.ahk
-#Include Parser.ahk
-
-#Include Resources/Reconstruct.ahk
-*/
-
-class Bytecode ;register based bytecode generator
+class Bytecoder ;register based bytecode generator
 {
     __New()
     {
@@ -132,7 +109,7 @@ class Bytecode ;register based bytecode generator
 }
 
 /* ;wip: discard this if no longer needed
-class Bytecode ;stack based bytecode generator
+class Bytecoder ;stack based bytecode generator
 {
     __New()
     {

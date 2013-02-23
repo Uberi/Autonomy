@@ -3,7 +3,7 @@
 #Warn All
 #Warn LocalSameAsGlobal, Off
 
-;wip: pass environment rather than use Current.new
+;wip: pass environment rather than use Self.new
 
 Value = "hello" * 8
 ;Value =  2 || 3
@@ -64,17 +64,17 @@ class DefaultEnvironment
 
         class _boolean
         {
-            call(Current,Arguments)
+            call(Self,Arguments)
             {
-                Return, !!ObjNewEnum(Current).Next(Key,Value)
+                Return, !!ObjNewEnum(Self).Next(Key,Value)
             }
         }
 
         class _subscript
         {
-            call(Current,Arguments)
+            call(Self,Arguments)
             {
-                Return, Current.Values[Arguments[1].Value]
+                Return, Self.Values[Arguments[1].Value]
             }
         }
     }
@@ -92,28 +92,28 @@ class DefaultEnvironment
             Return, v
         }
 
-        call(Current,Arguments)
+        call(Self,Arguments)
         {
             ;set up an inner scope with the Arguments
             InnerEnvironment := Object()
-            InnerEnvironment.base := Current.Environment
-            InnerEnvironment.this := Current
+            InnerEnvironment.base := Self.Environment
+            InnerEnvironment.this := Self
 
-            Current.Arguments := Current.Environment.Object.new()
+            Self.Arguments := Self.Environment.Object.new()
             For Key, Value In Arguments
-                Current.Arguments.values[Key] := Value
+                Self.Arguments.values[Key] := Value
 
             ;evaluate the contents of the block
             ;Result := null ;wip
             Result := 0
-            For Index, Content In Current.Contents
+            For Index, Content In Self.Contents
                 Result := Eval(Content,InnerEnvironment)
             Return, Result
         }
 
         class _boolean
         {
-            call(Current,Arguments)
+            call(Self,Arguments)
             {
                 Return, True
             }
@@ -121,10 +121,10 @@ class DefaultEnvironment
 
         class _subscript
         {
-            call(Current,Arguments)
+            call(Self,Arguments)
             {
                 If Arguments[1].Value = "arguments"
-                    Return, Current.Arguments
+                    Return, Self.Arguments
                 throw Exception("Invalid property: " . Arguments[1].Value)
             }
         }
@@ -143,17 +143,17 @@ class DefaultEnvironment
 
         class _equals
         {
-            call(Current,Arguments)
+            call(Self,Arguments)
             {
-                Return, Current.Value = Arguments[1].Value
+                Return, Self.Value = Arguments[1].Value
             }
         }
 
         class _equals_strict
         {
-            call(Current,Arguments)
+            call(Self,Arguments)
             {
-                Return, Current.Value == Arguments[1].Value
+                Return, Self.Value == Arguments[1].Value
             }
         }
     }
@@ -171,52 +171,52 @@ class DefaultEnvironment
 
         class _boolean
         {
-            call(Current,Arguments)
+            call(Self,Arguments)
             {
-                Return, Current.Value != ""
+                Return, Self.Value != ""
             }
         }
 
         class _equals
         {
-            call(Current,Arguments)
+            call(Self,Arguments)
             {
-                Return, Current.Value = Arguments[1].Value
+                Return, Self.Value = Arguments[1].Value
             }
         }
 
         class _equals_strict
         {
-            call(Current,Arguments)
+            call(Self,Arguments)
             {
-                Return, Current.Value == Arguments[1].Value
+                Return, Self.Value == Arguments[1].Value
             }
         }
 
         class _add
         {
-            call(Current,Arguments)
+            call(Self,Arguments)
             {
-                Return, Current.new(Current.Value . Arguments[1].Value)
+                Return, Self.new(Self.Value . Arguments[1].Value)
             }
         }
 
         class _multiply
         {
-            call(Current,Arguments)
+            call(Self,Arguments)
             {
                 Result := ""
                 Loop, % Arguments[1].Value
-                    Result .= Current.Value
-                Return, Current.new(Result)
+                    Result .= Self.Value
+                Return, Self.new(Result)
             }
         }
 
         class _subscript
         {
-            call(Current,Arguments)
+            call(Self,Arguments)
             {
-                Return, Current.new(SubStr(Current.Value,Arguments[1].Value,1))
+                Return, Self.new(SubStr(Self.Value,Arguments[1].Value,1))
             }
         }
     }
@@ -234,48 +234,48 @@ class DefaultEnvironment
 
         class _boolean
         {
-            call(Current,Arguments)
+            call(Self,Arguments)
             {
-                Return, Current.Value != 0
+                Return, Self.Value != 0
             }
         }
 
         class _equals
         {
-            call(Current,Arguments)
+            call(Self,Arguments)
             {
-                Return, Current.Value = Arguments[1].Value
+                Return, Self.Value = Arguments[1].Value
             }
         }
 
         class _equals_strict
         {
-            call(Current,Arguments)
+            call(Self,Arguments)
             {
-                Return, Current.Value == Arguments[1].Value
+                Return, Self.Value == Arguments[1].Value
             }
         }
 
         class _add
         {
-            call(Current,Arguments)
+            call(Self,Arguments)
             {
-                Return, Current.new(Current.Value + Arguments[1].Value)
+                Return, Self.new(Self.Value + Arguments[1].Value)
             }
         }
 
         class _multiply
         {
-            call(Current,Arguments)
+            call(Self,Arguments)
             {
-                Return, Current.new(Current.Value * Arguments[1].Value)
+                Return, Self.new(Self.Value * Arguments[1].Value)
             }
         }
     }
 
     class _if
     {
-        call(Current,Arguments)
+        call(Self,Arguments)
         {
             If Arguments[1]._boolean.call(Arguments[1],[])
                 Return, Arguments[2].call(Arguments[2],[])
@@ -285,7 +285,7 @@ class DefaultEnvironment
 
     class _or
     {
-        call(Current,Arguments)
+        call(Self,Arguments)
         {
             If Arguments[1]._boolean.call(Arguments[1],[])
                 Return, Arguments[1]
@@ -295,7 +295,7 @@ class DefaultEnvironment
 
     class _and
     {
-        call(Current,Arguments)
+        call(Self,Arguments)
         {
             If !Arguments[1]._boolean.call(Arguments[1],[])
                 Return, Arguments[1]
@@ -305,7 +305,7 @@ class DefaultEnvironment
 
     class _equals
     {
-        call(Current,Arguments)
+        call(Self,Arguments)
         {
             Return, Arguments[1]._equals.call(Arguments[1],[Arguments[2]])
         }
@@ -313,7 +313,7 @@ class DefaultEnvironment
 
     class _equals_strict
     {
-        call(Current,Arguments)
+        call(Self,Arguments)
         {
             Return, Arguments[1]._equals_strict.call(Arguments[1],[Arguments[2]])
         }
@@ -321,7 +321,7 @@ class DefaultEnvironment
 
     class _add
     {
-        call(Current,Arguments)
+        call(Self,Arguments)
         {
             Return, Arguments[1]._add.call(Arguments[1],[Arguments[2]])
         }
@@ -329,7 +329,7 @@ class DefaultEnvironment
 
     class _multiply
     {
-        call(Current,Arguments)
+        call(Self,Arguments)
         {
             Return, Arguments[1]._multiply.call(Arguments[1],[Arguments[2]])
         }
@@ -337,7 +337,7 @@ class DefaultEnvironment
 
     class _evaluate
     {
-        call(Current,Arguments)
+        call(Self,Arguments)
         {
             ;return the last parameter
             If ObjMaxIndex(Arguments)
@@ -349,7 +349,7 @@ class DefaultEnvironment
 
     class _subscript
     {
-        call(Current,Arguments)
+        call(Self,Arguments)
         {
             Return, Arguments[1]._subscript.call(Arguments[1],[Arguments[2]])
         }

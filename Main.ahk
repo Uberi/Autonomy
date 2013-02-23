@@ -108,17 +108,17 @@ Value = a ? b := 2 : c := 3
 Value = {}()
 Value = x := 'name
 Value = x.y.z
+Value = 1 + {2}
 
+/* ;lexer testing
 l := new Code.Lexer(Value)
 Tokens := []
 While, Token := l.Next()
     Tokens.Insert(Token)
-Result := ""
-For Index, Token In Tokens
-    Result .= Reconstruct.Token(Token) . "`n"
-MsgBox % Clipboard := Result
+MsgBox % Clipboard := Reconstruct.Tokens(Tokens)
+*/
 
-/*
+/* ;parser testing
 l := new Code.Lexer(Value)
 p := new Code.Parser(l)
 SyntaxTree := p.Parse()
@@ -126,11 +126,20 @@ MsgBox % Clipboard := Reconstruct.Tree(SyntaxTree)
 */
 
 /*
+l := new Code.Lexer(Value)
+p := new Code.Parser(l)
+SyntaxTree := p.Parse()
 SimplifiedSyntaxTree := CodeSimplify(SyntaxTree)
 MsgBox % Clipboard := Reconstruct.Tree(SimplifiedSyntaxTree)
+*/
 
-Bytecode := CodeBytecode(SimplifiedSyntaxTree)
-MsgBox % Clipboard := Bytecode
+/* ;bytecoder testing
+l := new Code.Lexer(Value)
+p := new Code.Parser(l)
+SyntaxTree := p.Parse()
+Bytecoder := new Code.Bytecoder
+Bytecode := Bytecoder.Convert(SyntaxTree)
+MsgBox % Clipboard := Reconstruct.Bytecode(Bytecode)
 */
 
 ExitApp
@@ -140,4 +149,3 @@ ExitApp
 
 #Include Code.ahk
 ;#Include Simplifier.ahk
-;#Include Bytecode.ahk

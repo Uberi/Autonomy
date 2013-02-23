@@ -79,4 +79,5 @@ class Code
 {
     #Include Lexer.ahk
     #Include Parser.ahk
+    #Include Bytecoder.ahk
 }

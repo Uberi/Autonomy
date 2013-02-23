@@ -256,7 +256,7 @@ class Parser
 
         Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
         Parameters := [LeftSide,RightSide]
-        ;wip: length and position
+        ;wip: position and length
         Return, new this.Node.Operation(Operation,Parameters,0,0)
     }
 
