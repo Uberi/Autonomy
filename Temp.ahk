@@ -1,15 +1,18 @@
 #NoEnv
 
+#Warn All
+#Warn LocalSameAsGlobal, Off
+
 ;wip: pass environment rather than use Current.new
 
-Code = "hello" * 8
-Code =  2 || 3
-Code = {123}((1 + 3) * 2)
-Code = {this["arguments"][1]}("First","Second","Third")
-Code = 3 = 3
+Value = "hello" * 8
+;Value =  2 || 3
+;Value = {123}((1 + 3) * 2)
+;Value = {this["arguments"][1]}("First","Second","Third")
+;Value = 3 = 3
 
-l := new Lexer(Code)
-p := new Parser(l)
+l := new Code.Lexer(Value)
+p := new Code.Parser(l)
 
 Tree := p.Parse()
 
@@ -17,8 +20,7 @@ Environment := new DefaultEnvironment
 MsgBox % ShowObject(Eval(Tree,Environment))
 Return
 
-#Include Lexer.ahk
-#Include Parser.ahk
+#Include Code.ahk
 
 Eval(Tree,Environment)
 {

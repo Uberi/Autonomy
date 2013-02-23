@@ -103,12 +103,20 @@ class Lexer
         ;obtain the length of the longest null denotation operator
         Operators.MaxNullLength := 0
         For Operator In Operators.NullDenotation
-            Length := StrLen(Operator), (Length > Operators.MaxNullLength) ? (Operators.MaxNullLength := Length) : ""
+        {
+            Length := StrLen(Operator)
+            If (Length > Operators.MaxNullLength)
+                Operators.MaxNullLength := Length
+        }
 
         ;obtain the length of the longest left denotation operator
         Operators.MaxLeftLength := 0
         For Operator In Operators.LeftDenotation
-            Length := StrLen(Operator), (Length > Operators.MaxLeftLength) ? (Operators.MaxLeftLength := Length) : ""
+        {
+            Length := StrLen(Operator)
+            If (Length > Operators.MaxLeftLength)
+                Operators.MaxLeftLength := Length
+        }
 
         Return, Operators
     }
