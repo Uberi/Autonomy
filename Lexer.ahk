@@ -521,7 +521,7 @@ class Lexer
         Position1 := this.Position
 
         ;check for separator
-        If (SubStr(this.Text,Position1,1) != ",")
+        If SubStr(this.Text,Position1,1) != ","
             Return, False
 
         this.Position ++ ;move past the separator
@@ -533,7 +533,7 @@ class Lexer
         Position1 := this.Position
 
         ;check for map
-        If (SubStr(this.Text,Position1,1) != ":")
+        If SubStr(this.Text,Position1,1) != ":"
             Return, False
 
         this.Position ++ ;move past the map

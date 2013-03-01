@@ -365,9 +365,9 @@ class Parser
         If Operator.Value.Identifier != "_call"
             Return, False
 
-        Parameters := []
-
         this.Ignore()
+
+        Parameters := []
 
         ;check for empty parameter list
         Position1 := this.Lexer.Position
@@ -379,19 +379,32 @@ class Parser
         }
         this.Lexer.Position := Position1
 
+        Index := 1
         Loop
         {
-            ;parse a statement
-            Parameters.Insert(this.Statement())
+            ;parse a parameter
+            Value := this.Statement()
 
-            If this.Lexer.Separator() ;statements remain
+            If this.Lexer.Map() ;named parameter
+            {
+                ;wip: the below is supposed to parse the named parameter and store it as an object key in the AST, but object keys are lame
+                Parameters[Value] := this.Statement()
+            }
+            Else ;ordered parameter
+            {
+                Parameters[Index] := Value
+                Index ++
+            }
+
+            If this.Lexer.Separator() ;parameters remain
             {
                 ;check for skipped parameters (e.g., f(x,,y))
-                Position1 := this.Lexer.Position
-                this.Ignore()
-                If this.Lexer.Separator() ;skipped parameter found
+                Loop
                 {
-                    ;wip: add a placeholder representing the skipped parameter here (i.e., equivalent of nil)
+                    this.Ignore()
+                    If !this.Lexer.Separator() ;end of skipped parameters
+                        Break
+                    Index ++ ;move past parameter index
                 }
             }
             Else ;end of statements

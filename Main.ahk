@@ -40,9 +40,10 @@ Short term tasks:
 
 Long term tasks:
 
-* implement all control flow and exceptions using continuations, continuation passing style is the norm with implicit continuation parameter, sort of like the "this" param in other languages
-    * have "self" and $ available at all times, which represent the object instance and the passed continuations
+* implement all control flow and exceptions using continuations, continuation passing style is the norm with implicit continuations parameter, sort of like the "this" param in other languages
+    * have "self" and $ available at all times, which represent the object instance and the passed continuations object
     * $.return(x), $.continue(), $.parent.break()
+    * http://matt.might.net/articles/by-example-continuation-passing-style/
 * async "promise" and green thread system with async exceptions
 * use OBJECT KEY for prototype/metatable: "base" object: obj[base]._get, etc. scope objects will always have the "base" property set to the "base" property of the enclosing scope, in order to give enclosing code access to the base of objects. inheritance is obj[base].get := fn ('key) { PARENT_OBJECT[key] }
 * do something about the enumerability of object bases; they should not be enumerable
@@ -68,7 +69,6 @@ Long term tasks:
 * Function objects should have an call() method that applies a given array as the arguments, and allows specifying the "this" object, possibly as a named parameter
 * .= operator to append to an array
 * for-loops and try-catch-else-finally should have an Else clause that executes if the loop did not break or an exception was not thrown
-* Library in bytecode format; allows libraries to avoid recompilation each time by using a linker
 */
 
 FileName := A_ScriptFullPath ;set the file name of the current file
@@ -109,6 +109,7 @@ Value = {}()
 Value = x := 'name
 Value = x.y.z
 Value = 1 + {2}
+Value = f(x,,,,,,,,y)
 
 /* ;lexer testing
 l := new Code.Lexer(Value)
@@ -116,13 +117,16 @@ Tokens := []
 While, Token := l.Next()
     Tokens.Insert(Token)
 MsgBox % Clipboard := Reconstruct.Tokens(Tokens)
+ExitApp
 */
 
 /* ;parser testing
 l := new Code.Lexer(Value)
 p := new Code.Parser(l)
 SyntaxTree := p.Parse()
-MsgBox % Clipboard := Reconstruct.Tree(SyntaxTree)
+;MsgBox % Clipboard := Reconstruct.Tree(SyntaxTree)
+MsgBox % Clipboard := ShowObject(SyntaxTree)
+ExitApp
 */
 
 /*
@@ -131,6 +135,7 @@ p := new Code.Parser(l)
 SyntaxTree := p.Parse()
 SimplifiedSyntaxTree := CodeSimplify(SyntaxTree)
 MsgBox % Clipboard := Reconstruct.Tree(SimplifiedSyntaxTree)
+ExitApp
 */
 
 /* ;bytecoder testing
@@ -140,9 +145,8 @@ SyntaxTree := p.Parse()
 Bytecoder := new Code.Bytecoder
 Bytecode := Bytecoder.Convert(SyntaxTree)
 MsgBox % Clipboard := Reconstruct.Bytecode(Bytecode)
-*/
-
 ExitApp
+*/
 
 #Include Resources\Error Format.ahk
 #Include Resources\Reconstruct.ahk
