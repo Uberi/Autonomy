@@ -68,5 +68,4 @@ Equal(Value1,Value2,CaseSensitive = 1)
 }
 
 #Include ../
-#Include Lexer.ahk
-#Include Parser.ahk
+#Include Code.ahk

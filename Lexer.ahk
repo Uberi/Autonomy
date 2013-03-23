@@ -350,7 +350,7 @@ class Lexer
         this.Position ++
 
         Output := SubStr(this.Text,this.Position,1)
-        If (Output = "" || !InStr("abcdefghijklmnopqrstuvwxyz_",Output)) ;check first character against valid identifier characters
+        If (Output = "" || !InStr("abcdefghijklmnopqrstuvwxyz_0123456789",Output)) ;check first character against valid symbol characters
         {
             ;wip: nonfatal error
             throw Exception("Invalid symbol.",A_ThisFunc,Position1)
