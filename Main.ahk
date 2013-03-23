@@ -30,11 +30,13 @@ TODO
 
 Short term tasks:
 
-* consider removing separator "," entirely from language?
-* consider using , to denote an array and [] to denote an object: x := 1, 2, 3
+* support skipped and named parameters in statements: f x: y,, z
+* allow skipping elements in arrays which are assigned a value of nil
+* consider using , to denote an array and [] to denote an object: x := 1, 2, 3 (still need a good way to represent empty or single element arrays)
 * Comparisons can be chained arbitrarily, e.g., x < y <= z is equivalent to x < y and y <= z, except that y is evaluated only once (but in both cases z is not evaluated at all when x < y is found to be false). Formally, if a, b, c, ..., y, z are expressions and op1, op2, ..., opN are comparison operators, then a op1 b op2 c ... y opN z is equivalent to a op1 b and b op2 c and ... y opN z, except that each expression is evaluated at most once.
     * Need to figure out how to represent this in the AST first
-* Allow backticks inline in code to represent literal versions of themselves in the code
+        * pretty much have to use a && b && c -> (logic a 'and b 'and c) or make the AST a graph (object references are significant)
+* Allow backticks inline in code to represent literal versions of themselves in the code: f w, x `n g y, z ;the `n is treated as an actual newline
 * Unit tests for error handler
 * Error tolerance for parser by ignoring an operation like want.to.autocomplete.%INVALID% by simply returning the valid operands in the operator parser.
 
@@ -45,41 +47,31 @@ Long term tasks:
     * $.return(x), $.continue(), $.parent.break()
     * http://matt.might.net/articles/by-example-continuation-passing-style/
 * async "promise" and green thread system with async exceptions
-* use OBJECT KEY for prototype/metatable: "base" object: obj[base]._get, etc. scope objects will always have the "base" property set to the "base" property of the enclosing scope, in order to give enclosing code access to the base of objects. inheritance is obj[base].get := fn ('key) { PARENT_OBJECT[key] }
+* use OBJECT KEY for prototype/metatable: "base" object: obj[base]._get, etc. scope objects will always have the "base" property set to the "base" property of the enclosing scope, in order to give enclosing code access to the base of objects. inheritance is obj[base]._get := fn ('key) { PARENT_OBJECT[key] }
 * do something about the enumerability of object bases; they should not be enumerable
 * "userdata"/"bytes" type like in lua/python: custom user-defined blocks of memory that have literals and having two variants: GC managed or explicitly managed
 * make a code formatter that can infer style settings from a code sample
 * destructured assignment: [a, b, c] := [c, b, a] and [x, y] += [1, 2]
-* static tail recursion elimination (make sure cases like return a ? b() : c() are handled by checking if the following bytecode instruction after the call is either a return or one or more unconditional jumps that leads to a return)
+* static tail recursion elimination (make sure cases like $.return a ? b() : c() are handled by checking if the following bytecode instruction after the call is either a return or one or more unconditional jumps that leads to a return)
 * have the .each method return the result: squares := [1, 2, 3].each (fn ('x) { x ** 2 })
-* % operator can format strings
-* array slicing: a[start:end:step]
+* % operator can format strings, .= can append to array
 * fn function definition should allow multiple param lists bodies and patterns to match for each body: guard statements choose the correct function to call
 * FFI with libffi for DllCall-like functionality
 * multiple catch clauses in exception handler, and each accepting a condition for catching: try {} catch e: e Is KeyboardInterrupt {}
 * to make an object, use ClassName.new() or just ClassName()
-* named parameter "key" for functions such as [].max(), [].min(), [].sort(), etc. that allows the user to specify a function that specifies the key to use in place of the actual key, together with a custon comparison function
-* named parameter "compare" for the same purposes above, that allow things like custom sorting functions
-* "with" statement that sets an object as a scope (needs internal support), or possibly use "this" binding to rebind this: {}.bind(scope_object)
+* named parameter "key" for functions such as [].max(), [].min(), [].sort(), etc. that allows the user to specify a function that specifies the key to use in place of the actual key, together with a custom comparison function with named parameter "compare"
+* "with" statement that sets an object as a scope (needs internal support, or use $ := something), or possibly use binding to rebind this: {some code here}.bind(scope_object)
 * refinement pattern: matcher := with Patterns, { ["hello", "hi"]..[" ", "`t"][1:Infinity].."world!" }) and: date := with Time, { next.friday + weeks * 2 }
 * "ensure" or "assert" statements allow code to be statically verified
 * macro { some compile-time related code } syntax and compile time defined type system
 * "is" operator that checks current class and recursively checks base classes
 * "in" operator that checks for membership
 * Function objects should have an call() method that applies a given array as the arguments, and allows specifying the "this" object, possibly as a named parameter
-* .= operator to append to an array
 * for-loops and try-catch-else-finally should have an Else clause that executes if the loop did not break or an exception was not thrown
 */
 
 FileName := A_ScriptFullPath ;set the file name of the current file
 
-Value = 
-(
-#Define SOME_DEFINITION := 1 + 2 * 3
-Var := Something
-#Define ANOTHER_DEFINITION := SOME_DEFINITION + 1
-Return,, 1 + 1
-)
 Value =
 (
 abc param1, param2
@@ -110,6 +102,7 @@ Value = x := 'name
 Value = x.y.z
 Value = 1 + {2}
 Value = f(x,,,,,,,,y)
+Value = a[1] + a[1 :   2] + a[1:2:3]
 
 /* ;lexer testing
 l := new Code.Lexer(Value)
@@ -124,12 +117,12 @@ ExitApp
 l := new Code.Lexer(Value)
 p := new Code.Parser(l)
 SyntaxTree := p.Parse()
-;MsgBox % Clipboard := Reconstruct.Tree(SyntaxTree)
-MsgBox % Clipboard := ShowObject(SyntaxTree)
+MsgBox % Clipboard := Reconstruct.Tree(SyntaxTree)
+;MsgBox % Clipboard := ShowObject(SyntaxTree)
 ExitApp
 */
 
-/*
+/* ;simplifier testing
 l := new Code.Lexer(Value)
 p := new Code.Parser(l)
 SyntaxTree := p.Parse()

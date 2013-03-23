@@ -136,7 +136,7 @@ class Parser
         ;check for line end
         Position2 := this.Lexer.Position
         this.Ignore()
-        If this.Lexer.Line() || this.Lexer.Separator() || this.Lexer.Map() || this.Lexer.OperatorLeft() ;statement not found
+        If this.Lexer.Line() || this.Lexer.Separator() || this.Lexer.Map() || this.Lexer.OperatorLeft() ;not a statement, just an expression
         {
             this.Lexer.Position := Position2 ;move back to before this token
             Return, Value
@@ -154,7 +154,7 @@ class Parser
         {
             Parameters.Insert(this.Statement())
             this.Ignore()
-            If !this.Lexer.Separator()
+            If !this.Lexer.Separator() ;no more parameters
                 Break
         }
 
@@ -427,17 +427,27 @@ class Parser
         If Operator.Value.Identifier != "_subscript"
             Return, False
 
-        RightSide := this.Statement()
+        Position1 := this.Lexer.Position
+
+        RightSide := this.Statement() ;obtain subscript index
+        If this.Lexer.Map() ;array slicing
+        {
+            Parameters := [LeftSide,RightSide,this.Statement()] ;array, start index, end index
+            If this.Lexer.Map() ;step value for slice
+                Parameters.Insert(this.Statement())
+            Length := this.Lexer.Position - Position1
+            Operation := new this.Node.Identifier("_slice",Position1,Length)
+        }
+        Else
+        {
+            Parameters := [LeftSide,RightSide] ;array, index
+            Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
+        }
 
         Position1 := this.Lexer.Position
         Token := this.Lexer.OperatorLeft()
-        If Token && Token.Value.Identifier = "_subscript_end"
-        {
-            Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
-            Parameters := [LeftSide,RightSide]
-            ;wip: position and length
-            Return, new this.Node.Operation(Operation,Parameters,0,0)
-        }
+        If Token && Token.Value.Identifier = "_subscript_end" ;ensure subscript is properly closed
+            Return, new this.Node.Operation(Operation,Parameters,0,0) ;wip: position and length
         throw Exception("Invalid subscript end.",A_ThisFunc,Position1)
     }
 

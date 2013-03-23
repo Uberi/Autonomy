@@ -601,16 +601,16 @@ class Lexer
         Return, True
     }
 
-    Escape()
+    Escape() ;wip: `c[asc("0")] could produce incorrect results, returning false
     {
         If SubStr(this.Text,this.Position,1) != "``" ;check for escape character
             Return, False
         this.Position ++ ;move past escape character
 
         CurrentChar := SubStr(this.Text,this.Position,1) ;obtain the escaped character
-        If (CurrentChar = "`n") ;newline escaped
+        If (CurrentChar = "`n") ;skip `n if present
             Output := "`n", this.Position ++
-        Else If (CurrentChar = "`r") ;carriage return escaped
+        Else If (CurrentChar = "`r") ;skip either `r or `r`n if present
         {
             If SubStr(this.Text,this.Position + 1,1) = "`n" ;check for newline and ignore if present
                 this.Position ++
@@ -644,14 +644,14 @@ class Lexer
                 While, (CurrentChar := SubStr(this.Text,this.Position,1)) != "" && InStr("0123456789",CurrentChar) ;character is numeric
                     CharacterCode .= CurrentChar, this.Position ++
                 If (CurrentChar = "]") ;character code end
-                    this.Position ++ ;move past closign square bracket
-                Else
+                    this.Position ++ ;move past closing square bracket
+                Else ;unclosed character code
                 {
                     ;wip: nonfatal error
                 }
                 Output := Chr(CharacterCode)
             }
-            Else
+            Else ;invalid character code
             {
                 ;wip: nonfatal error
             }
@@ -659,7 +659,7 @@ class Lexer
         Else
         {
             ;wip: nonfatal error goes here
-            this.Position ++
+            this.Position ++ ;move past the unknown escape
         }
         Return, Output
     }
