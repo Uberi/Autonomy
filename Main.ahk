@@ -30,8 +30,6 @@ TODO
 
 Short term tasks:
 
-* support skipped and named parameters in statements: f x: y,, z
-* allow skipping elements in arrays which are assigned a value of nil
 * consider using , to denote an array and [] to denote an object: x := 1, 2, 3 (still need a good way to represent empty or single element arrays)
 * Comparisons can be chained arbitrarily, e.g., x < y <= z is equivalent to x < y and y <= z, except that y is evaluated only once (but in both cases z is not evaluated at all when x < y is found to be false). Formally, if a, b, c, ..., y, z are expressions and op1, op2, ..., opN are comparison operators, then a op1 b op2 c ... y opN z is equivalent to a op1 b and b op2 c and ... y opN z, except that each expression is evaluated at most once.
     * Need to figure out how to represent this in the AST first
@@ -47,8 +45,8 @@ Long term tasks:
     * $.return(x), $.continue(), $.parent.break()
     * http://matt.might.net/articles/by-example-continuation-passing-style/
 * async "promise" and green thread system with async exceptions
-* use OBJECT KEY for prototype/metatable: "base" object: obj[base]._get, etc. scope objects will always have the "base" property set to the "base" property of the enclosing scope, in order to give enclosing code access to the base of objects. inheritance is obj[base]._get := fn ('key) { PARENT_OBJECT[key] }
-* do something about the enumerability of object bases; they should not be enumerable
+* use OBJECT KEY for prototype/metatable: "base" object: obj[base]._get, etc. scope objects will always have the "base" property set to the "base" property of the enclosing scope, in order to give enclosing code access to the base of objects. inheritance is obj[base]._get := fn('key) { PARENT_OBJECT[key] }
+* do something about the enumerability of object bases; they should not be enumerable, maybe special case in the enumerator
 * "userdata"/"bytes" type like in lua/python: custom user-defined blocks of memory that have literals and having two variants: GC managed or explicitly managed
 * make a code formatter that can infer style settings from a code sample
 * destructured assignment: [a, b, c] := [c, b, a] and [x, y] += [1, 2]
@@ -58,7 +56,7 @@ Long term tasks:
 * fn function definition should allow multiple param lists bodies and patterns to match for each body: guard statements choose the correct function to call
 * FFI with libffi for DllCall-like functionality
 * multiple catch clauses in exception handler, and each accepting a condition for catching: try {} catch e: e Is KeyboardInterrupt {}
-* to make an object, use ClassName.new() or just ClassName()
+* to make an object, use ClassName()
 * named parameter "key" for functions such as [].max(), [].min(), [].sort(), etc. that allows the user to specify a function that specifies the key to use in place of the actual key, together with a custom comparison function with named parameter "compare"
 * "with" statement that sets an object as a scope (needs internal support, or use $ := something), or possibly use binding to rebind this: {some code here}.bind(scope_object)
 * refinement pattern: matcher := with Patterns, { ["hello", "hi"]..[" ", "`t"][1:Infinity].."world!" }) and: date := with Time, { next.friday + weeks * 2 }
@@ -72,37 +70,25 @@ Long term tasks:
 
 FileName := A_ScriptFullPath ;set the file name of the current file
 
-Value =
-(
-abc param1, param2
-def param1 + sin 45
-!ghi + 5 * jkl 123, 456
-)
-Value = 
-(
-Something a, b, c
-4+5
-Test 1, 2, 3
-)
-Value = 
-(
-a ? b : c
-d && e || f
-)
-Value = 1 + sin x, y
-Value = sin x + 1, y
-Value = x !y
-Value = 1 - 2 * 3 + 5 ** 3
-Value = 1 - 2 * (3 + 5, 6e3) ** 3
-Value = a.b[c].d.e[f]
-Value = a(b)(c,d)(e)
-Value = a ? b := 2 : c := 3
-Value = {}()
-Value = x := 'name
-Value = x.y.z
-Value = 1 + {2}
-Value = f(x,,,,,,,,y)
-Value = a[1] + a[1 :   2] + a[1:2:3]
+;Value = abc param1, param2`ndef param1 + sin 45`n!ghi + 5 * jkl 123, 456
+;Value = Something a, b, c`n4+5`nTest 1, 2, 3
+;Value = a ? b : c`nd && e || f
+;Value = 1 + sin x, y
+;Value = sin x + 1, y
+;Value = x !y
+;Value = 1 - 2 * 3 + 5 ** 3
+;Value = 1 - 2 * (3 + 6e3) ** 3
+;Value = a.b[c].d.e[f]
+;Value = a(b)(c,d)(e)
+;Value = a ? b := 2 : c := 3
+;Value = {}()
+;Value = x := 'name
+;Value = x.y.z
+;Value = 1 + {2}
+;Value = f(x,,,,,,,,y)
+;Value = a[1] + a[1 :   2  ] + a[1:2:3]
+;Value = f x,, y: 'abc, z
+Value = 1 - 2 * 3
 
 /* ;lexer testing
 l := new Code.Lexer(Value)
@@ -113,7 +99,7 @@ MsgBox % Clipboard := Reconstruct.Tokens(Tokens)
 ExitApp
 */
 
-/* ;parser testing
+;/* ;parser testing
 l := new Code.Lexer(Value)
 p := new Code.Parser(l)
 SyntaxTree := p.Parse()

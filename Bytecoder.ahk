@@ -51,8 +51,7 @@ conditional                     pops the value off of the stack and stores it.
                                 pops the potential jump target off of the stack and stores it.
                                 jumps to the stored potential jump target if the stored value is truthy.
 
-;wip: generated identifiers are not always unique
-;wip: static tail call detection
+;wip: generated identifiers are not globally unique
 ;wip: distinct Array type using contiguous memory, faster than Object hash table implementation
 ;wip: dead/unreachable code elimination
 */

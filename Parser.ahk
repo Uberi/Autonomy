@@ -19,7 +19,6 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-;wip: handle named parameters, including dynamically calculated ones, in Call() and in Statement()
 ;wip: when AHKv2 gets the new behavior for logical AND and OR (returns matched value on success), use idioms like "this.Statement() || this.Expression()" and "this.Identifier() && this.Expression()"
 
 class Parser
@@ -101,37 +100,25 @@ class Parser
 
     Parse()
     {
-        Position1 := this.Lexer.Position
         this.Ignore()
 
-        Parameters := []
-        Loop
-        {
-            ;parse a statement
-            Parameters.Insert(this.Statement())
+        Position1 := this.Lexer.Position
+        Contents := this.Lines()
 
-            ;ensure the statement is terminated by a
-            If !this.Lexer.Line()
-            {
-                ;check for end of input
-                Position2 := this.Lexer.Position
-                If !this.Lexer.Next()
-                    Break
-                this.Lexer.Position := Position2
-                throw Exception("Invalid statement end.",A_ThisFunc,Position1)
-            }
-        }
+        ;check for end of input
+        If this.Lexer.Next() ;input still remains
+            throw Exception("Invalid program end.",A_ThisFunc,Position1)
 
         Operation := new this.Node.Identifier("_evaluate",Position1,0)
         Length := this.Lexer.Position - Position1
-        Return, new this.Node.Operation(Operation,Parameters,Position1,Length)
+        Return, new this.Node.Operation(Operation,Contents,Position1,Length)
     }
 
     Statement(RightBindingPower = 0)
     {
         ;parse either the expression or the beginning of the statement
         Position1 := this.Lexer.Position
-        Value := this.Expression(RightBindingPower)
+        Operation := this.Expression(RightBindingPower)
 
         ;check for line end
         Position2 := this.Lexer.Position
@@ -139,49 +126,41 @@ class Parser
         If this.Lexer.Line() || this.Lexer.Separator() || this.Lexer.Map() || this.Lexer.OperatorLeft() ;not a statement, just an expression
         {
             this.Lexer.Position := Position2 ;move back to before this token
-            Return, Value
+            Return, Operation
         }
 
         ;check for end of input
         Position2 := this.Lexer.Position
         If !this.Lexer.Next() ;statement not found
-            Return, Value
+            Return, Operation
         this.Lexer.Position := Position2
 
-        ;parse the parameters
-        Parameters := []
-        Loop
-        {
-            Parameters.Insert(this.Statement())
-            this.Ignore()
-            If !this.Lexer.Separator() ;no more parameters
-                Break
-        }
+        Parameters := this.ParameterList()
 
         Length := this.Lexer.Position - Position1
-        Return, new this.Node.Operation(Value,Parameters,Position1,Length)
+        Return, new this.Node.Operation(Operation,Parameters,Position1,Length)
     }
 
     Expression(RightBindingPower = 0)
     {
         this.Ignore()
-        LeftSide := this.NullDenotation()
+        LeftSide := this.NullDenotation() ;parse element that does not require left side information
         Loop
         {
             this.Ignore()
             Position1 := this.Lexer.Position
             Operator := this.Lexer.OperatorLeft()
 
-            If !Operator
+            If !Operator ;end of input
                 Break
-            If Operator.Value.LeftBindingPower <= RightBindingPower
+            If Operator.Value.LeftBindingPower <= RightBindingPower ;precedence is lower than current precedence
             {
-                this.Lexer.Position := Position1
+                this.Lexer.Position := Position1 ;undo parsing operator
                 Break
             }
 
             this.Ignore()
-            LeftSide := this.OperatorLeft(Operator,LeftSide)
+            LeftSide := this.OperatorLeft(Operator,LeftSide) ;parse element that requires left side information
         }
         Return, LeftSide
     }
@@ -191,26 +170,20 @@ class Parser
         Token := this.Lexer.OperatorNull()
         If Token
             Return, this.OperatorNull(Token)
-
         If this.Lexer.Line()
             Return, this.NullDenotation()
-
         Token := this.Lexer.Symbol()
         If Token
             Return, new this.Node.Symbol(Token.Value,Token.Position,Token.Length)
-
         Token := this.Lexer.String()
         If Token
             Return, new this.Node.String(Token.Value,Token.Position,Token.Length)
-
         Token := this.Lexer.Identifier()
         If Token
             Return, new this.Node.Identifier(Token.Value,Token.Position,Token.Length)
-
         Token := this.Lexer.Number()
         If Token
             Return, new this.Node.Number(Token.Value,Token.Position,Token.Length)
-
         throw Exception("Missing token.",A_ThisFunc,this.Lexer.Position)
     }
 
@@ -256,8 +229,8 @@ class Parser
 
         Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
         Parameters := [LeftSide,RightSide]
-        ;wip: position and length
-        Return, new this.Node.Operation(Operation,Parameters,0,0)
+        Length := this.Lexer.Position - LeftSide.Position
+        Return, new this.Node.Operation(Operation,Parameters,LeftSide.Position,Length)
     }
 
     Evaluate(Operator)
@@ -265,33 +238,23 @@ class Parser
         If Operator.Value.Identifier != "_evaluate"
             Return, False
 
-        Parameters := []
-        Loop
-        {
-            ;parse a statement
-            Parameters.Insert(this.Statement())
+        Contents := this.Lines()
 
-            If !this.Lexer.Line()
-            {
-                Position1 := this.Lexer.Position
-                Token := this.Lexer.OperatorLeft()
-                If Token && Token.Value.Identifier = "_end"
-                    Break
-                throw Exception("Invalid statement end.",A_ThisFunc,Position1)
-            }
-        }
+        ;check for end of statements
+        Position1 := this.Lexer.Position
+        Token := this.Lexer.OperatorLeft()
+        If !(Token && Token.Value.Identifier = "_end")
+            throw Exception("Invalid statement end.",A_ThisFunc,Position1)
 
         Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
         Length := this.Lexer.Position - Operator.Position
-        Return, new this.Node.Operation(Operation,Parameters,Operator.Position,Length)
+        Return, new this.Node.Operation(Operation,Contents,Operator.Position,Length)
     }
 
     Block(Operator)
     {
         If Operator.Value.Identifier != "_block"
             Return, False
-
-        Contents := []
 
         ;check for empty block
         this.Ignore()
@@ -300,23 +263,17 @@ class Parser
         If Token && Token.Value.Identifier = "_block_end"
         {
             Length := this.Lexer.Position - Position1
-            Return, new this.Node.Block(Contents,Position1,Length)
+            Return, new this.Node.Block([],Position1,Length)
         }
         this.Lexer.Position := Position1
 
-        Loop
-        {
-            Contents.Insert(this.Statement())
+        Contents := this.Lines()
 
-            If !this.Lexer.Line()
-            {
-                Position1 := this.Lexer.Position
-                Token := this.Lexer.OperatorLeft()
-                If Token && Token.Value.Identifier = "_block_end"
-                    Break
-                throw Exception("Invalid block end.",A_ThisFunc,Position1)
-            }
-        }
+        ;check for end of block
+        Position1 := this.Lexer.Position
+        Token := this.Lexer.OperatorLeft()
+        If !(Token && Token.Value.Identifier = "_block_end")
+            throw Exception("Invalid block end.",A_ThisFunc,Position1)
 
         Length := this.Lexer.Position - Position1
         Return, new this.Node.Block(Contents,Position1,Length)
@@ -327,8 +284,6 @@ class Parser
         If Operator.Value.Identifier != "_array"
             Return, False
 
-        Parameters := []
-
         ;check for empty array
         this.Ignore()
         Position1 := this.Lexer.Position
@@ -337,23 +292,17 @@ class Parser
         {
             Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
             Length := this.Lexer.Position - Operator.Position
-            Return, new this.Node.Operation(Operation,Parameters,Operator.Position,Length)
+            Return, new this.Node.Operation(Operation,[],Operator.Position,Length)
         }
         this.Lexer.Position := Position1
 
-        Loop
-        {
-            Parameters.Insert(this.Statement())
+        Parameters := this.ParameterList()
 
-            If !this.Lexer.Separator()
-            {
-                Position1 := this.Lexer.Position
-                Token := this.Lexer.OperatorLeft()
-                If Token && Token.Value.Identifier = "_subscript_end"
-                    Break
-                throw Exception("Invalid array end.",A_ThisFunc,Position1)
-            }
-        }
+        ;check ending bracket is present
+        Position1 := this.Lexer.Position
+        Token := this.Lexer.OperatorLeft()
+        If !(Token && Token.Value.Identifier = "_subscript_end")
+            throw Exception("Invalid array end.",A_ThisFunc,Position1)
 
         Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
         Length := this.Lexer.Position - Operator.Position
@@ -365,61 +314,27 @@ class Parser
         If Operator.Value.Identifier != "_call"
             Return, False
 
-        this.Ignore()
-
-        Parameters := []
-
         ;check for empty parameter list
+        this.Ignore()
         Position1 := this.Lexer.Position
         Token := this.Lexer.OperatorLeft()
         If Token && Token.Value.Identifier = "_end"
         {
-            ;wip: position and length
-            Return, new this.Node.Operation(LeftSide,Parameters,0,0)
+            Length := this.Lexer.Position - LeftSide.Position
+            Return, new this.Node.Operation(LeftSide,[],LeftSide.Position,Length)
         }
         this.Lexer.Position := Position1
 
-        Index := 1
-        Loop
-        {
-            ;parse a parameter
-            Value := this.Statement()
+        Parameters := this.ParameterList()
 
-            If this.Lexer.Map() ;named parameter
-            {
-                ;wip: the below is supposed to parse the named parameter and store it as an object key in the AST, but object keys are lame
-                Parameters[Value] := this.Statement()
-            }
-            Else ;ordered parameter
-            {
-                Parameters[Index] := Value
-                Index ++
-            }
+        ;check ending parenthesis is present
+        Position1 := this.Lexer.Position
+        Token := this.Lexer.OperatorLeft()
+        If !(Token && Token.Value.Identifier = "_end")
+            throw Exception("Invalid call end.",A_ThisFunc,Position1)
 
-            If this.Lexer.Separator() ;parameters remain
-            {
-                ;check for skipped parameters (e.g., f(x,,y))
-                Loop
-                {
-                    this.Ignore()
-                    If !this.Lexer.Separator() ;end of skipped parameters
-                        Break
-                    Index ++ ;move past parameter index
-                }
-            }
-            Else ;end of statements
-            {
-                ;check ending parenthesis is present
-                Position1 := this.Lexer.Position
-                Token := this.Lexer.OperatorLeft()
-                If Token && Token.Value.Identifier = "_end"
-                    Break
-                throw Exception("Invalid call end.",A_ThisFunc,Position1)
-            }
-        }
-
-        ;wip: position and length
-        Return, new this.Node.Operation(LeftSide,Parameters,0,0)
+        Length := this.Lexer.Position - LeftSide.Position
+        Return, new this.Node.Operation(LeftSide,Parameters,LeftSide.Position,Length)
     }
 
     Subscript(Operator,LeftSide)
@@ -447,7 +362,10 @@ class Parser
         Position1 := this.Lexer.Position
         Token := this.Lexer.OperatorLeft()
         If Token && Token.Value.Identifier = "_subscript_end" ;ensure subscript is properly closed
-            Return, new this.Node.Operation(Operation,Parameters,0,0) ;wip: position and length
+        {
+            Length := this.Lexer.Position - LeftSide.Position
+            Return, new this.Node.Operation(Operation,Parameters,LeftSide.Position,Length)
+        }
         throw Exception("Invalid subscript end.",A_ThisFunc,Position1)
     }
 
@@ -464,8 +382,8 @@ class Parser
 
         Operation := new this.Node.Identifier("_subscript",Operator.Position,Operator.Length)
         Parameters := [LeftSide,RightSide]
-        ;wip: position and length
-        Return, new this.Node.Operation(Operation,Parameters,0,0)
+        Length := this.Lexer.Position - LeftSide.Position
+        Return, new this.Node.Operation(Operation,Parameters,LeftSide.Position,Length)
     }
 
     Ternary(Operator,LeftSide)
@@ -474,19 +392,21 @@ class Parser
             Return, False
 
         Branch := this.Statement(Operator.RightBindingPower)
-        Branch := new this.Node.Block([Branch],0,0)
+        Length := this.Lexer.Position - Branch.Position
+        Branch := new this.Node.Block([Branch],Branch.Position,Length)
 
         Parameters := [LeftSide,Branch]
         If this.Lexer.Map() ;ternary expression
         {
             Alternative := this.Statement(Operator.RightBindingPower)
-            Alternative := new this.Node.Block([Alternative],0,0)
+            Length := this.Lexer.Position - Alternative.Position
+            Alternative := new this.Node.Block([Alternative],Alternative.Position,Length)
             Parameters.Insert(Alternative)
         }
 
         Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
-        ;wip: position and length
-        Return, new this.Node.Operation(Operation,Parameters,0,0)
+        Length := this.Lexer.Position - LeftSide.Position
+        Return, new this.Node.Operation(Operation,Parameters,LeftSide.Position,Length)
     }
 
     BooleanShortCircuit(Operator,LeftSide)
@@ -495,12 +415,13 @@ class Parser
             Return, False
 
         RightSide := this.Statement(Operator.Value.RightBindingPower)
-        RightSide := new this.Node.Block([RightSide],0,0)
+        Length := this.Lexer.Position - RightSide.Position
+        RightSide := new this.Node.Block([RightSide],RightSide.Position,Length)
 
         Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
         Parameters := [LeftSide,RightSide]
-        ;wip: position and length
-        Return, new this.Node.Operation(Operation,Parameters,0,0)
+        Length := this.Lexer.Position - LeftSide.Position
+        Return, new this.Node.Operation(Operation,Parameters,LeftSide.Position,Length)
     }
 
     Ignore()
@@ -512,5 +433,51 @@ class Parser
                 Break
         }
         this.Lexer.Whitespace()
+    }
+
+    Lines()
+    {
+        Contents := []
+        Loop
+        {
+            Contents.Insert(this.Statement())
+            If !this.Lexer.Line()
+                Break
+        }
+        Return, Contents
+    }
+
+    ParameterList()
+    {
+        Parameters := []
+        Index := 1
+        Loop
+        {
+            ;parse a parameter
+            Value := this.Statement()
+
+            If this.Lexer.Map() ;named parameter
+                Parameters[Value] := this.Statement()
+            Else ;ordered parameter
+            {
+                Parameters[Index] := Value
+                Index ++
+            }
+
+            If this.Lexer.Separator() ;parameters remain
+            {
+                ;check for skipped parameters (e.g., x,,y)
+                Loop
+                {
+                    this.Ignore()
+                    If !this.Lexer.Separator() ;end of skipped parameters
+                        Break
+                    Index ++ ;move past parameter index
+                }
+            }
+            Else ;end of parameters
+                Break
+        }
+        Return, Parameters
     }
 }
