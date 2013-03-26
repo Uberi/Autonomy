@@ -27,9 +27,9 @@ class Reconstruct
         For Index, Token In Value
         {
             If Token.Type = "OperatorNull"
-                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`t" . Token.Value . "`n"
+                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`t" . Token.Value.Identifier . "`n"
             Else If Token.Type = "OperatorLeft"
-                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`t" . Token.Value . "`n"
+                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`t" . Token.Value.Identifier . "`n"
             Else If Token.Type = "Line"
                 Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`n"
             Else If Token.Type = "Separator"
@@ -52,18 +52,111 @@ class Reconstruct
 
     Tree(Value)
     {
+        static OperatorUnary := {_address: "&"
+                                ,_bit_not: "~"
+                                ,_invert:  "-"
+                                ,_not:     "!"}
+        static OperatorBinary := {_exponentiate:          "**"
+                                 ,_modulo:                "%%"
+                                 ,_remainder:             "%"
+                                 ,_divide_floor:          "//"
+                                 ,_divide:                "/"
+                                 ,_multiply:              "*"
+                                 ,_subtract:              "-"
+                                 ,_add:                   "+"
+                                 ,_shift_right_unsigned:  ">>>"
+                                 ,_shift_right:           ">>"
+                                 ,_shift_left:            "<<"
+                                 ,_bit_and:               "&"
+                                 ,_bit_exclusive_or:      "^"
+                                 ,_bit_or:                "|"
+                                 ,_concatenate:           ".."
+                                 ,_less_than_or_equal:    "<="
+                                 ,_greater_than_or_equal: ">="
+                                 ,_less_than:             "<"
+                                 ,_greater_than:          ">"
+                                 ,_not_equals_strict:     "!=="
+                                 ,_not_equals:            "!="
+                                 ,_equals_strict:         "=="
+                                 ,_equals:                "="}
         If Value.Type = "Operation"
         {
-            Result := "(" . this.Tree(Value.Value)
-            For Index, Parameter In Value.Parameters
-                Result .= " " . this.Tree(Parameter)
+            Callable := Value.Value
+            Parameters := Value.Parameters
+            If Callable.Type = "Identifier"
+            {
+                If Callable.Value = "_subscript"
+                {
+                    If Parameters[2].Type = "Symbol"
+                        Return, "(" . this.Tree(Parameters[1]) . "." . Parameters[2].Value . ")"
+                    Return, this.Tree(Parameters[1]) . "[" . this.Tree(Parameters[2]) . "]"
+                }
+                If Callable.Value = "_array"
+                {
+                    Result := "["
+                    ParameterValue := []
+                    Loop, % Parameters.MaxIndex()
+                        ParameterValue.Insert(Parameters.HasKey(A_Index) ? this.Tree(Parameters[A_Index]) : "")
+                    For Key, Parameter In Parameters
+                    {
+                        If IsObject(Key)
+                            ParameterValue.Insert(this.Tree(Key) . ": " . this.Tree(Parameter))
+                    }
+                    For Index, Value In ParameterValue
+                    {
+                        If Index != 1
+                            Result .= "," . (Value = "" ? "" : " ")
+                        Result .= Value
+                    }
+                    Return, Result . "]"
+                }
+                If Callable.Value = "_evaluate"
+                {
+                    Result := "("
+                    For Index, Parameter In Parameters
+                        Result .= this.Tree(Parameter) . "`n"
+                    Return, SubStr(Result,1,-1) . ")"
+                }
+                If Callable.Value = "_and"
+                    Return, "(" . this.Tree(Parameters[1]) . " && " . this.Tree(Parameters[2].Contents[1]) . ")"
+                If Callable.Value = "_or"
+                    Return, "(" . this.Tree(Parameters[1]) . " || " . this.Tree(Parameters[2].Contents[1]) . ")"
+                If Callable.Value = "_if"
+                    Return, "(" . this.Tree(Parameters[1]) . " ? " . this.Tree(Parameters[2].Contents[1]) . " : " . this.Tree(Parameters[3].Contents[1]) . ")"
+                If Callable.Value = "_slice"
+                {
+                    Result := this.Tree(Parameters[1]) . "[" . this.Tree(Parameters[2]) . ":" . this.Tree(Parameters[3])
+                    If Value.Parameters.HasKey(4)
+                        Result .= ":" . this.Tree(Parameters[4])
+                    Return, Result . "]"
+                }
+                If OperatorUnary.HasKey(Callable.Value)
+                    Return, "(" . OperatorUnary[Callable.Value] . this.Tree(Parameters[1]) . ")"
+                If OperatorBinary.HasKey(Callable.Value)
+                    Return, "(" . this.Tree(Parameters[1]) . " " . OperatorBinary[Callable.Value] . " " . this.Tree(Parameters[2]) . ")"
+            }
+            Result := this.Tree(Value.Value) . "("
+            ParameterValue := []
+            Loop, % Parameters.MaxIndex()
+                ParameterValue.Insert(Parameters.HasKey(A_Index) ? this.Tree(Parameters[A_Index]) : "")
+            For Key, Parameter In Parameters
+            {
+                If IsObject(Key)
+                    ParameterValue.Insert(this.Tree(Key) . ": " . this.Tree(Parameter))
+            }
+            For Index, Value In ParameterValue
+            {
+                If Index != 1
+                    Result .= "," . (Value = "" ? "" : " ")
+                Result .= Value
+            }
             Return, Result . ")"
         }
         If Value.Type = "Block"
         {
             Result := ""
             For Index, Content In Value.Contents
-                Result .= this.Tree(Content) . " "
+                Result .= this.Tree(Content) . "`n"
             Return, "{" . SubStr(Result,1,-1) . "}"
         }
         If Value.Type = "Symbol"
@@ -74,7 +167,7 @@ class Reconstruct
             Return, Value.Value
         If Value.Type = "Number"
             Return, Value.Value
-        Return, "UNKNOWN_VALUE"
+        Return, "(UNKNOWN_VALUE)"
     }
 
     Bytecode(Value)

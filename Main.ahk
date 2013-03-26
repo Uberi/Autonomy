@@ -30,6 +30,7 @@ TODO
 
 Short term tasks:
 
+* fold _slice into _subscript
 * consider using , to denote an array and [] to denote an object: x := 1, 2, 3 (still need a good way to represent empty or single element arrays)
 * Comparisons can be chained arbitrarily, e.g., x < y <= z is equivalent to x < y and y <= z, except that y is evaluated only once (but in both cases z is not evaluated at all when x < y is found to be false). Formally, if a, b, c, ..., y, z are expressions and op1, op2, ..., opN are comparison operators, then a op1 b op2 c ... y opN z is equivalent to a op1 b and b op2 c and ... y opN z, except that each expression is evaluated at most once.
     * Need to figure out how to represent this in the AST first
@@ -88,7 +89,8 @@ FileName := A_ScriptFullPath ;set the file name of the current file
 ;Value = f(x,,,,,,,,y)
 ;Value = a[1] + a[1 :   2  ] + a[1:2:3]
 ;Value = f x,, y: 'abc, z
-Value = 1 - 2 * 3
+;Value = 1 - 2 * 3
+;Value = [a, f: g, b, 4, d: e,, c]
 
 /* ;lexer testing
 l := new Code.Lexer(Value)
