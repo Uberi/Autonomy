@@ -382,11 +382,14 @@ class Lexer
                 Return, new this.Token.String(Output,Position1,Length)
             }
 
-            Value := this.Escape() ;check for escape sequence
-            If Value
+            ;check for escape sequence
+            If this.Escape(Value)
                 Output .= Value
             Else
-                Output .= CurrentChar, this.Position ++
+            {
+                Output .= CurrentChar
+                this.Position ++
+            }
         }
         throw Exception("Invalid string.",A_ThisFunc,Position1)
     }
@@ -601,40 +604,47 @@ class Lexer
         Return, True
     }
 
-    Escape() ;wip: `c[asc("0")] could produce incorrect results, returning false
+    Escape(ByRef Output)
     {
         If SubStr(this.Text,this.Position,1) != "``" ;check for escape character
             Return, False
         this.Position ++ ;move past escape character
 
         CurrentChar := SubStr(this.Text,this.Position,1) ;obtain the escaped character
+        this.Position ++ ;move past escaped character
+
+        ;check for skipped line end
+        If (CurrentChar = "") ;end of input
+        {
+            this.Position -- ;move back to the end of input
+            Output := ""
+        }
         If (CurrentChar = "`n") ;skip `n if present
-            Output := "`n", this.Position ++
+            Output := ""
         Else If (CurrentChar = "`r") ;skip either `r or `r`n if present
         {
-            If SubStr(this.Text,this.Position + 1,1) = "`n" ;check for newline and ignore if present
+            Output := ""
+            If SubStr(this.Text,this.Position,1) = "`n" ;check for newline and ignore if present
                 this.Position ++
-            Output := "`n", this.Position ++
         }
         Else If (CurrentChar = "``") ;literal backtick
-            Output := "``", this.Position ++
+            Output := "``"
         Else If (CurrentChar = """") ;literal quote
-            Output := """", this.Position ++
+            Output := """"
         Else If (CurrentChar = "r") ;literal carriage return
-            Output := "`r", this.Position ++
+            Output := "`r"
         Else If (CurrentChar = "n") ;literal newline
-            Output := "`n", this.Position ++
+            Output := "`n"
         Else If (CurrentChar = "t") ;literal tab
-            Output := "`t", this.Position ++
+            Output := "`t"
         Else If (CurrentChar = "c") ;character code
         {
-            this.Position ++ ;move past the character code marker
-
             If SubStr(this.Text,this.Position,1) = "[" ;character code start
                 this.Position ++ ;move past opening square bracket
             Else
             {
                 ;wip: nonfatal error
+                Return, False
             }
 
             CharacterCode := SubStr(this.Text,this.Position,1)
@@ -648,19 +658,22 @@ class Lexer
                 Else ;unclosed character code
                 {
                     ;wip: nonfatal error
+                    Return, False
                 }
                 Output := Chr(CharacterCode)
             }
             Else ;invalid character code
             {
                 ;wip: nonfatal error
+                Return, False
             }
         }
         Else
         {
+            this.Position -- ;move back to the unknown escaped character
             ;wip: nonfatal error goes here
-            this.Position ++ ;move past the unknown escape
+            Return, False
         }
-        Return, Output
+        Return, True
     }
 }
