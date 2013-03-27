@@ -345,28 +345,23 @@ class Parser
         Position1 := this.Lexer.Position
 
         RightSide := this.Statement() ;obtain subscript index
-        If this.Lexer.Map() ;array slicing
+        Parameters := [LeftSide,RightSide] ;array, start index
+        If this.Lexer.Map() ;array slice
         {
-            Parameters := [LeftSide,RightSide,this.Statement()] ;array, start index, end index
-            If this.Lexer.Map() ;step value for slice
+            Parameters.Insert(this.Statement()) ;end index
+            If this.Lexer.Map() ;step value
                 Parameters.Insert(this.Statement())
-            Length := this.Lexer.Position - Position1
-            Operation := new this.Node.Identifier("_slice",Position1,Length)
-        }
-        Else
-        {
-            Parameters := [LeftSide,RightSide] ;array, index
-            Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
         }
 
-        Position1 := this.Lexer.Position
+        Position2 := this.Lexer.Position
         Token := this.Lexer.OperatorLeft()
         If Token && Token.Value.Identifier = "_subscript_end" ;ensure subscript is properly closed
         {
+            Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
             Length := this.Lexer.Position - LeftSide.Position
             Return, new this.Node.Operation(Operation,Parameters,LeftSide.Position,Length)
         }
-        throw Exception("Invalid subscript end.",A_ThisFunc,Position1)
+        throw Exception("Invalid subscript end.",A_ThisFunc,Position2)
     }
 
     SubscriptIdentifier(Operator,LeftSide)

@@ -30,7 +30,6 @@ TODO
 
 Short term tasks:
 
-* fold _slice into _subscript
 * consider using , to denote an array and [] to denote an object: x := 1, 2, 3 (still need a good way to represent empty or single element arrays)
 * Comparisons can be chained arbitrarily, e.g., x < y <= z is equivalent to x < y and y <= z, except that y is evaluated only once (but in both cases z is not evaluated at all when x < y is found to be false). Formally, if a, b, c, ..., y, z are expressions and op1, op2, ..., opN are comparison operators, then a op1 b op2 c ... y opN z is equivalent to a op1 b and b op2 c and ... y opN z, except that each expression is evaluated at most once.
     * Need to figure out how to represent this in the AST first
@@ -42,7 +41,7 @@ Short term tasks:
 Long term tasks:
 
 * implement all control flow and exceptions using continuations, continuation passing style is the norm with implicit continuations parameter, sort of like the "this" param in other languages
-    * have "self" and $ available at all times, which represent the object instance and the passed continuations object
+    * have "self" and $ available at all times, which represent the object instance and the passed continuations object/scope object
     * $.return(x), $.continue(), $.parent.break()
     * http://matt.might.net/articles/by-example-continuation-passing-style/
 * async "promise" and green thread system with async exceptions

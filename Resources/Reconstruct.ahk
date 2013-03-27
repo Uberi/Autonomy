@@ -87,9 +87,14 @@ class Reconstruct
             {
                 If Callable.Value = "_subscript"
                 {
-                    If Parameters[2].Type = "Symbol"
-                        Return, "(" . this.Tree(Parameters[1]) . "." . Parameters[2].Value . ")"
-                    Return, this.Tree(Parameters[1]) . "[" . this.Tree(Parameters[2]) . "]"
+                    Count := Parameters.MaxIndex()
+                    If Count = 2 ;normal subscripting
+                    {
+                        If Parameters[2].Type = "Symbol"
+                            Return, "(" . this.Tree(Parameters[1]) . "." . Parameters[2].Value . ")"
+                        Return, this.Tree(Parameters[1]) . "[" . this.Tree(Parameters[2]) . "]"
+                    }
+                    Return, this.Tree(Parameters[1]) . "[" . this.Tree(Parameters[2]) . ":" . this.Tree(Parameters[3]) . (Count = 3 ? "" :  ":" . this.Tree(Parameters[4])) . "]"
                 }
                 If Callable.Value = "_array"
                 {
@@ -123,13 +128,6 @@ class Reconstruct
                     Return, "(" . this.Tree(Parameters[1]) . " || " . this.Tree(Parameters[2].Contents[1]) . ")"
                 If Callable.Value = "_if"
                     Return, "(" . this.Tree(Parameters[1]) . " ? " . this.Tree(Parameters[2].Contents[1]) . " : " . this.Tree(Parameters[3].Contents[1]) . ")"
-                If Callable.Value = "_slice"
-                {
-                    Result := this.Tree(Parameters[1]) . "[" . this.Tree(Parameters[2]) . ":" . this.Tree(Parameters[3])
-                    If Value.Parameters.HasKey(4)
-                        Result .= ":" . this.Tree(Parameters[4])
-                    Return, Result . "]"
-                }
                 If OperatorUnary.HasKey(Callable.Value)
                     Return, "(" . OperatorUnary[Callable.Value] . this.Tree(Parameters[1]) . ")"
                 If OperatorBinary.HasKey(Callable.Value)
