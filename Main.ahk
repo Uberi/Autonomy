@@ -30,7 +30,8 @@ TODO
 
 Short term tasks:
 
-* consider using , to denote an array and [] to denote an object: x := 1, 2, 3 (still need a good way to represent empty or single element arrays)
+* consider using , to denote an array and [] to denote an object: x := 1, 2, 3
+    * still need a good way to represent empty or single element arrays, or make it transparent like MATLAB
 * Comparisons can be chained arbitrarily, e.g., x < y <= z is equivalent to x < y and y <= z, except that y is evaluated only once (but in both cases z is not evaluated at all when x < y is found to be false). Formally, if a, b, c, ..., y, z are expressions and op1, op2, ..., opN are comparison operators, then a op1 b op2 c ... y opN z is equivalent to a op1 b and b op2 c and ... y opN z, except that each expression is evaluated at most once.
     * Need to figure out how to represent this in the AST first
         * pretty much have to use a && b && c -> (logic a 'and b 'and c) or make the AST a graph (object references are significant)
@@ -90,8 +91,10 @@ FileName := A_ScriptFullPath ;set the file name of the current file
 ;Value = f x,, y: 'abc, z
 ;Value = 1 - 2 * 3
 ;Value = [a, f: g, b, 4, d: e,, c]
+Value = 1`n `n `n `n `n `n2`n ;wip: handle the trailing newline
+Value = "escaped```` ``"quote``" and``ttab``n"
 
-/* ;lexer testing
+;/* ;lexer testing
 l := new Code.Lexer(Value)
 Tokens := []
 While, Token := l.Next()
@@ -100,7 +103,7 @@ MsgBox % Clipboard := Reconstruct.Tokens(Tokens)
 ExitApp
 */
 
-;/* ;parser testing
+/* ;parser testing
 l := new Code.Lexer(Value)
 p := new Code.Parser(l)
 SyntaxTree := p.Parse()

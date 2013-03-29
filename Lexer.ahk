@@ -295,23 +295,21 @@ class Lexer
     OperatorNull()
     {
         Length := this.Operators.MaxNullLength
+        Position1 := this.Position
         While, Length > 0
         {
-            Output := SubStr(this.Text,this.Position,Length)
-            If StrLen(Output) = Length ;operator is not truncated at the end of input
-                && this.Operators.NullDenotation.HasKey(Output) ;operator found
+            Output := this.Char(Length)
+            If this.Operators.NullDenotation.HasKey(Output) ;operator found
             {
-                ;if the operator ends in an identifier character, ensure that the ending is not an identifier
-                If !(InStr("abcdefghijklmnopqrstuvwxyz0123456789",SubStr(Output,0))
-                    && (NextChar := SubStr(this.Text,this.Position + Length,1)) != ""
-                    && InStr("abcdefghijklmnopqrstuvwxyz0123456789",NextChar))
+                ;if the operator ends in an identifier character, check next char: x is y -> is(x, y), x isAAA y -> x(isAAA(y))
+                If !InStr("abcdefghijklmnopqrstuvwxyz_0123456789",SubStr(Output,0)) ;operator does not end in an identifier character
+                    || !this.Match("abcdefghijklmnopqrstuvwxyz_0123456789") ;operator ends in an identifier character, but next character is not an identifier character
                 {
-                    Position1 := this.Position
-                    this.Position += Length
                     Operator := this.Operators.NullDenotation[Output]
                     Return, new this.Token.OperatorNull(Operator,Position1,Length)
                 }
             }
+            this.Position := Position1
             Length --
         }
         Return, False
@@ -320,23 +318,21 @@ class Lexer
     OperatorLeft()
     {
         Length := this.Operators.MaxLeftLength
+        Position1 := this.Position
         While, Length > 0
         {
-            Output := SubStr(this.Text,this.Position,Length)
-            If StrLen(Output) = Length ;operator is not truncated at the end of input
-                && this.Operators.LeftDenotation.HasKey(Output) ;operator found
+            Output := this.Char(Length)
+            If this.Operators.LeftDenotation.HasKey(Output) ;operator found
             {
-                ;if the operator ends in an identifier character, ensure that the ending is not an identifier
-                If !(InStr("abcdefghijklmnopqrstuvwxyz0123456789",SubStr(Output,0))
-                    && (NextChar := SubStr(this.Text,this.Position + Length,1)) != ""
-                    && InStr("abcdefghijklmnopqrstuvwxyz0123456789",NextChar))
+                ;if the operator ends in an identifier character, check next char: x is y -> is(x, y), x isAAA y -> x(isAAA(y))
+                If !InStr("abcdefghijklmnopqrstuvwxyz_0123456789",SubStr(Output,0)) ;operator does not end in an identifier character
+                    || !this.Match("abcdefghijklmnopqrstuvwxyz_0123456789") ;operator ends in an identifier character, but next character is not an identifier character
                 {
-                    Position1 := this.Position
-                    this.Position += Length
                     Operator := this.Operators.LeftDenotation[Output]
                     Return, new this.Token.OperatorLeft(Operator,Position1,Length)
                 }
             }
+            this.Position := Position1
             Length --
         }
         Return, False
@@ -345,21 +341,19 @@ class Lexer
     Symbol()
     {
         Position1 := this.Position
-        If SubStr(this.Text,Position1,1) != "'" ;check for symbol character
-            Return, False
-        this.Position ++
 
-        Output := SubStr(this.Text,this.Position,1)
-        If (Output = "" || !InStr("abcdefghijklmnopqrstuvwxyz_0123456789",Output)) ;check first character against valid symbol characters
+        If !this.Match("'") ;check for symbol character
+            Return, False
+
+        If !this.Match("abcdefghijklmnopqrstuvwxyz_0123456789",Output)
         {
             ;wip: nonfatal error
             throw Exception("Invalid symbol.",A_ThisFunc,Position1)
         }
-        this.Position ++ ;move past the first character of the symbol
 
         ;obtain the rest of the symbol
-        While, (CurrentChar := SubStr(this.Text,this.Position,1)) != "" && InStr("abcdefghijklmnopqrstuvwxyz_0123456789",CurrentChar)
-            Output .= CurrentChar, this.Position ++
+        While, this.Match("abcdefghijklmnopqrstuvwxyz_0123456789",CurrentChar)
+            Output .= CurrentChar
 
         Length := this.Position - Position1
         Return, new this.Token.Symbol(Output,Position1,Length)
@@ -368,28 +362,21 @@ class Lexer
     String()
     {
         Position1 := this.Position
-        If SubStr(this.Text,Position1,1) != """" ;check for opening quote
+        If !this.Match("""") ;check for opening quote
             Return, False
-        this.Position ++ ;move past the opening quote
 
         Output := ""
-        While, (CurrentChar := SubStr(this.Text,this.Position,1)) != "" && CurrentChar != "`r" && CurrentChar != "`n" ;loop through string contents
+        Loop
         {
+            CurrentChar := this.Char()
+            If (CurrentChar = "" || CurrentChar = "`r" || CurrentChar = "`n")
+                Break
             If (CurrentChar = """") ;check for closing quote
             {
-                this.Position ++ ;move past closing quote
                 Length := this.Position - Position1
                 Return, new this.Token.String(Output,Position1,Length)
             }
-
-            ;check for escape sequence
-            If this.Escape(Value)
-                Output .= Value
-            Else
-            {
-                Output .= CurrentChar
-                this.Position ++
-            }
+            Output .= CurrentChar
         }
         throw Exception("Invalid string.",A_ThisFunc,Position1)
     }
@@ -397,14 +384,12 @@ class Lexer
     Identifier()
     {
         Position1 := this.Position
-        Output := SubStr(this.Text,Position1,1)
-        If (Output = "" || !InStr("abcdefghijklmnopqrstuvwxyz_",Output)) ;check first character against valid identifier characters
+        If !this.Match("abcdefghijklmnopqrstuvwxyz_",Output) ;check for identifier character
             Return, False
-        this.Position ++ ;move past the first character of the identifier
 
         ;obtain the rest of the identifier
-        While, (CurrentChar := SubStr(this.Text,this.Position,1)) != "" && InStr("abcdefghijklmnopqrstuvwxyz_0123456789",CurrentChar)
-            Output .= CurrentChar, this.Position ++
+        While, this.Match("abcdefghijklmnopqrstuvwxyz_0123456789",CurrentChar)
+            Output .= CurrentChar
 
         Length := this.Position - Position1
         Return, new this.Token.Identifier(Output,Position1,Length)
@@ -413,85 +398,71 @@ class Lexer
     Number()
     {
         Position1 := this.Position
-        Output := SubStr(this.Text,Position1,1)
-        If (Output = "" || !InStr("0123456789",Output)) ;check for numerical digits
+        If !this.Match("0123456789",Output) ;check for numerical digits
             Return, False
-        this.Position ++ ;move past the first digit
 
         Exponent := 0
         NumberBase := 10, CharSet := "0123456789"
         If Output = 0 ;starting digit is 0
         {
-            CurrentChar := SubStr(this.Text,this.Position,1)
+            CurrentChar := this.Char()
             If (CurrentChar = "x") ;hexidecimal base
-            {
-                this.Position ++
                 NumberBase := 16, CharSet := "0123456789ABCDEF"
-            }
             Else If (CurrentChar = "b") ;binary base
-            {
-                this.Position ++
                 NumberBase := 2, CharSet := "01"
-            }
         }
 
         ;handle integer digits of number
-        While, (CurrentChar := SubStr(this.Text,this.Position,1)) != "" ;not past the end of the input
-            && (Value := InStr(CharSet,CurrentChar)) ;character is numeric
-            Output := (Output * NumberBase) + (Value - 1), this.Position ++
+        While, Value := this.Match(CharSet) ;character is numeric
+            Output := (Output * NumberBase) + (Value - 1)
 
         ;handle decimal point if present, disambiguating the decimal point from the object access operator
-        If SubStr(this.Text,this.Position,1) = "." ;period found
+        Position2 := this.Position
+        If this.Match(".") ;period found
         {
             If (NumberBase != 16 ;decimals should not be available in hexadecimal numbers
-                && (CurrentChar := SubStr(this.Text,this.Position + 1,1)) != "" ;not past end of the input
-                && InStr(CharSet,CurrentChar)) ;character after period is numeric
+                && Value := this.Match(CharSet)) ;character after period is numeric
             {
-                this.Position ++
-
                 ;handle decimal digits of number
-                While, (CurrentChar := SubStr(this.Text,this.Position,1)) != "" ;not past the end of the input
-                    && (Value := InStr(CharSet,CurrentChar)) ;character is numeric
-                    Output := (Output * NumberBase) + (Value - 1), this.Position ++, Exponent --
+                Output := (Output * NumberBase) + (Value - 1), Exponent --
+                While, Value := this.Match(CharSet) ;character is numeric
+                    Output := (Output * NumberBase) + (Value - 1), Exponent --
             }
             Else ;object access operator
             {
+                this.Position := Position2
                 Length := this.Position - Position1
                 Return, new this.Token.Number(Output,Position1,Length)
             }
         }
 
         If (NumberBase != 16 ;exponents should not be available in hexadecimal numbers
-            && SubStr(this.Text,this.Position,1) = "e") ;exponent found
+            && this.Match("e")) ;exponent found
         {
-            this.Position ++
-
-            If (CurrentChar = "-") ;exponent is negative
-                Sign := -1, this.Position ++
+            If this.Match("-") ;exponent is negative
+                Sign := -1
             Else
                 Sign := 1
 
-            Value := SubStr(this.Text,this.Position,1)
-            If (Value = "" || !InStr("0123456789",Value)) ;check for numeric exponent
+            If !this.Match("0123456789",Value)
             {
                 ;wip: nonfatal error
                 throw Exception("Invalid exponent.",A_ThisFunc,Position1)
             }
-            this.Position ++ ;move past the first character of the exponent
 
             ;handle digits of the exponent
-            While, (CurrentChar := SubStr(this.Text,this.Position,1)) != "" && InStr("0123456789",CurrentChar)
-                Value := (Value * 10) + CurrentChar, this.Position ++
+            While, CurrentChar := this.Match("0123456789")
+                Value := (Value * 10) + (CurrentChar - 1)
 
             Exponent += Value * Sign
         }
 
         ;check for invalid identifier
-        CurrentChar := SubStr(this.Text,this.Position,1)
-        If (CurrentChar != "" && InStr("abcdefghijklmnopqrstuvwxyz_",CurrentChar))
+        Position2 := this.Position
+        If this.Match("abcdefghijklmnopqrstuvwxyz_")
         {
             ;wip: nonfatal error
-            throw Exception("Invalid identifier.",A_ThisFunc,this.Position)
+            throw Exception("Invalid identifier.",A_ThisFunc,Position2)
         }
 
         ;apply exponent
@@ -506,14 +477,13 @@ class Lexer
         Position1 := this.Position
 
         ;check for line end
-        CurrentChar := SubStr(this.Text,Position1,1)
-        If (CurrentChar != "`r" && CurrentChar != "`n")
+        If !this.Match("`r`n")
             Return, False
-        this.Position ++ ;move past the line end
 
         ;move past any remaining line end characters
-        While, (CurrentChar := SubStr(this.Text,this.Position,1)) = "`r" || CurrentChar = "`n"
-            this.Position ++
+        this.Whitespace()
+        While, this.Match("`r`n")
+            this.Whitespace()
 
         Length := this.Position - Position1
         Return, new this.Token.Line(Position1,Length)
@@ -524,10 +494,9 @@ class Lexer
         Position1 := this.Position
 
         ;check for separator
-        If SubStr(this.Text,Position1,1) != ","
+        If !this.Match(",")
             Return, False
 
-        this.Position ++ ;move past the separator
         Return, new this.Token.Separator(Position1,1)
     }
 
@@ -536,72 +505,102 @@ class Lexer
         Position1 := this.Position
 
         ;check for map
-        If SubStr(this.Text,Position1,1) != ":"
+        If !this.Match(":")
             Return, False
 
-        this.Position ++ ;move past the map
         Return, new this.Token.Map(Position1,1)
     }
 
     Comment()
     {
         Position1 := this.Position
-        If SubStr(this.Text,this.Position,1) = ";"
+        If this.Match(";")
         {
             Output := ""
-            this.Position ++ ;move past comment marker
-            While, (CurrentChar := SubStr(this.Text,this.Position,1)) != "" && CurrentChar != "`r" && CurrentChar != "`n"
-                Output .= CurrentChar, this.Position ++
+            Loop
+            {
+                Position2 := this.Position
+                CurrentChar := this.Char()
+                If (CurrentChar = "" || CurrentChar = "`r" || CurrentChar = "`n")
+                    Break
+                Output .= CurrentChar
+            }
+            this.Position := Position2
             Length := this.Position - Position1
             Return, new this.Token.Comment(Output,Position1,Length)
         }
-        If SubStr(this.Text,this.Position,2) = "/*"
+        If this.Match("/") && this.Match("*")
         {
             Output := ""
-            this.Position += 2 ;move past the comment start
             CommentLevel := 1
             Loop
             {
-                CurrentChar := SubStr(this.Text,this.Position,2)
+                CurrentChar := this.Char()
                 If (CurrentChar = "") ;past end of input
                     Break
-                If (CurrentChar = "/*") ;comment start
+                If (CurrentChar = "/" && this.Match("*")) ;comment start
                 {
                     CommentLevel ++
-                    this.Position += 2 ;move past the comment start
-                    Output .= CurrentChar
+                    Output .= "/*"
                 }
-                Else If (CurrentChar = "*/") ;comment end
+                Else If (CurrentChar = "*" && this.Match("/")) ;comment end
                 {
                     CommentLevel --
-                    this.Position += 2 ;move past the comment end
                     If CommentLevel = 0 ;original comment end
                         Break
-                    Output .= CurrentChar
+                    Output .= "*/"
                 }
                 Else
-                {
-                    this.Position ++
-                    Output .= SubStr(CurrentChar,1,1)
-                }
+                    Output .= CurrentChar
             }
             Length := this.Position - Position1
             Return, new this.Token.Comment(Output,Position1,Length)
         }
+        this.Position := Position1
         Return, False
     }
 
     Whitespace()
     {
-        CurrentChar := SubStr(this.Text,this.Position,1)
-        If (CurrentChar != " " && CurrentChar != "`t")
+        If !this.Match(" `t")
             Return, False
-        this.Position ++ ;move past whitespace
 
         ;move past any remaining whitespace
-        While, (CurrentChar := SubStr(this.Text,this.Position,1)) = " " || CurrentChar = "`t"
-            this.Position ++
+        While, this.Match(" `t")
+        {
+        }
         Return, True
+    }
+
+    Char(Length = 1)
+    {
+        Result := ""
+        Loop, %Length%
+        {
+            If !this.Escape(CurrentChar)
+            {
+                CurrentChar := SubStr(this.Text,this.Position,1)
+                If (CurrentChar = "")
+                    Return, ""
+                this.Position ++
+            }
+            Result .= CurrentChar
+        }
+        Return, Result
+    }
+
+    Match(Characters,ByRef Matched = "")
+    {
+        Position1 := this.Position
+        Matched := this.Char()
+        If (Matched != "")
+        {
+            Index := InStr(Characters,Matched)
+            If Index
+                Return, Index
+        }
+        this.Position := Position1
+        Return, False
     }
 
     Escape(ByRef Output)
