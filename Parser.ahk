@@ -106,7 +106,7 @@ class Parser
         Contents := this.Lines()
 
         ;check for end of input
-        If this.Lexer.Next() ;input still remains
+        If !this.Lexer.End() ;input still remains
             throw Exception("Invalid program end.",A_ThisFunc,Position1)
 
         Operation := new this.Node.Identifier("_evaluate",Position1,0)
@@ -130,10 +130,8 @@ class Parser
         }
 
         ;check for end of input
-        Position2 := this.Lexer.Position
-        If !this.Lexer.Next() ;statement not found
+        If this.Lexer.End() ;statement not found
             Return, Operation
-        this.Lexer.Position := Position2
 
         Parameters := this.ParameterList()
 
@@ -437,6 +435,8 @@ class Parser
         {
             Contents.Insert(this.Statement())
             If !this.Lexer.Line()
+                Break
+            If this.Lexer.End() ;end of input
                 Break
         }
         Return, Contents

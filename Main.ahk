@@ -91,10 +91,9 @@ FileName := A_ScriptFullPath ;set the file name of the current file
 ;Value = f x,, y: 'abc, z
 ;Value = 1 - 2 * 3
 ;Value = [a, f: g, b, 4, d: e,, c]
-Value = 1`n `n `n `n `n `n2`n ;wip: handle the trailing newline
-Value = "escaped```` ``"quote``" and``ttab``n"
+Value = 1`n `n `n `n `n `n2`n    `n   `r
 
-;/* ;lexer testing
+/* ;lexer testing
 l := new Code.Lexer(Value)
 Tokens := []
 While, Token := l.Next()
@@ -103,7 +102,7 @@ MsgBox % Clipboard := Reconstruct.Tokens(Tokens)
 ExitApp
 */
 
-/* ;parser testing
+;/* ;parser testing
 l := new Code.Lexer(Value)
 p := new Code.Parser(l)
 SyntaxTree := p.Parse()

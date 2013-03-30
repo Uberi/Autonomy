@@ -243,7 +243,7 @@ class Lexer
 
         this.Whitespace()
 
-        If SubStr(this.Text,this.Position,1) = "" ;past end of text
+        If this.End() ;past end of text
         {
             this.Position := Position1
             Return, False
@@ -368,13 +368,24 @@ class Lexer
         Output := ""
         Loop
         {
-            CurrentChar := this.Char()
-            If (CurrentChar = "" || CurrentChar = "`r" || CurrentChar = "`n")
-                Break
-            If (CurrentChar = """") ;check for closing quote
+            If SubStr(this.Text,this.Position,2) = "``""" ;escaped close quote
             {
-                Length := this.Position - Position1
-                Return, new this.Token.String(Output,Position1,Length)
+                this.Position += 2
+                CurrentChar := """"
+            }
+            Else If !this.Escape(CurrentChar) ;check for escape sequences
+            {
+                If this.End() ;check for end of input
+                    Break
+                CurrentChar := SubStr(this.Text,this.Position,1)
+                If (CurrentChar = "`r" || CurrentChar = "`n") ;invalid string end
+                    Break
+                this.Position ++ ;move past character
+                If (CurrentChar = """") ;closing quote found
+                {
+                    Length := this.Position - Position1
+                    Return, new this.Token.String(Output,Position1,Length)
+                }
             }
             Output .= CurrentChar
         }
@@ -520,8 +531,10 @@ class Lexer
             Loop
             {
                 Position2 := this.Position
+                If this.End() ;check for end of input
+                    Break
                 CurrentChar := this.Char()
-                If (CurrentChar = "" || CurrentChar = "`r" || CurrentChar = "`n")
+                If (CurrentChar = "`r" || CurrentChar = "`n")
                     Break
                 Output .= CurrentChar
             }
@@ -535,9 +548,9 @@ class Lexer
             CommentLevel := 1
             Loop
             {
-                CurrentChar := this.Char()
-                If (CurrentChar = "") ;past end of input
+                If this.End() ;check for end of input
                     Break
+                CurrentChar := this.Char()
                 If (CurrentChar = "/" && this.Match("*")) ;comment start
                 {
                     CommentLevel ++
@@ -572,6 +585,11 @@ class Lexer
         Return, True
     }
 
+    End()
+    {
+        Return, SubStr(this.Text,this.Position,1) = ""
+    }
+
     Char(Length = 1)
     {
         Result := ""
@@ -579,9 +597,9 @@ class Lexer
         {
             If !this.Escape(CurrentChar)
             {
-                CurrentChar := SubStr(this.Text,this.Position,1)
-                If (CurrentChar = "")
+                If this.End()
                     Return, ""
+                CurrentChar := SubStr(this.Text,this.Position,1)
                 this.Position ++
             }
             Result .= CurrentChar
@@ -607,17 +625,18 @@ class Lexer
     {
         If SubStr(this.Text,this.Position,1) != "``" ;check for escape character
             Return, False
-        this.Position ++ ;move past escape character
 
+        If this.End() ;check for end of input
+        {
+            Output := ""
+            ;wip: nonfatal error
+            Return, False
+        }
+
+        this.Position ++ ;move past escape character
         CurrentChar := SubStr(this.Text,this.Position,1) ;obtain the escaped character
         this.Position ++ ;move past escaped character
 
-        ;check for skipped line end
-        If (CurrentChar = "") ;end of input
-        {
-            this.Position -- ;move back to the end of input
-            Output := ""
-        }
         If (CurrentChar = "`n") ;skip `n if present
             Output := ""
         Else If (CurrentChar = "`r") ;skip either `r or `r`n if present
@@ -628,8 +647,6 @@ class Lexer
         }
         Else If (CurrentChar = "``") ;literal backtick
             Output := "``"
-        Else If (CurrentChar = """") ;literal quote
-            Output := """"
         Else If (CurrentChar = "r") ;literal carriage return
             Output := "`r"
         Else If (CurrentChar = "n") ;literal newline

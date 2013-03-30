@@ -178,7 +178,7 @@ class Category_Lexer
             Test_Newline()
             {
                 l := new Code.Lexer("""line 1```r`nline 2```rline 3```nline 4""")
-                Tests.LexerTest(l,l.String(),new Code.Lexer.Token.String("line 1`nline 2`nline 3`nline 4",1,33),34)
+                Tests.LexerTest(l,l.String(),new Code.Lexer.Token.String("line 1line 2line 3line 4",1,33),34)
             }
         }
     }
