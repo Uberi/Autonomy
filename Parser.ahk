@@ -216,6 +216,9 @@ class Parser
         Result := this.SubscriptIdentifier(Operator,LeftSide)
         If Result
             Return, Result
+        Result := this.Comparison(Operator,LeftSide)
+        If Result
+            Return, Result
         Result := this.Ternary(Operator,LeftSide)
         If Result
             Return, Result
@@ -343,19 +346,23 @@ class Parser
         Position1 := this.Lexer.Position
 
         RightSide := this.Statement() ;obtain subscript index
-        Parameters := [LeftSide,RightSide] ;array, start index
         If this.Lexer.Map() ;array slice
         {
-            Parameters.Insert(this.Statement()) ;end index
+            Parameters := [LeftSide,RightSide,this.Statement()] ;array, start index, end index
             If this.Lexer.Map() ;step value
                 Parameters.Insert(this.Statement())
+            Operation := new this.Node.Identifier("_slice",Operator.Position,Operator.Length)
+        }
+        Else
+        {
+            Parameters := [LeftSide,RightSide] ;array, start index
+            Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
         }
 
         Position2 := this.Lexer.Position
         Token := this.Lexer.OperatorLeft()
         If Token && Token.Value.Identifier = "_subscript_end" ;ensure subscript is properly closed
         {
-            Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
             Length := this.Lexer.Position - LeftSide.Position
             Return, new this.Node.Operation(Operation,Parameters,LeftSide.Position,Length)
         }
@@ -376,6 +383,46 @@ class Parser
         Operation := new this.Node.Identifier("_subscript",Operator.Position,Operator.Length)
         Parameters := [LeftSide,RightSide]
         Length := this.Lexer.Position - LeftSide.Position
+        Return, new this.Node.Operation(Operation,Parameters,LeftSide.Position,Length)
+    }
+
+    Comparison(Operator,LeftSide)
+    {
+        static ComparisonOperators := {_equals: True, equals_strict: True, _not_equals: True, _not_equals_strict: True, _greater_than: True, _less_than: True, _greater_than_or_equal: True, _less_than_or_equal: True}
+        If !ComparisonOperators.HasKey(Operator.Value.Identifier)
+            Return, False
+
+        RightSide := this.Statement(Operator.Value.RightBindingPower)
+
+        ;parse normally if it is not a chained comparison
+        Position1 := this.Lexer.Position
+        Token := this.Lexer.OperatorLeft()
+        this.Lexer.Position := Position1
+        If !(Token && ComparisonOperators.HasKey(Token.Value.Identifier))
+        {
+            Length := this.Lexer.Position - LeftSide.Position
+            Operation := new this.Node.Identifier(Operator.Value.Identifier,LeftSide.Position,Length)
+            Parameters := [LeftSide,RightSide]
+            Return, new this.Node.Operation(Operation,Parameters,LeftSide.Position,Length)
+        }
+
+        Comparison := new this.Node.Symbol(Operator.Value.Identifier,Operator.Position,Operator.Length)
+        Parameters := [LeftSide,Comparison,RightSide]
+
+        ;parse chained comparison if present
+        Loop
+        {
+            Position1 := this.Lexer.Position
+            Token := this.Lexer.OperatorLeft()
+            If !(Token && ComparisonOperators.HasKey(Token.Value.Identifier))
+                Break
+            Parameters.Insert(new this.Node.Symbol(Token.Value.Identifier,Token.Position,Token.Length))
+            Parameters.Insert(this.Statement(Token.Value.RightBindingPower)) ;parse the right side of the comparison
+        }
+        this.Lexer.Position := Position1
+
+        Length := this.Lexer.Position - LeftSide.Position
+        Operation := new this.Node.Identifier("_compare",LeftSide.Position,Length)
         Return, new this.Node.Operation(Operation,Parameters,LeftSide.Position,Length)
     }
 

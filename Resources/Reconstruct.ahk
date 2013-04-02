@@ -87,14 +87,28 @@ class Reconstruct
             {
                 If Callable.Value = "_subscript"
                 {
-                    Count := Parameters.MaxIndex()
-                    If Count = 2 ;normal subscripting
+                    If Parameters[2].Type = "Symbol"
+                        Return, "(" . this.Tree(Parameters[1]) . "." . Parameters[2].Value . ")"
+                    Return, this.Tree(Parameters[1]) . "[" . this.Tree(Parameters[2]) . "]"
+                }
+                If Callable.Value = "_slice"
+                {
+                    If Parameters.HasKey(4)
+                        Return, this.Tree(Parameters[1]) . "[" . this.Tree(Parameters[2]) . ":" . this.Tree(Parameters[3]) . ":" . this.Tree(Parameters[4]) . "]"
+                    Return, this.Tree(Parameters[1]) . "[" . this.Tree(Parameters[2]) . ":" . this.Tree(Parameters[3]) . "]"
+                }
+                If Callable.Value = "_compare"
+                {
+                    Result := "(" . this.Tree(Parameters[1])
+                    Index := 2
+                    Loop, % Parameters.MaxIndex() // 2
                     {
-                        If Parameters[2].Type = "Symbol"
-                            Return, "(" . this.Tree(Parameters[1]) . "." . Parameters[2].Value . ")"
-                        Return, this.Tree(Parameters[1]) . "[" . this.Tree(Parameters[2]) . "]"
+                        Result .= " " . OperatorBinary[Parameters[Index].Value]
+                        Index ++
+                        Result .= " " . this.Tree(Parameters[Index])
+                        Index ++
                     }
-                    Return, this.Tree(Parameters[1]) . "[" . this.Tree(Parameters[2]) . ":" . this.Tree(Parameters[3]) . (Count = 3 ? "" :  ":" . this.Tree(Parameters[4])) . "]"
+                    Return, Result . ")"
                 }
                 If Callable.Value = "_array"
                 {

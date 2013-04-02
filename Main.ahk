@@ -30,12 +30,9 @@ TODO
 
 Short term tasks:
 
+* make unit tests for the new lexer escape behavior
 * consider using , to denote an array and [] to denote an object: x := 1, 2, 3
     * still need a good way to represent empty or single element arrays, or make it transparent like MATLAB
-* Comparisons can be chained arbitrarily, e.g., x < y <= z is equivalent to x < y and y <= z, except that y is evaluated only once (but in both cases z is not evaluated at all when x < y is found to be false). Formally, if a, b, c, ..., y, z are expressions and op1, op2, ..., opN are comparison operators, then a op1 b op2 c ... y opN z is equivalent to a op1 b and b op2 c and ... y opN z, except that each expression is evaluated at most once.
-    * Need to figure out how to represent this in the AST first
-        * pretty much have to use a && b && c -> (logic a 'and b 'and c) or make the AST a graph (object references are significant)
-* Allow backticks inline in code to represent literal versions of themselves in the code: f w, x `n g y, z ;the `n is treated as an actual newline
 * Unit tests for error handler
 * Error tolerance for parser by ignoring an operation like want.to.autocomplete.%INVALID% by simply returning the valid operands in the operator parser.
 
@@ -54,7 +51,6 @@ Long term tasks:
 * static tail recursion elimination (make sure cases like $.return a ? b() : c() are handled by checking if the following bytecode instruction after the call is either a return or one or more unconditional jumps that leads to a return)
 * have the .each method return the result: squares := [1, 2, 3].each (fn ('x) { x ** 2 })
 * % operator can format strings, .= can append to array
-* fn function definition should allow multiple param lists bodies and patterns to match for each body: guard statements choose the correct function to call
 * FFI with libffi for DllCall-like functionality
 * multiple catch clauses in exception handler, and each accepting a condition for catching: try {} catch e: e Is KeyboardInterrupt {}
 * to make an object, use ClassName()
@@ -91,7 +87,8 @@ FileName := A_ScriptFullPath ;set the file name of the current file
 ;Value = f x,, y: 'abc, z
 ;Value = 1 - 2 * 3
 ;Value = [a, f: g, b, 4, d: e,, c]
-Value = 1`n `n `n `n `n `n2`n    `n   `r
+;Value = 1`n `n `n `n `n `n2`n    `n   `r
+Value = x < y > z`nx < y
 
 /* ;lexer testing
 l := new Code.Lexer(Value)
