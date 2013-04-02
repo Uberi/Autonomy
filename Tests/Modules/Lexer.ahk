@@ -76,7 +76,7 @@ class Category_Lexer
             try l.Symbol()
             catch e
             {
-                Tests.LexerTestException(e,"Invalid symbol.","Code.Lexer.Symbol",1)
+                Tests.LexerTestException(e,"Invalid symbol.","Code.Lexer.Symbol",1,1)
                 Return
             }
             throw "Invalid error."
@@ -121,7 +121,7 @@ class Category_Lexer
             try l.String()
             catch e
             {
-                Tests.LexerTestException(e,"Invalid string.","Code.Lexer.String",1)
+                Tests.LexerTestException(e,"Invalid string.","Code.Lexer.String",1,14)
                 Return
             }
             throw "Invalid error."
@@ -414,6 +414,27 @@ class Category_Lexer
             }
         }
     }
+
+    class Category_End
+    {
+        Test_Simple()
+        {
+            l := new Code.Lexer("")
+            If !l.End()
+                throw "Invalid output."
+            If l.Position != 1
+                throw "Invalid position."
+        }
+
+        Test_Negative()
+        {
+            l := new Code.Lexer("abc")
+            If l.End()
+                throw "Invalid output."
+            If l.Position != 1
+                throw "Invalid position."
+        }
+    }
 }
 
 LexerTest(Lexer,Result,Value,Position)
@@ -424,12 +445,14 @@ LexerTest(Lexer,Result,Value,Position)
         throw "Invalid position."
 }
 
-LexerTestException(Result,Message,Location,Position)
+LexerTestException(Result,Message,Location,Position,Length)
 {
     If Result.Message != Message
         throw "Invalid error message."
-    If Result.What != Location
+    If Result.Location != Location
         throw "Invalid error location."
-    If Result.Extra != Position
+    If Result.Position != Position
         throw "Invalid error position."
+    If Result.Length != Length
+        throw "Invalid error length."
 }

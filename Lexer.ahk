@@ -289,7 +289,7 @@ class Lexer
         If Token
             Return, Token
 
-        throw Exception("Invalid token.",A_ThisFunc,this.Position)
+        throw {Message: "Invalid token.", Position: this.Position, Length: 1, Location: A_ThisFunc}
     }
 
     OperatorNull()
@@ -346,10 +346,7 @@ class Lexer
             Return, False
 
         If !this.Match("abcdefghijklmnopqrstuvwxyz_0123456789",Output)
-        {
-            ;wip: nonfatal error
-            throw Exception("Invalid symbol.",A_ThisFunc,Position1)
-        }
+            throw {Message: "Invalid symbol.", Position: Position1, Length: 1, Location: A_ThisFunc}
 
         ;obtain the rest of the symbol
         While, this.Match("abcdefghijklmnopqrstuvwxyz_0123456789",CurrentChar)
@@ -378,9 +375,9 @@ class Lexer
                 If this.End() ;check for end of input
                     Break
                 CurrentChar := SubStr(this.Text,this.Position,1)
+                this.Position ++ ;move past character
                 If (CurrentChar = "`r" || CurrentChar = "`n") ;invalid string end
                     Break
-                this.Position ++ ;move past character
                 If (CurrentChar = """") ;closing quote found
                 {
                     Length := this.Position - Position1
@@ -389,7 +386,8 @@ class Lexer
             }
             Output .= CurrentChar
         }
-        throw Exception("Invalid string.",A_ThisFunc,Position1)
+        Length := this.Position - Position1
+        throw {Message: "Invalid string.", Position: Position1, Length: Length, Location: A_ThisFunc}
     }
 
     Identifier()
@@ -456,10 +454,7 @@ class Lexer
                 Sign := 1
 
             If !this.Match("0123456789",Value)
-            {
-                ;wip: nonfatal error
-                throw Exception("Invalid exponent.",A_ThisFunc,Position1)
-            }
+                throw {Message: "Invalid number exponent.", Position: Position1, Length: 1, Location: A_ThisFunc}
 
             ;handle digits of the exponent
             While, CurrentChar := this.Match("0123456789")
@@ -472,8 +467,11 @@ class Lexer
         Position2 := this.Position
         If this.Match("abcdefghijklmnopqrstuvwxyz_")
         {
-            ;wip: nonfatal error
-            throw Exception("Invalid identifier.",A_ThisFunc,Position2)
+            While, this.Match("abcdefghijklmnopqrstuvwxyz_") ;parse the rest of the identifier
+            {
+            }
+            Length := this.Position - Position2
+            throw {Message: "Invalid identifier.", Position: Position2, Length: Length, Location: A_ThisFunc}
         }
 
         ;apply exponent
@@ -625,15 +623,12 @@ class Lexer
     {
         If SubStr(this.Text,this.Position,1) != "``" ;check for escape character
             Return, False
+        Position1 := this.Position
+        this.Position ++ ;move past escape character
 
         If this.End() ;check for end of input
-        {
-            Output := ""
-            ;wip: nonfatal error
-            Return, False
-        }
+            throw {Message: "Invalid escape sequence.", Position: Position1, Length: 1, Location: A_ThisFunc}
 
-        this.Position ++ ;move past escape character
         CurrentChar := SubStr(this.Text,this.Position,1) ;obtain the escaped character
         this.Position ++ ;move past escaped character
 
@@ -658,10 +653,7 @@ class Lexer
             If SubStr(this.Text,this.Position,1) = "[" ;character code start
                 this.Position ++ ;move past opening square bracket
             Else
-            {
-                ;wip: nonfatal error
-                Return, False
-            }
+                throw {Message: "Invalid character escape sequence.", Position: Position1, Length: 2, Location: A_ThisFunc}
 
             CharacterCode := SubStr(this.Text,this.Position,1)
             If (CharacterCode != "" && InStr("0123456789",CharacterCode)) ;character is numeric
@@ -673,23 +665,16 @@ class Lexer
                     this.Position ++ ;move past closing square bracket
                 Else ;unclosed character code
                 {
-                    ;wip: nonfatal error
-                    Return, False
+                    Length := this.Position - Position1
+                    throw {Message: "Invalid character escape sequence.", Position: Position1, Length: Length, Location: A_ThisFunc}
                 }
                 Output := Chr(CharacterCode)
             }
             Else ;invalid character code
-            {
-                ;wip: nonfatal error
-                Return, False
-            }
+                throw {Message: "Invalid character escape sequence.", Position: Position1, Length: 2, Location: A_ThisFunc}
         }
         Else
-        {
-            this.Position -- ;move back to the unknown escaped character
-            ;wip: nonfatal error goes here
-            Return, False
-        }
+            throw {Message: "Invalid escape sequence.", Position: Position1, Length: 1, Location: A_ThisFunc}
         Return, True
     }
 }
