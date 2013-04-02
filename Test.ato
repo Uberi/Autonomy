@@ -1,0 +1,60 @@
+_compare := fn {
+	left := args[1]
+	index := 2
+	loop args.length // 2 {
+		comparison := args[index]
+		index += 1
+		right := args[index]
+		index += 1
+		!($[comparison] left, right) ?
+			return True
+		left := right
+	}
+	return False
+}
+
+fn := {
+	arguments := [base: ['_get: { $[args[1]] }.bind '$: $]]
+	args[1:args.length - 1].each { arguments[args[1]] := args[2] }
+	args[args.length].bind arguments
+}
+
+loop := fn 'count, 'index_var, 'index, 'body, {
+	body ||= index || index_var
+	index ||= 1
+	(body.bind '$: $, index_var: start)()
+	count != 1 ?
+		loop count - 1, index_var, body, index + 1
+}
+
+Number.each := fn 'body, 'index {
+	index ||= 1
+	body index
+	index != self ?
+		self.each body, index + 1
+}
+
+3.each fn 'i {
+	print "Run #" .. i
+}
+
+loop 5 'i {
+	print "Iteration " .. i
+}
+
+loop 23 {
+	print "Spam"
+}
+
+;fizzbuzz code
+48.each fn 'i {
+	print(
+		i % 3 = 0 ?
+			i % 5 = 0 ?
+				"FizzBuzz"
+			: "Fizz"
+		: i % 5 = 0 ?
+			"Buzz"
+		: i
+	)
+}
