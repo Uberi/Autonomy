@@ -30,11 +30,12 @@ TODO
 
 Short term tasks:
 
+* blank slice indices: x[5:] and x[:5] and x[:] (array shallow copy)
 * make unit tests for the new lexer escape behavior
 * consider using , to denote an array and [] to denote an object: x := 1, 2, 3
     * still need a good way to represent empty or single element arrays, or make it transparent like MATLAB
 * Unit tests for error handler
-* Error tolerance for parser by ignoring an operation like want.to.autocomplete.%INVALID% by simply returning the valid operands in the operator parser.
+* Error tolerance for parser by ignoring an operation like want.to.autocomplete.%INVALID% by simply returning the valid operands in the operator parser (want.to.autocomplete).
 
 Long term tasks:
 
