@@ -19,12 +19,6 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-Display(DisplayText)
-{
-    FileAppend, %DisplayText%, *
-    Return, ErrorLevel
-}
-
 ShowObject(ShowObject,Padding = "")
 {
     ListLines, Off
@@ -44,12 +38,6 @@ ShowObject(ShowObject,Padding = "")
     If (Padding = "")
         ListLines, On
     Return, ObjectContents
-}
-
-FileRead(ByRef OutputVar,Filename)
-{
-    FileRead, OutputVar, %Filename%
-    Return, ErrorLevel
 }
 
 StringSplit(InputVar,Delimiters = "",OmitChars = "")
@@ -91,18 +79,10 @@ PathExpand(Path,CurrentDirectory = "",ByRef Attributes = "")
 
 PathJoin(Path1,Path2 = "",Path3 = "",Path4 = "",Path5 = "",Path6 = "")
 {
-    /*
-    #Define HOST_OS = "WINDOWS"
-    #If HOST_OS = "WINDOWS"
-    Separator := "\"
-    #ElseIf HOST_OS = "LINUX"
-    Separator := "/"
-    #EndIf
-    */
-    HOST_OS := "WINDOWS"
-    If (HOST_OS = "WINDOWS")
+    OS := "WINDOWS"
+    If (OS = "WINDOWS")
         Separator := "\"
-    Else If (HOST_OS = "LINUX")
+    Else If (OS = "POSIX")
         Separator := "/"
 
     ;remove any leading separator characters if present

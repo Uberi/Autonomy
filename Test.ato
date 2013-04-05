@@ -34,6 +34,12 @@ Number.each := fn 'body, 'index {
 		self.each body, index + 1
 }
 
+match := fn 'value, 'bodies, 'default, {
+	body := bodies[value]
+	body = None ? default() : body()
+	;wip: handle default being None
+}
+
 3.each fn 'i {
 	print "Run #" .. i
 }
@@ -47,7 +53,7 @@ loop 23 {
 }
 
 ;fizzbuzz code
-48.each fn 'i {
+loop 48 'i {
 	print(
 		i % 3 = 0 ?
 			i % 5 = 0 ?
@@ -58,3 +64,9 @@ loop 23 {
 		: i
 	)
 }
+
+match x, [
+	2: { print("Two") },
+	5: { print("Five") },
+	8: { print("Eight") }
+], { print("Unknown") }

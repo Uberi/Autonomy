@@ -96,6 +96,16 @@ class Parser
                 this.Length := Length
             }
         }
+
+        class Self
+        {
+            __New(Position,Length)
+            {
+                this.Type := "Self"
+                this.Position := Position
+                this.Length := Length
+            }
+        }
     }
 
     Parse()
@@ -196,13 +206,7 @@ class Parser
         Result := this.Array(Operator)
         If Result
             Return, Result
-
-        RightSide := this.Statement(Operator.Value.RightBindingPower)
-
-        Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
-        Parameters := [RightSide]
-        Length := this.Lexer.Position - Operator.Position
-        Return, new this.Node.Operation(Operation,Parameters,Operator.Position,Length)
+        Return, this.Unary(Operator)
     }
 
     OperatorLeft(Operator,LeftSide)
@@ -225,7 +229,21 @@ class Parser
         Result := this.BooleanShortCircuit(Operator,LeftSide)
         If Result
             Return, Result
+        Return, this.Binary(Operator)
+    }
 
+    Unary(Operator)
+    {
+        RightSide := this.Statement(Operator.Value.RightBindingPower)
+
+        Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
+        Parameters := [RightSide]
+        Length := this.Lexer.Position - Operator.Position
+        Return, new this.Node.Operation(Operation,Parameters,Operator.Position,Length)
+    }
+
+    Binary(Operator)
+    {
         RightSide := this.Statement(Operator.Value.RightBindingPower)
 
         Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)

@@ -30,10 +30,10 @@ TODO
 
 Short term tasks:
 
-* blank slice indices: x[5:] and x[:5] and x[:] (array shallow copy)
+* parse $ as a Self AST node
 * make unit tests for the new lexer escape behavior
 * consider using , to denote an array and [] to denote an object: x := 1, 2, 3
-    * still need a good way to represent empty or single element arrays, or make it transparent like MATLAB
+    * still need a good way to represent empty or single element arrays
 * Unit tests for error handler
 * Error tolerance for parser by ignoring an operation like want.to.autocomplete.%INVALID% by simply returning the valid operands in the operator parser (want.to.autocomplete).
 
@@ -48,7 +48,6 @@ Long term tasks:
 * do something about the enumerability of object bases; they should not be enumerable, maybe special case in the enumerator
 * "userdata"/"bytes" type like in lua/python: custom user-defined blocks of memory that have literals and having two variants: GC managed or explicitly managed
 * make a code formatter that can infer style settings from a code sample
-* destructured assignment: [a, b, c] := [c, b, a] and [x, y] += [1, 2]
 * static tail recursion elimination (make sure cases like $.return a ? b() : c() are handled by checking if the following bytecode instruction after the call is either a return or one or more unconditional jumps that leads to a return)
 * have the .each method return the result: squares := [1, 2, 3].each (fn ('x) { x ** 2 })
 * % operator can format strings, .= can append to array
@@ -84,12 +83,12 @@ FileName := A_ScriptFullPath ;set the file name of the current file
 ;Value = x.y.z
 ;Value = 1 + {2}
 ;Value = f(x,,,,,,,,y)
-;Value = a[1] + a[1 :   2  ] + a[1:2:3]
+;Value = a[1]+a[  1  :   2  ]+a[1:2:3]+a['end:'end] ;shallow copy
 ;Value = f x,, y: 'abc, z
 ;Value = 1 - 2 * 3
 ;Value = [a, f: g, b, 4, d: e,, c]
 ;Value = 1`n `n `n `n `n `n2`n    `n   `r
-Value = x < y > z`nx < y
+;Value = x < y > z`nx < y
 
 /* ;lexer testing
 l := new Code.Lexer(Value)

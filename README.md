@@ -8,7 +8,7 @@ Progress
 | Module        | Status         |
 |:--------------|:---------------|
 | Lexer         | Working        |
-| Parser        | Mostly Working |
+| Parser        | Working        |
 | Simplifier    | Working        |
 | Bytecode      | Mostly Working |
 | Flow Graph    | In Progress    |
@@ -30,12 +30,11 @@ Modules
 | Module                    | Function                                                     |
 |:--------------------------|:-------------------------------------------------------------|
 | Code.ahk                  | Initialization routines.                                     |
-| Lexer.ahk                 | Tokenizes source code, outputting a token stream.            |
-| Parser.ahk                | Parses a token stream into a syntax tree.                    |
+| Lexer.ahk                 | Converts source code into a sequence of tokens.              |
+| Parser.ahk                | Parses a sequence of tokens into a syntax tree.              |
 | Simplifier.ahk            | Simplifies a syntax tree.                                    |
 | Bytecode.ahk              | Converts a syntax tree to bytecode.                          |
 | Interpreter.ahk           | Executes bytecode.                                           |
 | Resources/Get Error.ahk   | Formats error records into a human readable form.            |
 | Resources/Functions.ahk   | Provides utility functions.                                  |
 | Resources/Reconstruct.ahk | Reconstructs source code from token streams or syntax trees. |
-| Resources/Operators.ahk   | Describes the language syntax for the lexer and parser.      |

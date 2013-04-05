@@ -34,7 +34,7 @@ Code := "a ? b : c"
 
 If CodeInit()
 {
-    Display("Error initializing code tools.`n") ;display error at standard output
+    MsgBox Error initializing code tools.
     ExitApp ;fatal error
 }
 
