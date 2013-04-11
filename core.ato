@@ -1,0 +1,42 @@
+;identity objects
+None := []
+True := []
+False := []
+
+;function definitions
+fn := {
+	arguments := [base: ['_get: { $[args[1]] }.bind '$: $]]
+	args[1:args.length - 1].each { arguments[args[1]] := args[2] }
+	args[args.length].bind arguments
+}
+
+;chained comparison (x < y < z)
+_compare := fn {
+	left := args[1]
+	index := 2
+	loop args.length // 2 {
+		comparison := args[index]
+		index += 1
+		right := args[index]
+		index += 1
+		!($[comparison] left, right) ?
+			return True
+		left := right
+	}
+	return False
+}
+
+loop := fn 'count, 'index_var, 'index, 'body, {
+	body ||= index || index_var
+	index ||= 1
+	(body.bind '$: $, index_var: start)()
+	count != 1 ?
+		loop count - 1, index_var, body, index + 1
+}
+
+Number.each := fn 'body, 'index {
+	index ||= 1
+	body index
+	index != self ?
+		self.each body, index + 1
+}

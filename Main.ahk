@@ -30,10 +30,12 @@ TODO
 
 Short term tasks:
 
-* parse $ as a Self AST node
+* parse a(b,c) with parameters having Number nodes as keys
 * make unit tests for the new lexer escape behavior
 * consider using , to denote an array and [] to denote an object: x := 1, 2, 3
     * still need a good way to represent empty or single element arrays
+    * could make arrays transparent like in MATLAB: everything is transparently in an array
+    * make blocks accept a single array parameter in this case, also allows multiple return values to work
 * Unit tests for error handler
 * Error tolerance for parser by ignoring an operation like want.to.autocomplete.%INVALID% by simply returning the valid operands in the operator parser (want.to.autocomplete).
 
@@ -84,13 +86,12 @@ FileName := A_ScriptFullPath ;set the file name of the current file
 ;Value = x.y.z
 ;Value = 1 + {2}
 ;Value = f(x,,,,,,,,y)
-;Value = a[1]+a[  1  :   2  ]+a[1:2:3]+a['end:'end] ;shallow copy
 ;Value = f x,, y: 'abc, z
 ;Value = 1 - 2 * 3
 ;Value = [a, f: g, b, 4, d: e,, c]
 ;Value = 1`n `n `n `n `n `n2`n    `n   `r
 ;Value = x < y > z`nx < y
-;Value = $.test()
+Value = x[a]+x[ : : ]+x[ : : c]+x[ : b : ]+x[ : b : c]+x[a : : ]+x[a : : c]+x[a : b : ]+x[ a : b : c]+x[ : ]+x[ : b]+x[a : ]+x[a : b]
 
 /* ;lexer testing
 l := new Code.Lexer(Value)
@@ -98,15 +99,16 @@ Tokens := []
 While, Token := l.Next()
     Tokens.Insert(Token)
 MsgBox % Clipboard := Reconstruct.Tokens(Tokens)
+;MsgBox % Clipboard := Dump.Tokens(Tokens)
 ExitApp
 */
 
-/* ;parser testing
+;/* ;parser testing
 l := new Code.Lexer(Value)
 p := new Code.Parser(l)
 SyntaxTree := p.Parse()
 MsgBox % Clipboard := Reconstruct.Tree(SyntaxTree)
-;MsgBox % Clipboard := ShowObject(SyntaxTree)
+;MsgBox % Clipboard := Dump.Tree(SyntaxTree)
 ExitApp
 */
 
@@ -125,7 +127,7 @@ p := new Code.Parser(l)
 SyntaxTree := p.Parse()
 Bytecoder := new Code.Bytecoder
 Bytecode := Bytecoder.Convert(SyntaxTree)
-MsgBox % Clipboard := Reconstruct.Bytecode(Bytecode)
+MsgBox % Clipboard := Dump.Bytecode(Bytecode)
 ExitApp
 */
 

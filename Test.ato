@@ -1,43 +1,8 @@
-_compare := fn {
-	left := args[1]
-	index := 2
-	loop args.length // 2 {
-		comparison := args[index]
-		index += 1
-		right := args[index]
-		index += 1
-		!($[comparison] left, right) ?
-			return True
-		left := right
-	}
-	return False
-}
-
-fn := {
-	arguments := [base: ['_get: { $[args[1]] }.bind '$: $]]
-	args[1:args.length - 1].each { arguments[args[1]] := args[2] }
-	args[args.length].bind arguments
-}
-
-loop := fn 'count, 'index_var, 'index, 'body, {
-	body ||= index || index_var
-	index ||= 1
-	(body.bind '$: $, index_var: start)()
-	count != 1 ?
-		loop count - 1, index_var, body, index + 1
-}
-
-Number.each := fn 'body, 'index {
-	index ||= 1
-	body index
-	index != self ?
-		self.each body, index + 1
-}
-
 match := fn 'value, 'bodies, 'default, {
 	body := bodies[value]
-	body = None ? default() : body()
-	;wip: handle default being None
+	return body = None ?
+		default ? default() : None
+		: body()
 }
 
 3.each fn 'i {
@@ -66,7 +31,18 @@ loop 48 'i {
 }
 
 match x, [
-	2: { print("Two") },
-	5: { print("Five") },
-	8: { print("Eight") }
-], { print("Unknown") }
+	2: { print "Two" },
+	5: { print "Five" },
+	8: { print "Eight" }
+], { print "Unknown" }
+
+SomeClass := [
+	test: fn 'a {
+		print "test"
+	},
+	abc: fn 'b {
+		print "abc"
+	}
+]
+
+with Patterns { "a"[1:None] .. "b"[0:1] .. "c"[0:None] } ;equivalent to re.match("a+b?c*")

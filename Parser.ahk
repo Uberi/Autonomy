@@ -117,7 +117,7 @@ class Parser
 
         ;check for end of input
         If !this.Lexer.End() ;input still remains
-            throw Exception("Invalid program end.",A_ThisFunc,Position1)
+            throw Exception("Invalid program end.",A_ThisFunc,this.Lexer.Position)
 
         Operation := new this.Node.Identifier("_evaluate",Position1,0)
         Length := this.Lexer.Position - Position1
@@ -232,7 +232,7 @@ class Parser
         Result := this.BooleanShortCircuit(Operator,LeftSide)
         If Result
             Return, Result
-        Return, this.Binary(Operator)
+        Return, this.Binary(Operator,LeftSide)
     }
 
     Unary(Operator)
@@ -245,7 +245,7 @@ class Parser
         Return, new this.Node.Operation(Operation,Parameters,Operator.Position,Length)
     }
 
-    Binary(Operator)
+    Binary(Operator,LeftSide)
     {
         RightSide := this.Statement(Operator.Value.RightBindingPower)
 
@@ -359,33 +359,67 @@ class Parser
         Return, new this.Node.Operation(LeftSide,Parameters,LeftSide.Position,Length)
     }
 
-    Subscript(Operator,LeftSide)
+    Subscript(Operator,LeftSide) ;wip: simplify this code
     {
         If Operator.Value.Identifier != "_subscript"
             Return, False
 
         Position1 := this.Lexer.Position
+        Parameters := [LeftSide]
 
-        RightSide := this.Statement() ;obtain subscript index
-        If this.Lexer.Map() ;array slice
+        Loop, 1
         {
-            Parameters := [LeftSide,RightSide,this.Statement()] ;array, start index, end index
-            If this.Lexer.Map() ;step value
-                Parameters.Insert(this.Statement())
+            ;parse start index or normal subscript if present (x[ -> a], ::], ::c], :b:], :b:c], a::], a::c], a:b:], a:b:c], :], :b], a:], a:b])
+            this.Ignore()
+            If !this.Lexer.Map() ;start index not skipped (x[ -> a], a::], a::c], a:b:], a:b:c], a:], a:b])
+            {
+                Parameters[2] := this.Statement() ;obtain start index
+                If !this.Lexer.Map() ;end index not specified (x[a -> ])
+                {
+                    Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
+                    Break
+                }
+            }
+
             Operation := new this.Node.Identifier("_slice",Operator.Position,Operator.Length)
-        }
-        Else
-        {
-            Parameters := [LeftSide,RightSide] ;array, start index
-            Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
+
+            ;parse end index if present (x[*: -> :], :c], b:], b:c], ], b])
+            this.Ignore()
+            If !this.Lexer.Map() ;end index not skipped (x[*: -> b:], b:c], ], b])
+            {
+                ;check for end index
+                this.Ignore()
+                Position2 := this.Lexer.Position
+                Token := this.Lexer.OperatorLeft()
+                If Token && Token.Value.Identifier = "_subscript_end" ;end of slice (x[*: -> ])
+                {
+                    Length := this.Lexer.Position - Operator.Position
+                    Return, new this.Node.Operation(Operation,Parameters,Operator.Position,Length)
+                }
+                this.Lexer.Position := Position2
+
+                ;end index specified (x[*: -> b:], b:c], b])
+                Parameters[3] := this.Statement() ;obtain end index
+                If !this.Lexer.Map() ;step not specified (x[*:b -> ])
+                    Break
+            }
+
+            ;step not skipped (x[*:*: -> ], c])
+            this.Ignore()
+            Position2 := this.Lexer.Position
+            Token := this.Lexer.OperatorLeft()
+            this.Lexer.Position := Position2
+            If !(Token && Token.Value.Identifier = "_subscript_end") ;step specified (x[*:*: -> c])
+                Parameters[4] := this.Statement() ;obtain step
         }
 
+        ;check for subscript end
         Position2 := this.Lexer.Position
         Token := this.Lexer.OperatorLeft()
-        If Token && Token.Value.Identifier = "_subscript_end" ;ensure subscript is properly closed
+        If Token && Token.Value.Identifier = "_subscript_end"
         {
-            Length := this.Lexer.Position - LeftSide.Position
-            Return, new this.Node.Operation(Operation,Parameters,LeftSide.Position,Length)
+            Length := this.Lexer.Position - Operator.Position
+            Return, new this.Node.Operation(Operation,Parameters,Operator.Position,Length)
         }
         throw Exception("Invalid subscript end.",A_ThisFunc,Position2)
     }
@@ -421,9 +455,9 @@ class Parser
         this.Lexer.Position := Position1
         If !(Token && ComparisonOperators.HasKey(Token.Value.Identifier))
         {
-            Length := this.Lexer.Position - LeftSide.Position
-            Operation := new this.Node.Identifier(Operator.Value.Identifier,LeftSide.Position,Length)
+            Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
             Parameters := [LeftSide,RightSide]
+            Length := this.Lexer.Position - LeftSide.Position
             Return, new this.Node.Operation(Operation,Parameters,LeftSide.Position,Length)
         }
 
@@ -442,8 +476,8 @@ class Parser
         }
         this.Lexer.Position := Position1
 
+        Operation := new this.Node.Identifier("_compare",Operator.Position,Operator.Length)
         Length := this.Lexer.Position - LeftSide.Position
-        Operation := new this.Node.Identifier("_compare",LeftSide.Position,Length)
         Return, new this.Node.Operation(Operation,Parameters,LeftSide.Position,Length)
     }
 

@@ -23,64 +23,120 @@ class Reconstruct
 {
     Tokens(Value)
     {
+        static Operators := {_assign:                 ":="
+                            ,_assign_add:             "+="
+                            ,_assign_subtract:        "-="
+                            ,_assign_multiply:        "*="
+                            ,_assign_divide:          "/="
+                            ,_assign_divide_floor:    "//="
+                            ,_assign_remainder:       "%="
+                            ,_assign_modulo:          "%%="
+                            ,_assign_exponentiate:    "**="
+                            ,_assign_concatenate:     ".="
+                            ,_assign_bit_or:          "|="
+                            ,_assign_bit_and:         "&="
+                            ,_assign_bit_xor:         "^="
+                            ,_assign_bit_shift_left:  "<<="
+                            ,_assign_bit_shift_right: ">>="
+                            ,_assign_or:              "||="
+                            ,_assign_and:             "&&="
+                            ,_if:                     "?"
+                            ,_or:                     "||"
+                            ,_and:                    "&&"
+                            ,_equals:                 "="
+                            ,_equals_strict:          "=="
+                            ,_not_equals:             "!="
+                            ,_not_equals_strict:      "!=="
+                            ,_greater_than:           ">"
+                            ,_less_than:              "<"
+                            ,_greater_than_or_equal:  ">="
+                            ,_less_than_or_equal:     "<="
+                            ,_concatenate:            ".."
+                            ,_bit_or:                 "|"
+                            ,_bit_exclusive_or:       "^"
+                            ,_bit_and:                "&"
+                            ,_shift_left:             "<<"
+                            ,_shift_right:            ">>"
+                            ,_shift_right_unsigned:   ">>>"
+                            ,_add:                    "+"
+                            ,_subtract:               "-"
+                            ,_multiply:               "*"
+                            ,_divide:                 "/"
+                            ,_divide_floor:           "//"
+                            ,_remainder:              "%"
+                            ,_modulo:                 "%%"
+                            ,_not:                    "!"
+                            ,_invert:                 "-"
+                            ,_bit_not:                "~"
+                            ,_address:                "&"
+                            ,_exponentiate:           "**"
+                            ,_evaluate:               "("
+                            ,_call:                   "("
+                            ,_end:                    ")"
+                            ,_block:                  "{"
+                            ,_block_end:              "}"
+                            ,_array:                  "["
+                            ,_subscript:              "["
+                            ,_subscript_end:          "]"
+                            ,_subscript_identifier:   "."}
+
         Result := ""
         For Index, Token In Value
         {
             If Token.Type = "OperatorNull"
-                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`t" . Token.Value.Identifier . "`n"
+                Result .= Operators[Token.Value.Identifier]
             Else If Token.Type = "OperatorLeft"
-                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`t" . Token.Value.Identifier . "`n"
+                Result .= Operators[Token.Value.Identifier]
             Else If Token.Type = "Line"
-                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`n"
+                Result .= "`n"
             Else If Token.Type = "Separator"
-                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`n"
+                Result .= ", "
             Else If Token.Type = "Map"
-                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`n"
-            Else If Token.Type = "Self"
-                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`n"
+                Result .= ":"
             Else If Token.Type = "Symbol"
-                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`t" . Token.Value . "`n"
+                Result .= "'" . Token.Value . "`n"
             Else If Token.Type = "String"
-                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`t""" . Token.Value . """`n"
+                Result .= """" . Token.Value . """"
             Else If Token.Type = "Identifier"
-                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`t" . Token.Value . "`n"
+                Result .= Token.Value
             Else If Token.Type = "Number"
-                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`t" . Token.Value . "`n"
+                Result .= Token.Value
             Else If Token.Type = "Comment"
-                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`t""" . Token.Value . """`n"
+                Result .= "/*" . Token.Value . "*/"
         }
-        Return, SubStr(Result,1,-1)
+        Return, Result
     }
 
     Tree(Value)
     {
-        static OperatorUnary := {_address: "&"
-                                ,_bit_not: "~"
-                                ,_invert:  "-"
-                                ,_not:     "!"}
-        static OperatorBinary := {_exponentiate:          "**"
-                                 ,_modulo:                "%%"
-                                 ,_remainder:             "%"
-                                 ,_divide_floor:          "//"
-                                 ,_divide:                "/"
-                                 ,_multiply:              "*"
-                                 ,_subtract:              "-"
-                                 ,_add:                   "+"
-                                 ,_shift_right_unsigned:  ">>>"
-                                 ,_shift_right:           ">>"
-                                 ,_shift_left:            "<<"
-                                 ,_bit_and:               "&"
-                                 ,_bit_exclusive_or:      "^"
-                                 ,_bit_or:                "|"
-                                 ,_concatenate:           ".."
-                                 ,_less_than_or_equal:    "<="
-                                 ,_greater_than_or_equal: ">="
-                                 ,_less_than:             "<"
-                                 ,_greater_than:          ">"
-                                 ,_not_equals_strict:     "!=="
-                                 ,_not_equals:            "!="
-                                 ,_equals_strict:         "=="
-                                 ,_equals:                "="}
+        static UnaryOperators := {_address:               "&"
+                                 ,_bit_not:               "~"
+                                 ,_invert:                "-"
+                                 ,_not:                   "!"}
+        static BinaryOperators := {_exponentiate:          "**"
+                                  ,_modulo:                "%%"
+                                  ,_remainder:             "%"
+                                  ,_divide_floor:          "//"
+                                  ,_divide:                "/"
+                                  ,_multiply:              "*"
+                                  ,_subtract:              "-"
+                                  ,_add:                   "+"
+                                  ,_shift_right_unsigned:  ">>>"
+                                  ,_shift_right:           ">>"
+                                  ,_shift_left:            "<<"
+                                  ,_bit_and:               "&"
+                                  ,_bit_exclusive_or:      "^"
+                                  ,_bit_or:                "|"
+                                  ,_concatenate:           ".."
+                                  ,_less_than_or_equal:    "<="
+                                  ,_greater_than_or_equal: ">="
+                                  ,_less_than:             "<"
+                                  ,_greater_than:          ">"
+                                  ,_not_equals_strict:     "!=="
+                                  ,_not_equals:            "!="
+                                  ,_equals_strict:         "=="
+                                  ,_equals:                "="}
+        
         If Value.Type = "Operation"
         {
             Callable := Value.Value
@@ -95,9 +151,15 @@ class Reconstruct
                 }
                 If Callable.Value = "_slice"
                 {
-                    If Parameters.HasKey(4)
-                        Return, this.Tree(Parameters[1]) . "[" . this.Tree(Parameters[2]) . ":" . this.Tree(Parameters[3]) . ":" . this.Tree(Parameters[4]) . "]"
-                    Return, this.Tree(Parameters[1]) . "[" . this.Tree(Parameters[2]) . ":" . this.Tree(Parameters[3]) . "]"
+                    Start := Parameters.HasKey(2) ? this.Tree(Parameters[2]) : ""
+                    End := Parameters.HasKey(3) ? this.Tree(Parameters[3]) : ""
+                    Step := Parameters.HasKey(4) ? this.Tree(Parameters[4]) : ""
+                    Value := RTrim(Start . ":" . End . ":" . Step,":")
+                    If (Start != "" && End = "" && Step = "")
+                        Value .= ":"
+                    If (Value = "")
+                        Value := ":"
+                    Return, this.Tree(Parameters[1]) . "[" . Value . "]"
                 }
                 If Callable.Value = "_compare"
                 {
@@ -105,7 +167,7 @@ class Reconstruct
                     Index := 2
                     Loop, % Parameters.MaxIndex() // 2
                     {
-                        Result .= " " . OperatorBinary[Parameters[Index].Value]
+                        Result .= " " . BinaryOperators[Parameters[Index].Value]
                         Index ++
                         Result .= " " . this.Tree(Parameters[Index])
                         Index ++
@@ -144,10 +206,10 @@ class Reconstruct
                     Return, "(" . this.Tree(Parameters[1]) . " || " . this.Tree(Parameters[2].Contents[1]) . ")"
                 If Callable.Value = "_if"
                     Return, "(" . this.Tree(Parameters[1]) . " ? " . this.Tree(Parameters[2].Contents[1]) . " : " . this.Tree(Parameters[3].Contents[1]) . ")"
-                If OperatorUnary.HasKey(Callable.Value)
-                    Return, "(" . OperatorUnary[Callable.Value] . this.Tree(Parameters[1]) . ")"
-                If OperatorBinary.HasKey(Callable.Value)
-                    Return, "(" . this.Tree(Parameters[1]) . " " . OperatorBinary[Callable.Value] . " " . this.Tree(Parameters[2]) . ")"
+                If UnaryOperators.HasKey(Callable.Value)
+                    Return, "(" . UnaryOperators[Callable.Value] . this.Tree(Parameters[1]) . ")"
+                If BinaryOperators.HasKey(Callable.Value)
+                    Return, "(" . this.Tree(Parameters[1]) . " " . BinaryOperators[Callable.Value] . " " . this.Tree(Parameters[2]) . ")"
             }
             Result := this.Tree(Value.Value) . "("
             ParameterValue := []
@@ -155,6 +217,7 @@ class Reconstruct
                 ParameterValue.Insert(Parameters.HasKey(A_Index) ? this.Tree(Parameters[A_Index]) : "")
             For Key, Parameter In Parameters
             {
+                
                 If IsObject(Key)
                     ParameterValue.Insert(this.Tree(Key) . ": " . this.Tree(Parameter))
             }
@@ -185,6 +248,70 @@ class Reconstruct
             Return, Value.Value
         Return, "(UNKNOWN_VALUE)"
     }
+}
+
+class Dump
+{
+    Tokens(Value)
+    {
+        Result := ""
+        For Index, Token In Value
+        {
+            If Token.Type = "OperatorNull"
+                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`t" . Token.Value.Identifier . "`n"
+            Else If Token.Type = "OperatorLeft"
+                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`t" . Token.Value.Identifier . "`n"
+            Else If Token.Type = "Line"
+                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`n"
+            Else If Token.Type = "Separator"
+                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`n"
+            Else If Token.Type = "Map"
+                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`n"
+            Else If Token.Type = "Self"
+                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`n"
+            Else If Token.Type = "Symbol"
+                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`t" . Token.Value . "`n"
+            Else If Token.Type = "String"
+                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`t""" . Token.Value . """`n"
+            Else If Token.Type = "Identifier"
+                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`t" . Token.Value . "`n"
+            Else If Token.Type = "Number"
+                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`t" . Token.Value . "`n"
+            Else If Token.Type = "Comment"
+                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`t""" . Token.Value . """`n"
+        }
+        Return, SubStr(Result,1,-1)
+    }
+
+    Tree(Value,Padding = "")
+    {
+        Result := Padding . Value.Position . ":" . Value.Length . " " . Value.Type
+        If Value.Type = "Operation"
+        {
+            Result .= "`n" . this.Tree(Value.Value,Padding . "`t")
+            For Key, Value In Value.Parameters
+            {
+                Result .= "`n" . Padding . "`t@Key`n" . (IsObject(Key) ? this.Tree(Key,Padding . "`t") : Padding . "`t" . Key)
+                Result .= "`n" . Padding . "`t@Value`n" . this.Tree(Value,Padding . "`t")
+            }
+            Return, Result
+        }
+        If Value.Type = "Block"
+        {
+            For Key, Value In Value.Contents
+                Result .= this.Tree(Value,Padding . "`t") . "`n"
+            Return, SubStr(Result,1,-1)
+        }
+        If Value.Type = "Symbol"
+            Return, Result . " " . Value.Value
+        If Value.Type = "String"
+            Return, Result . " " . Value.Value
+        If Value.Type = "Identifier"
+            Return, Result . " " . Value.Value
+        If Value.Type = "Number"
+            Return, Result . " " . Value.Value
+        Return, Result
+    }
 
     Bytecode(Value)
     {
@@ -193,42 +320,4 @@ class Reconstruct
             Result .= Code . "`n"
         Return, SubStr(Result,1,-1)
     }
-}
-
-CodeRecontructSyntaxTree(SyntaxTree) ;wip
-{
-    global CodeTokenTypes
-    If (SyntaxTree.1.Type = CodeTokenTypes.OPERATOR)
-        Operator := SyntaxTree.1.Value, ObjRemove(SyntaxTree,1,1)
-    For Index, Node In SyntaxTree
-    {
-        NodeType := Node.Type, NodeValue := Node.Value
-        If (NodeType = CodeTokenTypes.NODE)
-            Code .= CodeRecontructSyntaxTree(NodeValue)
-        Else If (NodeType = CodeTokenTypes.LITERAL_STRING)
-            Code .= """" . NodeValue . """"
-        Else If (NodeType = CodeTokenTypes.STATEMENT)
-            Code .= NodeValue . " "
-        Else
-            Code .= NodeValue
-        Code .= ","
-    }
-    Return, Operator . "(" . SubStr(Code,1,-1) . ")"
-}
-
-SearchObject(InputObject,SearchValue) ;wip: remove the need for this function with ObjFind()
-{
-    For Key, Value In InputObject
-    {
-        If (Value = SearchValue)
-            Return, Key
-    }
-}
-
-Pad(Length,Character = " ")
-{
-    Result := ""
-    Loop, %Length%
-        Result .= Character
-    Return, Result
 }
