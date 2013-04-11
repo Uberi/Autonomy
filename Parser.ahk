@@ -183,6 +183,9 @@ class Parser
         Token := this.Lexer.Symbol()
         If Token
             Return, new this.Node.Symbol(Token.Value,Token.Position,Token.Length)
+        Token := this.Lexer.Self()
+        If Token
+            Return, new this.Node.Self(Token.Position,Token.Length)
         Token := this.Lexer.String()
         If Token
             Return, new this.Node.String(Token.Value,Token.Position,Token.Length)

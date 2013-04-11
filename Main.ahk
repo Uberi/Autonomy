@@ -39,6 +39,7 @@ Short term tasks:
 
 Long term tasks:
 
+* finish the flow analysis module as per: http://matt.might.net/articles/intro-static-analysis/
 * implement all control flow and exceptions using continuations, continuation passing style is the norm with implicit continuations parameter, sort of like the "this" param in other languages
     * have "self" and $ available at all times, which represent the object instance and the passed continuations object/scope object
     * $.return(x), $.continue(), $.parent.break()
@@ -89,6 +90,7 @@ FileName := A_ScriptFullPath ;set the file name of the current file
 ;Value = [a, f: g, b, 4, d: e,, c]
 ;Value = 1`n `n `n `n `n `n2`n    `n   `r
 ;Value = x < y > z`nx < y
+;Value = $.test()
 
 /* ;lexer testing
 l := new Code.Lexer(Value)
@@ -99,7 +101,7 @@ MsgBox % Clipboard := Reconstruct.Tokens(Tokens)
 ExitApp
 */
 
-;/* ;parser testing
+/* ;parser testing
 l := new Code.Lexer(Value)
 p := new Code.Parser(l)
 SyntaxTree := p.Parse()

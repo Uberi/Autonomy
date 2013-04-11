@@ -181,6 +181,16 @@ class Lexer
             }
         }
 
+        class Self
+        {
+            __New(Position,Length)
+            {
+                this.Type := "Map"
+                this.Position := Position
+                this.Length := Length
+            }
+        }
+
         class Symbol
         {
             __New(Value,Position,Length)
@@ -518,6 +528,17 @@ class Lexer
             Return, False
 
         Return, new this.Token.Map(Position1,1)
+    }
+
+    Self()
+    {
+        Position1 := this.Position
+
+        ;check for self
+        If !this.Match("$")
+            Return, False
+
+        Return, new this.Token.Self(Position1,1)
     }
 
     Comment()

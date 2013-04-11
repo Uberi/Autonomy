@@ -36,6 +36,8 @@ class Reconstruct
                 Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`n"
             Else If Token.Type = "Map"
                 Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`n"
+            Else If Token.Type = "Self"
+                Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`n"
             Else If Token.Type = "Symbol"
                 Result .= Token.Position . ":" . Token.Length . "`t" . Token.Type . "`t" . Token.Value . "`n"
             Else If Token.Type = "String"
@@ -171,6 +173,8 @@ class Reconstruct
                 Result .= this.Tree(Content) . "`n"
             Return, "{" . SubStr(Result,1,-1) . "}"
         }
+        If Value.Type = "Self"
+            Return, "$"
         If Value.Type = "Symbol"
             Return, "'" . Value.Value
         If Value.Type = "String"
