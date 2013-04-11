@@ -3,13 +3,13 @@
 #Warn All
 #Warn LocalSameAsGlobal, Off
 
-;wip: pass environment rather than use Self.new
+;wip: use environment in which the object was created rather than the current environment
 
-Value = "hello" * 8
-;Value =  2 || 3
-;Value = {123}((1 + 3) * 2)
-;Value = {this["arguments"][1]}("First","Second","Third")
-;Value = 3 = 3
+;Value = print "hello" * 8
+;Value = print 2 || 3
+;Value = print {print args[1] ``n 123}((1 + 3) * 2)
+;Value = print {args[2]}("First","Second","Third")
+Value = print 3 = 3 `n print 1 = 2
 
 l := new Code.Lexer(Value)
 p := new Code.Parser(l)
@@ -17,7 +17,8 @@ p := new Code.Parser(l)
 Tree := p.Parse()
 
 Environment := new DefaultEnvironment
-MsgBox % ShowObject(Eval(Tree,Environment))
+Result := Eval(Tree,Environment)
+;MsgBox % ShowObject(Result)
 Return
 
 #Include Code.ahk
@@ -34,116 +35,176 @@ Eval(Tree,Environment)
         For Key, Value In Tree.Parameters
             Arguments[Key] := Eval(Value,Environment)
 
-        Return, Callable.call(Callable,Arguments)
+        r := Callable.call(Callable,Arguments,Environment)
+        Return, r
+        ;Return, Callable.call(Callable,Arguments)
     }
     If Tree.Type = "Block"
-        Return, Environment.Block.new(Tree.Contents,Environment)
+        Return, new Environment.Block(Tree.Contents,Environment)
     If Tree.Type = "Symbol"
-        Return, Environment.Symbol.new(Tree.Value)
+        Return, new Environment.Symbol(Tree.Value)
     If Tree.Type = "String"
-        Return, Environment.String.new(Tree.Value)
+        Return, new Environment.String(Tree.Value)
     If Tree.Type = "Identifier"
         Return, Environment[Tree.Value]
     If Tree.Type = "Number"
-        Return, Environment.Number.new(Tree.Value)
+        Return, new Environment.Number(Tree.Value)
+    If Tree.Type = "Self"
+        Return, new EnvironmentManager(Environment)
     throw Exception("Invalid token.")
+}
+
+class EnvironmentManager
+{
+    __New(Environment)
+    {
+        this.Value := Environment
+    }
+
+    class _subscript
+    {
+        call(Self,Arguments,Environment)
+        {
+            Key := Arguments[1].Value
+            If ObjHasKey(Self.Value,Key)
+                Return, Self.Value[Key]
+            Return, Environment.None
+        }
+    }
+
+    ;wip: setting keys and stuff
 }
 
 class DefaultEnvironment
 {
     class Object
     {
-        new()
+        class _boolean
         {
-            v := Object()
-            v.base := this
+            call(Self,Arguments,Environment)
+            {
+                Return, Environment.True
+            }
+        }
 
-            v.Values := Object()
-            Return, v
+        class _string
+        {
+            call(Self,Arguments,Environment)
+            {
+                Return, new Environment.String("<" . Self.__Class . " " . &Self . ">")
+            }
+        }
+    }
+
+    ;wip: this is already implemented in core.ato
+    class None extends DefaultEnvironment.Object
+    {
+        class _string
+        {
+            call(Self,Arguments,Environment)
+            {
+                Return, new Environment.String("None")
+            }
+        }
+    }
+
+    class True extends DefaultEnvironment.Object
+    {
+        class _string
+        {
+            call(Self,Arguments,Environment)
+            {
+                Return, new Environment.String("True")
+            }
+        }
+    }
+
+    class False extends DefaultEnvironment.Object
+    {
+        class _string
+        {
+            call(Self,Arguments,Environment)
+            {
+                Return, new Environment.String("False")
+            }
+        }
+    }
+
+    class Array extends DefaultEnvironment.Object
+    {
+        __New()
+        {
+            this.Value := Object()
         }
 
         class _boolean
         {
-            call(Self,Arguments)
+            call(Self,Arguments,Environment)
             {
-                Return, !!ObjNewEnum(Self).Next(Key,Value)
+                Return, ObjNewEnum(Self.Value).Next(Key) ? Environment.True : Environment.False
             }
         }
 
         class _subscript
         {
-            call(Self,Arguments)
+            call(Self,Arguments,Environment)
             {
-                Return, Self.Values[Arguments[1].Value]
+                Key := Arguments[1].Value
+                If ObjHasKey(Self.Value,Key)
+                    Return, Self.Value[Key]
+                Return, Environment.None
             }
         }
+
+        ;wip: setting keys and stuff
     }
 
-    class Block
+    class Block extends DefaultEnvironment.Object
     {
-        new(Contents,Environment)
+        __New(Contents,Environment)
         {
-            v := Object()
-            v.base := this
-
-            v.Contents := Contents
-            v.Environment := Environment
-            v.Arguments := Object()
-            Return, v
+            this.Contents := Contents
+            this.Environment := Environment
         }
 
-        call(Self,Arguments)
+        call(Self,Arguments,Environment)
         {
-            ;set up an inner scope with the Arguments
+            ;set up an inner environment with self and arguments ;wip: make this a bit more minimal
             InnerEnvironment := Object()
             InnerEnvironment.base := Self.Environment
-            InnerEnvironment.this := Self
-
-            Self.Arguments := Self.Environment.Object.new()
-            For Key, Value In Arguments
-                Self.Arguments.values[Key] := Value
+            InnerEnvironment.self := Self
+            InnerEnvironment.args := new InnerEnvironment.Array
+            InnerEnvironment.args.Value := Arguments
 
             ;evaluate the contents of the block
-            ;Result := null ;wip
-            Result := 0
+            Result := Environment.None
             For Index, Content In Self.Contents
                 Result := Eval(Content,InnerEnvironment)
             Return, Result
         }
 
-        class _boolean
-        {
-            call(Self,Arguments)
-            {
-                Return, True
-            }
-        }
-
         class _subscript
         {
-            call(Self,Arguments)
+            call(Self,Arguments,Environment)
             {
-                If Arguments[1].Value = "arguments"
+                Key := Arguments[1].Value
+                If (Key = "arguments")
                     Return, Self.Arguments
-                throw Exception("Invalid property: " . Arguments[1].Value)
+                throw Exception("Invalid property: " . Key)
             }
         }
     }
 
-    class Symbol
+    class Symbol extends DefaultEnvironment.Object
     {
-        new(Value)
+        __New(Value)
         {
-            v := Object()
-            v.base := this
-
-            v.Value := Value
-            Return, v
+            this.Value := Value
         }
 
         class _equals
         {
-            call(Self,Arguments)
+            call(Self,Arguments,Environment)
             {
                 Return, Self.Value = Arguments[1].Value
             }
@@ -151,35 +212,31 @@ class DefaultEnvironment
 
         class _equals_strict
         {
-            call(Self,Arguments)
+            call(Self,Arguments,Environment)
             {
                 Return, Self.Value == Arguments[1].Value
             }
         }
     }
 
-    class String
+    class String extends DefaultEnvironment.Object
     {
-        new(Value)
+        __New(Value)
         {
-            v := Object()
-            v.base := this
-
-            v.Value := Value
-            Return, v
+            this.Value := Value
         }
 
         class _boolean
         {
-            call(Self,Arguments)
+            call(Self,Arguments,Environment)
             {
-                Return, Self.Value != ""
+                Return, Self.Value = "" ? Environment.True : Environment.False
             }
         }
 
         class _equals
         {
-            call(Self,Arguments)
+            call(Self,Arguments,Environment)
             {
                 Return, Self.Value = Arguments[1].Value
             }
@@ -187,70 +244,66 @@ class DefaultEnvironment
 
         class _equals_strict
         {
-            call(Self,Arguments)
+            call(Self,Arguments,Environment)
             {
                 Return, Self.Value == Arguments[1].Value
-            }
-        }
-
-        class _add
-        {
-            call(Self,Arguments)
-            {
-                Return, Self.new(Self.Value . Arguments[1].Value)
             }
         }
 
         class _multiply
         {
-            call(Self,Arguments)
+            call(Self,Arguments,Environment)
             {
                 Result := ""
                 Loop, % Arguments[1].Value
                     Result .= Self.Value
-                Return, Self.new(Result)
+                Return, new Self.base(Result)
             }
         }
 
         class _subscript
         {
-            call(Self,Arguments)
+            call(Self,Arguments,Environment)
             {
-                Return, Self.new(SubStr(Self.Value,Arguments[1].Value,1))
+                Return, new Self.base(SubStr(Self.Value,Arguments[1].Value,1))
+            }
+        }
+
+        class _string
+        {
+            call(Self,Arguments,Environment)
+            {
+                Return, Self
             }
         }
     }
 
-    class Number
+    class Number extends DefaultEnvironment.Object
     {
-        new(Value)
+        __New(Value)
         {
-            v := Object()
-            v.base := this
-
-            v.Value := Value
-            Return, v
+            this.Value := Value
         }
 
         class _boolean
         {
-            call(Self,Arguments)
+            call(Self,Arguments,Environment)
             {
-                Return, Self.Value != 0
+                Return, Self.Value = 0 ? Environment.False : Environment.True
             }
         }
 
         class _equals
         {
-            call(Self,Arguments)
+            call(Self,Arguments,Environment)
             {
-                Return, Self.Value = Arguments[1].Value
+                Return, Self.Value = Arguments[1].Value ? Environment.True : Environment.False ;wip: try to convert to number
             }
         }
 
         class _equals_strict
         {
-            call(Self,Arguments)
+            call(Self,Arguments,Environment)
             {
                 Return, Self.Value == Arguments[1].Value
             }
@@ -258,100 +311,116 @@ class DefaultEnvironment
 
         class _add
         {
-            call(Self,Arguments)
+            call(Self,Arguments,Environment)
             {
-                Return, Self.new(Self.Value + Arguments[1].Value)
+                Return, new Self.base(Self.Value + Arguments[1].Value)
             }
         }
 
         class _multiply
         {
-            call(Self,Arguments)
+            call(Self,Arguments,Environment)
             {
-                Return, Self.new(Self.Value * Arguments[1].Value)
+                Return, new Self.base(Self.Value * Arguments[1].Value)
+            }
+        }
+
+        class _string
+        {
+            call(Self,Arguments,Environment)
+            {
+                Return, new Environment.String(Self.Value)
             }
         }
     }
 
     class _if
     {
-        call(Self,Arguments)
+        call(Self,Arguments,Environment)
         {
-            If Arguments[1]._boolean.call(Arguments[1],[])
-                Return, Arguments[2].call(Arguments[2],[])
-            Return, Arguments[3].call(Arguments[3],[])
+            If Arguments[1]._boolean.call(Arguments[1],[],Environment)
+                Return, Arguments[2].call(Arguments[2],[],Environment)
+            Return, Arguments[3].call(Arguments[3],[],Environment)
         }
     }
 
     class _or
     {
-        call(Self,Arguments)
+        call(Self,Arguments,Environment)
         {
-            If Arguments[1]._boolean.call(Arguments[1],[])
+            If Arguments[1]._boolean.call(Arguments[1],[],Environment)
                 Return, Arguments[1]
-            Return, Arguments[2].call(Arguments[2],[])
+            Return, Arguments[2].call(Arguments[2],[],Environment)
         }
     }
 
     class _and
     {
-        call(Self,Arguments)
+        call(Self,Arguments,Environment)
         {
-            If !Arguments[1]._boolean.call(Arguments[1],[])
+            If !Arguments[1]._boolean.call(Arguments[1],[],Environment)
                 Return, Arguments[1]
-            Return, Arguments[2].call(Arguments[2],[])
+            Return, Arguments[2].call(Arguments[2],[],Environment)
         }
     }
 
     class _equals
     {
-        call(Self,Arguments)
+        call(Self,Arguments,Environment)
         {
-            Return, Arguments[1]._equals.call(Arguments[1],[Arguments[2]])
+            Return, Arguments[1]._equals.call(Arguments[1],[Arguments[2]],Environment)
         }
     }
 
     class _equals_strict
     {
-        call(Self,Arguments)
+        call(Self,Arguments,Environment)
         {
-            Return, Arguments[1]._equals_strict.call(Arguments[1],[Arguments[2]])
+            Return, Arguments[1]._equals_strict.call(Arguments[1],[Arguments[2]],Environment)
         }
     }
 
     class _add
     {
-        call(Self,Arguments)
+        call(Self,Arguments,Environment)
         {
-            Return, Arguments[1]._add.call(Arguments[1],[Arguments[2]])
+            Return, Arguments[1]._add.call(Arguments[1],[Arguments[2]],Environment)
         }
     }
 
     class _multiply
     {
-        call(Self,Arguments)
+        call(Self,Arguments,Environment)
         {
-            Return, Arguments[1]._multiply.call(Arguments[1],[Arguments[2]])
+            Return, Arguments[1]._multiply.call(Arguments[1],[Arguments[2]],Environment)
         }
     }
 
     class _evaluate
     {
-        call(Self,Arguments)
+        call(Self,Arguments,Environment)
         {
             ;return the last parameter
             If ObjMaxIndex(Arguments)
                 Return, Arguments[ObjMaxIndex(Arguments)]
-            ;Return, null ;wip
-            Return, 0
+            Return, Environment.None
         }
     }
 
     class _subscript
     {
-        call(Self,Arguments)
+        call(Self,Arguments,Environment)
         {
-            Return, Arguments[1]._subscript.call(Arguments[1],[Arguments[2]])
+            Return, Arguments[1]._subscript.call(Arguments[1],[Arguments[2]],Environment)
+        }
+    }
+
+    class print
+    {
+        call(Self,Arguments,Environment)
+        {
+            FileAppend, % Arguments[1]._string.call(Arguments[1],[],Environment).Value . "`n", *
+            Return, Arguments[1]
         }
     }
 }
