@@ -359,7 +359,7 @@ class Parser
         Return, new this.Node.Operation(LeftSide,Parameters,LeftSide.Position,Length)
     }
 
-    Subscript(Operator,LeftSide) ;wip: simplify this code
+    Subscript(Operator,LeftSide)
     {
         If Operator.Value.Identifier != "_subscript"
             Return, False
@@ -388,7 +388,6 @@ class Parser
             If !this.Lexer.Map() ;end index not skipped (x[*: -> b:], b:c], ], b])
             {
                 ;check for end index
-                this.Ignore()
                 Position2 := this.Lexer.Position
                 Token := this.Lexer.OperatorLeft()
                 If Token && Token.Value.Identifier = "_subscript_end" ;end of slice (x[*: -> ])
