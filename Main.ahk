@@ -41,10 +41,11 @@ Short term tasks:
 
 Long term tasks:
 
+* symbols are just normal objects that implement hashing with their contents rather than their memory address
 * finish the flow analysis module as per: http://matt.might.net/articles/intro-static-analysis/
 * implement all control flow and exceptions using continuations, continuation passing style is the norm with implicit continuations parameter, sort of like the "this" param in other languages
     * have "self" and $ available at all times, which represent the object instance and the passed continuations object/scope object
-    * $.return(x), $.continue(), $.parent.break()
+    * return(x), continue(), base.break()
     * http://matt.might.net/articles/by-example-continuation-passing-style/
 * async "promise" and green thread system with async exceptions
 * use OBJECT KEY for prototype/metatable: "base" object: obj[base]._get, etc. scope objects will always have the "base" property set to the "base" property of the enclosing scope, in order to give enclosing code access to the base of objects. inheritance is obj[base]._get := fn('key) { PARENT_OBJECT[key] }
@@ -91,7 +92,8 @@ FileName := A_ScriptFullPath ;set the file name of the current file
 ;Value = [a, f: g, b, 4, d: e,, c]
 ;Value = 1`n `n `n `n `n `n2`n    `n   `r
 ;Value = x < y > z`nx < y
-Value = x[a]+x[ : : ]+x[ : : c]+x[ : b : ]+x[ : b : c]+x[a : : ]+x[a : : c]+x[a : b : ]+x[ a : b : c]+x[ : ]+x[ : b]+x[a : ]+x[a : b]
+;Value = x[a]+x[ : : ]+x[ : : c]+x[ : b : ]+x[ : b : c]+x[a : : ]+x[a : : c]+x[a : b : ]+x[ a : b : c]+x[ : ]+x[ : b]+x[a : ]+x[a : b]
+Value = x.y += z`nx //= y`nx[y] := z
 
 /* ;lexer testing
 l := new Code.Lexer(Value)

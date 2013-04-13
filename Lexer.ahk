@@ -48,7 +48,7 @@ class Lexer
         Operators.LeftDenotation["%="]  := new this.Operator("_assign_remainder"       ,170 ,9)
         Operators.LeftDenotation["%%="] := new this.Operator("_assign_modulo"          ,170 ,9)
         Operators.LeftDenotation["**="] := new this.Operator("_assign_exponentiate"    ,170 ,9)
-        Operators.LeftDenotation[".="]  := new this.Operator("_assign_concatenate"     ,170 ,9)
+        Operators.LeftDenotation["..="]  := new this.Operator("_assign_concatenate"     ,170 ,9)
         Operators.LeftDenotation["|="]  := new this.Operator("_assign_bit_or"          ,170 ,9)
         Operators.LeftDenotation["&="]  := new this.Operator("_assign_bit_and"         ,170 ,9)
         Operators.LeftDenotation["^="]  := new this.Operator("_assign_bit_xor"         ,170 ,9)

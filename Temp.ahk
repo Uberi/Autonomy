@@ -3,13 +3,16 @@
 #Warn All
 #Warn LocalSameAsGlobal, Off
 
-;wip: use environment in which the object was created rather than the current environment
+;wip: store environment in which the object was created with the object as the closure
 
 ;Value = print "hello" * 8
 ;Value = print 2 || 3
 ;Value = print {print args[1] ``n 123}((1 + 3) * 2)
 ;Value = print {args[2]}("First","Second","Third")
-Value = print 3 = 3 `n print 1 = 2
+;Value = print 3 = 3 `n print 1 = 2
+;Value = print([54][1])
+;Value = print "c" .. print "b" .. print "a"
+Value = x:=2`nprint x
 
 l := new Code.Lexer(Value)
 p := new Code.Parser(l)
@@ -18,6 +21,7 @@ Tree := p.Parse()
 
 Environment := new DefaultEnvironment
 Result := Eval(Tree,Environment)
+MsgBox % ShowObject(Environment)
 ;MsgBox % ShowObject(Result)
 Return
 
@@ -35,9 +39,7 @@ Eval(Tree,Environment)
         For Key, Value In Tree.Parameters
             Arguments[Key] := Eval(Value,Environment)
 
-        r := Callable.call(Callable,Arguments,Environment)
-        Return, r
-        ;Return, Callable.call(Callable,Arguments)
+        Return, Callable.call(Callable,Arguments,Environment)
     }
     If Tree.Type = "Block"
         Return, new Environment.Block(Tree.Contents,Environment)
@@ -46,33 +48,16 @@ Eval(Tree,Environment)
     If Tree.Type = "String"
         Return, new Environment.String(Tree.Value)
     If Tree.Type = "Identifier"
-        Return, Environment[Tree.Value]
+    {
+        ;Key := Tree._hash.call(Tree,[],Environment)
+        Value := Environment[Tree.Value]
+        Return, Value ? Value : Environment.None
+    }
     If Tree.Type = "Number"
         Return, new Environment.Number(Tree.Value)
     If Tree.Type = "Self"
-        Return, new EnvironmentManager(Environment)
+        Return, new Environment.Array(Environment)
     throw Exception("Invalid token.")
-}
-
-class EnvironmentManager
-{
-    __New(Environment)
-    {
-        this.Value := Environment
-    }
-
-    class _subscript
-    {
-        call(Self,Arguments,Environment)
-        {
-            Key := Arguments[1].Value
-            If ObjHasKey(Self.Value,Key)
-                Return, Self.Value[Key]
-            Return, Environment.None
-        }
-    }
-
-    ;wip: setting keys and stuff
 }
 
 class DefaultEnvironment
@@ -94,9 +79,17 @@ class DefaultEnvironment
                 Return, new Environment.String("<" . Self.__Class . " " . &Self . ">")
             }
         }
+
+        class _hash
+        {
+            call(Self,Arguments,Environment)
+            {
+                Return new Environment.Number(&Self)
+            }
+        }
     }
 
-    ;wip: this is already implemented in core.ato
+    ;wip: these are already implemented in core.ato
     class None extends DefaultEnvironment.Object
     {
         class _string
@@ -132,9 +125,9 @@ class DefaultEnvironment
 
     class Array extends DefaultEnvironment.Object
     {
-        __New()
+        __New(Value)
         {
-            this.Value := Object()
+            this.Value := Value
         }
 
         class _boolean
@@ -149,14 +142,21 @@ class DefaultEnvironment
         {
             call(Self,Arguments,Environment)
             {
-                Key := Arguments[1].Value
+                Key := Arguments[1]._hash.call(Arguments[1],[],Environment).Value
                 If ObjHasKey(Self.Value,Key)
                     Return, Self.Value[Key]
                 Return, Environment.None
             }
         }
 
-        ;wip: setting keys and stuff
+        class _assign
+        {
+            call(Self,Arguments,Environment)
+            {
+                Key := Arguments[1]._hash.call(Arguments[1],[],Environment).Value
+                Self.Value[Key] := Arguments[2]
+            }
+        }
     }
 
     class Block extends DefaultEnvironment.Object
@@ -173,8 +173,7 @@ class DefaultEnvironment
             InnerEnvironment := Object()
             InnerEnvironment.base := Self.Environment
             InnerEnvironment.self := Self
-            InnerEnvironment.args := new InnerEnvironment.Array
-            InnerEnvironment.args.Value := Arguments
+            InnerEnvironment.args := new InnerEnvironment.Array(Arguments)
 
             ;evaluate the contents of the block
             Result := Environment.None
@@ -331,6 +330,31 @@ class DefaultEnvironment
             {
                 Return, new Environment.String(Self.Value)
             }
+        }
+
+        class _hash
+        {
+            call(Self,Arguments,Environment)
+            {
+                Return, Self
+            }
+        }
+    }
+
+    ;wip: should be implemented in core.ato
+    class _array
+    {
+        call(Self,Arguments,Environment)
+        {
+            Return, new Environment.Array(Arguments)
+        }
+    }
+
+    class _assign
+    {
+        call(Self,Arguments,Environment)
+        {
+            Return, Arguments[1]._assign.call(Arguments[1],[Arguments[2],Arguments[3]],Environment)
         }
     }
 

@@ -109,6 +109,23 @@ class Reconstruct
 
     Tree(Value)
     {
+        static AssignmentOperators := {_assign:                 ":="
+                                      ,_assign_add:             "+="
+                                      ,_assign_subtract:        "-="
+                                      ,_assign_multiply:        "*="
+                                      ,_assign_divide:          "/="
+                                      ,_assign_divide_floor:    "//="
+                                      ,_assign_remainder:       "%="
+                                      ,_assign_modulo:          "%%="
+                                      ,_assign_exponentiate:    "**="
+                                      ,_assign_concatenate:     "..="
+                                      ,_assign_bit_or:          "|="
+                                      ,_assign_bit_and:         "&="
+                                      ,_assign_bit_xor:         "^="
+                                      ,_assign_bit_shift_left:  "<<="
+                                      ,_assign_bit_shift_right: ">>="
+                                      ,_assign_or:              "||="
+                                      ,_assign_and:             "&&="}
         static UnaryOperators := {_address:               "&"
                                  ,_bit_not:               "~"
                                  ,_invert:                "-"
@@ -143,6 +160,19 @@ class Reconstruct
             Parameters := Value.Parameters
             If Callable.Type = "Identifier"
             {
+                If AssignmentOperators.HasKey(Callable.Value)
+                {
+                    If Parameters[2].Type = "Symbol"
+                    {
+                        Result := ""
+                        If Parameters[1].Type != "Self"
+                            Result .= this.Tree(Parameters[1]) . "."
+                        Result .= Parameters[2].Value
+                    }
+                    Else
+                        Result := this.Tree(Parameters[1]) . "[" . this.Tree(Parameters[2]) . "]"
+                    Return, Result . " " . AssignmentOperators[Callable.Value] . " " . this.Tree(Parameters[3])
+                }
                 If Callable.Value = "_subscript"
                 {
                     If Parameters[2].Type = "Symbol"

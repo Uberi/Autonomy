@@ -1,20 +1,38 @@
 ;identity objects
-None := []
-True := []
-False := []
+None := Object()
+True := Object()
+False := Object()
 
-;function definitions
+;symbol object
+Symbol := [
+	_new: {
+		self.name := args[1] ;wip: self is the wrong keyword to use here
+		self.hash := hash(self.name)
+		self
+	},
+	_string: {
+		self.name
+	},
+	_hash: {
+		self.hash
+	}
+]
+
+;wip: doesn't work with numerically indexed arguments
+;function definition
 fn := {
-	arguments := [base: ['_get: { $[args[1]] }.bind '$: $]]
-	args[1:args.length - 1].each { arguments[args[1]] := args[2] }
-	args[args.length].bind arguments
+	body := args[args.length]
+	arguments := args[1:args.length - 1]
+	scope := [base: ['_subscript: { $[args[1]] }.bind '$: $]] ;create internal scope
+	arguments.each { scope[args[1]] := args[2] } ;add arguments to scope
+	body.bind scope ;bind scope to block
 }
 
 ;chained comparison (x < y < z)
 _compare := fn {
 	left := args[1]
 	index := 2
-	loop args.length // 2 {
+	loop args.length // 2 { ;iterate over each comparison
 		comparison := args[index]
 		index += 1
 		right := args[index]
@@ -23,7 +41,7 @@ _compare := fn {
 			return True
 		left := right
 	}
-	return False
+	False
 }
 
 loop := fn 'count, 'index_var, 'index, 'body, {
@@ -32,6 +50,18 @@ loop := fn 'count, 'index_var, 'index, 'body, {
 	(body.bind '$: $, index_var: start)()
 	count != 1 ?
 		loop count - 1, index_var, body, index + 1
+}
+
+with := fn 'scope, 'body {
+	body.bind scope
+	body()
+}
+
+match := fn 'value, 'bodies, 'default, {
+	body := bodies[value]
+	body = None ?
+		default ? default() : None
+		: body()
 }
 
 Number.each := fn 'body, 'index {

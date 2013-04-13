@@ -19,8 +19,6 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-;wip: when AHKv2 gets the new behavior for logical AND and OR (returns matched value on success), use idioms like "this.Statement() || this.Expression()" and "this.Identifier() && this.Expression()"
-
 class Parser
 {
     __New(Lexer)
@@ -217,6 +215,9 @@ class Parser
         Result := this.Call(Operator,LeftSide)
         If Result
             Return, Result
+        Result := this.Assignment(Operator,LeftSide)
+        If Result
+            Return, Result
         Result := this.Subscript(Operator,LeftSide)
         If Result
             Return, Result
@@ -357,6 +358,34 @@ class Parser
 
         Length := this.Lexer.Position - LeftSide.Position
         Return, new this.Node.Operation(LeftSide,Parameters,LeftSide.Position,Length)
+    }
+
+    Assignment(Operator,LeftSide) ;wip: just call this.Binary() as needed in these parsing functions
+    {
+        static AssignmentOperators := {_assign: True, _assign_add: True, _assign_subtract: True, _assign_multiply: True, _assign_divide_floor: True, _assign_remainder: True, _assign_modulo: True, _assign_exponentiate: True, _assign_concatenate: True, _assign_bit_or: True, _assign_bit_and: True, _assign_bit_xor: True, _assign_bit_shift_left: True, _assign_bit_shift_right: True, _assign_or: True, _assign_and: True}
+        If !AssignmentOperators.HasKey(Operator.Value.Identifier)
+            Return, False
+
+        ;check for field assignment (x[y] := z)
+        If LeftSide.Type = "Operation" && LeftSide.Value.Type = "Identifier" && LeftSide.Value.Value = "_subscript"
+        {
+            Key := LeftSide.Parameters[2]
+            LeftSide := LeftSide.Parameters[1]
+        }
+        Else If LeftSide.Type = "Identifier"
+        {
+            Key := new this.Node.Symbol(LeftSide.Value,LeftSide.Position,LeftSide.Length)
+            LeftSide := new this.Node.Self(0,0)
+        }
+        Else
+            throw Exception("Invalid assignment.",A_ThisFunc,LeftSide.Position)
+
+        RightSide := this.Statement(Operator.Value.RightBindingPower)
+
+        Operation := new this.Node.Identifier(Operator.Value.Identifier,Operator.Position,Operator.Length)
+        Parameters := [LeftSide,Key,RightSide]
+        Length := this.Lexer.Position - LeftSide.Position
+        Return, new this.Node.Operation(Operation,Parameters,LeftSide.Position,Length)
     }
 
     Subscript(Operator,LeftSide)
