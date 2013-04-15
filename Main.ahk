@@ -71,6 +71,7 @@ Long term tasks:
 
 FileName := A_ScriptFullPath ;set the file name of the current file
 
+;Value = "a``r``nb`tc````d``"e"
 ;Value = abc param1, param2`ndef param1 + sin 45`n!ghi + 5 * jkl 123, 456
 ;Value = Something a, b, c`n4+5`nTest 1, 2, 3
 ;Value = a ? b : c`nd && e || f

@@ -271,7 +271,15 @@ class Reconstruct
         If Value.Type = "Symbol"
             Return, "'" . Value.Value
         If Value.Type = "String"
-            Return, """" . Value.Value . """"
+        {
+            Result := Value.Value
+            StringReplace, Result, Result, ``, ````, All
+            StringReplace, Result, Result, ", ``", All
+            StringReplace, Result, Result, `r, ``r, All
+            StringReplace, Result, Result, `n, ``n, All
+            StringReplace, Result, Result, `t, ``t, All
+            Return, """" . Result . """"
+        }
         If Value.Type = "Identifier"
             Return, Value.Value
         If Value.Type = "Number"
