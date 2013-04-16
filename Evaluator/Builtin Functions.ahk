@@ -1,117 +1,78 @@
 class BuiltinFunctions
 {
     ;wip: should be implemented in core.ato
-    class _array
+    _array(Self,Arguments,Environment)
     {
-        call(Self,Arguments,Environment)
-        {
-            Return, new Environment.Array(Arguments)
-        }
+        Return, new BuiltinTypes.Array(Arguments,Environment)
     }
 
-    class _assign
+    _assign(Self,Arguments,Environment)
     {
-        call(Self,Arguments,Environment)
-        {
-            Return, Arguments[1]._assign.call(Arguments[1],[Arguments[2],Arguments[3]],Environment)
-        }
+        Return, Arguments[1]._assign(Arguments[1],[Arguments[2],Arguments[3]],Environment)
     }
 
-    class _if
+    _if(Self,Arguments,Environment)
     {
-        call(Self,Arguments,Environment)
-        {
-            If Arguments[1]._boolean.call(Arguments[1],[],Environment)
-                Return, Arguments[2].call(Arguments[2],[],Environment)
-            Return, Arguments[3].call(Arguments[3],[],Environment)
-        }
+        If Arguments[1]._boolean(Arguments[1],[],Environment)
+            Return, Arguments[2](Arguments[2],[],Environment)
+        Return, Arguments[3](Arguments[3],[],Environment)
     }
 
-    class _or
+    _or(Self,Arguments,Environment)
     {
-        call(Self,Arguments,Environment)
-        {
-            If Arguments[1]._boolean.call(Arguments[1],[],Environment)
-                Return, Arguments[1]
-            Return, Arguments[2].call(Arguments[2],[],Environment)
-        }
-    }
-
-    class _and
-    {
-        call(Self,Arguments,Environment)
-        {
-            If !Arguments[1]._boolean.call(Arguments[1],[],Environment)
-                Return, Arguments[1]
-            Return, Arguments[2].call(Arguments[2],[],Environment)
-        }
-    }
-
-    class _equals
-    {
-        call(Self,Arguments,Environment)
-        {
-            Return, Arguments[1]._equals.call(Arguments[1],[Arguments[2]],Environment)
-        }
-    }
-
-    class _equals_strict
-    {
-        call(Self,Arguments,Environment)
-        {
-            Return, Arguments[1]._equals_strict.call(Arguments[1],[Arguments[2]],Environment)
-        }
-    }
-
-    class _add
-    {
-        call(Self,Arguments,Environment)
-        {
-            Return, Arguments[1]._add.call(Arguments[1],[Arguments[2]],Environment)
-        }
-    }
-
-    class _multiply
-    {
-        call(Self,Arguments,Environment)
-        {
-            Return, Arguments[1]._multiply.call(Arguments[1],[Arguments[2]],Environment)
-        }
-    }
-
-    class _evaluate
-    {
-        call(Self,Arguments,Environment)
-        {
-            ;return the last parameter
-            If ObjMaxIndex(Arguments)
-                Return, Arguments[ObjMaxIndex(Arguments)]
-            Return, Environment.None
-        }
-    }
-
-    class _subscript
-    {
-        call(Self,Arguments,Environment)
-        {
-            Return, Arguments[1]._subscript.call(Arguments[1],[Arguments[2]],Environment)
-        }
-    }
-
-    class _concatenate
-    {
-        call(Self,Arguments,Environment)
-        {
-            Return, Arguments[1]._concatenate.call(Arguments[1],[Arguments[2]],Environment)
-        }
-    }
-
-    class print
-    {
-        call(Self,Arguments,Environment)
-        {
-            FileAppend, % Arguments[1]._string.call(Arguments[1],[],Environment).Value . "`n", *
+        If Arguments[1]._boolean(Arguments[1],[],Environment)
             Return, Arguments[1]
-        }
+        Return, Arguments[2](Arguments[2],[],Environment)
+    }
+
+    _and(Self,Arguments,Environment)
+    {
+        If !Arguments[1]._boolean(Arguments[1],[],Environment)
+            Return, Arguments[1]
+        Return, Arguments[2](Arguments[2],[],Environment)
+    }
+
+    _equals(Self,Arguments,Environment)
+    {
+        Return, Arguments[1]._equals(Arguments[1],[Arguments[2]],Environment)
+    }
+
+    _equals_strict(Self,Arguments,Environment)
+    {
+        Return, Arguments[1]._equals_strict(Arguments[1],[Arguments[2]],Environment)
+    }
+
+    _add(Self,Arguments,Environment)
+    {
+        Return, Arguments[1]._add(Arguments[1],[Arguments[2]],Environment)
+    }
+
+    _multiply(Self,Arguments,Environment)
+    {
+        Return, Arguments[1]._multiply(Arguments[1],[Arguments[2]],Environment)
+    }
+
+    _evaluate(Self,Arguments,Environment)
+    {
+        ;return the last parameter
+        If ObjMaxIndex(Arguments)
+            Return, Arguments[ObjMaxIndex(Arguments)]
+        Return, Environment.None
+    }
+
+    _subscript(Self,Arguments,Environment)
+    {
+        Return, Arguments[1]._subscript(Arguments[1],[Arguments[2]],Environment)
+    }
+
+    _concatenate(Self,Arguments,Environment)
+    {
+        Return, Arguments[1]._concatenate(Arguments[1],[Arguments[2]],Environment)
+    }
+
+    print(Self,Arguments,Environment)
+    {
+        FileAppend, % Arguments[1]._string(Arguments[1],[],Environment).Value . "`n", *
+        Return, Arguments[1]
     }
 }

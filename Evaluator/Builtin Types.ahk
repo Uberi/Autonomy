@@ -2,99 +2,77 @@ class BuiltinTypes
 {
     class Object
     {
-        class _boolean
+        _boolean(Self,Arguments,Environment)
         {
-            call(Self,Arguments,Environment)
-            {
-                Return, BuiltinTypes.True
-            }
+            Return, BuiltinTypes.True
         }
 
-        class _string
+        _string(Self,Arguments,Environment)
         {
-            call(Self,Arguments,Environment)
-            {
-                Return, new BuiltinTypes.String("<" . Self.__Class . " " . &Self . ">")
-            }
+            Return, new BuiltinTypes.String("<" . Self.__Class . " " . &Self . ">")
         }
 
-        class _hash
+        _hash(Self,Arguments,Environment)
         {
-            call(Self,Arguments,Environment)
-            {
-                Return new BuiltinTypes.Number(&Self)
-            }
+            Return new BuiltinTypes.Number(&Self)
         }
     }
 
     ;wip: these are already implemented in core.ato
     class None extends BuiltinTypes.Object
     {
-        class _string
+        _string(Self,Arguments,Environment)
         {
-            call(Self,Arguments,Environment)
-            {
-                Return, new BuiltinTypes.String("None")
-            }
+            Return, new BuiltinTypes.String("None")
         }
     }
 
     class True extends BuiltinTypes.Object
     {
-        class _string
+        _string(Self,Arguments,Environment)
         {
-            call(Self,Arguments,Environment)
-            {
-                Return, new BuiltinTypes.String("True")
-            }
+            Return, new BuiltinTypes.String("True")
         }
     }
 
     class False extends BuiltinTypes.Object
     {
-        class _string
+        _string(Self,Arguments,Environment)
         {
-            call(Self,Arguments,Environment)
-            {
-                Return, new BuiltinTypes.String("False")
-            }
+            Return, new BuiltinTypes.String("False")
         }
     }
 
     class Array extends BuiltinTypes.Object
     {
-        __New(Value)
+        __New(Value,Environment)
         {
-            this.Value := Value
-        }
-
-        class _boolean
-        {
-            call(Self,Arguments,Environment)
+            this.Value := {}
+            For Key, Entry In Value
             {
-                Return, ObjNewEnum(Self.Value).Next(Key) ? BuiltinTypes.True : BuiltinTypes.False
+                If Key Is Number
+                    Key := new BuiltinTypes.Number(Key)
+                Else
+                    Key := new BuiltinTypes.Symbol(Key)
+                this._assign(this,[Key,Entry],Environment)
             }
         }
 
-        class _subscript
+        _boolean(Self,Arguments,Environment)
         {
-            call(Self,Arguments,Environment)
-            {
-                Key := Arguments[1]._hash.call(Arguments[1],[],Environment).Value
-                If ObjHasKey(Self.Value,Key)
-                    Return, Self.Value[Key]
-                MsgBox % Arguments[1].Value
-                Return, BuiltinTypes.None
-            }
+            Return, ObjNewEnum(Self.Value).Next(Key) ? BuiltinTypes.True : BuiltinTypes.False
         }
 
-        class _assign
+        _subscript(Self,Arguments,Environment)
         {
-            call(Self,Arguments,Environment)
-            {
-                Key := Arguments[1]._hash.call(Arguments[1],[],Environment).Value
-                Self.Value[Key] := Arguments[2]
-            }
+            Key := Arguments[1]._hash(Arguments[1],[],Environment).Value
+            Return, Self.Value[Key] ? Self.Value[Key] : BuiltinTypes.None
+        }
+
+        _assign(Self,Arguments,Environment)
+        {
+            Key := Arguments[1]._hash(Arguments[1],[],Environment).Value
+            Self.Value[Key] := Arguments[2]
         }
     }
 
@@ -106,13 +84,11 @@ class BuiltinTypes
             this.Environment := Environment
         }
 
-        call(Self,Arguments,Environment)
+        __Call(Key,Instance,Self,Arguments,Environment)
         {
             ;set up an inner environment with self and arguments ;wip: make this a bit more minimal
-            InnerEnvironment := Object()
-            InnerEnvironment.base := Self.Environment
-            InnerEnvironment.self := Self
-            InnerEnvironment.args := new Environment.Array(Arguments)
+            InnerEnvironment := new BuiltinTypes.Array({self: Self, args: new BuiltinTypes.Array(Arguments,Environment)},Environment)
+            InnerEnvironment.Value.base := Environment.Value
 
             ;evaluate the contents of the block
             Result := BuiltinTypes.None
@@ -121,15 +97,12 @@ class BuiltinTypes
             Return, Result
         }
 
-        class _subscript
+        _subscript(Self,Arguments,Environment)
         {
-            call(Self,Arguments,Environment)
-            {
-                Key := Arguments[1].Value
-                If (Key = "arguments")
-                    Return, Self.Arguments
-                throw Exception("Invalid property: " . Key)
-            }
+            Key := Arguments[1].Value
+            If (Key = "arguments")
+                Return, Self.Arguments
+            throw Exception("Invalid property: " . Key)
         }
     }
 
@@ -140,29 +113,20 @@ class BuiltinTypes
             this.Value := Value
         }
 
-        class _equals
+        _equals(Self,Arguments,Environment)
         {
-            call(Self,Arguments,Environment)
-            {
-                Return, Self.Value = Arguments[1].Value
-            }
+            Return, Self.Value = Arguments[1].Value
         }
 
-        class _equals_strict
+        _equals_strict(Self,Arguments,Environment)
         {
-            call(Self,Arguments,Environment)
-            {
-                Return, Self.Value == Arguments[1].Value
-            }
+            Return, Self.Value == Arguments[1].Value
         }
 
-        class _hash
+        _hash(Self,Arguments,Environment)
         {
-            call(Self,Arguments,Environment)
-            {
-                Value := DllCall( "ntdll\RtlComputeCrc32","UInt",0,"UPtr",ObjGetAddress(Self,"Value"),"UPtr",StrLen(Self.Value))
-                Return, new BuiltinTypes.Number(Value)
-            }
+            Value := DllCall( "ntdll\RtlComputeCrc32","UInt",0,"UPtr",ObjGetAddress(Self,"Value"),"UPtr",StrLen(Self.Value))
+            Return, new BuiltinTypes.Number(Value)
         }
     }
 
@@ -173,63 +137,42 @@ class BuiltinTypes
             this.Value := Value
         }
 
-        class _boolean
+        _boolean(Self,Arguments,Environment)
         {
-            call(Self,Arguments,Environment)
-            {
-                Return, Self.Value = "" ? BuiltinTypes.True : BuiltinTypes.False
-            }
+            Return, Self.Value = "" ? BuiltinTypes.True : BuiltinTypes.False
         }
 
-        class _equals
+        _equals(Self,Arguments,Environment)
         {
-            call(Self,Arguments,Environment)
-            {
-                Return, Self.Value = Arguments[1].Value
-            }
+            Return, Self.Value = Arguments[1].Value
         }
 
-        class _equals_strict
+        _equals_strict(Self,Arguments,Environment)
         {
-            call(Self,Arguments,Environment)
-            {
-                Return, Self.Value == Arguments[1].Value
-            }
+            Return, Self.Value == Arguments[1].Value
         }
 
-        class _multiply
+        _multiply(Self,Arguments,Environment)
         {
-            call(Self,Arguments,Environment)
-            {
-                Result := ""
-                Loop, % Arguments[1].Value
-                    Result .= Self.Value
-                Return, new Self.base(Result)
-            }
+            Result := ""
+            Loop, % Arguments[1].Value
+                Result .= Self.Value
+            Return, new Self.base(Result)
         }
 
-        class _subscript
+        _subscript(Self,Arguments,Environment)
         {
-            call(Self,Arguments,Environment)
-            {
-                Return, new Self.base(SubStr(Self.Value,Arguments[1].Value,1)) ;wip: cast to string
-            }
+            Return, new Self.base(SubStr(Self.Value,Arguments[1].Value,1)) ;wip: cast to string
         }
 
-        class _concatenate
+        _concatenate(Self,Arguments,Environment)
         {
-            call(Self,Arguments,Environment)
-            {
-                Return, new Self.base(Self.Value . Arguments[1].Value) ;wip: cast to string
-            }
+            Return, new Self.base(Self.Value . Arguments[1].Value) ;wip: cast to string
         }
 
-        class _string
+        _string(Self,Arguments,Environment)
         {
-            call(Self,Arguments,Environment)
-            {
-                Return, Self
-            }
+            Return, Self
         }
     }
 
@@ -240,60 +183,39 @@ class BuiltinTypes
             this.Value := Value
         }
 
-        class _boolean
+        _boolean(Self,Arguments,Environment)
         {
-            call(Self,Arguments,Environment)
-            {
-                Return, Self.Value = 0 ? BuiltinTypes.False : BuiltinTypes.True
-            }
+            Return, Self.Value = 0 ? BuiltinTypes.False : BuiltinTypes.True
         }
 
-        class _equals
+        _equals(Self,Arguments,Environment)
         {
-            call(Self,Arguments,Environment)
-            {
-                Return, Self.Value = Arguments[1].Value ? BuiltinTypes.True : BuiltinTypes.False ;wip: try to convert to number
-            }
+            Return, Self.Value = Arguments[1].Value ? BuiltinTypes.True : BuiltinTypes.False ;wip: try to convert to number
         }
 
-        class _equals_strict
+        _equals_strict(Self,Arguments,Environment)
         {
-            call(Self,Arguments,Environment)
-            {
-                Return, Self.Value == Arguments[1].Value
-            }
+            Return, Self.Value == Arguments[1].Value
         }
 
-        class _add
+        _add(Self,Arguments,Environment)
         {
-            call(Self,Arguments,Environment)
-            {
-                Return, new Self.base(Self.Value + Arguments[1].Value)
-            }
+            Return, new Self.base(Self.Value + Arguments[1].Value)
         }
 
-        class _multiply
+        _multiply(Self,Arguments,Environment)
         {
-            call(Self,Arguments,Environment)
-            {
-                Return, new Self.base(Self.Value * Arguments[1].Value)
-            }
+            Return, new Self.base(Self.Value * Arguments[1].Value)
         }
 
-        class _string
+        _string(Self,Arguments,Environment)
         {
-            call(Self,Arguments,Environment)
-            {
-                Return, new BuiltinTypes.String(Self.Value)
-            }
+            Return, new BuiltinTypes.String(Self.Value)
         }
 
-        class _hash
+        _hash(Self,Arguments,Environment)
         {
-            call(Self,Arguments,Environment)
-            {
-                Return, Self
-            }
+            Return, Self
         }
     }
 }

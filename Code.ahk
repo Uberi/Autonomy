@@ -1,6 +1,6 @@
 #NoEnv
 
-#Include Resources/Functions.ahk
+#Include Resources/Functions.ahk ;wip: remove dependency
 
 /*
 Copyright 2011-2012 Anthony Zhang <azhang9@gmail.com>
