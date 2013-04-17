@@ -1,78 +1,78 @@
 class BuiltinFunctions
 {
     ;wip: should be implemented in core.ato
-    _array(Self,Arguments,Environment)
+    _array(Arguments,Environment)
     {
         Return, new BuiltinTypes.Array(Arguments,Environment)
     }
 
-    _assign(Self,Arguments,Environment)
+    _assign(Arguments,Environment)
     {
-        Return, Arguments[1]._assign(Arguments[1],[Arguments[2],Arguments[3]],Environment)
+        Return, Arguments[1]._assign([Arguments[2],Arguments[3]],Environment)
     }
 
-    _if(Self,Arguments,Environment)
+    _if(Arguments,Environment)
     {
-        If Arguments[1]._boolean(Arguments[1],[],Environment)
-            Return, Arguments[2](Arguments[2],[],Environment)
-        Return, Arguments[3](Arguments[3],[],Environment)
+        If Arguments[1]._boolean([],Environment)
+            Return, Arguments[2]([],Environment)
+        Return, Arguments[3]([],Environment)
     }
 
-    _or(Self,Arguments,Environment)
+    _or(Arguments,Environment)
     {
-        If Arguments[1]._boolean(Arguments[1],[],Environment)
+        If Arguments[1]._boolean([],Environment)
             Return, Arguments[1]
-        Return, Arguments[2](Arguments[2],[],Environment)
+        Return, Arguments[2]([],Environment)
     }
 
-    _and(Self,Arguments,Environment)
+    _and(Arguments,Environment)
     {
-        If !Arguments[1]._boolean(Arguments[1],[],Environment)
+        If !Arguments[1]._boolean([],Environment)
             Return, Arguments[1]
-        Return, Arguments[2](Arguments[2],[],Environment)
+        Return, Arguments[2]([],Environment)
     }
 
-    _equals(Self,Arguments,Environment)
+    _equals(Arguments,Environment)
     {
-        Return, Arguments[1]._equals(Arguments[1],[Arguments[2]],Environment)
+        Return, Arguments[1]._equals([Arguments[2]],Environment)
     }
 
-    _equals_strict(Self,Arguments,Environment)
+    _equals_strict(Arguments,Environment)
     {
-        Return, Arguments[1]._equals_strict(Arguments[1],[Arguments[2]],Environment)
+        Return, Arguments[1]._equals_strict([Arguments[2]],Environment)
     }
 
-    _add(Self,Arguments,Environment)
+    _add(Arguments,Environment)
     {
-        Return, Arguments[1]._add(Arguments[1],[Arguments[2]],Environment)
+        Return, Arguments[1]._add([Arguments[2]],Environment)
     }
 
-    _multiply(Self,Arguments,Environment)
+    _multiply(Arguments,Environment)
     {
-        Return, Arguments[1]._multiply(Arguments[1],[Arguments[2]],Environment)
+        Return, Arguments[1]._multiply([Arguments[2]],Environment)
     }
 
-    _evaluate(Self,Arguments,Environment)
+    _evaluate(Arguments,Environment)
     {
         ;return the last parameter
         If ObjMaxIndex(Arguments)
-            Return, Arguments[ObjMaxIndex(Arguments)]
+            Return, Arguments[Arguments.MaxIndex()]
         Return, Environment.None
     }
 
-    _subscript(Self,Arguments,Environment)
+    _subscript(Arguments,Environment)
     {
-        Return, Arguments[1]._subscript(Arguments[1],[Arguments[2]],Environment)
+        Return, Arguments[1]._subscript([Arguments[2]],Environment)
     }
 
-    _concatenate(Self,Arguments,Environment)
+    _concatenate(Arguments,Environment)
     {
-        Return, Arguments[1]._concatenate(Arguments[1],[Arguments[2]],Environment)
+        Return, Arguments[1]._concatenate([Arguments[2]],Environment)
     }
 
-    print(Self,Arguments,Environment)
+    print(Arguments,Environment)
     {
-        FileAppend, % Arguments[1]._string(Arguments[1],[],Environment).Value . "`n", *
+        FileAppend, % Arguments[1]._string([],Environment).Value . "`n", *
         Return, Arguments[1]
     }
 }
