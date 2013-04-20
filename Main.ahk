@@ -1,7 +1,7 @@
 #NoEnv
 
 /*
-Copyright 2011-2012 Anthony Zhang <azhang9@gmail.com>
+Copyright 2011-2013 Anthony Zhang <azhang9@gmail.com>
 
 This file is part of Autonomy. Source code is available at <https://github.com/Uberi/Autonomy>.
 
@@ -106,7 +106,7 @@ MsgBox % Clipboard := Reconstruct.Tokens(Tokens)
 ExitApp
 */
 
-;/* ;parser testing
+/* ;parser testing
 l := new Code.Lexer(Value)
 p := new Code.Parser(l)
 SyntaxTree := p.Parse()
@@ -124,17 +124,16 @@ MsgBox % Clipboard := Reconstruct.Tree(SimplifiedSyntaxTree)
 ExitApp
 */
 
-/* ;bytecoder testing
+;/* ;bytecoder testing
 l := new Code.Lexer(Value)
 p := new Code.Parser(l)
+b := new Code.Bytecoder
 SyntaxTree := p.Parse()
-Bytecoder := new Code.Bytecoder
-Bytecode := Bytecoder.Convert(SyntaxTree)
+Bytecode := b.Convert(SyntaxTree)
 MsgBox % Clipboard := Dump.Bytecode(Bytecode)
 ExitApp
 */
 
-#Include Resources\Error Format.ahk
 #Include Resources\Reconstruct.ahk
 
 #Include Code.ahk

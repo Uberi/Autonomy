@@ -1,7 +1,7 @@
 #NoEnv
 
 /*
-Copyright 2011-2012 Anthony Zhang <azhang9@gmail.com>
+Copyright 2011-2013 Anthony Zhang <azhang9@gmail.com>
 
 This file is part of Autonomy. Source code is available at <https://github.com/Uberi/Autonomy>.
 
@@ -692,10 +692,10 @@ class Lexer
                 Output := Chr(CharacterCode)
             }
             Else ;invalid character code
-                throw {Message: "Invalid character escape sequence.", Position: Position1, Length: 2, Location: A_ThisFunc}
+                throw {Message: "Invalid character escape sequence.", Position: Position1, Length: 3, Location: A_ThisFunc}
         }
         Else
-            throw {Message: "Invalid escape sequence.", Position: Position1, Length: 1, Location: A_ThisFunc}
+            throw {Message: "Invalid escape sequence.", Position: Position1, Length: 2, Location: A_ThisFunc}
         Return, True
     }
 }

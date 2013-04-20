@@ -3,7 +3,7 @@
 ;#Include Code.ahk
 
 /*
-Copyright 2011-2012 Anthony Zhang <azhang9@gmail.com>
+Copyright 2011-2013 Anthony Zhang <azhang9@gmail.com>
 
 This file is part of Autonomy. Source code is available at <https://github.com/Uberi/Autonomy>.
 
@@ -52,7 +52,7 @@ CodeBytecodeInit()
 Bytecode := CodeBytecode(SyntaxTree)
 
 FlowGraph := CodeFlow(Bytecode,Errors)
-MsgBox % Bytecode . "`n" . ShowObject(FlowGraph)
+MsgBox % Bytecode . "`n" . Show(FlowGraph)
 ExitApp
 */
 

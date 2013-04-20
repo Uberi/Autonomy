@@ -1,7 +1,7 @@
 #NoEnv
 
 /*
-Copyright 2011-2012 Anthony Zhang <azhang9@gmail.com>
+Copyright 2011-2013 Anthony Zhang <azhang9@gmail.com>
 
 This file is part of Autonomy. Source code is available at <https://github.com/Uberi/Autonomy>.
 

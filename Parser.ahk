@@ -1,7 +1,7 @@
 #NoEnv
 
 /*
-Copyright 2011-2012 Anthony Zhang <azhang9@gmail.com>
+Copyright 2011-2013 Anthony Zhang <azhang9@gmail.com>
 
 This file is part of Autonomy. Source code is available at <https://github.com/Uberi/Autonomy>.
 
@@ -360,7 +360,7 @@ class Parser
         Return, new this.Node.Operation(LeftSide,Parameters,LeftSide.Position,Length)
     }
 
-    Assignment(Operator,LeftSide) ;wip: just call this.Binary() as needed in these parsing functions
+    Assignment(Operator,LeftSide)
     {
         static AssignmentOperators := {_assign: True, _assign_add: True, _assign_subtract: True, _assign_multiply: True, _assign_divide_floor: True, _assign_remainder: True, _assign_modulo: True, _assign_exponentiate: True, _assign_concatenate: True, _assign_bit_or: True, _assign_bit_and: True, _assign_bit_xor: True, _assign_bit_shift_left: True, _assign_bit_shift_right: True, _assign_or: True, _assign_and: True}
         If !AssignmentOperators.HasKey(Operator.Value.Identifier)

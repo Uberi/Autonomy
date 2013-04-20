@@ -1,9 +1,7 @@
 #NoEnv
 
-#Include Resources/Functions.ahk ;wip: remove dependency
-
 /*
-Copyright 2011-2012 Anthony Zhang <azhang9@gmail.com>
+Copyright 2011-2013 Anthony Zhang <azhang9@gmail.com>
 
 This file is part of Autonomy. Source code is available at <https://github.com/Uberi/Autonomy>.
 
@@ -27,3 +25,5 @@ class Code
     #Include Parser.ahk
     #Include Bytecoder.ahk
 }
+
+#Include Resources/Functions.ahk ;wip: debug

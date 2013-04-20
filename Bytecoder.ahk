@@ -1,7 +1,7 @@
 #NoEnv
 
 /*
-Copyright 2011-2012 Anthony Zhang <azhang9@gmail.com>
+Copyright 2011-2013 Anthony Zhang <azhang9@gmail.com>
 
 This file is part of Autonomy. Source code is available at <https://github.com/Uberi/Autonomy>.
 
@@ -47,15 +47,12 @@ return                          pops the return value off of the stack and store
 jump                            pops the jump target off of the stack.
                                 jumps to the stored jump target.
 
-conditional                     pops the value off of the stack and stores it.
-                                pops the potential jump target off of the stack and stores it.
-                                jumps to the stored potential jump target if the stored value is truthy.
-
 ;wip: generated identifiers are not globally unique
 ;wip: distinct Array type using contiguous memory, faster than Object hash table implementation
 ;wip: dead/unreachable code elimination
 */
 
+/*
 class Bytecoder ;register based bytecode generator
 {
     __New()
@@ -106,8 +103,9 @@ class Bytecoder ;register based bytecode generator
         Return, Result
     }
 }
+*/
 
-/* ;wip: discard this if no longer needed
+;/*
 class Bytecoder ;stack based bytecode generator
 {
     __New()
@@ -117,12 +115,12 @@ class Bytecoder ;stack based bytecode generator
 
     class Code
     {
-        class DefineLabel
+        class Label
         {
-            __New(Label,Position,Length)
+            __New(Value,Position,Length)
             {
-                this.Identifier := "label"
-                this.Value := Label
+                this.Identifier := "Label"
+                this.Value := Value
                 this.Position := Position
                 this.Length := Length
             }
@@ -132,7 +130,7 @@ class Bytecoder ;stack based bytecode generator
         {
             __New(Position,Length)
             {
-                this.Identifier := "jump"
+                this.Identifier := "Jump"
                 this.Position := Position
                 this.Length := Length
             }
@@ -142,63 +140,31 @@ class Bytecoder ;stack based bytecode generator
         {
             __New(ParameterCount,Position,Length)
             {
-                this.Identifier := "call"
-                this.Value := ParameterCount
+                this.Identifier := "Call"
+                this.Count := ParameterCount
                 this.Position := Position
                 this.Length := Length
             }
         }
 
-        class PushLabel
+        class Push
         {
-            __New(Label,Position,Length)
+            __New(Type,Value,Position,Length)
             {
-                this.Identifier := "push_label"
-                this.Value := Label
+                this.Identifier := "Push"
+                this.Type := Type
+                this.Value := Value
                 this.Position := Position
                 this.Length := Length
             }
         }
 
-        class PushSymbol
+        class Load
         {
-            __New(Symbol,Position,Length)
+            __New(Value,Position,Length)
             {
-                this.Identifier := "push_symbol"
-                this.Value := Symbol
-                this.Position := Position
-                this.Length := Length
-            }
-        }
-
-        class PushString
-        {
-            __New(String,Position,Length)
-            {
-                this.Identifier := "push_string"
-                this.Value := String
-                this.Position := Position
-                this.Length := Length
-            }
-        }
-
-        class PushIdentifier
-        {
-            __New(Identifier,Position,Length)
-            {
-                this.Identifier := "push_identifier"
-                this.Value := Identifier
-                this.Position := Position
-                this.Length := Length
-            }
-        }
-
-        class PushNumber
-        {
-            __New(Number,Position,Length)
-            {
-                this.Identifier := "push_number"
-                this.Value := Number
+                this.Identifier := "Load"
+                this.Value := Value
                 this.Position := Position
                 this.Length := Length
             }
@@ -217,6 +183,9 @@ class Bytecoder ;stack based bytecode generator
         If Result
             Return, Result
         Result := this.Symbol(Tree)
+        If Result
+            Return, Result
+        Result := this.Self(Tree)
         If Result
             Return, Result
         Result := this.String(Tree)
@@ -261,12 +230,12 @@ class Bytecoder ;stack based bytecode generator
 
         Result := []
 
-        BlockLabel := new this.Code.DefineLabel(this.LabelCounter,0,0) ;wip: position and length
+        BlockLabel := new this.Code.Label(this.LabelCounter,Tree.Position,Tree.Length)
         this.LabelCounter ++
-        TargetLabel := new this.Code.DefineLabel(this.LabelCounter,0,0) ;wip: position and length
+        TargetLabel := new this.Code.Label(this.LabelCounter,0,0) ;wip: position and length
         this.LabelCounter ++
 
-        Result.Insert(new this.Code.PushLabel(TargetLabel.Value,0,0)) ;wip: position and length
+        Result.Insert(new this.Code.Push("Label",TargetLabel.Value,0,0)) ;wip: position and length
         Result.Insert(new this.Code.Jump(0,0)) ;wip: position and length
 
         Result.Insert(BlockLabel)
@@ -279,7 +248,7 @@ class Bytecoder ;stack based bytecode generator
 
         Result.Insert(TargetLabel)
 
-        Result.Insert(new this.Code.PushLabel(BlockLabel.Value,0,0)) ;wip: position and length
+        Result.Insert(new this.Code.Push("Label",BlockLabel.Value,0,0)) ;wip: position and length
 
         Return, Result
     }
@@ -289,7 +258,15 @@ class Bytecoder ;stack based bytecode generator
         If Tree.Type != "Symbol"
             Return, False
 
-        Return, [new this.Code.PushSymbol(Tree.Value,Tree.Position,Tree.Length)]
+        Return, [new this.Code.Push("Symbol",Tree.Value,Tree.Position,Tree.Length)]
+    }
+
+    Self(Tree)
+    {
+        If Tree.Type != "Self"
+            Return, False
+
+        Return, [new this.Code.Push("Self","",Tree.Position,Tree.Length)]
     }
 
     String(Tree)
@@ -297,7 +274,7 @@ class Bytecoder ;stack based bytecode generator
         If Tree.Type != "String"
             Return, False
 
-        Return, [new this.Code.PushString(Tree.Value,Tree.Position,Tree.Length)]
+        Return, [new this.Code.Push("String",Tree.Value,Tree.Position,Tree.Length)]
     }
 
     Identifier(Tree)
@@ -305,7 +282,7 @@ class Bytecoder ;stack based bytecode generator
         If Tree.Type != "Identifier"
             Return, False
 
-        Return, [new this.Code.PushIdentifier(Tree.Value,Tree.Position,Tree.Length)]
+        Return, [new this.Code.Load(Tree.Value,Tree.Position,Tree.Length)]
     }
 
     Number(Tree)
@@ -313,6 +290,7 @@ class Bytecoder ;stack based bytecode generator
         If Tree.Type != "Number"
             Return, False
 
-        Return, [new this.Code.PushNumber(Tree.Value,Tree.Position,Tree.Length)]
+        Return, [new this.Code.Push("Number",Tree.Value,Tree.Position,Tree.Length)]
     }
 }
+*/

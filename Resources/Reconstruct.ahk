@@ -1,7 +1,7 @@
 #NoEnv
 
 /*
-Copyright 2011-2012 Anthony Zhang <azhang9@gmail.com>
+Copyright 2011-2013 Anthony Zhang <azhang9@gmail.com>
 
 This file is part of Autonomy. Source code is available at <https://github.com/Uberi/Autonomy>.
 
@@ -354,8 +354,36 @@ class Dump
     Bytecode(Value)
     {
         Result := ""
-        For Index, Code In Value
-            Result .= Code . "`n"
-        Return, SubStr(Result,1,-1)
+        For Index, Entry In Value
+        {
+            If Entry.Identifier = "Label"
+                Result .= ":" . Entry.Value
+            Else If Entry.Identifier = "Jump"
+                Result .= "jump"
+            Else If Entry.Identifier = "Call"
+                Result .= "call " . Entry.Count
+            Else If Entry.Identifier = "Push"
+            {
+                Result .= "push "
+                If Entry.Type = "Label"
+                    Result .= ":" . Entry.Value
+                Else If Entry.Type = "Symbol"
+                    Result .= "symbol " . Entry.Value
+                Else If Entry.Type = "Self"
+                    Result .= "$"
+                Else If Entry.Type = "String"
+                    Result .= "string " . Entry.Value
+                Else If Entry.Type = "Number"
+                    Result .= "number " . Entry.Value
+                Else
+                    throw Exception("Invalid push.")
+            }
+            Else If Entry.Identifier = "Load"
+                Result .= "load " . Entry.Value
+            Else
+                throw Exception("Invalid bytecode.")
+            Result .= "`n"
+        }
+        Return, Result
     }
 }

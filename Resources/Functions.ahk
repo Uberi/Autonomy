@@ -1,7 +1,7 @@
 #NoEnv
 
 /*
-Copyright 2011-2012 Anthony Zhang <azhang9@gmail.com>
+Copyright 2011-2013 Anthony Zhang <azhang9@gmail.com>
 
 This file is part of Autonomy. Source code is available at <https://github.com/Uberi/Autonomy>.
 
@@ -19,22 +19,28 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-ShowObject(ShowObject,Padding = "")
+Show(ShowObject,Padding = "")
 {
-    ListLines, Off
+    If (Padding = "")
+        ListLines, Off
+    If IsFunc(ShowObject)
+    {
+        If (Padding = "")
+            ListLines, On
+        Return, "function(" . ShowObject.Name . ")"
+    }
     If !IsObject(ShowObject)
     {
-        ListLines, On
-        Return, ShowObject
+        If (Padding = "")
+            ListLines, On
+        If ShowObject Is Number
+            Return, ShowObject
+        Return, """" . ShowObject . """"
     }
-    ObjectContents := ""
+    ObjectContents := "{`n"
     For Key, Value In ShowObject
-    {
-        If IsObject(Value)
-            Value := "`n" . ShowObject(Value,Padding . A_Tab)
-        ObjectContents .= Padding . Key . ": " . Value . "`n"
-    }
-    ObjectContents := SubStr(ObjectContents,1,-1)
+        ObjectContents .= Padding . "`t" . Show(Key,Padding . "`t") . ": " . Show(Value,Padding . "`t") . ",`n"
+    ObjectContents .= Padding . "}"
     If (Padding = "")
         ListLines, On
     Return, ObjectContents
@@ -42,17 +48,17 @@ ShowObject(ShowObject,Padding = "")
 
 StringSplit(InputVar,Delimiters = "",OmitChars = "")
 {
-    StringSplit, Array, InputVar, %Delimiters%, %OmitChars%
-    Result := Object()
-    Loop, %Array0%
-        ObjInsert(Result,A_Index,Array%A_Index%)
+    StringSplit, Fields, InputVar, %Delimiters%, %OmitChars%
+    Result := []
+    Loop, %Fields0%
+        Result[A_Index] := Fields%A_Index%
     Return, Result
 }
 
 PathSplit(InputVar)
 {
     SplitPath, InputVar, OutFileName, OutDir, OutExtension, OutNameNoExt, OutDrive
-    Return, Object("FileName",OutFileName,"Directory",OutDir,"Extension",OutExtension,"FileNameNoExtension",OutNameNoExt,"Drive",OutDrive)
+    Return, {FileName: OutFileName, Directory: OutDir, Extension: OutExtension, FileNameNoExtension: OutNameNoExt, Drive: OutDrive}
 }
 
 PathExpand(Path,CurrentDirectory = "",ByRef Attributes = "")
@@ -64,8 +70,7 @@ PathExpand(Path,CurrentDirectory = "",ByRef Attributes = "")
         SetWorkingDir, %CurrentDirectory%
     }
     ExpandedPath := "", Attributes := ""
-    If (SubStr(Path,0) = "\") ;remove trailing slash if present
-        Path := SubStr(Path,1,-1)
+    Path := RTrim(Path,"/\")
     Loop, %Path%, 1
     {
         ExpandedPath := A_LoopFileLongPath, Attributes := A_LoopFileAttrib
@@ -79,24 +84,20 @@ PathExpand(Path,CurrentDirectory = "",ByRef Attributes = "")
 
 PathJoin(Path1,Path2 = "",Path3 = "",Path4 = "",Path5 = "",Path6 = "")
 {
-    OS := "WINDOWS"
-    If (OS = "WINDOWS")
-        Separator := "\"
-    Else If (OS = "POSIX")
-        Separator := "/"
+    static Separator := "/"
 
     ;remove any leading separator characters if present
-    If (SubStr(Path1,1,1) = Separator)
+    If SubStr(Path1,1,1) = Separator
         Path1 := SubStr(Path1,2)
-    If (SubStr(Path2,1,1) = Separator)
+    If SubStr(Path2,1,1) = Separator
         Path2 := SubStr(Path2,2)
-    If (SubStr(Path3,1,1) = Separator)
+    If SubStr(Path3,1,1) = Separator
         Path3 := SubStr(Path3,2)
-    If (SubStr(Path4,1,1) = Separator)
+    If SubStr(Path4,1,1) = Separator
         Path4 := SubStr(Path4,2)
-    If (SubStr(Path5,1,1) = Separator)
+    If SubStr(Path5,1,1) = Separator
         Path5 := SubStr(Path5,2)
-    If (SubStr(Path6,1,1) = Separator)
+    If SubStr(Path6,1,1) = Separator
         Path6 := SubStr(Path6,2)
 
     ;append a separator character if the path element does not end in one, and is not blank
@@ -113,5 +114,5 @@ PathJoin(Path1,Path2 = "",Path3 = "",Path4 = "",Path5 = "",Path6 = "")
     If (Path6 != "" && SubStr(Path6,0) != Separator)
         Path6 .= Separator
 
-    Return, SubStr(Path1 . Path2 . Path3 . Path4 . Path5 . Path6,1,0 - StrLen(Separator))
+    Return, SubStr(Path1 . Path2 . Path3 . Path4 . Path5 . Path6,1,-StrLen(Separator))
 }
