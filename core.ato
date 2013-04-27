@@ -1,35 +1,16 @@
-;identity objects
-None := Object()
-True := Object()
-False := Object()
-
-;symbol object
-Symbol := [
-	_new: {
-		self.name := args[1] ;wip: self is the wrong keyword to use here
-		self.hash := hash(self.name)
-		self
-	},
-	_string: {
-		self.name
-	},
-	_hash: {
-		self.hash
-	}
-]
-
-;wip: doesn't work with numerically indexed arguments
-;function definition
+;function factory factory
+;creates a function signature that can be called with a body to create a callable function
 fn := {
-	body := args[args.length]
-	arguments := args[1:args.length - 1]
 	scope := [base: ['_subscript: { $[args[1]] }.bind '$: $]] ;create internal scope
-	arguments.each { scope[args[1]] := args[2] } ;add arguments to scope
-	body.bind scope ;bind scope to block
+	args.each { scope[args[1]] := args[2] } ;add arguments to scope
+	return { ;create function factory
+		body := args[1]
+		body.bind scope
+	}
 }
 
 ;chained comparison (x < y < z)
-_compare := fn {
+_compare := fn() {
 	left := args[1]
 	index := 2
 	loop args.length // 2 { ;iterate over each comparison
@@ -44,7 +25,7 @@ _compare := fn {
 	False
 }
 
-loop := fn 'count, 'index_var, 'index, 'body, {
+loop := fn('count, 'index_var, 'index, 'body) {
 	body ||= index || index_var
 	index ||= 1
 	(body.bind '$: $, index_var: start)()
@@ -52,19 +33,19 @@ loop := fn 'count, 'index_var, 'index, 'body, {
 		loop count - 1, index_var, body, index + 1
 }
 
-with := fn 'scope, 'body {
+with := fn('scope, 'body) {
 	body.bind scope
 	body()
 }
 
-match := fn 'value, 'bodies, 'default, {
+match := fn('value, 'bodies, 'default) {
 	body := bodies[value]
 	body = None ?
 		default ? default() : None
 		: body()
 }
 
-Number.each := fn 'body, 'index {
+Number.each := fn('body, 'index) {
 	index ||= 1
 	body index
 	index != self ?

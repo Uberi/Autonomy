@@ -1,4 +1,4 @@
-3.each fn 'i {
+3.each fn('i) {
 	print "Run #" .. i
 }
 
@@ -30,10 +30,10 @@ match x, [
 ], { print "Unknown" }
 
 SomeClass := [
-	test: fn 'a {
+	test: fn('a) {
 		print "test"
 	},
-	abc: fn 'b {
+	abc: fn('b) {
 		print "abc"
 	}
 ]

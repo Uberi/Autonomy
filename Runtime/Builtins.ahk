@@ -18,7 +18,6 @@ class Builtins
         }
     }
 
-    ;wip: these are already implemented in core.ato
     class None extends Builtins.Object
     {
         _string(Arguments,Environment)
@@ -79,6 +78,16 @@ class Builtins
     class Block extends Builtins.Object
     {
         ;wip
+        __New(Target)
+        {
+            this.Target := Target
+        }
+
+        __Call(Key,Instance,Arguments,Environment)
+        {
+            ;wip: need to set the index of the interpreter to the target
+            Instance.Index := this.Target
+        }
     }
 
     class Symbol extends Builtins.Object
@@ -221,7 +230,6 @@ class Builtins
 
     _and(Arguments,Environment)
     {
-        MsgBox
         If !Arguments[1]._boolean([],Environment)
             Return, Arguments[1]
         Return, Arguments[2]([],Environment)

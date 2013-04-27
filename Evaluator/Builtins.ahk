@@ -18,7 +18,6 @@ class Builtins
         }
     }
 
-    ;wip: these are already implemented in core.ato
     class None extends Builtins.Object
     {
         _string(Arguments,Environment)
