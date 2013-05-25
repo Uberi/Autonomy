@@ -551,11 +551,9 @@ class Parser
     {
         Loop
         {
-            If !(this.Lexer.Whitespace()
-                || this.Lexer.Comment())
+            If !(this.Lexer.Whitespace() || this.Lexer.Comment())
                 Break
         }
-        this.Lexer.Whitespace()
     }
 
     Lines()
@@ -564,9 +562,7 @@ class Parser
         Loop
         {
             Contents.Insert(this.Statement())
-            If !this.Lexer.Line()
-                Break
-            If this.Lexer.End() ;end of input
+            If !this.Lexer.Line() || this.Lexer.End()
                 Break
         }
         Return, Contents

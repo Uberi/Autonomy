@@ -424,12 +424,24 @@ class Lexer
         NumberBase := 10, CharSet := "0123456789"
         If Output = 0 ;starting digit is 0
         {
+            Position2 := this.Position
             CurrentChar := this.Char()
-            If (CurrentChar = "x") ;hexidecimal base
+            If (CurrentChar = "x") ;hexadecimal base
                 NumberBase := 16, CharSet := "0123456789ABCDEF"
             Else If (CurrentChar = "b") ;binary base
                 NumberBase := 2, CharSet := "01"
+            Else ;decimal base
+                this.Position := Position2 ;move back to second character in number
         }
+
+        ;check for integer digits
+        Position2 := this.Position
+        If (NumberBase != 10 && !this.Match(CharSet)) ;ensure there are digits after the base specifier
+        {
+            Length := this.Position - Position1
+            throw {Message: "Invalid number.", Position: Position1, Length: Length, Location: A_ThisFunc}
+        }
+        this.Position := Position2 ;move back to third character in number
 
         ;handle integer digits of number
         While, Value := this.Match(CharSet) ;character is numeric
@@ -455,6 +467,7 @@ class Lexer
             }
         }
 
+        Position2 := this.Position
         If (NumberBase != 16 ;exponents should not be available in hexadecimal numbers
             && this.Match("e")) ;exponent found
         {
@@ -464,7 +477,10 @@ class Lexer
                 Sign := 1
 
             If !this.Match("0123456789",Value)
-                throw {Message: "Invalid number exponent.", Position: Position1, Length: 1, Location: A_ThisFunc}
+            {
+                Length := this.Position - Position2
+                throw {Message: "Invalid number exponent.", Position: Position2, Length: Length, Location: A_ThisFunc}
+            }
 
             ;handle digits of the exponent
             While, CurrentChar := this.Match("0123456789")

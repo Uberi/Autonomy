@@ -30,6 +30,8 @@ TODO
 
 Short term tasks:
 
+* remove bitwise ops maybe? use this instead: with bits, { (1 shl x) or (1 shr x) }
+* class([ field: {}, x: y ]) is a function that takes a standard object def and binds the instance to each method's "this" param and gives some helpers for instantiation
 * parse a(b,c) with parameters having Number nodes as keys
 * make unit tests for the new lexer escape behavior
 * consider using , to denote an array and [] to denote an object: x := 1, 2, 3
@@ -47,6 +49,7 @@ Long term tasks:
     * have "self" and $ available at all times, which represent the object instance and the passed continuations object/scope object
     * return(x), continue(), base.break()
     * http://matt.might.net/articles/by-example-continuation-passing-style/
+    * implement await function to replace functionality of https://github.com/kriskowal/q
 * async "promise" and green thread system with async exceptions
 * use OBJECT KEY for prototype/metatable: "base" object: obj[base]._get, etc. scope objects will always have the "base" property set to the "base" property of the enclosing scope, in order to give enclosing code access to the base of objects. inheritance is obj[base]._get := fn('key) { PARENT_OBJECT[key] }
 * do something about the enumerability of object bases; they should not be enumerable, maybe special case in the enumerator
@@ -62,7 +65,7 @@ Long term tasks:
 * "with" statement that sets an object as a scope (needs internal support, or use $ := something), or possibly use binding to rebind this: {some code here}.bind(scope_object)
 * refinement pattern: matcher := with Patterns, { ["hello", "hi"]..[" ", "`t"][1:Infinity].."world!" }) and: date := with Time, { next.friday + weeks * 2 }
 * "ensure" or "assert" statements allow code to be statically verified
-* macro { some compile-time related code } syntax and compile time defined type system
+* macro { tokens.match({ comment .. line }).replace { result[1] } `n other compile-time code here } syntax for token-level replacements
 * "is" operator that checks current class and recursively checks base classes
 * "in" operator that checks for membership
 * Function objects should have an call() method that applies a given array as the arguments, and allows specifying the "this" object, possibly as a named parameter
@@ -106,7 +109,7 @@ MsgBox % Clipboard := Reconstruct.Tokens(Tokens)
 ExitApp
 */
 
-/* ;parser testing
+;/* ;parser testing
 l := new Code.Lexer(Value)
 p := new Code.Parser(l)
 SyntaxTree := p.Parse()
