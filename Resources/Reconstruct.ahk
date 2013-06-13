@@ -360,6 +360,8 @@ class Dump
                 Result .= ":" . Entry.Value
             Else If Entry.Identifier = "Jump"
                 Result .= "jump"
+            Else If Entry.Identifier = "Return"
+                Result .= "return"
             Else If Entry.Identifier = "Call"
                 Result .= "call " . Entry.Count
             Else If Entry.Identifier = "Push"

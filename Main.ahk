@@ -43,6 +43,7 @@ Short term tasks:
 
 Long term tasks:
 
+* interval arithmetic number class
 * symbols are just normal objects that implement hashing with their contents rather than their memory address
 * finish the flow analysis module as per: http://matt.might.net/articles/intro-static-analysis/
 * implement all control flow and exceptions using continuations, continuation passing style is the norm with implicit continuations parameter, sort of like the "this" param in other languages

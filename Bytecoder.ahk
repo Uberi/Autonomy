@@ -136,6 +136,16 @@ class Bytecoder ;stack based bytecode generator
             }
         }
 
+        class Return
+        {
+            __New(Position,Length)
+            {
+                this.Identifier := "Return"
+                this.Position := Position
+                this.Length := Length
+            }
+        }
+
         class Call
         {
             __New(ParameterCount,Position,Length)
@@ -208,6 +218,11 @@ class Bytecoder ;stack based bytecode generator
 
         Result := []
 
+        ReturnLabel := new this.Code.Label(this.LabelCounter,Tree.Position,Tree.Length)
+        this.LabelCounter ++
+
+        Result.Insert(new this.Code.Push("Label",ReturnLabel.Value,0,0)) ;wip: position and length
+
         ParameterCount := 0
         For Index, Parameter In Tree.Parameters
         {
@@ -220,6 +235,8 @@ class Bytecoder ;stack based bytecode generator
             Result.Insert(Node)
 
         Result.Insert(new this.Code.Call(ParameterCount,Tree.Position,Tree.Length))
+        Result.Insert(ReturnLabel)
+
         Return, Result
     }
 
@@ -235,19 +252,23 @@ class Bytecoder ;stack based bytecode generator
         TargetLabel := new this.Code.Label(this.LabelCounter,0,0) ;wip: position and length
         this.LabelCounter ++
 
+        ;skip over the block body in block literals
         Result.Insert(new this.Code.Push("Label",TargetLabel.Value,0,0)) ;wip: position and length
         Result.Insert(new this.Code.Jump(0,0)) ;wip: position and length
 
+        ;start of block
         Result.Insert(BlockLabel)
 
+        ;block body
         For Index, Content In Tree.Contents
         {
             For Index, Node In this.Convert(Content)
                 Result.Insert(Node)
         }
 
+        ;place block onto stack
+        Result.Insert(new this.Code.Return(0,0)) ;wip: position and length
         Result.Insert(TargetLabel)
-
         Result.Insert(new this.Code.Push("Label",BlockLabel.Value,0,0)) ;wip: position and length
 
         Return, Result

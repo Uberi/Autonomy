@@ -2,43 +2,49 @@ class Builtins
 {
     class Object
     {
-        _boolean(Arguments,Environment)
+        _boolean(Interpreter,Arguments,Environment)
         {
-            Return, Builtins.True
+            Interpreter.Stack.Insert(Builtins.True)
+            Interpreter.Return()
         }
 
-        _string(Arguments,Environment)
+        _string(Interpreter,Arguments,Environment)
         {
-            Return, new Builtins.String("<" . this.__Class . " " . &this . ">")
+            Interpreter.Stack.Insert(new Builtins.String("<" . this.__Class . " " . &this . ">"))
+            Interpreter.Return()
         }
 
-        _hash(Arguments,Environment)
+        _hash(Interpreter,Arguments,Environment)
         {
-            Return new Builtins.Number(&this)
+            Interpreter.Stack.Insert(new Builtins.Number(&this))
+            Interpreter.Return()
         }
     }
 
     class None extends Builtins.Object
     {
-        _string(Arguments,Environment)
+        _string(Interpreter,Arguments,Environment)
         {
-            Return, new Builtins.String("None")
+            Interpreter.Stack.Insert(new Builtins.String("None"))
+            Interpreter.Return()
         }
     }
 
     class True extends Builtins.Object
     {
-        _string(Arguments,Environment)
+        _string(Interpreter,Arguments,Environment)
         {
-            Return, new Builtins.String("True")
+            Interpreter.Stack.Insert(new Builtins.String("True"))
+            Interpreter.Return()
         }
     }
 
     class False extends Builtins.Object
     {
-        _string(Arguments,Environment)
+        _string(Interpreter,Arguments,Environment)
         {
-            Return, new Builtins.String("False")
+            Interpreter.Stack.Insert(new Builtins.String("False"))
+            Interpreter.Return()
         }
     }
 
@@ -57,21 +63,28 @@ class Builtins
             }
         }
 
-        _boolean(Arguments,Environment)
+        _boolean(Interpreter,Arguments,Environment)
         {
-            Return, ObjNewEnum(this.Value).Next(Key) ? Builtins.True : Builtins.False
+            Interpreter.Stack.Insert(ObjNewEnum(this.Value).Next(Key) ? Builtins.True : Builtins.False)
+            Interpreter.Return()
         }
 
-        _subscript(Arguments,Environment)
+        _subscript(Interpreter,Arguments,Environment)
         {
             Key := Arguments[1]._hash([],Environment).Value
-            Return, this.Value[Key] ? this.Value[Key] : Builtins.None
+            Interpreter.Stack.Insert(this.Value[Key] ? this.Value[Key] : Builtins.None)
+            Interpreter.Return()
         }
 
-        _assign(Arguments,Environment)
+        _assign(Interpreter,Arguments,Environment)
         {
-            Key := Arguments[1]._hash([],Environment).Value
+            Interpreter.Stack.Insert(this.Index)
+            Arguments[1]._hash([],Environment)
+            Key := Interpreter.Stack.Remove().Value
+            MsgBox % Key
             this.Value[Key] := Arguments[2]
+            Interpreter.Stack.Insert(Arguments[2])
+            Interpreter.Return()
         }
     }
 
@@ -83,10 +96,10 @@ class Builtins
             this.Target := Target
         }
 
-        __Call(Key,Instance,Arguments,Environment)
+        __Call(Self,Key,Interpreter,Arguments,Environment)
         {
-            ;wip: need to set the index of the interpreter to the target
-            Instance.Index := this.Target
+            ;wip: need to have default return value
+            this.Index := Interpreter.Target
         }
     }
 
@@ -97,20 +110,22 @@ class Builtins
             this.Value := Value
         }
 
-        _equals(Arguments,Environment)
+        _equals(Interpreter,Arguments,Environment)
         {
-            Return, this.Value = Arguments[1].Value
+            Interpreter.Stack.Insert(this.Value = Arguments[1].Value ? Builtins.True : Builtins.False)
+            Interpreter.Return()
         }
 
-        _equals_strict(Arguments,Environment)
+        _equals_strict(Interpreter,Arguments,Environment)
         {
-            Return, this.Value == Arguments[1].Value
+            Interpreter.Stack.Insert(this.Value == Arguments[1].Value ? Builtins.True : Builtins.False)
         }
 
-        _hash(Arguments,Environment)
+        _hash(Interpreter,Arguments,Environment)
         {
             Value := DllCall("ntdll\RtlComputeCrc32","UInt",0,"UPtr",ObjGetAddress(this,"Value"),"UPtr",StrLen(this.Value) << !!A_IsUnicode)
-            Return, new Builtins.Number(Value)
+            Interpreter.Stack.Insert(new Builtins.Number(Value))
+            Interpreter.Return()
         }
     }
 
@@ -121,42 +136,49 @@ class Builtins
             this.Value := Value
         }
 
-        _boolean(Arguments,Environment)
+        _boolean(Interpreter,Arguments,Environment)
         {
-            Return, this.Value = "" ? Builtins.True : Builtins.False
+            Interpreter.Stack.Insert(this.Value = "" ? Builtins.True : Builtins.False)
+            Interpreter.Return()
         }
 
-        _equals(Arguments,Environment)
+        _equals(Interpreter,Arguments,Environment)
         {
-            Return, this.Value = Arguments[1].Value
+            Interpreter.Stack.Insert(this.Value = Arguments[1].Value ? Builtins.True : Builtins.False)
+            Interpreter.Return()
         }
 
-        _equals_strict(Arguments,Environment)
+        _equals_strict(Interpreter,Arguments,Environment)
         {
-            Return, this.Value == Arguments[1].Value
+            Interpreter.Stack.Insert(this.Value == Arguments[1].Value ? Builtins.True : Builtins.False)
+            Interpreter.Return()
         }
 
-        _multiply(Arguments,Environment)
+        _multiply(Interpreter,Arguments,Environment)
         {
             Result := ""
             Loop, % Arguments[1].Value
                 Result .= this.Value
-            Return, new this.base(Result)
+            Interpreter.Stack.Insert(new this.base(Result))
+            Interpreter.Return()
         }
 
-        _subscript(Arguments,Environment)
+        _subscript(Interpreter,Arguments,Environment)
         {
-            Return, new this.base(SubStr(this.Value,Arguments[1].Value,1)) ;wip: cast to string
+            Interpreter.Stack.Insert(new this.base(SubStr(this.Value,Arguments[1].Value,1))) ;wip: cast index to number
+            Interpreter.Return()
         }
 
-        _concatenate(Arguments,Environment)
+        _concatenate(Interpreter,Arguments,Environment)
         {
-            Return, new this.base(this.Value . Arguments[1].Value) ;wip: cast to string
+            Interpreter.Stack.Insert(new this.base(this.Value . Arguments[1]._string([],Environment).Value))
+            Interpreter.Return()
         }
 
-        _string(Arguments,Environment)
+        _string(Interpreter,Arguments,Environment)
         {
-            Return, this
+            Interpreter.Stack.Insert(this) ;wip: this is a byref copy, needs to be byval
+            Interpreter.Return()
         }
     }
 
@@ -167,115 +189,139 @@ class Builtins
             this.Value := Value
         }
 
-        _boolean(Arguments,Environment)
+        _boolean(Interpreter,Arguments,Environment)
         {
-            Return, this.Value = 0 ? Builtins.False : Builtins.True
+            Interpreter.Stack.Insert(this.Value = 0 ? Builtins.False : Builtins.True)
+            Interpreter.Return()
         }
 
-        _equals(Arguments,Environment)
+        _equals(Interpreter,Arguments,Environment)
         {
-            Return, this.Value = Arguments[1].Value ? Builtins.True : Builtins.False ;wip: try to convert to number
+            Interpreter.Stack.Insert(this.Value = Arguments[1].Value ? Builtins.True : Builtins.False) ;wip: try to convert to number
+            Interpreter.Return()
         }
 
-        _equals_strict(Arguments,Environment)
+        _equals_strict(Interpreter,Arguments,Environment)
         {
-            Return, this.Value == Arguments[1].Value
+            Interpreter.Stack.Insert(this.Value == Arguments[1].Value ? Builtins.True : Builtins.False) ;wip: try to convert to number
+            Interpreter.Return()
         }
 
-        _add(Arguments,Environment)
+        _add(Interpreter,Arguments,Environment)
         {
-            Return, new this.base(this.Value + Arguments[1].Value)
+            Interpreter.Stack.Insert(new this.base(this.Value + Arguments[1].Value))
+            Interpreter.Return()
         }
 
-        _multiply(Arguments,Environment)
+        _multiply(Interpreter,Arguments,Environment)
         {
-            Return, new this.base(this.Value * Arguments[1].Value)
+            Interpreter.Stack.Insert(new this.base(this.Value * Arguments[1].Value))
+            Interpreter.Return()
         }
 
-        _string(Arguments,Environment)
+        _string(Interpreter,Arguments,Environment)
         {
-            Return, new Builtins.String(this.Value)
+            Interpreter.Stack.Insert(new Builtins.String(this.Value))
+            Interpreter.Return()
         }
 
-        _hash(Arguments,Environment)
+        _hash(Interpreter,Arguments,Environment)
         {
-            Return, this
+            Interpreter.Stack.Insert(this) ;wip: make this a byval copy
+            Interpreter.Return()
         }
     }
 
     ;wip: should be implemented in core.ato
-    _array(Arguments,Environment)
+    _array(Interpreter,Arguments,Environment)
     {
-        Return, new Builtins.Array(Arguments,Environment)
+        Interpreter.Stack.Insert(new Builtins.Array(Arguments,Environment))
+        Interpreter.Return()
     }
 
-    _assign(Arguments,Environment)
+    _assign(Interpreter,Arguments,Environment)
     {
-        Return, Arguments[1]._assign([Arguments[2],Arguments[3]],Environment)
+        Interpreter.Stack.Insert(Arguments[1]._assign([Arguments[2],Arguments[3]],Environment))
+        Interpreter.Return()
     }
 
-    _if(Arguments,Environment)
-    {
-        If Arguments[1]._boolean([],Environment)
-            Return, Arguments[2]([],Environment)
-        Return, Arguments[3]([],Environment)
-    }
-
-    _or(Arguments,Environment)
+    _if(Interpreter,Arguments,Environment)
     {
         If Arguments[1]._boolean([],Environment)
-            Return, Arguments[1]
-        Return, Arguments[2]([],Environment)
+            Interpreter.Stack.Insert(Arguments[2]([],Environment))
+        Else
+            Interpreter.Stack.Insert(Arguments[3]([],Environment))
+        Interpreter.Return()
     }
 
-    _and(Arguments,Environment)
+    _or(Interpreter,Arguments,Environment)
+    {
+        If Arguments[1]._boolean([],Environment)
+            Interpreter.Stack.Insert(Arguments[1])
+        Else
+            Interpreter.Stack.Insert(Arguments[2]([],Environment))
+        Interpreter.Return()
+    }
+
+    _and(Interpreter,Arguments,Environment)
     {
         If !Arguments[1]._boolean([],Environment)
-            Return, Arguments[1]
-        Return, Arguments[2]([],Environment)
+            Interpreter.Stack.Insert(Arguments[1])
+        Else
+            Interpreter.Stack.Insert(Arguments[2]([],Environment))
+        Interpreter.Return()
     }
 
-    _equals(Arguments,Environment)
+    _equals(Interpreter,Arguments,Environment)
     {
-        Return, Arguments[1]._equals([Arguments[2]],Environment)
+        Interpreter.Stack.Insert(Arguments[1]._equals([Arguments[2]],Environment))
+        Interpreter.Return()
     }
 
-    _equals_strict(Arguments,Environment)
+    _equals_strict(Interpreter,Arguments,Environment)
     {
-        Return, Arguments[1]._equals_strict([Arguments[2]],Environment)
+        Interpreter.Stack.Insert(Arguments[1]._equals_strict([Arguments[2]],Environment))
+        Interpreter.Return()
     }
 
-    _add(Arguments,Environment)
+    _add(Interpreter,Arguments,Environment)
     {
-        Return, Arguments[1]._add([Arguments[2]],Environment)
+        Interpreter.Stack.Insert(Arguments[1]._add([Arguments[2]],Environment))
+        Interpreter.Return()
     }
 
-    _multiply(Arguments,Environment)
+    _multiply(Interpreter,Arguments,Environment)
     {
-        Return, Arguments[1]._multiply([Arguments[2]],Environment)
+        Interpreter.Stack.Insert(Arguments[1]._multiply([Arguments[2]],Environment))
+        Interpreter.Return()
     }
 
-    _evaluate(Arguments,Environment)
+    _evaluate(Interpreter,Arguments,Environment)
     {
         ;return the last parameter
         If ObjMaxIndex(Arguments)
-            Return, Arguments[Arguments.MaxIndex()]
-        Return, Environment.None
+            Interpreter.Stack.Insert(Arguments[Arguments.MaxIndex()])
+        Else
+            Interpreter.Stack.Insert(Environment.None)
+        Interpreter.Return()
     }
 
-    _subscript(Arguments,Environment)
+    _subscript(Interpreter,Arguments,Environment)
     {
-        Return, Arguments[1]._subscript([Arguments[2]],Environment)
+        Interpreter.Stack.Insert(Arguments[1]._subscript([Arguments[2]],Environment))
+        Interpreter.Return()
     }
 
-    _concatenate(Arguments,Environment)
+    _concatenate(Interpreter,Arguments,Environment)
     {
-        Return, Arguments[1]._concatenate([Arguments[2]],Environment)
+        Interpreter.Stack.Insert(Arguments[1]._concatenate([Arguments[2]],Environment))
+        Interpreter.Return()
     }
 
-    print(Arguments,Environment)
+    print(Interpreter,Arguments,Environment)
     {
         FileAppend, % Arguments[1]._string([],Environment).Value . "`n", *
-        Return, Arguments[1]
+        Interpreter.Stack.Insert(Arguments[1])
+        Interpreter.Return()
     }
 }
